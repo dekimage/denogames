@@ -31,11 +31,7 @@ import {
 
 import Logger from "@/utils/logger";
 
-const DEFAULT_USER = {
-  level: 1,
-  streak: 0,
-  xp: 0,
-};
+const DEFAULT_USER = {};
 
 const logger = new Logger({ debugEnabled: false }); // switch to true to see console logs from firebase
 
@@ -43,7 +39,13 @@ class Store {
   // App Data
 
   todos = [];
+  products = [];
   user = null;
+  cart = [];
+  orders = [];
+
+  productDetails = [];
+  reviews = [];
 
   // Static Data
 
@@ -55,24 +57,29 @@ class Store {
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
-
+    this.fetchProducts = this.fetchProducts.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
-
-    this.upgradeAccount = this.upgradeAccount.bind(this);
     this.loginWithEmail = this.loginWithEmail.bind(this);
     this.signupWithEmail = this.signupWithEmail.bind(this);
 
-    // update this
-    this.addExerciseToList = this.addExerciseToList.bind(this);
-    this.removePathwayFromLists = this.removePathwayFromLists.bind(this);
-    this.removeFromList = this.removeFromList.bind(this);
+    this.fetchCart = this.fetchCart.bind(this);
+    this.addToCart = this.addToCart.bind(this);
+    this.removeFromCart = this.removeFromCart.bind(this);
+    this.continueToCheckout = this.continueToCheckout.bind(this);
 
-    this.addList = this.addList.bind(this);
-    this.fetchLists = this.fetchLists.bind(this);
-    this.deleteList = this.deleteList.bind(this);
-    this.editListName = this.editListName.bind(this);
+    this.claimXP = this.claimXP.bind(this);
+    this.verifyDiscordCode = this.verifyDiscordCode.bind(this);
+    this.verifyKickstarterCode = this.verifyKickstarterCode.bind(this);
+    this.addXP = this.addXP.bind(this);
+    this.checkForRewards = this.checkForRewards.bind(this);
+    this.syncUserProfile = this.syncUserProfile.bind(this);
+    this.fetchUserOrders = this.fetchUserOrders.bind(this);
 
-    this.updateUser = this.updateUser.bind(this);
+    this.fetchProductDetails = this.fetchProductDetails.bind(this);
+    this.fetchReviews = this.fetchReviews.bind(this);
+    this.submitReview = this.submitReview.bind(this);
+    this.deleteReview = this.deleteReview.bind(this);
+    this.updateProductRating = this.updateProductRating.bind(this);
   }
 
   initializeAuth() {
@@ -81,183 +88,448 @@ class Store {
       if (user) {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-
         runInAction(() => {
-          if (!userDoc.exists()) {
-            const newUser = {
-              ...DEFAULT_USER,
-              uid: user.uid,
-              provider: "anonymous",
-              username: "Guest",
-              createdAt: new Date(),
-            };
-            setDoc(userDocRef, newUser).then(() => {
-              this.user = newUser;
-            });
-          } else {
-            this.user = { uid: user.uid, ...userDoc.data() };
-          }
-
-          this.fetchLists();
+          this.user = { uid: user.uid, ...userDoc.data() };
         });
+        await this.fetchProducts();
+        await this.fetchCart();
       } else {
         runInAction(() => {
           this.user = null;
+          this.fetchCart();
         });
       }
-      runInAction(() => {
-        this.loading = false;
-      });
     });
   }
-
-  //
-  //
-  //
-  //
-  //
-  // LISTS
-  async fetchLists() {
+  // HELPER UTILS
+  async addProductsToFirestore(products, collectionName) {
     try {
-      const userListsRef = collection(db, `users/${this.user.uid}/myLists`);
-      const querySnapshot = await getDocs(userListsRef);
+      const collectionRef = collection(db, collectionName);
+
+      const promises = products.map(async (product) => {
+        // Add product to Firestore with an auto-generated ID
+        const docRef = await addDoc(collectionRef, product);
+        console.log("Document written with ID: ", docRef.id);
+      });
+
+      await Promise.all(promises);
+
+      console.log("Products added successfully:", products);
+    } catch (error) {
+      console.log("Error adding products:", error);
+    }
+  }
+
+  // REVIEWS
+  // Fetch the last 10 reviews for a specific product
+  async fetchReviews(productId) {
+    try {
+      const reviewsCollectionRef = collection(db, "reviews");
+      const q = query(
+        reviewsCollectionRef,
+        where("productId", "==", productId),
+        // orderBy("createdAt", "desc"),
+        limit(10)
+      );
+      const querySnapshot = await getDocs(q);
 
       runInAction(() => {
-        this.lists = querySnapshot.docs.map((doc) => ({
+        this.reviews = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
       });
-
-      logger.debug("Lists fetched successfully");
     } catch (error) {
-      logger.debug("Error fetching lists:", error);
+      console.log("Error fetching reviews:", error);
     }
   }
 
-  async addExerciseToList(listId, sessionId) {
-    console.log({ listId, sessionId });
+  // Create or update a review
+  async submitReview(productId, rating, comment) {
     try {
-      // Reference to the specific user's list document in Firebase
-      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
-
-      // Get the current list document
-      const listDoc = await getDoc(listRef);
-      if (!listDoc.exists()) {
-        throw new Error("List not found");
-      }
-
-      const listData = listDoc.data();
-      const updatedSessions = listData.sessions
-        ? [...listData.sessions, sessionId]
-        : [sessionId];
-
-      // Update the list in Firebase
-      await updateDoc(listRef, {
-        sessions: updatedSessions,
-      });
-
-      // Update MobX store
-      runInAction(() => {
-        const list = this.lists.find((l) => l.id === listId);
-        if (list) {
-          list.sessions = updatedSessions;
-        } else {
-          // Handle the case where the list is not found in the store
-        }
-      });
-    } catch (error) {
-      console.error("Error adding pathway to list:", error);
-      // Handle any errors appropriately
-    }
-  }
-
-  async removeFromList(listId, pathwayId) {
-    try {
-      // Reference to the specific user's list document in Firebase
-      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
-
-      // Get the current list document
-      const listDoc = await getDoc(listRef);
-      if (!listDoc.exists()) {
-        throw new Error("List not found");
-      }
-
-      const listData = listDoc.data();
-      const updatedPathways = listData.pathways.filter(
-        (id) => id !== pathwayId
+      // Ensure the user has purchased the product
+      const ordersCollectionRef = collection(db, "orders");
+      const ordersQuery = query(
+        ordersCollectionRef,
+        where("userId", "==", this.user.uid), // Filter by the current user's ID
+        where("items", "array-contains", { id: productId })
       );
 
-      // Update the list in Firebase
-      await updateDoc(listRef, {
-        pathways: updatedPathways,
-      });
+      const ordersSnapshot = await getDocs(ordersQuery);
 
-      // Update MobX store
-      runInAction(() => {
-        const list = this.lists.find((l) => l.id === listId);
-        if (list) {
-          list.pathways = updatedPathways;
-        } else {
-          // Handle the case where the list is not found in the store
-        }
-      });
-    } catch (error) {
-      console.error("Error removing pathway from list:", error);
-      // Handle any errors appropriately
-    }
-  }
+      // Check if any document in the query results has the product in the items array
+      const hasPurchased = !ordersSnapshot.empty;
+      if (!hasPurchased) {
+        console.log("You can only review products you've purchased.");
+      }
 
-  async addList(listName) {
-    try {
-      const userListsRef = collection(db, `users/${this.user.uid}/myLists`);
+      // Check if the user has already left a review for this product
+      const reviewsCollectionRef = collection(db, "reviews");
+      const q = query(
+        reviewsCollectionRef,
+        where("productId", "==", productId),
+        where("userId", "==", this.user.uid)
+      );
+      const querySnapshot = await getDocs(q);
 
-      const docRef = await addDoc(userListsRef, { name: listName });
-
-      runInAction(() => {
-        this.lists.push({
-          id: docRef.id,
-
-          name: listName,
+      if (querySnapshot.empty) {
+        // Create a new review
+        await addDoc(reviewsCollectionRef, {
+          productId,
+          userId: this.user.uid,
+          rating,
+          comment,
+          createdAt: new Date(),
         });
+      } else {
+        // Update the existing review
+        const reviewDocRef = querySnapshot.docs[0].ref;
+        await updateDoc(reviewDocRef, {
+          rating,
+          comment,
+          createdAt: new Date(),
+        });
+      }
+
+      runInAction(() => {
+        this.reviews = [
+          ...this.reviews,
+          {
+            productId,
+            userId: this.user.uid,
+            rating,
+            comment,
+            createdAt: new Date(),
+          },
+        ];
       });
+
+      // Update product's average rating
+      await this.updateProductRating(productId);
     } catch (error) {
-      console.error("Error adding list:", error);
-      // Handle any errors appropriately
+      console.log("Error submitting review:", error);
     }
   }
 
-  async deleteList(listId) {
+  // Delete a review
+  async deleteReview(reviewId, productId) {
     try {
-      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
-      await deleteDoc(listRef);
+      const reviewDocRef = doc(db, "reviews", reviewId);
+      await deleteDoc(reviewDocRef);
 
+      // Update product's average rating
       runInAction(() => {
-        this.lists = this.lists.filter((list) => list.id !== listId);
+        this.reviews = this.reviews.filter((review) => review.id !== reviewId);
       });
+      await this.updateProductRating(productId);
     } catch (error) {
-      console.error("Error deleting list:", error);
-      // Handle any errors appropriately
+      console.log("Error deleting review:", error);
     }
   }
 
-  async editListName(listId, newName) {
+  // Update the product's average rating
+  async updateProductRating(productId) {
     try {
-      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
-      await updateDoc(listRef, { name: newName });
+      const reviewsCollectionRef = collection(db, "reviews");
+      const q = query(
+        reviewsCollectionRef,
+        where("productId", "==", productId)
+      );
+      const querySnapshot = await getDocs(q);
 
+      const totalReviews = querySnapshot.docs.length;
+      const totalRating = querySnapshot.docs.reduce(
+        (sum, doc) => sum + doc.data().rating,
+        0
+      );
+
+      const averageRating = totalReviews ? totalRating / totalReviews : 0;
+
+      // Update the product's document with the new average rating
+      const productDocRef = doc(db, "products", productId);
+      await updateDoc(productDocRef, { averageRating });
+
+      // Update product details in MobX store
       runInAction(() => {
-        const list = this.lists.find((l) => l.id === listId);
-        if (list) {
-          list.name = newName;
-        } else {
-          // Handle the case where the list is not found in the store
+        const product = this.productDetails.find(
+          (product) => product.id === productId
+        );
+        if (product) {
+          product.averageRating = averageRating;
         }
       });
     } catch (error) {
-      console.error("Error editing list name:", error);
-      // Handle any errors appropriately
+      console.error("Error updating product rating:", error);
     }
+  }
+
+  // product details + game details
+
+  // Fetch detailed game data
+  async fetchProductDetails(slug) {
+    const existingDetails = this.productDetails.find(
+      (product) => product.slug === slug
+    );
+    if (existingDetails) {
+      return existingDetails;
+    }
+
+    try {
+      // Fetch product data based on the slug
+      const productQuery = query(
+        collection(db, "products"),
+        where("slug", "==", slug)
+      );
+      const productSnapshot = await getDocs(productQuery);
+
+      if (!productSnapshot.empty) {
+        const productDoc = productSnapshot.docs[0];
+        const productData = productDoc.data();
+        const productId = productDoc.id; // Get the document ID
+
+        // Fetch game data using gameId from productData
+        const gameDocRef = doc(db, "games", productData.gameId);
+        const gameDoc = await getDoc(gameDocRef);
+        const gameData = gameDoc.data();
+
+        const productDetails = {
+          id: productId, // Include the product ID here
+          ...productData,
+          ...gameData,
+          slug: slug,
+        };
+
+        runInAction(() => {
+          this.productDetails.push(productDetails);
+        });
+
+        return productDetails;
+      } else {
+        console.log("No product found with the given slug.");
+      }
+    } catch (error) {
+      console.log("Error fetching product details:", error);
+    }
+  }
+
+  async fetchCart() {
+    if (this.user) {
+      this.fetchCartFromFirestore();
+    } else {
+      this.fetchCartFromLocalStorage();
+    }
+  }
+
+  async fetchCartFromFirestore() {
+    try {
+      const cartDocRef = doc(db, "carts", this.user.uid);
+      const cartDoc = await getDoc(cartDocRef);
+      runInAction(() => {
+        this.cart = cartDoc.exists() ? cartDoc.data().items : [];
+      });
+    } catch (error) {
+      console.log("Error fetching cart from Firestore:", error);
+    }
+  }
+
+  fetchCartFromLocalStorage() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    runInAction(() => {
+      this.cart = cart;
+    });
+  }
+
+  // Add to Cart
+  addToCart(product) {
+    if (this.cart.includes(product.id)) return;
+    if (this.user?.purchasedProducts?.includes(product.id)) return;
+
+    runInAction(() => {
+      this.cart.push(product.id);
+    });
+
+    if (this.user) {
+      this.syncCartWithFirestore();
+    } else {
+      this.syncCartWithLocalStorage();
+    }
+  }
+
+  // Remove from Cart
+  removeFromCart(productId) {
+    runInAction(() => {
+      this.cart = this.cart.filter((id) => id !== productId);
+    });
+
+    if (this.user) {
+      this.syncCartWithFirestore();
+    } else {
+      this.syncCartWithLocalStorage();
+    }
+  }
+
+  // Sync Cart with Firestore
+  async syncCartWithFirestore() {
+    try {
+      const cartDocRef = doc(db, "carts", this.user.uid);
+      await setDoc(cartDocRef, { items: this.cart });
+    } catch (error) {
+      console.log("Error syncing cart with Firestore:", error);
+    }
+  }
+
+  syncCartWithLocalStorage() {
+    localStorage.setItem("cart", JSON.stringify(this.cart));
+  }
+  // Continue to Checkout
+  continueToCheckout() {
+    if (!this.cart.length) return;
+
+    // Redirect to checkout page or prepare data for checkout
+    console.log("Proceeding to checkout with cart items:", this.cart);
+  }
+
+  // Global Loading State
+  setLoading(isLoading) {
+    runInAction(() => {
+      this.loading = isLoading;
+    });
+  }
+
+  // Rewards user profile
+  async fetchUserOrders() {
+    if (!this.user.uid) return;
+
+    try {
+      // Fetch purchase history
+      const ordersCollectionRef = collection(
+        db,
+        `users/${this.user.uid}/orders`
+      );
+      const querySnapshot = await getDocs(ordersCollectionRef);
+
+      const orders = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      runInAction(() => {
+        this.orders = orders;
+      });
+    } catch (error) {
+      console.log("Error fetching user orders:", error);
+    }
+  }
+
+  claimXP(action, code) {
+    if (action === "discord" && this.verifyDiscordCode(code)) {
+      this.addXP(10);
+      runInAction(() => {
+        this.user.discordJoined = true;
+      });
+    } else if (action === "kickstarter" && this.verifyKickstarterCode(code)) {
+      this.addXP(15);
+      runInAction(() => {
+        this.user.kickstarterBacked = true;
+      });
+    } else if (action === "newsletter") {
+      this.addXP(5);
+      runInAction(() => {
+        this.user.newsletterSignedUp = true;
+      });
+    }
+    this.checkForRewards();
+  }
+
+  verifyDiscordCode(code) {
+    // Example verification logic for Discord code
+    return code === "WELCOME123"; // Replace with actual logic
+  }
+
+  verifyKickstarterCode(code) {
+    // Example verification logic for Kickstarter code
+    return code === "BACKER123"; // Replace with actual logic
+  }
+
+  // Function to add XP and check for rewards
+  addXP(points) {
+    runInAction(() => {
+      this.user.xp += points;
+    });
+    this.checkForRewards();
+  }
+
+  // Function to check if new rewards are unlocked
+  checkForRewards() {
+    const rewardsTrack = [
+      { xp: 10, reward: "Special Card" },
+      { xp: 20, reward: "Mini Expansion" },
+      { xp: 30, reward: "Extended Content" },
+      // Add more rewards...
+    ];
+
+    rewardsTrack.forEach((milestone) => {
+      if (
+        this.user.xp >= milestone.xp &&
+        !this.user.rewards.includes(milestone.reward)
+      ) {
+        runInAction(() => {
+          this.user.rewards.push(milestone.reward);
+        });
+      }
+    });
+
+    this.syncUserProfile();
+  }
+
+  async syncUserProfile() {
+    try {
+      if (this.user.uid) {
+        const userDocRef = doc(db, "users", this.user.uid);
+        await setDoc(userDocRef, {
+          xp: this.user.xp,
+          rewards: this.user.rewards,
+          discordJoined: this.user.discordJoined,
+          kickstarterBacked: this.user.kickstarterBacked,
+          newsletterSignedUp: this.user.newsletterSignedUp,
+          // Add any other relevant user data here
+        });
+        console.log("User profile synced successfully!");
+      } else {
+        console.log("User is not logged in. Cannot sync profile.");
+      }
+    } catch (error) {
+      console.log("Error syncing user profile:", error);
+    }
+  }
+
+  async fetchProducts() {
+    this.loading = true;
+    try {
+      const productsCollectionRef = collection(db, "products");
+      const querySnapshot = await getDocs(productsCollectionRef);
+
+      runInAction(() => {
+        this.products = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        this.loading = false;
+      });
+    } catch (error) {
+      console.log("Error fetching products:", error);
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  get availableProducts() {
+    if (!this.user) {
+      return this.products;
+    }
+    const purchasedGameIds = this.user.purchasedProducts || [];
+    return this.products.filter((game) => !purchasedGameIds.includes(game.id));
   }
 
   // GLOBAL MOBX STATE
@@ -267,88 +539,7 @@ class Store {
     });
   }
 
-  removePathwayFromListsInStore(pathwayId) {
-    this.lists.forEach((list) => {
-      const index = list.pathways.indexOf(pathwayId);
-      if (index > -1) {
-        list.pathways.splice(index, 1);
-      }
-    });
-  }
-
-  async removePathwayFromLists(pathwayId) {
-    const listsRef = collection(db, `users/${this.user.uid}/myLists`);
-    const q = query(listsRef, where("pathways", "array-contains", pathwayId));
-
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (doc) => {
-      const listRef = doc.ref;
-      await updateDoc(listRef, {
-        pathways: firebase.firestore.FieldValue.arrayRemove(pathwayId),
-      });
-    });
-    runInAction(() => {
-      this.pathways = this.pathways.filter((p) => p.id !== pathwayId);
-      this.recentPathways = this.recentPathways.filter(
-        (p) => p.id !== pathwayId
-      );
-      this.topPlayedPathways = this.topPlayedPathways.filter(
-        (p) => p.id !== pathwayId
-      );
-      this.userPathways = this.userPathways.filter((p) => p.id !== pathwayId);
-
-      this.lists.forEach((list) => {
-        list.pathways = list.pathways.filter((id) => id !== pathwayId);
-      });
-    });
-  }
-
-  async updateUser(newData) {
-    try {
-      const userDocRef = doc(db, "users", this.user.uid);
-      await updateDoc(userDocRef, newData);
-      runInAction(() => {
-        this.user = { ...this.user, ...newData };
-      });
-    } catch (error) {
-      console.error("Error updating user:", error);
-    }
-  }
-
-  //
-  //
-  //
-  //
-  //
   // AUTH FUNCTIONS
-  async upgradeAccount(email, password, username) {
-    try {
-      const credential = EmailAuthProvider.credential(email, password);
-      const userCredential = await linkWithCredential(
-        auth.currentUser,
-        credential
-      );
-
-      const userDocRef = doc(db, "users", userCredential.user.uid);
-      await updateDoc(userDocRef, {
-        username,
-      });
-
-      runInAction(() => {
-        this.user = {
-          ...userCredential.user,
-          username,
-        };
-      });
-    } catch (error) {
-      console.error("Error upgrading account:", error);
-    }
-  }
-
-  signInAnonymously = async () => {
-    await signInAnonymously(auth);
-    logger.debug("Signed in anonymously");
-  };
 
   async loginWithEmail({ email, password }) {
     try {
@@ -363,7 +554,7 @@ class Store {
         this.loading = false;
       });
     } catch (error) {
-      console.error("Error logging in:", error);
+      console.log("Error logging in:", error);
       runInAction(() => {
         this.loading = false;
       });
@@ -397,7 +588,7 @@ class Store {
         this.loading = false;
       });
     } catch (error) {
-      console.error("Error signing up:", error);
+      console.log("Error signing up:", error);
       runInAction(() => {
         this.loading = false;
       });
@@ -412,7 +603,7 @@ class Store {
         this.user = null; // Reset the user in the store
       });
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.log("Error during logout:", error);
       // Handle any errors that occur during logout
     }
   }
@@ -446,7 +637,7 @@ class Store {
         });
       }
     } catch (error) {
-      console.error("Error with Google sign-in:", error);
+      console.log("Error with Google sign-in:", error);
     }
   }
 
@@ -455,13 +646,9 @@ class Store {
       await sendPasswordResetEmail(auth, email);
       // Handle success, such as showing a message to the user
     } catch (error) {
-      console.error("Error sending password reset email:", error);
+      console.log("Error sending password reset email:", error);
       // Handle errors, such as invalid email, etc.
     }
-  }
-
-  get isUserAnonymous() {
-    return this.user && this.user.provider == "anonymous";
   }
 }
 

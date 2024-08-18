@@ -7,11 +7,13 @@ import { VerticalNavbar } from "./VerticalNavbar";
 import {
   BookOpen,
   GaugeCircle,
+  Home,
   LayoutDashboard,
   ListMinus,
   Plus,
   Search,
   SearchCheck,
+  ShoppingCart,
   UserIcon,
 } from "lucide-react";
 import MobxStore from "../mobx";
@@ -114,57 +116,6 @@ const ReusableLayout = observer(({ children }) => {
           className="h-full max-h-[950px] items-stretch"
         >
           <ResizablePanel
-            defaultSize={defaultLayout[0]}
-            maxSize={20}
-            className="max-w-[200px] min-w-[200px] h-[950px]"
-          >
-            <Link href="/" className="cursor-pointer">
-              <div className="flex h-[52px] items-center justify-center px-2">
-                <Image src={logoImg} width={32} height={32} alt="logo" />
-                <div className="text-2xl font-bold ml-1">1000 Todos</div>
-              </div>
-            </Link>
-            <Separator />
-            <VerticalNavbar
-              links={[
-                {
-                  title: "Todos",
-                  icon: LayoutDashboard,
-                  variant: isRoute("/"),
-                  href: "",
-                },
-                {
-                  title: "Progress",
-                  icon: Search,
-                  variant: isRoute("Explore"),
-                  href: "explore",
-                },
-                {
-                  title: "Inventory",
-                  icon: BookOpen,
-                  variant: isRoute("Learn"),
-                  href: "learn",
-                },
-              ]}
-            />
-            <Separator />
-            <div className="flex justify-center items-center w-[185px] m-2">
-              <CreateListDialog />
-            </div>
-
-            {lists.length > 0 && (
-              <VerticalNavbar
-                links={lists.map((list) => ({
-                  title: list.name,
-                  icon: ListMinus,
-                  variant: isRoute(list.id),
-                  href: `list/${list.id}`,
-                }))}
-              />
-            )}
-          </ResizablePanel>
-          {/* <ResizableHandle /> */}
-          <ResizablePanel
             className="border-l border-gray-[#e5e7eb]"
             defaultSize={defaultLayout[1]}
             minSize={30}
@@ -172,12 +123,16 @@ const ReusableLayout = observer(({ children }) => {
           >
             <div>
               <div className="w-full h-[53px] flex justify-end items-center p-2 border-b  gap-4">
-                <Input
-                  // type="search"
-                  placeholder="Search..."
-                  className="md:w-[100px] lg:w-[300px]"
-                  icon={<Search size={16} />}
-                />
+                <Link href="/">
+                  <Button variant="outline">
+                    <Home />
+                  </Button>
+                </Link>
+                <Link href="/cart">
+                  <Button variant="outline">
+                    <ShoppingCart />
+                  </Button>
+                </Link>
                 {user ? (
                   <>
                     <ModeToggle />
