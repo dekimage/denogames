@@ -11,8 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getAvatarShortcut } from "@/utils/transformers";
+import { useRouter } from "next/navigation";
 
 export function UserNav({ user, logout }) {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,9 +38,15 @@ export function UserNav({ user, logout }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/profile")}>
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/rewards")}>
+            Rewards
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/orders")}>
+            Orders
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>

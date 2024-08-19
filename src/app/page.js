@@ -1,10 +1,24 @@
 "use client";
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
-import { Card } from "@/components/ui/card";
+import placeholderImg from "@/assets/placeholder.png";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { useEffect } from "react";
-import { CheckCircle } from "lucide-react";
+import {
+  CheckCheck,
+  CheckCircle,
+  Dice6,
+  ShoppingBag,
+  ShoppingCart,
+} from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const AddMultipleProductsButton = () => {
   const handleAddProducts = () => {
@@ -249,48 +263,80 @@ const ProductSection = ({ title, products }) => {
 };
 
 const ProductCard = observer(({ product }) => {
-  const { addToCart, cart } = MobxStore;
+  const { addToCart, cart, user } = MobxStore;
 
-  // Check if the product is already in the cart
   const isInCart = cart.includes(product.id);
+  const isPurchased = user
+    ? user.purchasedProducts?.includes(product.id)
+    : false;
 
   return (
-    <Link href={`/product-details/${product.slug}`}>
-      <Card className="p-4">
-        <img
-          src={product.imageUrls?.[0]}
-          alt={product.name}
-          className="w-full h-64 object-cover rounded"
-        />
-        <h2 className="text-xl font-bold mt-4">{product.name}</h2>
-        <p className="text-gray-600 mt-2">{product.description}</p>
-        <p className="text-lg font-bold mt-2">${product.price}</p>
+    <div>
+      <Link href={`/product-details/${product.slug}`}>
+        <Card>
+          <Image
+            src={product.thumbnail || placeholderImg}
+            alt={product.name}
+            width={300}
+            height={300}
+            className="w-full h-64 object-cover"
+          />
+          <div className="flex p-4">
+            <div className=" w-full">
+              <div className="text-lg font-bold h-[56px]">{product.name}</div>
+              <div className="text-xs">{product.description}</div>
+              <p className="text-xl font-bold">${product.price}</p>
+            </div>
 
-        {isInCart ? (
-          <div className="flex items-center mt-4">
-            <CheckCircle className="text-green-500 mr-2" size={20} />
-            <span className="text-green-500 font-bold">In Cart</span>
-            <Link href="/cart">
-              <button className="bg-blue-500 text-white px-4 py-2 rounded ml-4">
-                Checkout
-              </button>
+            {isInCart && (
+              <div className="flex justify-center items-center w-[120px]">
+                <CheckCheck className="text-orange-400 mr-2" size={20} />
+                <span className="text-orange-400 font-bold">In Cart</span>
+              </div>
+            )}
+          </div>
+        </Card>
+      </Link>
+      <div className="w-full">
+        {isPurchased ? (
+          <Link href={`/product-details/${product.slug}`} className="w-full">
+            <Button className="w-full bg-yellow-600">
+              <Dice6 size={16} className="mr-1" /> Play
+            </Button>
+          </Link>
+        ) : isInCart ? (
+          <div className="flex items-center">
+            <Link href="/cart" className="w-full">
+              <Button className="w-full bg-orange-400">
+                <ShoppingBag size={16} className="mr-1" /> Checkout
+              </Button>
             </Link>
           </div>
         ) : (
-          <button
-            onClick={() => addToCart(product)}
-            className="bg-green-500 text-white px-4 py-2 rounded mt-4"
-          >
-            Add to Cart
-          </button>
+          <Button onClick={() => addToCart(product)} className="w-full">
+            <ShoppingCart size={16} className="mr-1" /> Add to Cart
+          </Button>
         )}
-      </Card>
-    </Link>
+      </div>
+    </div>
   );
 });
 
+const ProductList = ({ label, products }) => {
+  return (
+    <div className="my-4 mb-12">
+      <div className="text-xl font-bold mb-4">{label}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+        {products?.map((game) => (
+          <ProductCard key={game.id} product={game} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const HomePage = observer(() => {
-  const { availableProducts, products, loading } = MobxStore;
+  const { products, loading, cart, user } = MobxStore;
 
   // return <AddMultipleProductsButton />;
 
@@ -301,6 +347,23 @@ const HomePage = observer(() => {
   const games = products.filter((product) => product.type === "game");
   const expansions = products.filter((product) => product.type === "expansion");
   const bundles = products.filter((product) => product.type === "bundle");
+
+  // Products already in cart
+  const productsInCart = products.filter((product) =>
+    cart.includes(product.id)
+  );
+
+  // Products that are already purchased
+  const purchasedProducts = products.filter((product) =>
+    user ? user.purchasedProducts?.includes(product.id) : false
+  );
+
+  // Products that are neither in cart nor purchased (ready to add to cart)
+  const readyToAddToCart = products.filter(
+    (product) =>
+      !cart.includes(product.id) &&
+      !(user ? user.purchasedProducts?.includes(product.id) : false)
+  );
 
   // const newGames = products.filter(
   //   (product) =>
@@ -318,11 +381,19 @@ const HomePage = observer(() => {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {products?.map((game) => (
-          <ProductCard key={game.id} product={game} />
-        ))}
-      </div>
+      {!user && <ProductList label={"All Games"} products={products} />}
+
+      {cart.length > 0 && (
+        <ProductList label={"In Cart"} products={productsInCart} />
+      )}
+
+      {user && (
+        <>
+          <ProductList label={"Available Games"} products={readyToAddToCart} />
+          <ProductList label={"Purchased Games"} products={purchasedProducts} />
+        </>
+      )}
+
       {/* 
       <ProductSection title="New Games" products={newGames} />
 

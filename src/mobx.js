@@ -27,6 +27,7 @@ import {
   where,
   orderBy,
   limit,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import Logger from "@/utils/logger";
@@ -43,6 +44,7 @@ class Store {
   user = null;
   cart = [];
   orders = [];
+  notifications = [];
 
   productDetails = [];
   reviews = [];
@@ -65,6 +67,7 @@ class Store {
     this.fetchCart = this.fetchCart.bind(this);
     this.addToCart = this.addToCart.bind(this);
     this.removeFromCart = this.removeFromCart.bind(this);
+    this.clearCart = this.clearCart.bind(this);
     this.continueToCheckout = this.continueToCheckout.bind(this);
 
     this.claimXP = this.claimXP.bind(this);
@@ -80,6 +83,11 @@ class Store {
     this.submitReview = this.submitReview.bind(this);
     this.deleteReview = this.deleteReview.bind(this);
     this.updateProductRating = this.updateProductRating.bind(this);
+
+    this.fetchNotifications = this.fetchNotifications.bind(this);
+    this.addNotification = this.addNotification.bind(this);
+    this.markAsRead = this.markAsRead.bind(this);
+    this.deleteNotification = this.deleteNotification.bind(this);
   }
 
   initializeAuth() {
@@ -93,6 +101,7 @@ class Store {
         });
         await this.fetchProducts();
         await this.fetchCart();
+        await this.fetchNotifications();
       } else {
         runInAction(() => {
           this.user = null;
@@ -101,6 +110,7 @@ class Store {
       }
     });
   }
+
   // HELPER UTILS
   async addProductsToFirestore(products, collectionName) {
     try {
@@ -117,6 +127,91 @@ class Store {
       console.log("Products added successfully:", products);
     } catch (error) {
       console.log("Error adding products:", error);
+    }
+  }
+
+  // NOTIFICAITONS
+
+  // Function to add a notification to a user's subcollection
+  async addNotification(notification) {
+    const userId = this.user.uid;
+    try {
+      const notificationRef = collection(db, `users/${userId}/notifications`);
+      await addDoc(notificationRef, {
+        ...notification,
+        isRead: false,
+        createdAt: serverTimestamp(),
+      });
+
+      runInAction(() => {
+        this.notifications.push({
+          id: notification.id, // Replace with the actual ID if needed
+          ...notification,
+          isRead: false,
+          createdAt: new Date(), // Replace with actual timestamp from Firestore if needed
+        });
+      });
+    } catch (error) {
+      console.error("Error adding notification:", error);
+    }
+  }
+
+  // Function to fetch all notifications for a user
+  async fetchNotifications() {
+    if (!this.user) return;
+    const userId = this.user.uid;
+    try {
+      const notificationsRef = collection(db, `users/${userId}/notifications`);
+      const notificationsSnapshot = await getDocs(notificationsRef);
+      runInAction(() => {
+        this.notifications = notificationsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  }
+
+  // Function to mark a notification as read
+  async markAsRead(userId, notificationId) {
+    try {
+      const notificationRef = doc(
+        db,
+        `users/${userId}/notifications`,
+        notificationId
+      );
+      await updateDoc(notificationRef, { isRead: true });
+      runInAction(() => {
+        const notificationIndex = this.notifications.findIndex(
+          (n) => n.id === notificationId
+        );
+        if (notificationIndex !== -1) {
+          this.notifications[notificationIndex].isRead = true;
+        }
+      });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  }
+
+  // Function to delete a notification
+  async deleteNotification(userId, notificationId) {
+    try {
+      const notificationRef = doc(
+        db,
+        `users/${userId}/notifications`,
+        notificationId
+      );
+      await deleteDoc(notificationRef);
+      runInAction(() => {
+        this.notifications = this.notifications.filter(
+          (n) => n.id !== notificationId
+        );
+      });
+    } catch (error) {
+      console.error("Error deleting notification:", error);
     }
   }
 
@@ -152,7 +247,7 @@ class Store {
       const ordersQuery = query(
         ordersCollectionRef,
         where("userId", "==", this.user.uid), // Filter by the current user's ID
-        where("items", "array-contains", { id: productId })
+        where("productIds", "array-contains", productId)
       );
 
       const ordersSnapshot = await getDocs(ordersQuery);
@@ -161,6 +256,7 @@ class Store {
       const hasPurchased = !ordersSnapshot.empty;
       if (!hasPurchased) {
         console.log("You can only review products you've purchased.");
+        return;
       }
 
       // Check if the user has already left a review for this product
@@ -190,6 +286,16 @@ class Store {
           createdAt: new Date(),
         });
       }
+
+      //add notification
+      const notification = {
+        title: "Review Submitted!",
+        message: `You gained 3 XP for leaving a review.`,
+        link: `/rewards`,
+        type: "review",
+      };
+
+      await this.addNotification(notification);
 
       runInAction(() => {
         this.reviews = [
@@ -317,6 +423,18 @@ class Store {
       this.fetchCartFromFirestore();
     } else {
       this.fetchCartFromLocalStorage();
+    }
+  }
+
+  clearCart() {
+    runInAction(() => {
+      this.cart = [];
+    });
+
+    if (this.user) {
+      this.syncCartWithFirestore();
+    } else {
+      this.syncCartWithLocalStorage();
     }
   }
 

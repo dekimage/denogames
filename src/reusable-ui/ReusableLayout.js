@@ -24,7 +24,7 @@ import { observer } from "mobx-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { UserNav } from "./ReusableProfileMenu";
 import Image from "next/image";
-import logoImg from "../assets/1000todoslogo.png";
+import logoImg from "../assets/logo.png";
 
 import MobileHeader from "./MobileHeader";
 import {
@@ -40,6 +40,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { ModeToggle } from "@/components/ui/themeButton";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import NotificationDropdown from "@/components/Notifications";
 
 const defaultLayout = [20, 80];
 
@@ -93,7 +101,7 @@ const CreateListDialog = () => {
 };
 
 const ReusableLayout = observer(({ children }) => {
-  const { user, lists, logout } = MobxStore;
+  const { user, cart, logout } = MobxStore;
 
   const pathname = usePathname();
   const isRoute = (route) => {
@@ -107,6 +115,8 @@ const ReusableLayout = observer(({ children }) => {
       ? "default"
       : "ghost";
   };
+
+  const cartItemCount = cart.length;
 
   return (
     <div>
@@ -122,32 +132,65 @@ const ReusableLayout = observer(({ children }) => {
             style={{ overflow: "auto" }}
           >
             <div>
-              <div className="w-full h-[53px] flex justify-end items-center p-2 border-b  gap-4">
-                <Link href="/">
-                  <Button variant="outline">
-                    <Home />
-                  </Button>
-                </Link>
-                <Link href="/cart">
-                  <Button variant="outline">
-                    <ShoppingCart />
-                  </Button>
-                </Link>
-                {user ? (
-                  <>
-                    <ModeToggle />
-                    <UserNav user={user} logout={logout} />
-                  </>
-                ) : (
-                  <div className="flex gap-2">
-                    <Link href="/login">
-                      <Button variant="outline">Login</Button>
-                    </Link>
-                    <Link href="/signup">
-                      <Button>Create Free Account</Button>
-                    </Link>
-                  </div>
-                )}
+              <div className="w-full h-[53px] flex justify-between items-center p-2 border-b  gap-4">
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <Image src={logoImg} alt="logo" width={80} height={80} />
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <Link href="/" legacyBehavior passHref>
+                        <NavigationMenuLink
+                          className={navigationMenuTriggerStyle()}
+                        >
+                          Games
+                        </NavigationMenuLink>
+                      </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <Link href="/" legacyBehavior passHref>
+                        <NavigationMenuLink
+                          className={navigationMenuTriggerStyle()}
+                        >
+                          Blog
+                        </NavigationMenuLink>
+                      </Link>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+                <div className="flex justify-end gap-4 items-center">
+                  <Link href="/">
+                    <Button size="icon" variant="outline">
+                      <Home />
+                    </Button>
+                  </Link>
+                  <Link href="/cart">
+                    <Button size="icon" variant="outline" className="relative">
+                      <ShoppingCart />
+                      {cartItemCount > 0 && (
+                        <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold">
+                          {cartItemCount}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                  {user ? (
+                    <>
+                      <NotificationDropdown />
+                      <ModeToggle />
+                      <UserNav user={user} logout={logout} />
+                    </>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Link href="/login">
+                        <Button variant="outline">Login</Button>
+                      </Link>
+                      <Link href="/signup">
+                        <Button>Create Free Account</Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="">{children}</div>
             </div>
