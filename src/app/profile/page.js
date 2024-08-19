@@ -78,27 +78,6 @@ const ProfilePage = observer(() => {
         </p>
       </div>
 
-      {/* Purchase History */}
-      <h3 className="text-xl font-bold mt-4">Purchase History</h3>
-      <table className="min-w-full bg-white border-collapse block md:table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Items</th>
-            <th>Amount Paid</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order.id}>
-              <td>{new Date(order.date).toLocaleDateString()}</td>
-              <td>{order.items.map((item) => item.name).join(", ")}</td>
-              <td>${order.amountPaid.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
       {/* Rewards XP Track */}
       <h3 className="text-xl font-bold mt-4">Rewards XP Track</h3>
       <ul>

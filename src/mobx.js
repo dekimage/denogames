@@ -76,7 +76,7 @@ class Store {
     this.addXP = this.addXP.bind(this);
     this.checkForRewards = this.checkForRewards.bind(this);
     this.syncUserProfile = this.syncUserProfile.bind(this);
-    this.fetchUserOrders = this.fetchUserOrders.bind(this);
+    this.fetchOrders = this.fetchOrders.bind(this);
 
     this.fetchProductDetails = this.fetchProductDetails.bind(this);
     this.fetchReviews = this.fetchReviews.bind(this);
@@ -514,28 +514,27 @@ class Store {
     });
   }
 
-  // Rewards user profile
-  async fetchUserOrders() {
-    if (!this.user.uid) return;
+  async fetchOrders() {
+    if (!this.user) return;
 
     try {
-      // Fetch purchase history
-      const ordersCollectionRef = collection(
-        db,
-        `users/${this.user.uid}/orders`
+      const ordersCollectionRef = collection(db, "orders");
+      const q = query(
+        ordersCollectionRef,
+        where("userId", "==", this.user.uid)
       );
-      const querySnapshot = await getDocs(ordersCollectionRef);
+      const querySnapshot = await getDocs(q);
 
-      const orders = querySnapshot.docs.map((doc) => ({
+      const fetchedOrders = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
       runInAction(() => {
-        this.orders = orders;
+        this.orders = fetchedOrders;
       });
     } catch (error) {
-      console.log("Error fetching user orders:", error);
+      console.error("Error fetching orders:", error);
     }
   }
 
