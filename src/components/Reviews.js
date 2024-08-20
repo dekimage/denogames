@@ -3,19 +3,42 @@ import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import { useEffect, useState } from "react";
 import { FaStar, FaEdit } from "react-icons/fa";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+} from "./ui/dialog";
 import { Button } from "./ui/button";
+import { useCallback } from "react";
+import { useRef } from "react";
+import { Textarea } from "./ui/textarea";
 
-export const ReviewSection = observer(({ productId }) => {
-  const { user, reviews, submitReview, deleteReview, fetchReviews } = MobxStore;
+export const ReviewSection = observer(({ productDetails, productId }) => {
+  const {
+    user,
+    reviewsByProduct,
+    submitReview,
+    updateReview,
+    fetchReviews,
+    hasMoreReviewsByProduct,
+    lastReviewFetchedByProduct,
+  } = MobxStore;
+
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [existingReview, setExistingReview] = useState(null);
 
+  const reviews = reviewsByProduct[productId] || [];
+  const hasMoreReviews = hasMoreReviewsByProduct[productId];
+  const lastReviewFetched = lastReviewFetchedByProduct[productId];
+
   useEffect(() => {
-    fetchReviews(productId);
-  }, [productId]);
+    if (reviews.length === 0) {
+      fetchReviews(productId);
+    }
+  }, [productId, fetchReviews, reviews.length]);
 
   useEffect(() => {
     const userReview = reviews.find(
@@ -30,113 +53,59 @@ export const ReviewSection = observer(({ productId }) => {
       setComment("");
       setExistingReview(null);
     }
-  }, [reviews, productId, user.uid]);
+  }, [reviews, user?.uid, productId]);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  const handleSubmit = () => {
-    submitReview(productId, rating, comment);
-    closeModal();
+  const loadMoreReviews = () => {
+    fetchReviews(productId, lastReviewFetched);
   };
 
-  const handleDelete = () => {
+  const handleSubmit = () => {
     if (existingReview) {
-      deleteReview(existingReview.id, productId);
-      closeModal();
+      updateReview(existingReview.id, productId, rating, comment);
+    } else {
+      submitReview(productId, rating, comment);
     }
   };
 
-  const averageRating =
-    reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+  // const handleDelete = () => {
+  //   if (existingReview) {
+  //     deleteReview(existingReview.id, productId);
+  //     closeModal();
+  //   }
+  // };
+
+  const averageRating = productDetails.averageRating;
 
   return (
-    <div className="review-section bg-white shadow-md rounded p-4 mt-8">
-      <h3 className="text-xl font-semibold mb-4">Reviews</h3>
-      <div className="average-rating text-lg mb-2">
-        <span className="font-bold">{averageRating?.toFixed(1) || 0}</span> / 5
-        <div className="text-yellow-400 flex">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <FaStar
-              key={star}
-              className={`text-2xl ${
-                averageRating >= star ? "text-yellow-400" : "text-gray-300"
-              }`}
-            />
-          ))}
+    <div className="mt-8">
+      <div className="text-4xl font-bold my-4">Reviews</div>
+      <div className="flex items-center text-lg mb-2">
+        <div className="flex items-center gap-2">
+          <div className="text-yellow-400 flex">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <FaStar
+                key={star}
+                className={`text-2xl ${
+                  averageRating >= star ? "text-yellow-400" : "text-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+          <div className="font-bold text-2xl">
+            {averageRating?.toFixed(1) || 0}
+          </div>
+          <div className="text-md">Average Rating</div>
         </div>
-        <p>{reviews.length} store reviews</p>
       </div>
-
-      {existingReview ? (
-        <button
-          onClick={openModal}
-          className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-        >
-          Edit Your Review
-        </button>
-      ) : (
-        <button
-          onClick={openModal}
-          className="bg-green-500 text-white px-4 py-2 rounded mb-4"
-        >
-          Submit Review
-        </button>
-      )}
-
-      <ul className="space-y-4">
-        {[existingReview, ...reviews.filter((r) => r !== existingReview)]
-          .filter((review) => review && review.userId && review.createdAt)
-          .map((review) => (
-            <li key={review.id} className="flex border-b py-4">
-              <div className="flex-shrink-0 mr-4">
-                <div className="text-sm font-bold">{review.userId}</div>
-                <div className="text-xs text-gray-500">
-                  {new Date(review.createdAt.seconds * 1000).toLocaleDateString(
-                    "en-US"
-                  )}
-                </div>
-              </div>
-              <div className="flex-grow">
-                <div className="flex items-center mb-2">
-                  <div className="rating text-yellow-400 flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <FaStar
-                        key={star}
-                        className={`text-2xl ${
-                          review.rating >= star
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  {review.userId === user.uid && (
-                    <button
-                      onClick={openModal}
-                      className="ml-auto text-blue-500"
-                    >
-                      <FaEdit />
-                    </button>
-                  )}
-                </div>
-                <div className="comment text-gray-700 mb-2">
-                  {review.comment}
-                </div>
-                <div className="text-xs text-gray-500 underline">
-                  <a href={`/product-details/${productId}`}>
-                    {productId} - {review.productName}
-                  </a>
-                </div>
-              </div>
-            </li>
-          ))}
-      </ul>
+      <p className="text-lg">{productDetails.totalReviews} store reviews</p>
 
       <Dialog>
         <DialogTrigger>
-          <Button>
-            {existingReview ? "Edit Your Review" : "Submit Your Review"}
+          <Button
+            className="my-4"
+            variant={existingReview ? "outline" : "primary"}
+          >
+            {existingReview ? <>Edit Your Review</> : <>Submit Your Review</>}
           </Button>
         </DialogTrigger>
         <DialogContent
@@ -154,30 +123,90 @@ export const ReviewSection = observer(({ productId }) => {
               />
             ))}
           </div>
-          <textarea
+          <Textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Leave a comment (optional)"
-            className="border p-2 w-full mt-2 rounded resize-none h-24"
           />
-          <div className="flex justify-between mt-4">
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
+          <div className="flex justify-between mt-4"></div>
+          <DialogFooter>
+            <Button onClick={handleSubmit}>
               {existingReview ? "Update Review" : "Submit Review"}
+            </Button>
+            {/* {existingReview && (
+            <button
+              onClick={handleDelete}
+              className="bg-red-500 text-white px-4 py-2 rounded"
+            >
+              Delete Review
             </button>
-            {existingReview && (
-              <button
-                onClick={handleDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Delete Review
-              </button>
-            )}
-          </div>
+          )} */}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ul className="space-y-4">
+        {[existingReview, ...reviews.filter((r) => r !== existingReview)]
+          .filter((review) => review && review.username && review.createdAt)
+          .map((review) => (
+            <li key={review.id} className="flex border-b py-4">
+              <div className="flex-shrink-0 mr-4">
+                <div className="text-sm font-bold">{review.username}</div>
+                <div className="text-xs text-gray-500">
+                  {new Date(review.createdAt.seconds * 1000).toLocaleDateString(
+                    "en-US",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )}{" "}
+                  {new Date(review.createdAt.seconds * 1000).toLocaleTimeString(
+                    "en-US",
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }
+                  )}
+                </div>
+              </div>
+              <div className="flex-grow">
+                <div className="flex items-center mb-2">
+                  <div className="rating text-yellow-400 flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <FaStar
+                        key={star}
+                        className={`text-2xl ${
+                          review.rating >= star
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="text-xs sm:text-lg text-gray-700 mb-2">
+                  {review.comment}
+                </div>
+                <div className="text-xs text-gray-500 underline">
+                  <a href={`/product-details/${productDetails.slug}`}>
+                    {productDetails.name}
+                  </a>
+                </div>
+              </div>
+              {/* {review.userId === user.uid && (
+                <button onClick={openModal} className="ml-auto text-blue-500">
+                  <FaEdit />
+                </button>
+              )} */}
+            </li>
+          ))}
+      </ul>
+      {hasMoreReviews && (
+        <Button variant="outline" onClick={() => loadMoreReviews()}>
+          Load More Reviews
+        </Button>
+      )}
     </div>
   );
 });

@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Mimage } from "@/components/Mimage";
 
 const AddMultipleProductsButton = () => {
   const handleAddProducts = () => {
@@ -381,6 +382,7 @@ const HomePage = observer(() => {
 
   return (
     <div className="container mx-auto py-8">
+      <Mimage muhar="shopkeeper" />
       {!user && <ProductList label={"All Games"} products={products} />}
 
       {cart.length > 0 && (

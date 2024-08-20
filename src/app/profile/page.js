@@ -2,10 +2,15 @@
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { FlagTriangleRight, Repeat2 } from "lucide-react";
+import { FlagTriangleRight, Repeat2, Lock, CheckCircle } from "lucide-react";
+
+import avatarImg from "@/assets/01.png";
+import Image from "next/image";
+import { Mimage } from "@/components/Mimage";
 
 const ActionCard = observer(
   ({
@@ -18,6 +23,7 @@ const ActionCard = observer(
     hasInput = false,
     isOnetime = false,
     unavailable = false,
+    muhar = false,
   }) => {
     const [code, setCode] = useState("");
     const { claimXP } = MobxStore;
@@ -42,7 +48,9 @@ const ActionCard = observer(
         </div>
 
         <p>{description}</p>
-
+        <div className="w-full flex justify-center items-center">
+          {muhar && <Mimage muhar={muhar} />}
+        </div>
         {!claimed ? (
           <div className="mt-4">
             {hasInput && (
@@ -91,43 +99,232 @@ const ActionCard = observer(
   }
 );
 
+const XPProgressBar = ({ xp }) => {
+  const totalSegments = 10;
+  const segmentWidth = 100 / totalSegments; // Percentage width of each segment
+  const filledSegments = Math.floor(xp / segmentWidth); // Fully filled segments
+  const partialFill = ((xp % segmentWidth) / segmentWidth) * 100; // Partially filled segment
+
+  return (
+    <div className="relative w-full h-10">
+      {/* XP segments */}
+      <div className="flex w-full h-full">
+        {Array.from({ length: totalSegments }, (_, index) => (
+          <div
+            key={index}
+            className="relative flex-1 h-full mx-[2px]  justify-center items-center text-2xl"
+            style={{
+              backgroundColor: index < filledSegments ? "#F59E0B" : "#E5E7EB",
+              clipPath: "polygon(12% 0, 100% 0, 88% 100%, 0 100%)",
+            }}
+          >
+            <div className="ml-10 mt-1">
+              {(index + 1) * 10}
+              <span className="text-xs">XP</span>
+            </div>
+            {index === filledSegments && (
+              <div
+                className="absolute top-0 left-0 h-full bg-yellow-400"
+                style={{ width: `${partialFill}%` }}
+              >
+                <div className="ml-10 mt-1">
+                  {(index + 1) * 10}
+                  <span className="text-xs">XP</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        <div
+          className="absolute w-0 h-0 border-l-[10px] border-r-[10px] border-t-[16px] border-t-yellow-400 border-l-transparent border-r-transparent"
+          style={{ left: `calc(${xp}% - 10px)`, top: "-24px" }}
+        >
+          <div
+            className="absolute text-xs text-center w-full ml-[-10px]"
+            style={{ top: "-30px", transform: "translateX(-50%)" }}
+          >
+            {xp}xp
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const staticRewards = [
+  {
+    id: 1,
+    requiresLvl: 1,
+    title: "Exclusive 4 characters for Island Explorers",
+    thumbnail:
+      "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
+    belongsToGame: "Island Explorers",
+    belongsToProductId: "island-explorers",
+    productSlug: "island-explorers",
+  },
+  {
+    id: 2,
+    requiresLvl: 2,
+    title: "Exclusive 2 events for Big Fish",
+    thumbnail:
+      "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media",
+    belongsToGame: "Island Explorers",
+    belongsToProductId: "island-explorers",
+    productSlug: "island-explorers",
+  },
+  {
+    id: 3,
+    requiresLvl: 3,
+    title: "Exclusive 3 locations for Zany shrooms",
+    thumbnail:
+      "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
+    belongsToGame: "Island Explorers",
+    belongsToProductId: "island-explorers",
+    productSlug: "island-explorers",
+  },
+  {
+    id: 4,
+    requiresLvl: 4,
+    title: "Exclusive 3 locations for Zany shrooms",
+    thumbnail:
+      "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
+    belongsToGame: "Island Explorers",
+    belongsToProductId: "island-explorers",
+    productSlug: "island-explorers",
+  },
+];
+
+const RewardsCard = ({ reward, userLevel, onClaim }) => {
+  const isUnlocked = userLevel - 1 >= reward.requiresLvl;
+  const isClaimed = reward.isClaimed;
+
+  return (
+    <div className="flex justify-between p-4 mb-4 border h-[160px]">
+      <div className="flex items-center h-full">
+        <div className="flex flex-col justify-between items-between h-full">
+          <div
+            className=" h-[40px]  bg-primary justify-center items-center text-2xl"
+            style={{
+              clipPath: "polygon(12% 0, 100% 0, 88% 100%, 0 100%)",
+            }}
+          >
+            <div className="flex justify-center items-center px-8 py-1">
+              {reward.requiresLvl * 10}
+              <span className="text-xs">XP</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="ml-4 h-full flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">{reward.title}</h3>
+            <p className="text-sm text-gray-500">{reward.description}</p>
+            <div className="flex items-center gap-2">
+              <div>Related Game:</div>
+              <Link
+                href={`/product-details/${reward.productSlug}`}
+                className="text-blue-500 hover:underline text-sm"
+              >
+                {reward.belongsToGame}
+              </Link>
+            </div>
+          </div>
+          <div>
+            {isClaimed ? (
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="text-green-500" size={24} />
+                <span className="text-green-500 font-semibold">Unlocked</span>
+              </div>
+            ) : isUnlocked ? (
+              <Button variant="outline" onClick={() => onClaim(reward)}>
+                Claim Reward
+              </Button>
+            ) : (
+              <Button disabled className="bg-black text-white flex gap-2">
+                <Lock size={24} />
+                <span>Locked</span>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <Image
+          src={reward.thumbnail}
+          alt={reward.title}
+          width={128}
+          height={128}
+          className="rounded-lg"
+        />
+      </div>
+    </div>
+  );
+};
+
+const RewardsList = ({ rewards, userLevel, onClaimReward }) => {
+  return (
+    <div className="mt-8">
+      {rewards.map((reward) => (
+        <RewardsCard
+          key={reward.id}
+          reward={reward}
+          userLevel={userLevel}
+          onClaim={onClaimReward}
+        />
+      ))}
+    </div>
+  );
+};
+
 const ProfilePage = observer(() => {
-  const { user, orders } = MobxStore;
+  const { user } = MobxStore;
 
   if (!user) {
     return <div>Loading...</div>;
   }
 
+  function calculateLevel(xp, xpPerLevel = 10) {
+    if (xp < 0) return 1; // Ensure level 1 for any negative XP input
+    return Math.floor(xp / xpPerLevel) + 1;
+  }
+
+  const lvl = calculateLevel(user.xp);
+
   return (
     <div className="container mx-auto py-8">
-      <h2 className="text-2xl font-bold">Profile</h2>
-
+      <div className="text-2xl font-bold mt-4">Profile</div>
       {/* User Info */}
-      <div className="my-4">
-        <p>
-          <strong>Username:</strong> {user.username}
-        </p>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
+      <div className="my-4 border p-8">
+        <div className="flex flex-col items-center justify-center gap-2">
+          <Image
+            src={avatarImg}
+            alt={user.username}
+            width={100}
+            height={100}
+            className="h-16 w-16 sm:h-32 sm:w-32 object-cover rounded-full"
+          />
+          <div className="text-xl font-bold capitalize">{user.username}</div>
+          <p>{user.email}</p>
+          <div>Level {lvl}</div>
+
+          <Button variant="outline">Edit Profile</Button>
+        </div>
       </div>
+      <div className="text-2xl font-bold my-4">Rewards Track</div>
 
-      {/* User Stats */}
-      <div className="my-4">
-        <p>
-          <strong>Total Downloads:</strong> {user.totalDownloads}
-        </p>
-      </div>
-
-      {/* Rewards XP Track */}
-
-      <div className="text-2xl font-bold mt-4">Rewards XP Track</div>
+      <XPProgressBar xp={user.xp} />
       <ul>
         {user.rewards?.map((reward, index) => (
           <li key={index}>{reward}</li>
         ))}
       </ul>
 
+      <RewardsList
+        rewards={staticRewards}
+        userLevel={lvl}
+        onClaimReward={() => console.log("Claimed")}
+      />
       {/* Action Cards */}
       <div className="text-2xl font-bold mt-4">How to Earn XP?</div>
       {/* <div className="w-full sm:w-1/2">
@@ -152,6 +349,7 @@ const ProfilePage = observer(() => {
           cta="https://discord.com/invite/your-invite-code"
           xp={20}
           claimed={user.discordJoined}
+          muhar="discord"
         />
         <ActionCard
           isOnetime
@@ -161,6 +359,7 @@ const ProfilePage = observer(() => {
           description="Join the newsletter and enter the code from the welcome email."
           xp={15}
           claimed={user.newsletterSignedUp}
+          muhar="mail"
         />
         <ActionCard
           hasInput
@@ -171,6 +370,7 @@ const ProfilePage = observer(() => {
           cta="https://www.kickstarter.com/projects/your-kickstarter"
           xp={15}
           claimed={user.kickstarterBacked}
+          muhar="kickstarter"
         />
 
         <ActionCard
@@ -193,6 +393,7 @@ const ProfilePage = observer(() => {
           description="You will automatically receive 2 XP for each review you write. *You can only write one review per product and you must have purchased the product."
           xp={2}
           claimed={user.newsletterSignedUp}
+          muhar="rating"
         />
       </div>
     </div>

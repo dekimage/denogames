@@ -4,8 +4,37 @@ import MobxStore from "@/mobx";
 import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Mimage } from "@/components/Mimage";
+
+export function getCartStatus(cartItemsLength) {
+  let muhar;
+
+  switch (cartItemsLength) {
+    case 0:
+      muhar = "cartempty";
+      break;
+    case 1:
+      muhar = "cart1";
+      break;
+    case 2:
+      muhar = "cart2";
+      break;
+    case 3:
+      muhar = "cart3";
+      break;
+    default:
+      if (cartItemsLength > 3) {
+        muhar = "cartfull";
+      } else {
+        muhar = "cartempty"; // Default case if none of the above conditions are met
+      }
+      break;
+  }
+
+  return muhar;
+}
 
 const CartPage = observer(() => {
   const { cart, products, removeFromCart, continueToCheckout, loading } =
@@ -28,9 +57,20 @@ const CartPage = observer(() => {
   return (
     <div className="sm:mx-auto py-4 m-0 p-2 sm:p-8">
       <div className="text-2xl font-bold mb-6">Your Cart</div>
+      <Mimage muhar={getCartStatus(cartItems.length)} />
 
       {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <div className="p-8 border">
+          <p>The cart is empty. muhar zagrizen art</p>
+          <div className="mb-4">
+            Let's fill it up with bunch of cool games :3
+          </div>
+          <Link href="/">
+            <Button className="h-16 text-xl">
+              Browse Games <ArrowRight className="ml-1" size={24} />
+            </Button>
+          </Link>
+        </div>
       ) : (
         <div className="flex flex-col items-between justify-between h-[80vh]">
           <div>

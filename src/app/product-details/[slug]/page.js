@@ -30,7 +30,7 @@ const ProductDetailsPage = observer(({ params }) => {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="mx-4 sm:mx-8 py-8">
       <h1 className="text-3xl font-bold">{productDetails.name}</h1>
 
       {/* Game Details */}
@@ -77,18 +77,17 @@ const ProductDetailsPage = observer(({ params }) => {
           </a>
         </div>
 
-        {/* Reviews Section */}
-        <div className="my-4">
-          <h3 className="text-xl font-bold">Reviews</h3>
-          {/* Placeholder for reviews component */}
-        </div>
-
         {/* Add to Cart Button */}
         <button className="bg-blue-500 text-white px-4 py-2 rounded">
           Add to Cart
         </button>
       </div>
-      {productDetails.id && <ReviewSection productId={productDetails.id} />}
+      {productDetails.id && (
+        <ReviewSection
+          productDetails={productDetails}
+          productId={productDetails.id}
+        />
+      )}
       {/* {productDetails.id && <ReviewForm productId={productDetails.id} />} */}
       {/* {productDetails.id && <ProductReviews productId={productDetails.id} />} */}
     </div>

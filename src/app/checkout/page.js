@@ -16,6 +16,7 @@ import secureByImg from "../../assets/secureby.png";
 import denoImg from "../../assets/deno.png";
 import messengerImg from "../../assets/instagram.png";
 import Image from "next/image";
+import { Mimage } from "@/components/Mimage";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -125,6 +126,9 @@ export const CheckoutPage = observer(() => {
           </p>
           <div className="flex justify-center items-center p-4 border-t mt-4">
             <ShieldCheck className="mr-1" /> SECURE SSL CHECKOUT
+          </div>
+          <div className="flex items-center justify-center">
+            <Mimage muhar="secure" />
           </div>
         </div>
 

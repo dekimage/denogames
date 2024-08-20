@@ -28,6 +28,7 @@ import {
   orderBy,
   limit,
   serverTimestamp,
+  startAfter,
 } from "firebase/firestore";
 
 import Logger from "@/utils/logger";
@@ -47,8 +48,17 @@ class Store {
   notifications = [];
 
   productDetails = [];
-  reviews = [];
+  // reviews = [];
+  // lastReviewFetched = null;
+  // hasMoreReviews = true;
 
+  reviewsByProduct = {};
+
+  // Last review fetched for each product (for pagination)
+  lastReviewFetchedByProduct = {};
+
+  // Whether more reviews are available for each product
+  hasMoreReviewsByProduct = {};
   // Static Data
 
   lists = [];
@@ -59,6 +69,7 @@ class Store {
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
+
     this.fetchProducts = this.fetchProducts.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
     this.loginWithEmail = this.loginWithEmail.bind(this);
@@ -82,6 +93,7 @@ class Store {
     this.fetchReviews = this.fetchReviews.bind(this);
     this.submitReview = this.submitReview.bind(this);
     this.deleteReview = this.deleteReview.bind(this);
+    this.updateReview = this.updateReview.bind(this);
     this.updateProductRating = this.updateProductRating.bind(this);
 
     this.fetchNotifications = this.fetchNotifications.bind(this);
@@ -217,29 +229,108 @@ class Store {
 
   // REVIEWS
   // Fetch the last 10 reviews for a specific product
-  async fetchReviews(productId) {
+  // async fetchReviews(productId, lastVisible = null) {
+  //   try {
+  //     const reviewsCollectionRef = collection(db, "reviews");
+  //     let q;
+
+  //     if (lastVisible) {
+  //       q = query(
+  //         reviewsCollectionRef,
+  //         where("productId", "==", productId),
+  //         orderBy("createdAt", "desc"),
+  //         startAfter(lastVisible),
+  //         limit(2)
+  //       );
+  //     } else {
+  //       q = query(
+  //         reviewsCollectionRef,
+  //         where("productId", "==", productId),
+  //         orderBy("createdAt", "desc"),
+  //         limit(2)
+  //       );
+  //     }
+
+  //     const querySnapshot = await getDocs(q);
+
+  //     const newReviews = querySnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+
+  //     runInAction(() => {
+  //       // Use a Set to track review IDs and filter out duplicates
+  //       const existingReviewIds = new Set(this.reviews.map((r) => r.id));
+  //       const uniqueNewReviews = newReviews.filter(
+  //         (r) => !existingReviewIds.has(r.id)
+  //       );
+
+  //       this.reviews = [...this.reviews, ...uniqueNewReviews];
+  //       this.lastReviewFetched =
+  //         querySnapshot.docs[querySnapshot.docs.length - 1];
+  //       this.hasMoreReviews = querySnapshot.docs.length === 2;
+  //     });
+  //   } catch (error) {
+  //     console.log("Error fetching reviews:", error);
+  //   }
+  // }
+
+  async fetchReviews(productId, lastVisible = null) {
     try {
       const reviewsCollectionRef = collection(db, "reviews");
-      const q = query(
-        reviewsCollectionRef,
-        where("productId", "==", productId),
-        // orderBy("createdAt", "desc"),
-        limit(10)
-      );
+      let q;
+
+      if (lastVisible) {
+        q = query(
+          reviewsCollectionRef,
+          where("productId", "==", productId),
+          orderBy("createdAt", "desc"),
+          startAfter(lastVisible),
+          limit(2)
+        );
+      } else {
+        q = query(
+          reviewsCollectionRef,
+          where("productId", "==", productId),
+          orderBy("createdAt", "desc"),
+          limit(2)
+        );
+      }
+
       const querySnapshot = await getDocs(q);
 
+      const newReviews = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
       runInAction(() => {
-        this.reviews = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        if (!this.reviewsByProduct[productId]) {
+          this.reviewsByProduct[productId] = [];
+        }
+
+        // Use a Set to track review IDs and filter out duplicates
+        const existingReviewIds = new Set(
+          this.reviewsByProduct[productId].map((r) => r.id)
+        );
+        const uniqueNewReviews = newReviews.filter(
+          (r) => !existingReviewIds.has(r.id)
+        );
+
+        this.reviewsByProduct[productId] = [
+          ...this.reviewsByProduct[productId],
+          ...uniqueNewReviews,
+        ];
+        this.lastReviewFetchedByProduct[productId] =
+          querySnapshot.docs[querySnapshot.docs.length - 1];
+        this.hasMoreReviewsByProduct[productId] =
+          querySnapshot.docs.length === 2;
       });
     } catch (error) {
       console.log("Error fetching reviews:", error);
     }
   }
 
-  // Create or update a review
   async submitReview(productId, rating, comment) {
     try {
       // Ensure the user has purchased the product
@@ -249,10 +340,8 @@ class Store {
         where("userId", "==", this.user.uid), // Filter by the current user's ID
         where("productIds", "array-contains", productId)
       );
-
       const ordersSnapshot = await getDocs(ordersQuery);
 
-      // Check if any document in the query results has the product in the items array
       const hasPurchased = !ordersSnapshot.empty;
       if (!hasPurchased) {
         console.log("You can only review products you've purchased.");
@@ -273,47 +362,108 @@ class Store {
         await addDoc(reviewsCollectionRef, {
           productId,
           userId: this.user.uid,
+          username: this.user.username,
           rating,
           comment,
           createdAt: new Date(),
         });
+        await this.updateProductRating(productId, rating);
+
+        // Add notification
+        const notification = {
+          title: "Review Submitted!",
+          message: `You gained 3 XP for leaving a review.`,
+          link: `/rewards`,
+          type: "review",
+        };
+        await this.addNotification(notification);
       } else {
-        // Update the existing review
-        const reviewDocRef = querySnapshot.docs[0].ref;
-        await updateDoc(reviewDocRef, {
-          rating,
-          comment,
-          createdAt: new Date(),
-        });
+        console.log("You have already reviewed this product.");
       }
-
-      //add notification
-      const notification = {
-        title: "Review Submitted!",
-        message: `You gained 3 XP for leaving a review.`,
-        link: `/rewards`,
-        type: "review",
-      };
-
-      await this.addNotification(notification);
-
-      runInAction(() => {
-        this.reviews = [
-          ...this.reviews,
-          {
-            productId,
-            userId: this.user.uid,
-            rating,
-            comment,
-            createdAt: new Date(),
-          },
-        ];
-      });
-
-      // Update product's average rating
-      await this.updateProductRating(productId);
     } catch (error) {
       console.log("Error submitting review:", error);
+    }
+  }
+
+  async updateReview(reviewId, productId, newRating, newComment) {
+    try {
+      const reviewDocRef = doc(db, "reviews", reviewId);
+      const reviewSnapshot = await getDoc(reviewDocRef);
+
+      if (!reviewSnapshot.exists()) {
+        console.log("Review not found.");
+        return;
+      }
+
+      const reviewData = reviewSnapshot.data();
+      const oldRating = reviewData.rating;
+
+      // Update the review in Firestore
+      await updateDoc(reviewDocRef, {
+        rating: newRating,
+        comment: newComment,
+        updatedAt: new Date(),
+      });
+
+      // Update the product's average rating based on the rating change
+      await this.updateProductRating(productId, newRating, oldRating);
+
+      // Update the review in the local MobX store for the specific product
+      runInAction(() => {
+        if (this.reviewsByProduct[productId]) {
+          this.reviewsByProduct[productId] = this.reviewsByProduct[
+            productId
+          ].map((review) =>
+            review.id === reviewId
+              ? { ...review, rating: newRating, comment: newComment }
+              : review
+          );
+        }
+      });
+    } catch (error) {
+      console.log("Error updating review:", error);
+    }
+  }
+
+  async updateProductRating(productId, newRating, oldRating = null) {
+    try {
+      const productDocRef = doc(db, "products", productId);
+      const productSnapshot = await getDoc(productDocRef);
+
+      if (!productSnapshot.exists()) {
+        console.log("Product not found.");
+        return;
+      }
+
+      const productData = productSnapshot.data();
+      const currentRating = productData.averageRating || 0;
+      const totalReviews = productData.totalReviews || 0;
+
+      let newAverageRating;
+
+      if (oldRating === null) {
+        // First review case
+        const newTotalRating = currentRating * totalReviews + newRating;
+        newAverageRating = newTotalRating / (totalReviews + 1);
+
+        // Update product with new average rating and increment total reviews
+        await updateDoc(productDocRef, {
+          averageRating: parseFloat(newAverageRating.toFixed(1)),
+          totalReviews: totalReviews + 1,
+        });
+      } else {
+        // Update existing review case
+        const newTotalRating =
+          currentRating * totalReviews - oldRating + newRating;
+        newAverageRating = newTotalRating / totalReviews;
+
+        // Update product with new average rating
+        await updateDoc(productDocRef, {
+          averageRating: parseFloat(newAverageRating.toFixed(1)),
+        });
+      }
+    } catch (error) {
+      console.log("Error updating product rating:", error);
     }
   }
 
@@ -330,42 +480,6 @@ class Store {
       await this.updateProductRating(productId);
     } catch (error) {
       console.log("Error deleting review:", error);
-    }
-  }
-
-  // Update the product's average rating
-  async updateProductRating(productId) {
-    try {
-      const reviewsCollectionRef = collection(db, "reviews");
-      const q = query(
-        reviewsCollectionRef,
-        where("productId", "==", productId)
-      );
-      const querySnapshot = await getDocs(q);
-
-      const totalReviews = querySnapshot.docs.length;
-      const totalRating = querySnapshot.docs.reduce(
-        (sum, doc) => sum + doc.data().rating,
-        0
-      );
-
-      const averageRating = totalReviews ? totalRating / totalReviews : 0;
-
-      // Update the product's document with the new average rating
-      const productDocRef = doc(db, "products", productId);
-      await updateDoc(productDocRef, { averageRating });
-
-      // Update product details in MobX store
-      runInAction(() => {
-        const product = this.productDetails.find(
-          (product) => product.id === productId
-        );
-        if (product) {
-          product.averageRating = averageRating;
-        }
-      });
-    } catch (error) {
-      console.error("Error updating product rating:", error);
     }
   }
 
