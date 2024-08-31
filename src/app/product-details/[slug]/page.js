@@ -9,6 +9,7 @@ import {
   ReviewForm,
   ReviewSection,
 } from "@/components/Reviews";
+import ImageCarousel from "@/components/ImageCarousel";
 
 const ProductDetailsPage = observer(({ params }) => {
   const { slug } = params;
@@ -30,10 +31,20 @@ const ProductDetailsPage = observer(({ params }) => {
   }
 
   return (
-    <div className="mx-4 sm:mx-8 py-8">
+    <div className="mx-2 sm:mx-8 py-8">
       <h1 className="text-3xl font-bold">{productDetails.name}</h1>
 
       {/* Game Details */}
+      <ImageCarousel
+        images={[
+          "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
+          "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media&",
+          "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
+          "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
+          "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media&",
+          "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
+        ]}
+      />
       <div className="my-4">
         <img
           src={productDetails.thumbnail}

@@ -24,7 +24,7 @@ import { observer } from "mobx-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { UserNav } from "./ReusableProfileMenu";
 import Image from "next/image";
-import logoImg from "../assets/logo.png";
+import logoImg from "../assets/logo2.png";
 
 import MobileHeader from "./MobileHeader";
 import {
@@ -136,7 +136,15 @@ const ReusableLayout = observer(({ children }) => {
                 <NavigationMenu>
                   <NavigationMenuList>
                     <NavigationMenuItem>
-                      <Image src={logoImg} alt="logo" width={80} height={80} />
+                      <Link href="/">
+                        <Image
+                          src={logoImg}
+                          alt="logo"
+                          width={100}
+                          height={100}
+                          className="cursor-pointer bg-background rounded-xl mt-[30px] border"
+                        />
+                      </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                       <Link href="/" legacyBehavior passHref>
