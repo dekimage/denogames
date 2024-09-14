@@ -28,7 +28,7 @@ const MobileHeader = observer(() => {
 
   return (
     <div className="flex justify-between items-center border-b relative h-[52px] z-10000 p-4">
-      <div className="font-bold">Story RPG</div>
+      <div className="font-bold">Deno Games</div>
       <Button onClick={toggleMenu} className="p-2">
         {isMobileOpen ? (
           <X className="h-6 w-6" />

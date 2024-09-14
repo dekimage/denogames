@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { VerticalNavbar } from "./VerticalNavbar";
 
 import {
+  AppWindow,
   BookOpen,
   GaugeCircle,
   Home,
@@ -14,6 +15,7 @@ import {
   Search,
   SearchCheck,
   ShoppingCart,
+  Smartphone,
   UserIcon,
 } from "lucide-react";
 import MobxStore from "../mobx";
@@ -132,7 +134,7 @@ const ReusableLayout = observer(({ children }) => {
             style={{ overflow: "auto" }}
           >
             <div>
-              <div className="w-full h-[53px] flex justify-between items-center p-2 border-b  gap-4">
+              <div className="w-full h-[53px] flex justify-between items-center p-2 border-b gap-4">
                 <NavigationMenu>
                   <NavigationMenuList>
                     <NavigationMenuItem>
@@ -140,9 +142,9 @@ const ReusableLayout = observer(({ children }) => {
                         <Image
                           src={logoImg}
                           alt="logo"
-                          width={100}
-                          height={100}
-                          className="cursor-pointer bg-background rounded-xl mt-[30px] border"
+                          width={50}
+                          height={50}
+                          className="cursor-pointer bg-background rounded-xl  "
                         />
                       </Link>
                     </NavigationMenuItem>
@@ -167,6 +169,11 @@ const ReusableLayout = observer(({ children }) => {
                   </NavigationMenuList>
                 </NavigationMenu>
                 <div className="flex justify-end gap-4 items-center">
+                  <Link href="/app">
+                    <Button size="icon" variant="outline">
+                      <Smartphone />
+                    </Button>
+                  </Link>
                   <Link href="/">
                     <Button size="icon" variant="outline">
                       <Home />

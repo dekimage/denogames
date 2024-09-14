@@ -1,31 +1,50 @@
-export function getRelativeTime(timestamp) {
-  const currentDate = new Date();
-  const inputDate = new Date(timestamp);
-  const timeDifference = currentDate - inputDate;
+// export function getRelativeTime(timestamp) {
+//   const currentDate = new Date();
+//   const inputDate = new Date(timestamp);
+//   const timeDifference = currentDate - inputDate;
 
-  const seconds = Math.floor(timeDifference / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(weeks / 4);
+//   const seconds = Math.floor(timeDifference / 1000);
+//   const minutes = Math.floor(seconds / 60);
+//   const hours = Math.floor(minutes / 60);
+//   const days = Math.floor(hours / 24);
+//   const weeks = Math.floor(days / 7);
+//   const months = Math.floor(weeks / 4);
 
-  if (months > 0) {
-    return `${months} month${months > 1 ? "s" : ""} ago`;
-  } else if (weeks > 0) {
-    return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
-  } else if (days > 0) {
-    return `${days} day${days > 1 ? "s" : ""} ago`;
-  } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-  } else if (minutes > 0) {
-    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-  } else if (seconds > 0) {
-    return `${seconds} second${seconds > 1 ? "s" : ""} ago`;
-  } else {
-    return "Just now";
-  }
-}
+//   if (months > 0) {
+//     return `${months} month${months > 1 ? "s" : ""} ago`;
+//   } else if (weeks > 0) {
+//     return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+//   } else if (days > 0) {
+//     return `${days} day${days > 1 ? "s" : ""} ago`;
+//   } else if (hours > 0) {
+//     return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+//   } else if (minutes > 0) {
+//     return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+//   } else if (seconds > 0) {
+//     return `${seconds} second${seconds > 1 ? "s" : ""} ago`;
+//   } else {
+//     return "Just now";
+//   }
+// }
+
+export const getRelativeTime = (timestamp) => {
+  const now = new Date();
+  const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
+  const secondsAgo = Math.floor((now - date) / 1000);
+
+  const minutesAgo = Math.floor(secondsAgo / 60);
+  const hoursAgo = Math.floor(minutesAgo / 60);
+  const daysAgo = Math.floor(hoursAgo / 24);
+  const monthsAgo = Math.floor(daysAgo / 30); // Rough approximation
+  const yearsAgo = Math.floor(monthsAgo / 12);
+
+  if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
+  if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
+  if (hoursAgo < 24) return `${hoursAgo} hours ago`;
+  if (daysAgo < 30) return `${daysAgo} days ago`;
+  if (monthsAgo < 12) return `${monthsAgo} months ago`;
+  return `${yearsAgo} years ago`;
+};
 
 export function getDateTime(timestamp) {
   const date = new Date(timestamp);

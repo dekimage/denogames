@@ -39,7 +39,12 @@ const logger = new Logger({ debugEnabled: false }); // switch to true to see con
 
 class Store {
   // App Data
+  app = { games: [] };
+  summariesFetched = false; // Flag to track if summaries are fetched
+  fetchedGameDetails = {};
+  fetching = false;
 
+  // App Store
   todos = [];
   products = [];
   user = null;
@@ -65,6 +70,10 @@ class Store {
   // App States
   isMobileOpen = false;
   loading = true;
+  loadingProducts = false;
+  loadingCart = false;
+  loadingNotifications = false;
+  loadingUser = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -100,11 +109,18 @@ class Store {
     this.addNotification = this.addNotification.bind(this);
     this.markAsRead = this.markAsRead.bind(this);
     this.deleteNotification = this.deleteNotification.bind(this);
+
+    this.fetchGamesSummaryFromFirestore =
+      this.fetchGamesSummaryFromFirestore.bind(this);
+    this.fetchGameDetailsFromFirestore =
+      this.fetchGameDetailsFromFirestore.bind(this);
   }
 
   initializeAuth() {
     const auth = getAuth();
     onAuthStateChanged(auth, async (user) => {
+      if (this.loadingUser) return;
+      this.loadingUser = true;
       if (user) {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
@@ -114,13 +130,178 @@ class Store {
         await this.fetchProducts();
         await this.fetchCart();
         await this.fetchNotifications();
+        this.loadingUser = false;
       } else {
         runInAction(() => {
           this.user = null;
           this.fetchCart();
         });
+        this.loadingUser = false;
       }
     });
+  }
+
+  // APP LOGIC SHARED FOR REACT NATIVE LATER !!!
+  async addGamesToFirestore(games) {
+    try {
+      const collectionRef = collection(db, "appgames");
+
+      // Iterate over each game
+      for (const game of games) {
+        // Add game to 'appgames' collection
+        const gameDocRef = await addDoc(collectionRef, {
+          name: game.name,
+          description: game.description,
+          isActive: game.isActive,
+          createdAt: game.createdAt,
+        });
+
+        console.log("Game added with ID:", gameDocRef.id);
+
+        // Add cards to 'cards' subcollection within this game
+        if (game.cards && game.cards.length > 0) {
+          const cardsCollectionRef = collection(
+            db,
+            `appgames/${gameDocRef.id}/cards`
+          );
+
+          for (const card of game.cards) {
+            await addDoc(cardsCollectionRef, card);
+            console.log("Card added to game with ID:", gameDocRef.id);
+          }
+        }
+
+        // Add expansions to 'expansions' subcollection within this game
+        if (game.expansions && game.expansions.length > 0) {
+          const expansionsCollectionRef = collection(
+            db,
+            `appgames/${gameDocRef.id}/expansions`
+          );
+
+          for (const expansion of game.expansions) {
+            await addDoc(expansionsCollectionRef, expansion);
+            console.log("Expansion added to game with ID:", gameDocRef.id);
+          }
+        }
+      }
+
+      console.log("All games, cards, and expansions added successfully.");
+    } catch (error) {
+      console.error("Error adding games to Firestore:", error);
+    }
+  }
+
+  async updateGamesWithConfig(games) {
+    try {
+      // Step 1: Fetch all existing game documents to get their IDs
+      const gamesCollectionRef = collection(db, "appgames");
+      const gamesSnapshot = await getDocs(gamesCollectionRef);
+
+      // Step 2: Create a map of slug to document ID
+      const gameIdMap = {};
+      gamesSnapshot.forEach((doc) => {
+        const gameData = doc.data();
+        if (gameData.slug) {
+          gameIdMap[gameData.slug] = doc.id;
+        }
+      });
+
+      // Step 3: Iterate over the provided games and update each one using its mapped document ID
+      for (const game of games) {
+        const gameId = gameIdMap[game.slug];
+        if (gameId) {
+          const gameDocRef = doc(db, "appgames", gameId);
+
+          // Step 4: Update the game document with the new config
+          await updateDoc(gameDocRef, {
+            types: game.types,
+            methodsConfig: game.methodsConfig,
+          });
+
+          console.log(`Game "${game.name}" updated with new config.`);
+        } else {
+          console.log(`No matching game found for slug: ${game.slug}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating games with config:", error);
+    }
+  }
+
+  async fetchGamesSummaryFromFirestore() {
+    if (this.fetching || this.summariesFetched) return; // Avoid refetching
+    this.fetching = true;
+    try {
+      // Fetch only the main details of the games
+      const collectionRef = collection(db, "appgames");
+      const querySnapshot = await getDocs(collectionRef);
+      const games = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        cards: null, // Will be fetched later
+        expansions: null, // Will be fetched later
+      }));
+
+      // Update the MobX store with the fetched game summaries
+      runInAction(() => {
+        this.app.games = games;
+        this.summariesFetched = true; // Set the flag to indicate summaries have been fetched
+        this.fetching = false;
+      });
+
+      console.log("Game summaries fetched successfully:", games);
+    } catch (error) {
+      console.log("Error fetching game summaries from Firestore:", error);
+      this.fetching = false;
+    }
+  }
+
+  async fetchGameDetailsFromFirestore(gameId) {
+    // Check if the game's details are already loaded
+    if (this.fetching) return;
+    if (this.fetchedGameDetails[gameId]) return; // Avoid refetching
+    this.fetching = true;
+    const game = this.app.games.find((g) => g.id === gameId);
+    if (!game || (game.cards !== null && game.expansions !== null)) return; // Already fetched, no need to fetch again
+
+    try {
+      // Fetch the 'cards' subcollection for this game
+      const cardsCollectionRef = collection(db, `appgames/${gameId}/cards`);
+      const cardsSnapshot = await getDocs(cardsCollectionRef);
+      const cards = cardsSnapshot.docs.map((cardDoc) => ({
+        id: cardDoc.id,
+        ...cardDoc.data(),
+      }));
+
+      // Fetch the 'expansions' subcollection for this game
+      const expansionsCollectionRef = collection(
+        db,
+        `appgames/${gameId}/expansions`
+      );
+      const expansionsSnapshot = await getDocs(expansionsCollectionRef);
+      const expansions = expansionsSnapshot.docs.map((expansionDoc) => ({
+        id: expansionDoc.id,
+        ...expansionDoc.data(),
+      }));
+
+      // Update the specific game in the MobX store with cards and expansions
+      runInAction(() => {
+        const gameToUpdate = this.app.games.find((g) => g.id === gameId);
+        if (gameToUpdate) {
+          gameToUpdate.cards = cards;
+          gameToUpdate.expansions = expansions;
+        }
+        this.fetchedGameDetails[gameId] = true;
+      });
+
+      console.log(`Details for game ${gameId} fetched successfully.`);
+      this.fetching = false;
+    } catch (error) {
+      console.log(
+        `Error fetching details for game ${gameId} from Firestore:`,
+        error
+      );
+    }
   }
 
   // HELPER UTILS
@@ -170,6 +351,8 @@ class Store {
 
   // Function to fetch all notifications for a user
   async fetchNotifications() {
+    if (this.loadingNotifications) return;
+    this.loadingNotifications = true;
     if (!this.user) return;
     const userId = this.user.uid;
     try {
@@ -181,6 +364,7 @@ class Store {
           ...doc.data(),
         }));
       });
+      this.loadingNotifications = false;
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
@@ -533,6 +717,8 @@ class Store {
   }
 
   async fetchCart() {
+    if (this.loadingCart) return;
+    this.loadingCart = true;
     if (this.user) {
       this.fetchCartFromFirestore();
     } else {
@@ -559,6 +745,7 @@ class Store {
       runInAction(() => {
         this.cart = cartDoc.exists() ? cartDoc.data().items : [];
       });
+      this.loadingCart = false;
     } catch (error) {
       console.log("Error fetching cart from Firestore:", error);
     }
@@ -735,7 +922,7 @@ class Store {
   }
 
   async fetchProducts() {
-    this.loading = true;
+    this.loadingProducts = true;
     try {
       const productsCollectionRef = collection(db, "products");
       const querySnapshot = await getDocs(productsCollectionRef);
@@ -750,7 +937,7 @@ class Store {
     } catch (error) {
       console.log("Error fetching products:", error);
       runInAction(() => {
-        this.loading = false;
+        this.loadingProducts = false;
       });
     }
   }
