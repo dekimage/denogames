@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
+import MobxStore from "@/mobx";
 import Image from "next/image";
+import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Import static data
-import { staticGames } from "@/dungeon"; // Adjust the path as needed
-import { BonusCard } from "../CardComponents/BonusCard";
 
 const filterCardsByMethod = (
   game,
@@ -17,21 +15,26 @@ const filterCardsByMethod = (
   selectedCardHistory,
   sessionOpen
 ) => {
-  // Existing filter logic
   const [action, ...criteria] = methodName.split("_");
+
+  // Initialize filteredCards with all cards in the game
   let filteredCards = game.cards;
 
+  // Apply filters based on each criterion (e.g., 'type-relic', 'rarity-epic')
   criteria.forEach((criterion) => {
     const [property, value] = criterion.split("-");
     filteredCards = filteredCards.filter((card) => card[property] === value);
   });
 
+  // If action is "draw" and sessionOpen is true, exclude cards already in the history
   if (action === "draw" && sessionOpen) {
-    const usedCardIds = new Set(selectedCardHistory.map((card) => card.id));
+    const usedCardIds = new Set(selectedCardHistory.map((card) => card.id)); // Assuming each card has a unique 'id'
     filteredCards = filteredCards.filter((card) => !usedCardIds.has(card.id));
   }
 
+  // Check if there are no matching cards left
   if (filteredCards.length === 0) {
+    // Check if sessionOpen and if cards of that type existed in the history
     const originalFilteredCards = game.cards.filter((card) =>
       criteria.every((criterion) => {
         const [property, value] = criterion.split("-");
@@ -46,23 +49,32 @@ const filterCardsByMethod = (
     }
   }
 
+  // Perform the action (random selection or draw)
   if (action === "random" || action === "draw") {
     return filteredCards[Math.floor(Math.random() * filteredCards.length)];
   }
 
-  return null;
+  return null; // Return null if no valid action was found
 };
-
 const generateActionLabel = (action) => {
   if (!action.length) return "";
 
   const [actionType, ...criteria] = action.split("_");
+
+  // Capitalize the action type (e.g., "draw" -> "Draw")
   let label = actionType.charAt(0).toUpperCase() + actionType.slice(1);
 
+  // Loop through criteria and construct a readable label
   criteria.forEach((criterion) => {
     const [property, value] = criterion.split("-");
-    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
-    label += ` ${capitalizedValue}`;
+
+    if (property && value) {
+      // Capitalize the value (e.g., "relic" -> "Relic")
+      const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+
+      // Use the property to provide context, e.g., "Type: Relic"
+      label += ` ${capitalizedValue}`;
+    }
   });
 
   return label;
@@ -71,31 +83,44 @@ const generateActionLabel = (action) => {
 const GameDetails = observer(({ params }) => {
   const { slug } = params;
 
+  // Declare hooks at the top of the component
   const [selectedType, setSelectedType] = useState(null);
   const [selectedCardHistory, setSelectedCardHistory] = useState([]);
   const [isCardView, setIsCardView] = useState(false);
-  const [sessionOpen, setSessionOpen] = useState(true);
-  const [lastCardMessage, setLastCardMessage] = useState("");
+  const [sessionOpen, setSessionOpen] = useState(true); // State to control session behavior
+  const [lastCardMessage, setLastCardMessage] = useState(""); // State to store messages
   const [showHistory, setShowHistory] = useState(false);
-
-  // Use static data instead of MobX store
-  const games = staticGames;
-  const game = games.find((g) => g.slug === slug);
+  // Ensure MobxStore.app.games is defined and is an array
+  const games = MobxStore.app.games || [];
+  const game = games.length > 0 ? games.find((g) => g.slug === slug) : null;
 
   useEffect(() => {
-    // No Firebase fetching needed; we're using static data
+    // Fetch the game summaries if not already fetched
+    if (MobxStore.app.games.length === 0) {
+      MobxStore.fetchGamesSummaryFromFirestore();
+    }
+
+    // Fetch cards and expansions for this specific game if they haven't been fetched yet
+    if (game && game.cards === null && game.expansions === null) {
+      MobxStore.fetchGameDetailsFromFirestore(game.id);
+    }
   }, [games, game]);
 
+  // Handle cases where the game data is still loading or missing
   if (!game) {
     return <p>Loading game data...</p>;
   }
 
+  if (game.cards === null || game.expansions === null) {
+    return <p>Loading game details...</p>;
+  }
+  // State to store messages
   const filteredMethods = selectedType
     ? game.methodsConfig.filter((method) => method.type === selectedType)
     : [];
 
+  // Handler for method click
   const handleMethodClick = (method) => {
-    console.log("Method clicked:", method); // Debug log
     const result = filterCardsByMethod(
       game,
       method.method,
@@ -104,25 +129,27 @@ const GameDetails = observer(({ params }) => {
     );
 
     if (typeof result === "string") {
-      console.log("Result message:", result); // Debug log
+      // It's a message ('All used' or 'No card exists...')
       setLastCardMessage(result);
-      setSelectedCardHistory([...selectedCardHistory]);
-      setIsCardView(true);
+      setSelectedCardHistory([...selectedCardHistory]); // Maintain the current history
+      setIsCardView(true); // Switch to card view to show the message
     } else if (result) {
-      console.log("Selected card:", result); // Debug log
-      setLastCardMessage("");
+      // It's a card object
+      setLastCardMessage(""); // Clear any previous message
       setSelectedCardHistory([
         ...selectedCardHistory,
         { ...result, method: method.method },
       ]);
-      setIsCardView(true);
+      setIsCardView(true); // Switch to card view
     }
   };
 
+  // Handler to show methods again
   const handleBackToMethods = () => {
     setIsCardView(false);
   };
 
+  // Handler to re-call the current method
   const handleRefreshMethod = () => {
     if (selectedCardHistory.length > 0) {
       const lastCard = selectedCardHistory[selectedCardHistory.length - 1];
@@ -130,6 +157,7 @@ const GameDetails = observer(({ params }) => {
     }
   };
 
+  // Get the last card in the history
   const lastCard = selectedCardHistory[selectedCardHistory.length - 1];
 
   return (
@@ -244,20 +272,13 @@ const GameDetails = observer(({ params }) => {
           <div className="mt-6 p-4 border border-gray-300 rounded-lg text-center">
             <h2 className="text-2xl font-semibold mb-2">{lastCard.name}</h2>
             <p className="text-gray-700 mb-4">{lastCard.description}</p>
-
-            {lastCard.type !== "newtype" ? (
-              // Render the CardEffect component for "bonus" cards
-              <BonusCard effect={lastCard.effect} />
-            ) : (
-              // Default rendering for non-bonus cards
-              <Image
-                src={lastCard.imageUrl}
-                alt={lastCard.name}
-                width={200}
-                height={200}
-                className="w-48 h-48 object-cover rounded-md mt-4 mx-auto"
-              />
-            )}
+            <Image
+              src={lastCard.imageUrl}
+              alt={lastCard.name}
+              width={200}
+              height={200}
+              className="w-48 h-48 object-cover rounded-md mt-4 mx-auto"
+            />
 
             {/* Action Buttons for the Card */}
             {lastCard.actions && lastCard.actions.length > 0 && (
