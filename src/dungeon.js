@@ -279,79 +279,73 @@ const passiveCards = [
     type: "passive",
   },
 ];
-
 const heroPowers = [
   {
     id: "card_37",
-    name: "Shadow Strike",
-    effect:
-      "Once per turn, steal 1x [coin] from another player when you gain [initiative].",
+    name: "Busy Banker",
+    effect: "Once per turn: [ticket] [->] [coin_4].",
     type: "heropower",
-    uses: 3,
-    hero: "Ravenblade",
+    uses: 5,
+    hero: "Magnus The Coin Magician",
   },
   {
     id: "card_38",
-    name: "Guardian's Blessing",
-    effect:
-      "If you defend against an attack, gain [gold] and 1x [initiative] for the next turn.",
+    name: "The Visions Call You",
+    effect: "Activate when you draw [draw_1_epic], gain [ticket] [ticket].",
     type: "heropower",
     uses: 4,
-    hero: "Ironclad",
+    hero: "Madame Zelda, The Fortune Teller",
   },
   {
     id: "card_39",
-    name: "Blazing Speed",
+    name: "Airborne Exploration",
     effect:
-      "You may pay 2x [coin] to move an extra 3 spaces in one turn. Can be used once per round.",
+      "Activate when you use a parachute to take altered route. Gain [dungeon] [dungeon].",
     type: "heropower",
     uses: 2,
-    hero: "Flameheart",
+    hero: "Racer Ricky, The Speedster",
   },
   {
     id: "card_40",
-    name: "Mystic Insight",
+    name: "Read The Cards",
     effect:
-      "Once per turn, reveal the top 3 cards of the deck. Draw 1 and shuffle the rest back.",
+      "Once per turn: [draw_1_card] you may use up to 3 [reroll] for free.",
     type: "heropower",
-    uses: 5,
-    hero: "Aetheris",
+    uses: 3,
+    hero: "Mystic Luna, The Tarot Reader",
   },
   {
     id: "card_41",
-    name: "Golden Touch",
-    effect:
-      "If you collect 3x [coin] in a turn, gain an additional [gold]. Can be triggered once per round.",
+    name: "Shiny Gold Digging",
+    effect: "If you collect 5 or more [coin] in a turn, gain [gold]",
     type: "heropower",
     uses: 4,
-    hero: "Aurion",
+    hero: "Goldie, The Golden Collector",
   },
   {
     id: "card_42",
-    name: "Fortune's Favor",
-    effect:
-      "When you use [ticket], gain 1x [initiative] and 1x [speed] for your next move.",
+    name: "Punch Ticket",
+    effect: "Whenever you use 2 or more [ticket], gain [initative] [coin_2]",
     type: "heropower",
     uses: 3,
-    hero: "Lunara",
+    hero: "Sammy, The Ticket Scalper",
   },
   {
     id: "card_43",
-    name: "Warrior's Fury",
-    effect:
-      "If you defeat a monster, gain [speed] and 2x [coin] instantly. Can be used twice per game.",
+    name: "Peek Into The Other Side",
+    effect: "Whenever you complete a [dungeon] / [guild]: [darkmoon]",
     type: "heropower",
     uses: 2,
-    hero: "Thornbreaker",
+    hero: "Spooky Jack, The Haunted One",
   },
   {
     id: "card_44",
-    name: "Arcane Shield",
+    name: "Double or Nothing",
     effect:
-      "Once per turn, negate any negative effect targeting you. Gain 1x [vp] for each negation.",
+      "Once per turn: double all effects gained from a location's public action. Costs are also paid twice.",
     type: "heropower",
-    uses: 5,
-    hero: "Eldrasil",
+    uses: 4,
+    hero: "Benny, The Bouncer",
   },
 ];
 
@@ -769,19 +763,251 @@ const tradeCards = [
   },
 ];
 
+const dungeonRewards = [
+  {
+    id: "card_102",
+    name: "Dungeon Reward #1",
+    effect: "[coin_1] [->] [vp_2]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_103",
+    name: "Dungeon Reward #2",
+    effect: "[speed] [->] [vp_2]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_104",
+    name: "Dungeon Reward #3",
+    effect: "[ticket] [coin] [->] [vp_3]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_105",
+    name: "Dungeon Reward #4",
+    effect: "[speed] [speed] [speed] [->] [vp_3]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_106",
+    name: "Dungeon Reward #5",
+    effect: "[ticket] [speed] [->] [vp_3]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_107",
+    name: "Dungeon Reward #6",
+    effect: "[initiative lose] [coin] [->] [vp_3]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_108",
+    name: "Dungeon Reward #7",
+    effect: "[initiative lose] [ticket] [coin] [->] [vp_4]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_109",
+    name: "Dungeon Reward #8",
+    effect: "[ticket] [ticket] [speed] [->] [vp_4]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_110",
+    name: "Dungeon Reward #9",
+    effect: "[coin_3] [speed] [speed] [->] [vp_4]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_111",
+    name: "Dungeon Reward #10",
+    effect: "[speed] [coin_2] [ticket] [initiative] [->] [vp_5]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_112",
+    name: "Dungeon Reward #11",
+    effect: "[coin_4] [gold] [->] [vp_5]",
+    type: "dungeonreward",
+  },
+  {
+    id: "card_113",
+    name: "Dungeon Reward #12",
+    effect: "[ticket] [gold] [speed] [speed] [->] [vp_5]",
+    type: "dungeonreward",
+  },
+];
+
+const darkmoonCards = [
+  {
+    id: "card_114",
+    name: "Darkmoon #1",
+    effect:
+      "Gain 1x [gold] whenever another player gains 2x [coin] in their turn.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_115",
+    name: "Darkmoon #2",
+    effect: "Exchange 2x [initiative] for 1x [draw_1_card] and 1x [ticket].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_116",
+    name: "Darkmoon #3",
+    effect: "Once per turn, negate a loss of [initiative] and gain 1x [coin].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_117",
+    name: "Darkmoon #4",
+    effect: "Draw 2 cards and choose 1. Discard the other.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_118",
+    name: "Darkmoon #5",
+    effect: "If you have more than 3x [ticket], gain 2x [speed].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_119",
+    name: "Darkmoon #6",
+    effect: "Pay 1x [gold] to gain 4x [coin].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_120",
+    name: "Darkmoon #7",
+    effect: "Swap places with another player on the board.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_121",
+    name: "Darkmoon #8",
+    effect: "Gain 1x [ticket] for every [guild] card you possess.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_122",
+    name: "Darkmoon #9",
+    effect: "Roll a die: on 4-6, gain 2x [initiative]. On 1-3, lose 1x [coin].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_123",
+    name: "Darkmoon #10",
+    effect: "Steal 1x [ticket] from each player.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_124",
+    name: "Darkmoon #11",
+    effect: "You may move into a [dungeon] for free this turn.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_125",
+    name: "Darkmoon #12",
+    effect: "Double the rewards of your next [guild] card.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_126",
+    name: "Darkmoon #13",
+    effect: "Draw 3 cards. Choose one to keep and return the rest.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_127",
+    name: "Darkmoon #14",
+    effect: "Gain 1x [coin] and 1x [initiative] for every [ticket] you have.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_128",
+    name: "Darkmoon #15",
+    effect: "Lose 2x [speed] to gain 1x [gold].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_129",
+    name: "Darkmoon #16",
+    effect: "Choose a player: they lose 1x [initiative]. You gain 1x [speed].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_130",
+    name: "Darkmoon #17",
+    effect: "Gain 1x [draw_1_card] for every [dungeon] you complete this turn.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_131",
+    name: "Darkmoon #18",
+    effect: "You may play an additional card this turn.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_132",
+    name: "Darkmoon #19",
+    effect: "Gain 2x [ticket], but lose 1x [gold].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_133",
+    name: "Darkmoon #20",
+    effect: "Trade 3x [coin] for 1x [draw_1_card] and 1x [initiative].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_134",
+    name: "Darkmoon #21",
+    effect: "Whenever you enter a [guild], gain 1x [speed].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_135",
+    name: "Darkmoon #22",
+    effect: "Lose 1x [ticket] to gain 2x [initiative].",
+    type: "darkmoon",
+  },
+  {
+    id: "card_136",
+    name: "Darkmoon #23",
+    effect: "Draw 2 cards. Discard 1 card from your hand.",
+    type: "darkmoon",
+  },
+  {
+    id: "card_137",
+    name: "Darkmoon #24",
+    effect: "If you end your turn with no [coin], gain 2x [speed].",
+    type: "darkmoon",
+  },
+];
+
 const dungeonGame = {
   id: "game1",
   slug: "wild-dungeoneers",
   name: "Wild Dungeoneers",
   description:
     "An adventurous journey through wild dungeons, filled with thrilling encounters and challenges.",
-  cards: [...bonusCards, ...passiveCards, ...heroPowers, ...tradeCards],
+  cards: [
+    ...bonusCards,
+    ...passiveCards,
+    ...heroPowers,
+    ...tradeCards,
+    ...dungeonRewards,
+    ...darkmoonCards,
+  ],
   expansions: [],
   types: {
     "type-bonus": { name: "Starting Bonus" },
     "type-passive": { name: "Passive" },
     "type-heropower": { name: "Hero Power" },
     "type-trade": { name: "Trade" },
+    "type-dungeonreward": { name: "Dungeon Reward" },
+    "type-darkmoon": { name: "Darkmoon" },
   },
   methodsConfig: [
     {
@@ -803,6 +1029,16 @@ const dungeonGame = {
       method: "draw_type-trade",
       name: "Draw Trade Card",
       type: "type-trade",
+    },
+    {
+      method: "draw_type-dungeonreward",
+      name: "Draw Dungeon Reward",
+      type: "type-dungeonreward",
+    },
+    {
+      method: "draw_type-darkmoon",
+      name: "Draw Darkmoon Card",
+      type: "type-darkmoon",
     },
   ],
 };

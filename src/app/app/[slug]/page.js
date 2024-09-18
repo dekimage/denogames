@@ -11,6 +11,19 @@ import { Button } from "@/components/ui/button";
 import { staticGames } from "@/dungeon"; // Adjust the path as needed
 import { BonusCard } from "../CardComponents/BonusCard";
 
+const getImageFromType = (type) => {
+  const imageMap = {
+    "type-bonus": "dungeoneers/cover-ai-images/startingbonus.png",
+    "type-passive": "dungeoneers/cover-ai-images/passive.png",
+    "type-heropower": "dungeoneers/cover-ai-images/heropower.png",
+    "type-trade": "dungeoneers/cover-ai-images/trade.png",
+    "type-dungeonreward": "dungeoneers/cover-ai-images/dungeonreward.png",
+    "type-darkmoon": "dungeoneers/cover-ai-images/darkmoon.png",
+  };
+
+  return imageMap[type] || "assets/placeholder.png";
+};
+
 const filterCardsByMethod = (
   game,
   methodName,
@@ -95,7 +108,6 @@ const GameDetails = observer(({ params }) => {
     : [];
 
   const handleMethodClick = (method) => {
-    console.log("Method clicked:", method); // Debug log
     const result = filterCardsByMethod(
       game,
       method.method,
@@ -104,12 +116,10 @@ const GameDetails = observer(({ params }) => {
     );
 
     if (typeof result === "string") {
-      console.log("Result message:", result); // Debug log
       setLastCardMessage(result);
       setSelectedCardHistory([...selectedCardHistory]);
       setIsCardView(true);
     } else if (result) {
-      console.log("Selected card:", result); // Debug log
       setLastCardMessage("");
       setSelectedCardHistory([
         ...selectedCardHistory,
@@ -174,11 +184,11 @@ const GameDetails = observer(({ params }) => {
           )}
 
           {/* Card Types */}
-          <div className="flex flex-wrap gap-4 mb-6">
+          <div className="flex flex-wrap justify-center gap-4 mb-6">
             {Object.entries(game.types).map(([key, value], i) => (
               <div
                 key={key}
-                className={`border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
+                className={`w-full max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
                   selectedType === key
                     ? "bg-blue-300 border-blue-500"
                     : "hover:bg-gray-100"
@@ -186,12 +196,13 @@ const GameDetails = observer(({ params }) => {
                 onClick={() => setSelectedType(key)}
               >
                 <h2 className="text-xl font-semibold mb-2">{value.name}</h2>
+
                 <Image
-                  src={`https://picsum.photos/id/${10 + i}/200/200`}
+                  src={`http://localhost:3000/${getImageFromType(key)}`}
                   alt={value.name}
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 object-cover rounded-md"
+                  width={250}
+                  height={250}
+                  className="w-[100px] h-[100px] object-cover rounded-md"
                 />
               </div>
             ))}
@@ -217,11 +228,13 @@ const GameDetails = observer(({ params }) => {
                     <h3 className="text-lg font-semibold">{method.name}</h3>
                   </div>
                   <Image
-                    src={`https://picsum.photos/id/${120 + i}/200/200`}
+                    src={`http://localhost:3000/${getImageFromType(
+                      selectedType
+                    )}`}
                     alt={method.name}
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 object-cover rounded-md"
+                    width={200}
+                    height={200}
+                    className="w-24 h-24 object-cover rounded-md"
                   />
                 </div>
               ))}
@@ -230,7 +243,7 @@ const GameDetails = observer(({ params }) => {
         </>
       ) : // Card view
       lastCardMessage ? (
-        <div className="mt-6 p-4 border border-gray-300 rounded-lg text-center">
+        <div className="w-full mt-6 border border-gray-300 rounded-lg text-center">
           <h2 className="text-2xl font-semibold mb-2">{lastCardMessage}</h2>
           <button
             className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 transition"
