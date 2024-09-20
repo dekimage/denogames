@@ -69,7 +69,7 @@ export const BonusCard = ({ effect, isHistory }) => {
           // If the effect is an array, iterate over it
           effect.map((item, index) =>
             iconMapping[item] ? (
-              <img
+              <Image
                 key={index}
                 // src={`${baseUrl}/${iconMapping[item]}`}
                 src={`${iconMapping[item]}`}
