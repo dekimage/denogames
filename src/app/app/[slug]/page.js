@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Import static data
@@ -17,7 +17,7 @@ const getImageFromType = (type) => {
     "type-passive": "dungeoneers/cover-ai-images/passive.png",
     "type-heropower": "dungeoneers/cover-ai-images/heropower.png",
     "type-trade": "dungeoneers/cover-ai-images/trade.png",
-    "type-dungeonreward": "dungeoneers/cover-ai-images/dungeonreward.png",
+    "type-epiccard": "dungeoneers/cover-ai-images/dungeonreward.png",
     "type-darkmoon": "dungeoneers/cover-ai-images/darkmoon.png",
   };
 
@@ -107,6 +107,54 @@ const GameDetails = observer(({ params }) => {
     ? game.methodsConfig.filter((method) => method.type === selectedType)
     : [];
 
+  // Function to reroll card without adding to history
+  const handleRerollMethod = () => {
+    if (selectedCardHistory.length > 0) {
+      const lastCard = selectedCardHistory[selectedCardHistory.length - 1];
+      // Draw a new card based on the last method used, but don't use history
+      const result = filterCardsByMethod(
+        game,
+        lastCard.method,
+        [],
+        sessionOpen
+      );
+      if (typeof result === "string") {
+        setLastCardMessage(result);
+      } else if (result) {
+        setLastCardMessage("");
+        // Display the rerolled card but don't add it to history
+        setSelectedCardHistory([
+          ...selectedCardHistory.slice(0, -1),
+          { ...result, method: lastCard.method },
+        ]);
+      }
+    }
+  };
+
+  // Function to draw a card and add it to the history
+  const handleDrawMethod = () => {
+    if (selectedCardHistory.length > 0) {
+      const lastCard = selectedCardHistory[selectedCardHistory.length - 1];
+      // Draw a new card and add it to history, then go back to method view
+      const result = filterCardsByMethod(
+        game,
+        lastCard.method,
+        selectedCardHistory,
+        sessionOpen
+      );
+      if (typeof result === "string") {
+        setLastCardMessage(result);
+      } else if (result) {
+        setLastCardMessage("");
+        // Add the newly drawn card to the history only once
+        setSelectedCardHistory([
+          ...selectedCardHistory,
+          { ...result, method: lastCard.method },
+        ]);
+        setIsCardView(false); // Go back to method view
+      }
+    }
+  };
   const handleMethodClick = (method) => {
     const result = filterCardsByMethod(
       game,
@@ -131,6 +179,7 @@ const GameDetails = observer(({ params }) => {
 
   const handleBackToMethods = () => {
     setIsCardView(false);
+    setShowHistory(false);
   };
 
   const handleRefreshMethod = () => {
@@ -143,16 +192,16 @@ const GameDetails = observer(({ params }) => {
   const lastCard = selectedCardHistory[selectedCardHistory.length - 1];
 
   return (
-    <div className="p-4 flex flex-col items-center">
+    <div className="p-4 flex flex-col items-center h-full h-screen">
       {!isCardView ? (
         // Methods and types view
         <>
-          <Link
+          {/* <Link
             className="text-gray-500 underline flex items-center"
             href="/app"
           >
             <ArrowLeft size={16} className="mr-1" /> Back to Games
-          </Link>
+          </Link> */}
           <h1 className="text-3xl font-bold mb-4">{game.name}</h1>
           <p className="text-gray-700 mb-6">{game.description}</p>
 
@@ -164,20 +213,21 @@ const GameDetails = observer(({ params }) => {
           </Button>
 
           {showHistory && (
-            <div className="w-full overflow-x-scroll flex space-x-4 py-4 hide-scrollbar mb-8">
+            <div className="w-full overflow-x-scroll flex space-x-4 py-4 hide-scrollbar mb-8 min-h-[200px]">
               {selectedCardHistory.map((card, index) => (
                 <div
                   key={index}
                   className="min-w-[150px] p-2 border border-gray-300 rounded-lg flex-shrink-0"
                 >
-                  <Image
+                  {/* <Image
                     src={card.imageUrl}
                     alt={card.name}
                     width={100}
                     height={100}
                     className="w-24 h-24 object-cover rounded-md mb-2"
                   />
-                  <h3 className="text-sm font-semibold">{card.name}</h3>
+                  <h3 className="text-sm font-semibold">{card.name}</h3> */}
+                  <BonusCard isHistory effect={card.effect} />
                 </div>
               ))}
             </div>
@@ -185,35 +235,42 @@ const GameDetails = observer(({ params }) => {
 
           {/* Card Types */}
           <div className="flex flex-wrap justify-center gap-4 mb-6">
-            {Object.entries(game.types).map(([key, value], i) => (
-              <div
-                key={key}
-                className={`w-full max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
-                  selectedType === key
-                    ? "bg-blue-300 border-blue-500"
-                    : "hover:bg-gray-100"
-                } transition`}
-                onClick={() => setSelectedType(key)}
-              >
-                <h2 className="text-xl font-semibold mb-2">{value.name}</h2>
-
-                <Image
-                  src={`http://localhost:3000/${getImageFromType(key)}`}
-                  alt={value.name}
-                  width={250}
-                  height={250}
-                  className="w-[100px] h-[100px] object-cover rounded-md"
-                />
-              </div>
-            ))}
+            {selectedType ? (
+              // Show a "Back to All Types" button when a type is selected
+              <Button variant="outline" onClick={() => setSelectedType(null)}>
+                <ChevronLeft className="mr-1" /> Back
+              </Button>
+            ) : (
+              // Show the types when no type is selected
+              Object.entries(game.types).map(([key, value], i) => (
+                <div
+                  key={key}
+                  className={`w-full max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
+                    selectedType === key
+                      ? "bg-blue-300 border-blue-500"
+                      : "hover:bg-gray-100"
+                  } transition`}
+                  onClick={() => setSelectedType(key)}
+                >
+                  <h2 className="text-xl font-semibold mb-2">{value.name}</h2>
+                  <Image
+                    src={`http://localhost:3000/${getImageFromType(key)}`}
+                    alt={value.name}
+                    width={250}
+                    height={250}
+                    className="w-[125px] h-[125px] object-cover rounded-md"
+                  />
+                </div>
+              ))
+            )}
           </div>
 
-          {selectedType && (
+          {/* {selectedType && (
             <div className="mb-4 gap-2 flex">
               <Button variant="outline">What are {selectedType}?</Button>
               <Button variant="outline">View All</Button>
             </div>
-          )}
+          )} */}
 
           {/* Methods for the Selected Type */}
           {selectedType && (
@@ -254,9 +311,9 @@ const GameDetails = observer(({ params }) => {
         </div>
       ) : (
         lastCard && (
-          <div className="mt-6 p-4 border border-gray-300 rounded-lg text-center">
+          <div className="w-full max-w-[600px] h-full flex flex-col justify-between p-4 border border-gray-300 rounded-lg text-center items-center">
             <h2 className="text-2xl font-semibold mb-2">{lastCard.name}</h2>
-            <p className="text-gray-700 mb-4">{lastCard.description}</p>
+            {/* <p className="text-gray-700 mb-4">{lastCard.description}</p> */}
 
             {lastCard.type !== "newtype" ? (
               // Render the CardEffect component for "bonus" cards
@@ -288,19 +345,16 @@ const GameDetails = observer(({ params }) => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-6">
-              <button
-                className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 transition"
-                onClick={handleBackToMethods}
-              >
-                ⬅ Back
-              </button>
-              <button
-                className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 transition"
-                onClick={handleRefreshMethod}
-              >
-                🔄 Refresh
-              </button>
+            <div className="flex justify-between mt-6 gap-6">
+              <Button variant="outline" onClick={handleBackToMethods}>
+                <ChevronLeft className="mr-1" /> Back
+              </Button>
+              <Button variant="outline" onClick={handleRerollMethod}>
+                <RefreshCcw className="mr-1" /> Reroll
+              </Button>
+              <Button variant="outline" onClick={handleDrawMethod}>
+                Draw
+              </Button>
             </div>
           </div>
         )

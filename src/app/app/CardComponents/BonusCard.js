@@ -8,8 +8,15 @@ import Image from "next/image";
 const iconMapping = {
   coin: "dungeoneers/coin.png",
   coin_1: "dungeoneers/coin.png",
-  coin_2: "dungeoneers/coin.png",
-  coin_3: "dungeoneers/coin.png",
+  coin_2: "dungeoneers/coin_2.png",
+  coin_3: "dungeoneers/coin_3.png",
+  coin_4: "dungeoneers/coin_4.png",
+  coin_5: "dungeoneers/coin_5.png",
+  vp_1: "dungeoneers/vp_1.png",
+  vp_2: "dungeoneers/vp_2.png",
+  vp_3: "dungeoneers/vp_3.png",
+  vp_4: "dungeoneers/vp_4.png",
+  vp_5: "dungeoneers/vp_5.png",
   speed: "dungeoneers/speed.png",
   gold: "dungeoneers/gold.png",
   ticket: "dungeoneers/ticket.png",
@@ -19,6 +26,7 @@ const iconMapping = {
   draw_1_epic: "dungeoneers/draw_1_epic.png",
   dungeon: "dungeoneers/dungeon.png",
   guild: "dungeoneers/guild.png",
+  upgrade: "dungeoneers/upgrade.png",
   // Add other resources as needed
 };
 
@@ -37,7 +45,7 @@ const parseEffectString = (effectString) => {
             alt={key}
             width={24}
             height={24}
-            className="inline-block w-6 h-6 mx-1"
+            className="inline-block w-12 h-12 mx-1"
           />
         );
       }
@@ -47,9 +55,14 @@ const parseEffectString = (effectString) => {
 };
 
 // Component to render the effect
-export const BonusCard = ({ effect }) => {
+export const BonusCard = ({ effect, isHistory }) => {
   return (
-    <div className="p-4 border rounded-lg shadow-md bg-white max-w-[350px]">
+    <div
+      style={
+        isHistory ? { height: "200px", minHeight: "200px", width: "150px" } : {}
+      }
+      className="p-4 border rounded-lg shadow-md bg-white max-w-[350px] min-w-[300px] min-h-[400px] flex justify-center items-center "
+    >
       <div className="flex flex-wrap items-center space-x-2">
         {Array.isArray(effect) ? (
           // If the effect is an array, iterate over it
@@ -59,7 +72,7 @@ export const BonusCard = ({ effect }) => {
                 key={index}
                 src={`${baseUrl}/${iconMapping[item]}`}
                 alt={item}
-                className="inline-block w-6 h-6"
+                className="inline-block w-12 h-12"
               />
             ) : (
               <span key={index}>{item}</span>

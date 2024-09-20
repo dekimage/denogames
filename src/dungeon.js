@@ -763,78 +763,78 @@ const tradeCards = [
   },
 ];
 
-const dungeonRewards = [
+const epicCards = [
   {
     id: "card_102",
-    name: "Dungeon Reward #1",
+    name: "Epic Card #1",
     effect: "[coin_1] [->] [vp_2]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_103",
-    name: "Dungeon Reward #2",
+    name: "Epic Card #2",
     effect: "[speed] [->] [vp_2]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_104",
-    name: "Dungeon Reward #3",
+    name: "Epic Card #3",
     effect: "[ticket] [coin] [->] [vp_3]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_105",
-    name: "Dungeon Reward #4",
+    name: "Epic Card #4",
     effect: "[speed] [speed] [speed] [->] [vp_3]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_106",
-    name: "Dungeon Reward #5",
+    name: "Epic Card #5",
     effect: "[ticket] [speed] [->] [vp_3]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_107",
-    name: "Dungeon Reward #6",
+    name: "Epic Card #6",
     effect: "[initiative lose] [coin] [->] [vp_3]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_108",
-    name: "Dungeon Reward #7",
+    name: "Epic Card #7",
     effect: "[initiative lose] [ticket] [coin] [->] [vp_4]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_109",
-    name: "Dungeon Reward #8",
+    name: "Epic Card #8",
     effect: "[ticket] [ticket] [speed] [->] [vp_4]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_110",
-    name: "Dungeon Reward #9",
+    name: "Epic Card #9",
     effect: "[coin_3] [speed] [speed] [->] [vp_4]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_111",
-    name: "Dungeon Reward #10",
+    name: "Epic Card #10",
     effect: "[speed] [coin_2] [ticket] [initiative] [->] [vp_5]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_112",
-    name: "Dungeon Reward #11",
+    name: "Epic Card #11",
     effect: "[coin_4] [gold] [->] [vp_5]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
   {
     id: "card_113",
-    name: "Dungeon Reward #12",
+    name: "Epic Card #12",
     effect: "[ticket] [gold] [speed] [speed] [->] [vp_5]",
-    type: "dungeonreward",
+    type: "epiccard",
   },
 ];
 
@@ -843,161 +843,97 @@ const darkmoonCards = [
     id: "card_114",
     name: "Darkmoon #1",
     effect:
-      "Gain 1x [gold] whenever another player gains 2x [coin] in their turn.",
+      "Choose 2 markets to [upgrade] by 1 without paying cost. For each that you can't (because it's maximum level): [coin_1].",
     type: "darkmoon",
   },
   {
     id: "card_115",
     name: "Darkmoon #2",
-    effect: "Exchange 2x [initiative] for 1x [draw_1_card] and 1x [ticket].",
+    effect: "Teleport to any location, do that location's actions twice x2.",
     type: "darkmoon",
   },
   {
     id: "card_116",
     name: "Darkmoon #3",
-    effect: "Once per turn, negate a loss of [initiative] and gain 1x [coin].",
+    effect:
+      "Lose all [speed] [->] Gain [coin] for each. Gain [gold] [draw_1_card] If you lost 3 or more [speed] this way also gain [ticket]",
     type: "darkmoon",
   },
   {
     id: "card_117",
     name: "Darkmoon #4",
-    effect: "Draw 2 cards and choose 1. Discard the other.",
+    effect: "Move in any [dungeon]/[guild] 3 times. Lose [vp_2].",
     type: "darkmoon",
   },
   {
     id: "card_118",
     name: "Darkmoon #5",
-    effect: "If you have more than 3x [ticket], gain 2x [speed].",
+    effect:
+      "Draw and activate 3 hero powers. (those that have instant effects) For each that you can't activate: [coin_2].",
     type: "darkmoon",
   },
   {
     id: "card_119",
     name: "Darkmoon #6",
-    effect: "Pay 1x [gold] to gain 4x [coin].",
+    effect:
+      "Draw 1 starting bonus and gain it. You may reroll up to 2 times for free.",
     type: "darkmoon",
   },
   {
     id: "card_120",
     name: "Darkmoon #7",
-    effect: "Swap places with another player on the board.",
+    effect: "Gain [coin_2] Then, [upgrade] [upgrade]",
     type: "darkmoon",
   },
   {
     id: "card_121",
     name: "Darkmoon #8",
-    effect: "Gain 1x [ticket] for every [guild] card you possess.",
+    effect:
+      "[draw_1_card] [draw_1_card]. You may reroll each up to 2 times. If you are on the same location with another player: Steal 1 [initiative] from one of them.",
     type: "darkmoon",
   },
   {
     id: "card_122",
     name: "Darkmoon #9",
-    effect: "Roll a die: on 4-6, gain 2x [initiative]. On 1-3, lose 1x [coin].",
+    effect:
+      "[coin] [speed] [->] [gold] [vp_1]. You may repeat this process 3 times. For each that you can't, gain a [coin].",
     type: "darkmoon",
   },
   {
     id: "card_123",
     name: "Darkmoon #10",
-    effect: "Steal 1x [ticket] from each player.",
+    effect:
+      "Move in [dungeon] 1 space diagonally and gain [initiative]. If you can't (because you are at the entrance or not in a dungeon): [dungeon] [dungeon].",
     type: "darkmoon",
   },
   {
     id: "card_124",
     name: "Darkmoon #11",
-    effect: "You may move into a [dungeon] for free this turn.",
+    effect:
+      "Pick a player and teleport to their location. If you have more [initiative] than them: [coin_3]. Otherwise, gain [initiative]. Then, perform the location's actions as usual.",
     type: "darkmoon",
   },
   {
     id: "card_125",
     name: "Darkmoon #12",
-    effect: "Double the rewards of your next [guild] card.",
-    type: "darkmoon",
-  },
-  {
-    id: "card_126",
-    name: "Darkmoon #13",
-    effect: "Draw 3 cards. Choose one to keep and return the rest.",
-    type: "darkmoon",
-  },
-  {
-    id: "card_127",
-    name: "Darkmoon #14",
-    effect: "Gain 1x [coin] and 1x [initiative] for every [ticket] you have.",
-    type: "darkmoon",
-  },
-  {
-    id: "card_128",
-    name: "Darkmoon #15",
-    effect: "Lose 2x [speed] to gain 1x [gold].",
-    type: "darkmoon",
-  },
-  {
-    id: "card_129",
-    name: "Darkmoon #16",
-    effect: "Choose a player: they lose 1x [initiative]. You gain 1x [speed].",
-    type: "darkmoon",
-  },
-  {
-    id: "card_130",
-    name: "Darkmoon #17",
-    effect: "Gain 1x [draw_1_card] for every [dungeon] you complete this turn.",
-    type: "darkmoon",
-  },
-  {
-    id: "card_131",
-    name: "Darkmoon #18",
-    effect: "You may play an additional card this turn.",
-    type: "darkmoon",
-  },
-  {
-    id: "card_132",
-    name: "Darkmoon #19",
-    effect: "Gain 2x [ticket], but lose 1x [gold].",
-    type: "darkmoon",
-  },
-  {
-    id: "card_133",
-    name: "Darkmoon #20",
-    effect: "Trade 3x [coin] for 1x [draw_1_card] and 1x [initiative].",
-    type: "darkmoon",
-  },
-  {
-    id: "card_134",
-    name: "Darkmoon #21",
-    effect: "Whenever you enter a [guild], gain 1x [speed].",
-    type: "darkmoon",
-  },
-  {
-    id: "card_135",
-    name: "Darkmoon #22",
-    effect: "Lose 1x [ticket] to gain 2x [initiative].",
-    type: "darkmoon",
-  },
-  {
-    id: "card_136",
-    name: "Darkmoon #23",
-    effect: "Draw 2 cards. Discard 1 card from your hand.",
-    type: "darkmoon",
-  },
-  {
-    id: "card_137",
-    name: "Darkmoon #24",
-    effect: "If you end your turn with no [coin], gain 2x [speed].",
+    effect:
+      "All players that have equal or more [initiative] than you give you [coin_3]. If they have less, they give as much as they can. Then in a 2/3/4 player game: lose nothing/[vp_1]/[vp_2] respectively.",
     type: "darkmoon",
   },
 ];
 
 const dungeonGame = {
   id: "game1",
-  slug: "wild-dungeoneers",
-  name: "Wild Dungeoneers",
-  description:
-    "An adventurous journey through wild dungeons, filled with thrilling encounters and challenges.",
+  slug: "the-last-faire",
+  name: "The Last Faire",
+  // description:
+  //   "An adventurous journey through wild dungeons, filled with thrilling encounters and challenges.",
   cards: [
     ...bonusCards,
     ...passiveCards,
     ...heroPowers,
     ...tradeCards,
-    ...dungeonRewards,
+    ...epicCards,
     ...darkmoonCards,
   ],
   expansions: [],
@@ -1006,7 +942,7 @@ const dungeonGame = {
     "type-passive": { name: "Passive" },
     "type-heropower": { name: "Hero Power" },
     "type-trade": { name: "Trade" },
-    "type-dungeonreward": { name: "Dungeon Reward" },
+    "type-epiccard": { name: "Epic Card" },
     "type-darkmoon": { name: "Darkmoon" },
   },
   methodsConfig: [
@@ -1031,9 +967,9 @@ const dungeonGame = {
       type: "type-trade",
     },
     {
-      method: "draw_type-dungeonreward",
-      name: "Draw Dungeon Reward",
-      type: "type-dungeonreward",
+      method: "draw_type-epiccard",
+      name: "Draw Epic Card",
+      type: "type-epiccard",
     },
     {
       method: "draw_type-darkmoon",

@@ -213,7 +213,7 @@ const ReusableLayout = observer(({ children }) => {
         </ResizablePanelGroup>
       </div>
       <div className="block sm:hidden">
-        <MobileHeader />
+        {/* <MobileHeader /> */}
         {children}
       </div>
     </div>
