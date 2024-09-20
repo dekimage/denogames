@@ -256,7 +256,8 @@ const GameDetails = observer(({ params }) => {
                 >
                   <h2 className="text-xl font-semibold mb-2">{value.name}</h2>
                   <Image
-                    src={`${baseUrl}/${getImageFromType(key)}`}
+                    // src={`${baseUrl}/${getImageFromType(key)}`}
+                    src={`/${getImageFromType(key)}`}
                     alt={value.name}
                     width={250}
                     height={250}
@@ -287,7 +288,8 @@ const GameDetails = observer(({ params }) => {
                     <h3 className="text-lg font-semibold">{method.name}</h3>
                   </div>
                   <Image
-                    src={`${baseUrl}/${getImageFromType(selectedType)}`}
+                    // src={`${baseUrl}/${getImageFromType(selectedType)}`}
+                    src={`/${getImageFromType(key)}`}
                     alt={method.name}
                     width={200}
                     height={200}

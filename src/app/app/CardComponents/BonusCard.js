@@ -41,7 +41,8 @@ const parseEffectString = (effectString) => {
         return (
           <Image
             key={index}
-            src={`${baseUrl}/${iconMapping[key]}`}
+            // src={`${baseUrl}/${iconMapping[key]}`}
+            src={`/${iconMapping[key]}`}
             alt={key}
             width={24}
             height={24}
@@ -70,7 +71,8 @@ export const BonusCard = ({ effect, isHistory }) => {
             iconMapping[item] ? (
               <img
                 key={index}
-                src={`${baseUrl}/${iconMapping[item]}`}
+                // src={`${baseUrl}/${iconMapping[item]}`}
+                src={`${iconMapping[item]}`}
                 alt={item}
                 className="inline-block w-12 h-12"
               />
