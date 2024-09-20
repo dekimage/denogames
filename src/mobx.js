@@ -722,7 +722,7 @@ class Store {
     if (this.user) {
       this.fetchCartFromFirestore();
     } else {
-      this.fetchCartFromLocalStorage();
+      // this.fetchCartFromLocalStorage();
     }
   }
 
@@ -770,7 +770,7 @@ class Store {
     if (this.user) {
       this.syncCartWithFirestore();
     } else {
-      this.syncCartWithLocalStorage();
+      // this.syncCartWithLocalStorage();
     }
   }
 
@@ -783,7 +783,7 @@ class Store {
     if (this.user) {
       this.syncCartWithFirestore();
     } else {
-      this.syncCartWithLocalStorage();
+      // this.syncCartWithLocalStorage();
     }
   }
 
