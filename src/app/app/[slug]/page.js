@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { staticGames } from "@/dungeon"; // Adjust the path as needed
 import { BonusCard } from "../CardComponents/BonusCard";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
 const getImageFromType = (type) => {
   const imageMap = {
     "type-bonus": "dungeoneers/cover-ai-images/startingbonus.png",
@@ -254,7 +256,7 @@ const GameDetails = observer(({ params }) => {
                 >
                   <h2 className="text-xl font-semibold mb-2">{value.name}</h2>
                   <Image
-                    src={`http://localhost:3000/${getImageFromType(key)}`}
+                    src={`${baseUrl}/${getImageFromType(key)}`}
                     alt={value.name}
                     width={250}
                     height={250}
@@ -285,9 +287,7 @@ const GameDetails = observer(({ params }) => {
                     <h3 className="text-lg font-semibold">{method.name}</h3>
                   </div>
                   <Image
-                    src={`http://localhost:3000/${getImageFromType(
-                      selectedType
-                    )}`}
+                    src={`${baseUrl}/${getImageFromType(selectedType)}`}
                     alt={method.name}
                     width={200}
                     height={200}
