@@ -238,7 +238,7 @@ const GameDetails = observer(({ params }) => {
           {/* Card Types */}
           <div className="flex flex-wrap justify-center gap-4 mb-6">
             {selectedType ? (
-              // Show a "Back to All Types" button when a type is selected
+              // Show a "Back to All Types" button when a type is selected s
               <Button variant="outline" onClick={() => setSelectedType(null)}>
                 <ChevronLeft className="mr-1" /> Back
               </Button>
