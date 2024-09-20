@@ -54,8 +54,8 @@ const OrderDetails = ({ order }) => {
             <div className="grid gap-3">
               <div className="font-semibold">Order Details</div>
               <ul className="grid gap-3">
-                {order.cartItems.map((ca) => (
-                  <li className="flex items-center justify-between">
+                {order.cartItems.map((ca, i) => (
+                  <li key={i} className="flex items-center justify-between">
                     <span className="text-muted-foreground">{ca.name}</span>
                     <span>{ca.price}.00</span>
                   </li>
@@ -132,8 +132,8 @@ const OrdersPage = observer(() => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.map((order) => (
-            <TableRow>
+          {orders.map((order, i) => (
+            <TableRow key={i}>
               <TableCell>
                 <div className="font-medium">
                   {order.createdAt

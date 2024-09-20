@@ -143,7 +143,7 @@ export const CheckoutPage = observer(() => {
             />
           </div>
           <div>
-            Psst, I'm using Stripe to collect payments. I don`t have access to
+            Psst, I`m using Stripe to collect payments. I don`t have access to
             any of the payment information you provide. Read more about Stripe
             on their official site{" "}
             <a

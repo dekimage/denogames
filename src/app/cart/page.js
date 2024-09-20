@@ -63,7 +63,7 @@ const CartPage = observer(() => {
         <div className="p-8 border">
           <p>The cart is empty. muhar zagrizen art</p>
           <div className="mb-4">
-            Let's fill it up with bunch of cool games :3
+            Let`s fill it up with bunch of cool games :3
           </div>
           <Link href="/">
             <Button className="h-16 text-xl">
