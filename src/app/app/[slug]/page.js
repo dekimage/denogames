@@ -289,7 +289,7 @@ const GameDetails = observer(({ params }) => {
                   </div>
                   <Image
                     // src={`${baseUrl}/${getImageFromType(selectedType)}`}
-                    src={`/${getImageFromType(key)}`}
+                    src={`/${getImageFromType(method.type)}`}
                     alt={method.name}
                     width={200}
                     height={200}
