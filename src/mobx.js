@@ -45,7 +45,7 @@ class Store {
   fetching = false;
 
   // App Store
-  todos = [];
+
   products = [];
   user = null;
   cart = [];
@@ -69,11 +69,11 @@ class Store {
   lists = [];
   // App States
   isMobileOpen = false;
-  loading = true;
+  loading = false; // Initialize to false
+  loadingUser = false;
   loadingProducts = false;
   loadingCart = false;
   loadingNotifications = false;
-  loadingUser = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -120,23 +120,34 @@ class Store {
     const auth = getAuth();
     onAuthStateChanged(auth, async (user) => {
       if (this.loadingUser) return;
-      this.loadingUser = true;
-      if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
+      runInAction(() => {
+        this.loadingUser = true;
+        this.loading = true; // Set global loading state
+      });
+
+      try {
+        if (user) {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          runInAction(() => {
+            this.user = { uid: user.uid, ...userDoc.data() };
+          });
+          await this.fetchProducts();
+          await this.fetchCart();
+          await this.fetchNotifications();
+        } else {
+          runInAction(() => {
+            this.user = null;
+          });
+          await this.fetchCart();
+        }
+      } catch (error) {
+        console.error("Error in auth state change:", error);
+      } finally {
         runInAction(() => {
-          this.user = { uid: user.uid, ...userDoc.data() };
+          this.loadingUser = false;
+          this.loading = false; // Reset global loading state
         });
-        await this.fetchProducts();
-        await this.fetchCart();
-        await this.fetchNotifications();
-        this.loadingUser = false;
-      } else {
-        runInAction(() => {
-          this.user = null;
-          this.fetchCart();
-        });
-        this.loadingUser = false;
       }
     });
   }

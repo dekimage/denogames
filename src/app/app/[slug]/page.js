@@ -206,14 +206,12 @@ const GameDetails = observer(({ params }) => {
           </Link> */}
           <h1 className="text-3xl font-bold mb-4">{game.name}</h1>
           <p className="text-gray-700 mb-6">{game.description}</p>
-
           <Button
             className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 transition mb-4"
             onClick={() => setShowHistory(!showHistory)}
           >
             {showHistory ? "Hide History" : "View History"}
           </Button>
-
           {showHistory && (
             <div className="w-full overflow-x-scroll flex space-x-4 py-4 hide-scrollbar mb-8 min-h-[200px]">
               {selectedCardHistory.map((card, index) => (
@@ -234,7 +232,6 @@ const GameDetails = observer(({ params }) => {
               ))}
             </div>
           )}
-
           {/* Card Types */}
           <div className="flex flex-wrap justify-center gap-4 mb-6">
             {selectedType ? (
@@ -267,14 +264,12 @@ const GameDetails = observer(({ params }) => {
               ))
             )}
           </div>
-
           {/* {selectedType && (
             <div className="mb-4 gap-2 flex">
               <Button variant="outline">What are {selectedType}?</Button>
               <Button variant="outline">View All</Button>
             </div>
           )} */}
-
           {/* Methods for the Selected Type */}
           {selectedType && (
             <div className="flex flex-wrap gap-4 mb-6">

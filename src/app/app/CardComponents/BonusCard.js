@@ -62,7 +62,7 @@ export const BonusCard = ({ effect, isHistory }) => {
       style={
         isHistory ? { height: "200px", minHeight: "200px", width: "150px" } : {}
       }
-      className="p-4 border rounded-lg shadow-md bg-white max-w-[350px] min-w-[300px] min-h-[400px] flex justify-center items-center "
+      className="p-4 border rounded-lg shadow-md bg-white max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center "
     >
       <div className="flex flex-wrap items-center space-x-2">
         {Array.isArray(effect) ? (
@@ -71,8 +71,10 @@ export const BonusCard = ({ effect, isHistory }) => {
             iconMapping[item] ? (
               <Image
                 key={index}
+                width={200}
+                height={200}
                 // src={`${baseUrl}/${iconMapping[item]}`}
-                src={`${iconMapping[item]}`}
+                src={`/${iconMapping[item]}`}
                 alt={item}
                 className="inline-block w-12 h-12"
               />
