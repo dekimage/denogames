@@ -316,7 +316,7 @@ const GameDetails = observer(({ params }) => {
         </div>
       ) : (
         lastCard && (
-          <div className="w-full max-w-[600px] h-full flex flex-col justify-between p-4   text-center items-center">
+          <div className="w-full max-w-[600px] h-full flex flex-col justify-between   text-center items-center">
             <h2 className="text-2xl font-semibold mb-2">{lastCard.name}</h2>
             {/* <p className="text-gray-700 mb-4">{lastCard.description}</p> */}
 

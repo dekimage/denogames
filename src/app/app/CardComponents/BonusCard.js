@@ -27,6 +27,7 @@ const iconMapping = {
   dungeon: "dungeoneers/dungeon.png",
   guild: "dungeoneers/guild.png",
   upgrade: "dungeoneers/upgrade.png",
+  "->": "dungeoneers/arrow.png",
   // Add other resources as needed
 };
 
@@ -99,7 +100,7 @@ export const BonusCard = ({ effect, isHistory, type }) => {
   return (
     <div
       style={cardStyle}
-      className={`p-4 border-4 rounded-[20px] shadow-md max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center ${
+      className={`border-4 rounded-[20px] shadow-md max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center ${
         animate ? "animate-card-flip" : ""
       }`}
     >

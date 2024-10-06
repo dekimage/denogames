@@ -781,7 +781,7 @@ const epicCards = [
   {
     id: "card_125",
     name: "Epic Card #13",
-    effect: "[initative] [coin] [->] [vp_2]",
+    effect: "[initiative] [coin] [->] [vp_2]",
     type: "epiccard",
   },
   {
