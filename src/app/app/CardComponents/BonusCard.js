@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -56,13 +56,52 @@ const parseEffectString = (effectString) => {
 };
 
 // Component to render the effect
-export const BonusCard = ({ effect, isHistory }) => {
+export const BonusCard = ({ effect, isHistory, type }) => {
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setAnimate(true);
+    const timer = setTimeout(() => setAnimate(false), 1000);
+    return () => clearTimeout(timer);
+  }, [effect]);
+
+  const getCardStyle = () => {
+    if (isHistory) {
+      return { height: "200px", minHeight: "200px", width: "150px" };
+    }
+
+    switch (type) {
+      case "trade":
+        return {
+          backgroundColor: "#faedcd",
+          borderColor: "#b45309", // amber-700
+        };
+      case "epiccard":
+        return {
+          backgroundColor: "#e9d5ff", // purple-200
+          borderColor: "#7e22ce", // purple-700
+        };
+      case "darkmoon":
+        return {
+          backgroundColor: "#bbf7d0", // green-200
+          borderColor: "#15803d", // green-700
+        };
+      default:
+        return {
+          backgroundColor: "#faedcd",
+          borderColor: "#b45309", // amber-700 (default to trade style)
+        };
+    }
+  };
+
+  const cardStyle = getCardStyle();
+
   return (
     <div
-      style={
-        isHistory ? { height: "200px", minHeight: "200px", width: "150px" } : {}
-      }
-      className="p-4 border rounded-lg shadow-md bg-white max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center "
+      style={cardStyle}
+      className={`p-4 border-4 rounded-[20px] shadow-md max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center ${
+        animate ? "animate-card-flip" : ""
+      }`}
     >
       <div className="flex flex-wrap items-center space-x-2">
         {Array.isArray(effect) ? (
@@ -84,7 +123,7 @@ export const BonusCard = ({ effect, isHistory }) => {
           )
         ) : (
           // If the effect is a string, parse it
-          <p className="text-lg flex items-center flex-wrap">
+          <p className="text-lg flex items-center flex-wrap text-background">
             {parseEffectString(effect)}
           </p>
         )}

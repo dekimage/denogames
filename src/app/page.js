@@ -20,6 +20,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Mimage } from "@/components/Mimage";
+import { ModeToggle } from "@/components/ui/themeButton";
 
 const AddMultipleProductsButton = () => {
   const handleAddProducts = () => {
@@ -383,6 +384,7 @@ const HomePage = observer(() => {
   return (
     <div className="container mx-auto py-8">
       <Mimage muhar="shopkeeper" />
+      <ModeToggle />
       {!user && <ProductList label={"All Games"} products={products} />}
 
       {cart.length > 0 && (

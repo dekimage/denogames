@@ -18,9 +18,9 @@ const getImageFromType = (type) => {
     "type-bonus": "dungeoneers/cover-ai-images/startingbonus.png",
     "type-passive": "dungeoneers/cover-ai-images/passive.png",
     "type-heropower": "dungeoneers/cover-ai-images/heropower.png",
-    "type-trade": "dungeoneers/cover-ai-images/trade.png",
-    "type-epiccard": "dungeoneers/cover-ai-images/dungeonreward.png",
-    "type-darkmoon": "dungeoneers/cover-ai-images/darkmoon.png",
+    "type-trade": "dungeoneers/draw_1_card.png",
+    "type-epiccard": "dungeoneers/draw_1_epic.png",
+    "type-darkmoon": "dungeoneers/fortune-card.png",
   };
 
   return imageMap[type] || "assets/placeholder.png";
@@ -227,7 +227,7 @@ const GameDetails = observer(({ params }) => {
                     className="w-24 h-24 object-cover rounded-md mb-2"
                   />
                   <h3 className="text-sm font-semibold">{card.name}</h3> */}
-                  <BonusCard isHistory effect={card.effect} />
+                  <BonusCard isHistory effect={card.effect} type={card.type} />
                 </div>
               ))}
             </div>
@@ -244,7 +244,7 @@ const GameDetails = observer(({ params }) => {
               Object.entries(game.types).map(([key, value], i) => (
                 <div
                   key={key}
-                  className={`w-full max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
+                  className={` max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
                     selectedType === key
                       ? "bg-blue-300 border-blue-500"
                       : "hover:bg-gray-100"
@@ -272,25 +272,33 @@ const GameDetails = observer(({ params }) => {
           )} */}
           {/* Methods for the Selected Type */}
           {selectedType && (
-            <div className="flex flex-wrap gap-4 mb-6">
+            <div className="flex flex-wrap gap-4 mb-6 h-full w-full">
               {filteredMethods.map((method, i) => (
-                <div
-                  key={method.method}
-                  className="flex justify-between border w-full p-4 rounded-lg cursor-pointer hover:bg-gray-100 transition flex items-center"
-                  onClick={() => handleMethodClick(method)}
-                >
-                  <div className="mr-4">
-                    <h3 className="text-lg font-semibold">{method.name}</h3>
+                <>
+                  <div
+                    key={method.method}
+                    className="flex flex-col justify-start items-center  w-full h-1/2 p-4  "
+                    // onClick={() => handleMethodClick(method)}
+                  >
+                    <div className="mr-4">
+                      <h3 className="text-4xl font-semibold">{method.name}</h3>
+                    </div>
+                    <Image
+                      // src={`${baseUrl}/${getImageFromType(selectedType)}`}
+                      src={`/${getImageFromType(method.type)}`}
+                      alt={method.name}
+                      width={200}
+                      height={200}
+                      className="w-32 h-32 object-cover rounded-md"
+                    />
                   </div>
-                  <Image
-                    // src={`${baseUrl}/${getImageFromType(selectedType)}`}
-                    src={`/${getImageFromType(method.type)}`}
-                    alt={method.name}
-                    width={200}
-                    height={200}
-                    className="w-24 h-24 object-cover rounded-md"
-                  />
-                </div>
+                  <Button
+                    className="w-full h-1/2 text-[60px] p-12 bg-green-500"
+                    onClick={() => handleMethodClick(method)}
+                  >
+                    Draw
+                  </Button>
+                </>
               ))}
             </div>
           )}
@@ -308,13 +316,13 @@ const GameDetails = observer(({ params }) => {
         </div>
       ) : (
         lastCard && (
-          <div className="w-full max-w-[600px] h-full flex flex-col justify-between p-4 border border-gray-300 rounded-lg text-center items-center">
+          <div className="w-full max-w-[600px] h-full flex flex-col justify-between p-4   text-center items-center">
             <h2 className="text-2xl font-semibold mb-2">{lastCard.name}</h2>
             {/* <p className="text-gray-700 mb-4">{lastCard.description}</p> */}
 
             {lastCard.type !== "newtype" ? (
               // Render the CardEffect component for "bonus" cards
-              <BonusCard effect={lastCard.effect} />
+              <BonusCard effect={lastCard.effect} type={lastCard.type} />
             ) : (
               // Default rendering for non-bonus cards
               <Image

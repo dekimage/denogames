@@ -226,8 +226,7 @@ const GameList = observer(({ games }) => {
             <p className="text-gray-700 mb-4">{game.description}</p>
             {game.imageUrl && (
               <Image
-                // src={game.imageUrl}
-                src={`https://picsum.photos/id/${100 + i}/200/200`}
+                src={game.imageUrl}
                 alt={game.name}
                 className="w-24 h-24 object-cover rounded-md"
                 width={200}
@@ -252,6 +251,16 @@ const AppPage = observer(() => {
 
   return (
     <div>
+      <GameList
+        games={[
+          {
+            name: "Darkmoon Faire",
+            description: "A faire rond of magic and mystery.",
+            slug: "the-last-faire",
+            imageUrl: "/dungeoneers/cover-ai-images/darkmoon.png",
+          },
+        ]}
+      />
       {MobxStore.app?.games?.length > 0 && (
         <GameList games={MobxStore.app.games} />
       )}
