@@ -26,7 +26,7 @@ import { observer } from "mobx-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { UserNav } from "./ReusableProfileMenu";
 import Image from "next/image";
-import logoImg from "../assets/logo2.png";
+import logoImg from "../assets/logo.png";
 
 import MobileHeader from "./MobileHeader";
 import {
@@ -41,7 +41,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { ModeToggle } from "@/components/ui/themeButton";
+
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -60,7 +60,7 @@ const CreateListDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button variant="cream" className="w-full">
           <Plus size={16} className="mr-2" /> Create List
         </Button>
       </DialogTrigger>
@@ -84,7 +84,7 @@ const CreateListDialog = () => {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setShowDialog(false)}>
+          <Button variant="cream" onClick={() => setShowDialog(false)}>
             Cancel
           </Button>
           <Button
@@ -128,77 +128,86 @@ const ReusableLayout = observer(({ children }) => {
           className="h-full max-h-[950px] items-stretch"
         >
           <ResizablePanel
-            className="border-l border-gray-[#e5e7eb]"
             defaultSize={defaultLayout[1]}
             minSize={30}
             style={{ overflow: "auto" }}
           >
             <div>
-              <div className="w-full h-[53px] flex justify-between items-center p-2 border-b gap-4">
+              <div
+                //  className="w-full h-[53px] flex justify-between items-center p-2 border-b gap-4"
+                className="navigation"
+              >
                 <NavigationMenu>
-                  <NavigationMenuList>
+                  <NavigationMenuList className="gap-4">
                     <NavigationMenuItem>
                       <Link href="/">
                         <Image
                           src={logoImg}
                           alt="logo"
-                          width={50}
-                          height={50}
-                          className="cursor-pointer bg-background rounded-xl  "
+                          width={75}
+                          height={75}
+                          className="cursor-pointer"
                         />
                       </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                      <Link href="/" legacyBehavior passHref>
-                        <NavigationMenuLink
-                          className={navigationMenuTriggerStyle()}
-                        >
-                          Games
-                        </NavigationMenuLink>
+                      <Link href="/shop" legacyBehavior passHref>
+                        <Button variant="reverse" className="text-lg">
+                          SHOP
+                        </Button>
                       </Link>
                     </NavigationMenuItem>
+
                     <NavigationMenuItem>
-                      <Link href="/" legacyBehavior passHref>
-                        <NavigationMenuLink
-                          className={navigationMenuTriggerStyle()}
-                        >
-                          Blog
-                        </NavigationMenuLink>
+                      <Link href="/app" legacyBehavior passHref>
+                        <Button variant="reverse" className="text-lg">
+                          APP
+                        </Button>
+                      </Link>
+                    </NavigationMenuItem>
+
+                    <NavigationMenuItem>
+                      <Link href="/blog" legacyBehavior passHref>
+                        <Button variant="reverse" className="text-lg">
+                          BLOG
+                        </Button>
                       </Link>
                     </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
                 <div className="flex justify-end gap-4 items-center">
                   <Link href="/app">
-                    <Button size="icon" variant="outline">
+                    <Button size="icon" variant="reverse">
                       <Smartphone />
                     </Button>
                   </Link>
                   <Link href="/">
-                    <Button size="icon" variant="outline">
+                    <Button size="icon" variant="reverse">
                       <Home />
                     </Button>
                   </Link>
                   <Link href="/cart">
-                    <Button size="icon" variant="outline" className="relative">
-                      <ShoppingCart />
+                    <div className="relative inline-block">
+                      <Button size="icon" variant="reverse">
+                        <ShoppingCart />
+                      </Button>
                       {cartItemCount > 0 && (
-                        <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold">
+                        <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">
                           {cartItemCount}
                         </span>
                       )}
-                    </Button>
+                    </div>
                   </Link>
                   {user ? (
                     <>
                       <NotificationDropdown />
-                      <ModeToggle />
+
                       <UserNav user={user} logout={logout} />
                     </>
                   ) : (
                     <div className="flex gap-2">
                       <Link href="/login">
-                        <Button variant="outline">Login</Button>
+                        <Button variant="cream">Login</Button>
                       </Link>
                       <Link href="/signup">
                         <Button>Create Free Account</Button>

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Mimage } from "@/components/Mimage";
 import { ModeToggle } from "@/components/ui/themeButton";
+import FeaturedGamesSlider from "@/components/FeaturedGameSlider";
 
 const AddMultipleProductsButton = () => {
   const handleAddProducts = () => {
@@ -254,7 +255,7 @@ const AddMultipleProductsButton = () => {
 const ProductSection = ({ title, products }) => {
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold">{title}</h2>
+      <h2 className="text-2xl font-strike uppercase">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -273,52 +274,60 @@ const ProductCard = observer(({ product }) => {
     : false;
 
   return (
-    <div>
-      <Link href={`/product-details/${product.slug}`}>
-        <Card>
-          <Image
-            src={product.thumbnail || placeholderImg}
-            alt={product.name}
-            width={300}
-            height={300}
-            className="w-full h-64 object-cover"
-          />
-          <div className="flex p-4">
-            <div className=" w-full">
-              <div className="text-lg font-bold h-[56px]">{product.name}</div>
-              <div className="text-xs">{product.description}</div>
-              <p className="text-xl font-bold">${product.price}</p>
-            </div>
+    <div className="box">
+      <div className="box-inner">
+        <div className="box-broken">
+          <div>
+            <Link href={`/product-details/${product.slug}`}>
+              <Image
+                src={product.thumbnail || placeholderImg}
+                alt={product.name}
+                width={300}
+                height={300}
+                className="w-full h-64 object-cover"
+              />
+              <div className="flex p-4 flex-col">
+                <div className=" w-full">
+                  <div className="text-lg  h-[56px]">{product.name}</div>
+                  <div className="text-xs">{product.description}</div>
+                  <p className="text-xl ">${product.price}</p>
+                </div>
 
-            {isInCart && (
-              <div className="flex justify-center items-center w-[120px]">
-                <CheckCheck className="text-orange-400 mr-2" size={20} />
-                <span className="text-orange-400 font-bold">In Cart</span>
+                {isInCart && (
+                  <div className="flex justify-center items-center w-[120px]">
+                    <CheckCheck className="text-orange-400 mr-2" size={20} />
+                    <span className="text-orange-400 ">In Cart</span>
+                  </div>
+                )}
+
+                <div className="my-4">
+                  {isPurchased ? (
+                    <Link
+                      href={`/product-details/${product.slug}`}
+                      className="w-full"
+                    >
+                      <Button className="bg-green-400 hover:bg-green-500">
+                        <Dice6 size={16} className="mr-1" /> PLAY
+                      </Button>
+                    </Link>
+                  ) : isInCart ? (
+                    <div className="flex items-center">
+                      <Link href="/cart" className="">
+                        <Button className="w-full bg-orange-400">
+                          <ShoppingBag size={16} className="mr-1" /> CHECKOUT
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <Button onClick={() => addToCart(product)} className="">
+                      <ShoppingCart size={16} className="mr-1" /> ADD TO CART
+                    </Button>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        </Card>
-      </Link>
-      <div className="w-full">
-        {isPurchased ? (
-          <Link href={`/product-details/${product.slug}`} className="w-full">
-            <Button className="w-full bg-yellow-600">
-              <Dice6 size={16} className="mr-1" /> Play
-            </Button>
-          </Link>
-        ) : isInCart ? (
-          <div className="flex items-center">
-            <Link href="/cart" className="w-full">
-              <Button className="w-full bg-orange-400">
-                <ShoppingBag size={16} className="mr-1" /> Checkout
-              </Button>
             </Link>
           </div>
-        ) : (
-          <Button onClick={() => addToCart(product)} className="w-full">
-            <ShoppingCart size={16} className="mr-1" /> Add to Cart
-          </Button>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -327,7 +336,7 @@ const ProductCard = observer(({ product }) => {
 const ProductList = ({ label, products }) => {
   return (
     <div className="my-4 mb-12">
-      <div className="text-xl font-bold mb-4">{label}</div>
+      <div className="text-xl  mb-4 font-strike uppercase">{label}</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {products?.map((game) => (
           <ProductCard key={game.id} product={game} />
@@ -381,35 +390,69 @@ const HomePage = observer(() => {
   //   (product) => product.isBestSeller // Assuming you have a flag or criteria for best sellers
   // );
 
+  const gamesArray = [
+    {
+      title: "Game One",
+      description: "This is the first game.",
+      imgUrl:
+        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media",
+      button: "Play Now",
+      link: "/game-one",
+      index: 1,
+    },
+    {
+      title: "Game Two",
+      description: "This is the second game.",
+      imgUrl:
+        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media",
+      button: "Play Now",
+      link: "/game-one",
+      index: 2,
+    },
+    // Add more game objects...
+  ];
+
   return (
-    <div className="container mx-auto py-8">
-      <Mimage muhar="shopkeeper" />
-      <ModeToggle />
-      {!user && <ProductList label={"All Games"} products={products} />}
+    <div>
+      {/* <Mimage muhar="shopkeeper" /> */}
+      <FeaturedGamesSlider games={gamesArray} />
+      <div className="container mx-auto py-8">
+        {!user && <ProductList label={"All Games"} products={products} />}
 
-      {cart.length > 0 && (
-        <ProductList label={"In Cart"} products={productsInCart} />
-      )}
+        {cart.length > 0 && (
+          <ProductList label={"In Cart"} products={productsInCart} />
+        )}
 
-      {user && (
-        <>
-          <ProductList label={"Available Games"} products={readyToAddToCart} />
-          <ProductList label={"Purchased Games"} products={purchasedProducts} />
-        </>
-      )}
+        {user && (
+          <>
+            <ProductList
+              label={"Available Games"}
+              products={readyToAddToCart}
+            />
+            <ProductList
+              label={"Purchased Games"}
+              products={purchasedProducts}
+            />
+          </>
+        )}
 
-      {/* 
+        <div
+        // className="box-border flex flex-wrap -mx-3 text-[#272727] font-sans text-sm font-normal leading-[19.6px] text-left bg-white"
+        >
+          {/* 
       <ProductSection title="New Games" products={newGames} />
 
       <ProductSection title="Coming Soon" products={comingSoon} />
 
       <ProductSection title="Best Sellers" products={bestSellers} /> */}
 
-      <ProductSection title="Games" products={games} />
+          <ProductSection title="Games" products={games} />
 
-      <ProductSection title="Expansions" products={expansions} />
+          <ProductSection title="Expansions" products={expansions} />
 
-      <ProductSection title="Bundles" products={bundles} />
+          <ProductSection title="Bundles" products={bundles} />
+        </div>
+      </div>
     </div>
   );
 });

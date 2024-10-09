@@ -106,11 +106,11 @@ const NotificationDropdown = observer(() => {
         onClick={handleToggleDropdown}
         className="relative"
         size="icon"
-        variant="outline"
+        variant="reverse"
       >
         <Bell />
         {notifications.filter((n) => !n.isRead).length > 0 && (
-          <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold">
+          <span className="absolute top-[-5px] right-[-5px] z-50 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold">
             {notifications.length}
           </span>
         )}

@@ -143,7 +143,7 @@ const ProductDetailsPage = observer(({ params }) => {
         />
 
         <div className="flex  flex-col max-w-[440px]">
-          <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold">
+          <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike">
             {productDetails.name}
           </div>
           <div className="text-[20px] leading-[28px] my-4">

@@ -19,6 +19,11 @@ module.exports = {
     extend: {
       ...colors,
       colors: {
+        blacky: "#353535",
+        grayy: "#5f5f5f",
+        cream: "#F6EECB",
+        // brown: "#472A1A",
+        brown: "#995936",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -72,7 +77,11 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      fontFamily: {
+        strike: ['"Protest Strike"', "sans-serif"],
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
+  safelist: ["box-1"],
 };
