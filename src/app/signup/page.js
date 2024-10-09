@@ -156,54 +156,64 @@ const SignupCard = observer(() => {
     router.push("/");
   };
   return (
-    <Card className="min-w-3xl">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">
-          {isUserAnonymous
-            ? "Upgrade to Permanent Account"
-            : "Create an account"}
-        </CardTitle>
-        <CardDescription>
-          {isUserAnonymous
-            ? "Don't lose your hard work. Sign up to save your progress."
-            : "Get started for free. No credit card required. Currently only available on desktop web"}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="grid grid-cols-1 gap-6">
-          <Button variant="outline" onClick={handleGoogleSignIn}>
-            <FaGoogle className="mr-2 h-4 w-4" />
-            Google
-          </Button>
+    <div className="box">
+      <div className="box-inner ">
+        <div className="box-broken p-10 py-16 min-w-3xl font-strike">
+          <CardHeader className="space-y-1">
+            <div className="text-2xl uppercase">
+              {isUserAnonymous
+                ? "Upgrade to Permanent Account"
+                : "Create an account"}
+            </div>
+            <CardDescription className="text-light">
+              {isUserAnonymous
+                ? "Don't lose your hard work. Sign up to save your progress."
+                : "You must have an account to download any games."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid grid-cols-1 gap-6">
+              <Button variant="reverse" onClick={handleGoogleSignIn}>
+                <FaGoogle className="mr-2 h-4 w-4" />
+                Google
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            <SignupForm />
+          </CardContent>
+          <CardFooter className="flex flex-col">
+            <div className="text-light text-sm text-center">
+              By continuing, you agree to Pathway&apos;s{" "}
+              <Link href="/terms-of-service" className="underline">
+                Terms & Conditions
+              </Link>{" "}
+              and
+              <Link href="/privacy-policy" className="underline">
+                {" "}
+                Privacy Policy
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2 text-center mt-4 text-sm">
+              Already Have An Account?{" "}
+              <Link href="/login">
+                <Button variant="cream" className="w-full">
+                  Login
+                </Button>
+              </Link>
+            </div>
+          </CardFooter>
         </div>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-        <SignupForm />
-      </CardContent>
-      <CardFooter className="flex flex-col">
-        <div className="text-muted-foreground text-sm text-center">
-          By continuing, you agree to Pathway&apos;s{" "}
-          <Link href="/terms">Terms & Conditions</Link> and
-          <Link href="/privacy"> Privacy Policy</Link>
-        </div>
-        <div className="flex flex-col gap-2 text-center mt-4 text-sm">
-          Already Have An Account?{" "}
-          <Link href="/login">
-            <Button variant="outline" className="w-full">
-              Login
-            </Button>
-          </Link>
-        </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 });
 

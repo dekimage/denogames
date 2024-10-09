@@ -50,6 +50,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import NotificationDropdown from "@/components/Notifications";
+import Footer from "@/components/Footer";
 
 const defaultLayout = [20, 80];
 
@@ -121,18 +122,18 @@ const ReusableLayout = observer(({ children }) => {
   const cartItemCount = cart.length;
 
   return (
-    <div>
-      <div className="hidden sm:block">
+    <div className="flex flex-col min-h-screen">
+      <div className="hidden sm:block flex-grow">
         <ResizablePanelGroup
           direction="horizontal"
-          className="h-full max-h-[950px] items-stretch"
+          className="h-full items-stretch"
         >
           <ResizablePanel
             defaultSize={defaultLayout[1]}
             minSize={30}
             style={{ overflow: "auto" }}
           >
-            <div>
+            <div className="flex flex-col h-full">
               <div
                 //  className="w-full h-[53px] flex justify-between items-center p-2 border-b gap-4"
                 className="navigation"
@@ -170,6 +171,14 @@ const ReusableLayout = observer(({ children }) => {
                       <Link href="/blog" legacyBehavior passHref>
                         <Button variant="reverse" className="text-lg">
                           BLOG
+                        </Button>
+                      </Link>
+                    </NavigationMenuItem>
+
+                    <NavigationMenuItem>
+                      <Link href="/game-finder" legacyBehavior passHref>
+                        <Button variant="reverse" className="text-lg">
+                          FINDER TOOL
                         </Button>
                       </Link>
                     </NavigationMenuItem>
@@ -216,15 +225,16 @@ const ReusableLayout = observer(({ children }) => {
                   )}
                 </div>
               </div>
-              <div className="">{children}</div>
+              <div className="flex-grow">{children}</div>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-      <div className="block sm:hidden">
+      <div className="block sm:hidden flex-grow">
         {/* <MobileHeader /> */}
         {children}
       </div>
+      <Footer />
     </div>
   );
 });

@@ -75,13 +75,16 @@ export const LoginForm = observer(() => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 font-strike"
+      >
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>Email</FormLabel>
+              <FormLabel>EMAIL</FormLabel>
               <FormControl>
                 <Input
                   id="email"
@@ -102,7 +105,7 @@ export const LoginForm = observer(() => {
           name="password"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>Password</FormLabel>
+              <FormLabel>PASSWORD</FormLabel>
               <FormControl>
                 <Input
                   id="password"
@@ -134,43 +137,47 @@ const LoginCard = observer(() => {
     router.push("/");
   };
   return (
-    <Card className="min-w-3xl">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Welcome Back!</CardTitle>
-        <CardDescription>
-          Glad to see you again! Log in to continue your journey.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="grid grid-cols-1 gap-6">
-          <Button variant="outline" onClick={handleGoogleSignIn}>
-            <FaGoogle className="mr-2 h-4 w-4" />
-            Google
-          </Button>
+    <div className="box">
+      <div className="box-inner ">
+        <div className="box-broken p-10 py-16 min-w-3xl font-strike">
+          <CardHeader className="space-y-1">
+            <div className="text-2xl uppercase">Welcome Back!</div>
+            <CardDescription>
+              Glad to see you again! Log in to continue your journey.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid grid-cols-1 gap-6">
+              <Button variant="reverse" onClick={handleGoogleSignIn}>
+                <FaGoogle className="mr-2 h-4 w-4" />
+                Google
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            <LoginForm />
+          </CardContent>
+          <CardFooter>
+            <div className="flex flex-col text-center text-sm w-full gap-2">
+              Don&apos;t have account?&nbsp;
+              <Link href="/signup">
+                <Button variant="cream" className="w-full">
+                  Create Account
+                </Button>
+              </Link>
+            </div>
+          </CardFooter>
         </div>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-        <LoginForm />
-      </CardContent>
-      <CardFooter>
-        <div className="flex flex-col text-center text-sm w-full gap-2">
-          Don&apos;t have account?&nbsp;
-          <Link href="/signup">
-            <Button variant="outline" className="w-full">
-              Create Account
-            </Button>
-          </Link>
-        </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 });
 

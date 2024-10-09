@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import {
   CheckCheck,
   CheckCircle,
+  ChevronRight,
   Dice6,
   ShoppingBag,
   ShoppingCart,
@@ -265,7 +266,7 @@ const ProductSection = ({ title, products }) => {
   );
 };
 
-const ProductCard = observer(({ product }) => {
+export const ProductCard = observer(({ product }) => {
   const { addToCart, cart, user } = MobxStore;
 
   const isInCart = cart.includes(product.id);
@@ -273,59 +274,80 @@ const ProductCard = observer(({ product }) => {
     ? user.purchasedProducts?.includes(product.id)
     : false;
 
+  const getFlagColor = (type) => {
+    switch (type) {
+      case "expansion":
+        return "bg-blue-400";
+      case "bundle":
+        return "bg-orange-400";
+      default:
+        return "bg-green-400";
+    }
+  };
+
   return (
     <div className="box">
       <div className="box-inner">
-        <div className="box-broken">
+        <div className="box-broken relative">
+          <div
+            className={`absolute flag ${getFlagColor(
+              product.type
+            )} p-3 w-[135px] flex pl-6 left-[0px] top-[18px] text-white uppercase text-[14px]`}
+          >
+            {product.type}
+          </div>
           <div>
-            <Link href={`/product-details/${product.slug}`}>
+            <Link
+              href={`/product-details/${product.slug}`}
+              className="p-8 flex justify-center items-center flex-col pt-8"
+            >
               <Image
                 src={product.thumbnail || placeholderImg}
                 alt={product.name}
                 width={300}
                 height={300}
-                className="w-full h-64 object-cover"
+                // className="w-full h-64 object-cover"
+                className="w-54 h-54"
               />
-              <div className="flex p-4 flex-col">
+              <div className="flex pt-4 flex-col w-full">
                 <div className=" w-full">
                   <div className="text-lg  h-[56px]">{product.name}</div>
                   <div className="text-xs">{product.description}</div>
-                  <p className="text-xl ">${product.price}</p>
-                </div>
-
-                {isInCart && (
-                  <div className="flex justify-center items-center w-[120px]">
-                    <CheckCheck className="text-orange-400 mr-2" size={20} />
-                    <span className="text-orange-400 ">In Cart</span>
-                  </div>
-                )}
-
-                <div className="my-4">
-                  {isPurchased ? (
-                    <Link
-                      href={`/product-details/${product.slug}`}
-                      className="w-full"
-                    >
-                      <Button className="bg-green-400 hover:bg-green-500">
-                        <Dice6 size={16} className="mr-1" /> PLAY
-                      </Button>
-                    </Link>
-                  ) : isInCart ? (
-                    <div className="flex items-center">
-                      <Link href="/cart" className="">
-                        <Button className="w-full bg-orange-400">
-                          <ShoppingBag size={16} className="mr-1" /> CHECKOUT
-                        </Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <Button onClick={() => addToCart(product)} className="">
-                      <ShoppingCart size={16} className="mr-1" /> ADD TO CART
-                    </Button>
-                  )}
+                  <p className="text-xl mt-4">${product.price}</p>
                 </div>
               </div>
             </Link>
+            <div className="p-8">
+              {isPurchased ? (
+                <Link
+                  href={`/product-details/${product.slug}`}
+                  className="w-full"
+                >
+                  <Button className="bg-blacky text-white hover:bg-green-500 w-1/2">
+                    {/* <Dice6 size={16} className="mr-1" /> */}
+                    PLAY
+                  </Button>
+                </Link>
+              ) : isInCart ? (
+                <div className="flex items-center">
+                  <Link href="/cart" className="">
+                    <Button className="w-full bg-orange-400">
+                      <ShoppingBag size={16} className="mr-1" /> CHECKOUT
+                    </Button>
+                  </Link>
+                  {isInCart && (
+                    <div className="flex justify-center items-center w-[120px]">
+                      <CheckCheck className="text-orange-400 mr-2" size={20} />
+                      <span className="text-orange-400 ">IN CART</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Button onClick={() => addToCart(product)} className="">
+                  <ShoppingCart size={16} className="mr-1" /> ADD TO CART
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -336,7 +358,14 @@ const ProductCard = observer(({ product }) => {
 const ProductList = ({ label, products }) => {
   return (
     <div className="my-4 mb-12">
-      <div className="text-xl  mb-4 font-strike uppercase">{label}</div>
+      <div className="flex justify-between items-center mb-8">
+        <div className="text-2xl font-strike uppercase">{label}</div>
+        <Link href="/shop">
+          <div className="font-strike text-light flex items-center">
+            SHOP MORE <ChevronRight />
+          </div>
+        </Link>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {products?.map((game) => (
           <ProductCard key={game.id} product={game} />

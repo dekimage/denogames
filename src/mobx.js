@@ -75,6 +75,14 @@ class Store {
   loadingCart = false;
   loadingNotifications = false;
 
+  // New properties for filters
+  filters = {
+    types: [],
+    difficulty: [],
+    minPlayers: 1,
+    maxPlayers: 6,
+  };
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -114,6 +122,10 @@ class Store {
       this.fetchGamesSummaryFromFirestore.bind(this);
     this.fetchGameDetailsFromFirestore =
       this.fetchGameDetailsFromFirestore.bind(this);
+
+    // New methods for filters
+    this.setFilter = this.setFilter.bind(this);
+    this.resetFilters = this.resetFilters.bind(this);
   }
 
   initializeAuth() {
@@ -1078,6 +1090,45 @@ class Store {
       console.log("Error sending password reset email:", error);
       // Handle errors, such as invalid email, etc.
     }
+  }
+
+  // New methods for filters
+  setFilter(filterType, value) {
+    if (Array.isArray(this.filters[filterType])) {
+      if (this.filters[filterType].includes(value)) {
+        this.filters[filterType] = this.filters[filterType].filter(
+          (item) => item !== value
+        );
+      } else {
+        this.filters[filterType].push(value);
+      }
+    } else {
+      this.filters[filterType] = value;
+    }
+  }
+
+  resetFilters() {
+    this.filters = {
+      types: [],
+      difficulty: [],
+      minPlayers: 1,
+      maxPlayers: 6,
+    };
+  }
+
+  get filteredProducts() {
+    return this.products.filter((product) => {
+      const typeMatch =
+        this.filters.types.length === 0 ||
+        this.filters.types.some((type) => product.types?.includes(type));
+      const difficultyMatch =
+        this.filters.difficulty.length === 0 ||
+        this.filters.difficulty.includes(product.difficulty);
+      const playersMatch =
+        product.minPlayers >= this.filters.minPlayers &&
+        product.maxPlayers <= this.filters.maxPlayers;
+      return typeMatch && difficultyMatch && playersMatch;
+    });
   }
 }
 

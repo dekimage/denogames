@@ -66,14 +66,21 @@ const FeaturedGamesSlider = ({ games }) => {
             key={game.index || index}
             className="w-full h-full flex-shrink-0 relative"
           >
-            <Image
-              src={game.imgUrl}
-              alt={game.title}
-              width={1000}
-              height={1000}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-start px-8">
+            <div className="absolute inset-0">
+              <Image
+                src={game.imgUrl}
+                alt={game.title}
+                fill
+                sizes="100vw"
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+                quality={100}
+                priority={index === 0}
+              />
+            </div>
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-start px-[5%]">
               <div className="text-[70px] text-white font-bold mb-4 font-strike uppercase">
                 {game.title}
               </div>

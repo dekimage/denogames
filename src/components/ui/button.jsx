@@ -14,13 +14,13 @@ const buttonVariants = cva(
         reverse:
           "box-1 text-white border-input bg-blacky hover:bg-grayy hover:text-white overflow-visible",
         default:
-          "box-1  bg-primary text-primary-foreground hover:bg-primary/90",
+          "box-1  bg-primary text-primary-foreground hover:bg-primary/70",
         destructive:
           "box-1  bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
           "box-1  border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         cream:
-          "box-1  text-black border-input bg-cream hover:bg-black hover:text-accent-foreground",
+          "box-1  text-black border-input bg-cream hover:bg-cream/80 hover:text-accent-foreground",
         secondary:
           "box-1  bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "box-1  hover:bg-accent hover:text-accent-foreground",
