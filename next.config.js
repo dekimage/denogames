@@ -11,6 +11,7 @@ const nextConfig = {
       "picsum.photos",
       "denogames.com",
       "www.denogames.com",
+      "denogames5.wordpress.com",
     ],
   },
 };

@@ -124,111 +124,114 @@ const ReusableLayout = observer(({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="hidden sm:block flex-grow">
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="h-full items-stretch"
-        >
-          <ResizablePanel
-            defaultSize={defaultLayout[1]}
-            minSize={30}
-            style={{ overflow: "auto" }}
-          >
-            <div className="flex flex-col h-full">
-              <div
-                //  className="w-full h-[53px] flex justify-between items-center p-2 border-b gap-4"
-                className="navigation"
-              >
-                <NavigationMenu>
-                  <NavigationMenuList className="gap-4">
-                    <NavigationMenuItem>
-                      <Link href="/">
-                        <Image
-                          src={logoImg}
-                          alt="logo"
-                          width={75}
-                          height={75}
-                          className="cursor-pointer"
-                        />
-                      </Link>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <Link href="/shop" legacyBehavior passHref>
-                        <Button variant="reverse" className="text-lg">
-                          SHOP
-                        </Button>
-                      </Link>
-                    </NavigationMenuItem>
-
-                    <NavigationMenuItem>
-                      <Link href="/app" legacyBehavior passHref>
-                        <Button variant="reverse" className="text-lg">
-                          APP
-                        </Button>
-                      </Link>
-                    </NavigationMenuItem>
-
-                    <NavigationMenuItem>
-                      <Link href="/blog" legacyBehavior passHref>
-                        <Button variant="reverse" className="text-lg">
-                          BLOG
-                        </Button>
-                      </Link>
-                    </NavigationMenuItem>
-
-                    <NavigationMenuItem>
-                      <Link href="/game-finder" legacyBehavior passHref>
-                        <Button variant="reverse" className="text-lg">
-                          FINDER TOOL
-                        </Button>
-                      </Link>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
-                <div className="flex justify-end gap-4 items-center">
-                  <Link href="/app">
-                    <Button size="icon" variant="reverse">
-                      <Smartphone />
-                    </Button>
-                  </Link>
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white">
+          <div className="navigation">
+            <NavigationMenu>
+              <NavigationMenuList className="gap-4">
+                <NavigationMenuItem>
                   <Link href="/">
-                    <Button size="icon" variant="reverse">
-                      <Home />
+                    <Image
+                      src={logoImg}
+                      alt="logo"
+                      width={75}
+                      height={75}
+                      className="cursor-pointer"
+                    />
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/shop" legacyBehavior passHref>
+                    <Button variant="reverse" className="text-lg">
+                      SHOP
                     </Button>
                   </Link>
-                  <Link href="/cart">
-                    <div className="relative inline-block">
-                      <Button size="icon" variant="reverse">
-                        <ShoppingCart />
-                      </Button>
-                      {cartItemCount > 0 && (
-                        <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">
-                          {cartItemCount}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                  {user ? (
-                    <>
-                      <NotificationDropdown />
+                </NavigationMenuItem>
 
-                      <UserNav user={user} logout={logout} />
-                    </>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Link href="/login">
-                        <Button variant="cream">Login</Button>
-                      </Link>
-                      <Link href="/signup">
-                        <Button>Create Free Account</Button>
-                      </Link>
-                    </div>
+                <NavigationMenuItem>
+                  <Link href="/app" legacyBehavior passHref>
+                    <Button variant="reverse" className="text-lg">
+                      APP
+                    </Button>
+                  </Link>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link href="/blog" legacyBehavior passHref>
+                    <Button variant="reverse" className="text-lg">
+                      BLOG
+                    </Button>
+                  </Link>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link href="/game-finder" legacyBehavior passHref>
+                    <Button variant="reverse" className="text-lg">
+                      FINDER TOOL
+                    </Button>
+                  </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            <div className="flex justify-end gap-4 items-center">
+              <Link href="/app">
+                <Button size="icon" variant="reverse">
+                  <Smartphone />
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button size="icon" variant="reverse">
+                  <Home />
+                </Button>
+              </Link>
+              <Link href="/cart">
+                <div className="relative inline-block">
+                  <Button size="icon" variant="reverse">
+                    <ShoppingCart />
+                  </Button>
+                  {cartItemCount > 0 && (
+                    <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">
+                      {cartItemCount}
+                    </span>
                   )}
                 </div>
-              </div>
-              <div className="flex-grow">{children}</div>
+              </Link>
+              {user ? (
+                <>
+                  <NotificationDropdown />
+
+                  <UserNav user={user} logout={logout} />
+                </>
+              ) : (
+                <div className="flex gap-2">
+                  <Link href="/login">
+                    <Button variant="cream">Login</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button>Create Free Account</Button>
+                  </Link>
+                </div>
+              )}
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          </div>
+        </div>
+        <div className="pt-[53px]">
+          {" "}
+          {/* Add padding to account for fixed navigation */}
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="h-full items-stretch"
+          >
+            <ResizablePanel
+              defaultSize={defaultLayout[1]}
+              minSize={30}
+              style={{ overflow: "auto" }}
+            >
+              <div className="flex flex-col h-full">
+                <div className="flex-grow">{children}</div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </div>
       <div className="block sm:hidden flex-grow">
         {/* <MobileHeader /> */}

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 const GameFinder = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [error, setError] = useState("");
 
   const questions = [
     {
@@ -57,17 +58,22 @@ const GameFinder = () => {
 
   const handleOptionSelect = (option) => {
     setSelectedOptions({ ...selectedOptions, [currentStep]: option });
+    setError("");
   };
 
   const handleNext = () => {
     if (currentStep < 4 && selectedOptions[currentStep]) {
       setCurrentStep(currentStep + 1);
+      setError("");
+    } else if (currentStep < 4) {
+      setError("Please select at least one option");
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      setError(""); // Clear the error message
     }
   };
 
@@ -107,7 +113,7 @@ const GameFinder = () => {
       </div>
 
       {/* Question */}
-      <div className="text-2xl font-strike uppercase text-center mt-16 mb-12">
+      <div className="text-2xl font-strike uppercase text-center mt-4 md:mt-16 mb-12">
         {questions[currentStep - 1].question}
       </div>
 
@@ -116,20 +122,31 @@ const GameFinder = () => {
         {questions[currentStep - 1].options.map((option, index) => (
           <div
             key={index}
-            className={`md:w-[200px]  w-full md:p-8 p-2 border rounded-lg flex md:flex-col flex-row gap-4 cursor-pointer items-center justify-center ${
+            className={`  ${
               selectedOptions[currentStep]?.label === option.label
                 ? "bg-primary text-white"
                 : "bg-white text-black"
             }`}
             onClick={() => handleOptionSelect(option)}
           >
-            {option.icon}
-            <div className="text-md font-strike uppercase text-center">
-              {option.label}
+            <div className="box-shadow w-full">
+              <div className="box-combined p-[48px] md:w-[200px] h-[50px] md:h-[200px] w-full flex md:flex-col flex-row gap-4 cursor-pointer items-center justify-center">
+                {option.icon}
+                <div className="text-md font-strike uppercase text-center">
+                  {option.label}
+                </div>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="text-red-500 font-semibold mb-4 text-center">
+          {error}
+        </div>
+      )}
 
       {/* Navigation Buttons */}
       <div className="flex justify-between gap-4">

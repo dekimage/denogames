@@ -77,7 +77,7 @@ const FilterSection = observer(
                 {getIconForOption(option.name)}
                 <span>{option.name}</span>
               </div>
-              {selectedOptions.includes(option.name) ? (
+              {selectedOptions.includes(option.name.toLowerCase()) ? (
                 <CheckSquare size={20} className="ml-2" />
               ) : (
                 <Square size={20} className="ml-2" />
@@ -194,6 +194,17 @@ const ShopPage = observer(() => {
     setIsDropdownOpen(false);
   };
 
+  // Add this function to count active filters
+  const countActiveFilters = () => {
+    return (
+      filters.types.length +
+      filters.difficulty.length +
+      filters.products.length +
+      (filters.minPlayers > 1 ? 1 : 0) +
+      (filters.maxPlayers < 6 ? 1 : 0)
+    );
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -204,8 +215,15 @@ const ShopPage = observer(() => {
       <div className="flex mt-8">
         {/* Filters */}
         <div className="w-1/4 pr-8">
-          <div className="text-2xl font-bold mb-4 uppercase font-strike">
-            Filters
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-2xl font-bold uppercase font-strike">
+              Filters
+            </div>
+            {countActiveFilters() > 0 && (
+              <div className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                {countActiveFilters()}
+              </div>
+            )}
           </div>
           <FilterSection
             title="Type"

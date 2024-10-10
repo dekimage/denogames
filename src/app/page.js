@@ -313,7 +313,7 @@ export const ProductCard = observer(({ product }) => {
                 <div className=" w-full">
                   <div className="text-lg  h-[56px]">{product.name}</div>
                   <div className="text-xs">{product.description}</div>
-                  <p className="text-xl mt-4">${product.price}</p>
+                  <p className="text-xl mt-4">${product.price}.00</p>
                 </div>
               </div>
             </Link>

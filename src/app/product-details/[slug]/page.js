@@ -72,7 +72,7 @@ const GameFeatures = ({ productDetails }) => {
 
 const HowToPlay = ({ productDetails }) => {
   return (
-    <div className="flex flex-col items-center gap-8 justify-center  bg-[#FFD045] w-full py-8">
+    <div className="flex flex-col items-center gap-8 justify-center  bg-[#FFD045] w-full py-8 ">
       <div className="text-[32px] font-bold text-center">
         {/* Heyya! Reading is the slow way to learn how to play! Watch the video
         instead! */}
