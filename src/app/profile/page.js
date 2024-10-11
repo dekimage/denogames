@@ -33,67 +33,69 @@ const ActionCard = observer(
     };
 
     return (
-      <div className="p-4 border rounded-md mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <div className="text-xl font-bold">{title}</div>
-          {isOnetime ? (
-            <Badge variant="outline">
-              <FlagTriangleRight size={14} /> One-time
-            </Badge>
+      <div className="box-inner">
+        <div className="p-6 mb-4 box-broken">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-xl uppercase">{title}</div>
+            {isOnetime ? (
+              <Badge variant="outline">
+                <FlagTriangleRight size={14} /> One-time
+              </Badge>
+            ) : (
+              <Badge variant="outline">
+                <Repeat2 size={14} className="mr-1 " /> Repeatable
+              </Badge>
+            )}
+          </div>
+
+          <p>{description}</p>
+          <div className="w-full flex justify-center items-center">
+            {muhar && <Mimage muhar={muhar} width={200} height={200} />}
+          </div>
+          {!claimed ? (
+            <div className="mt-4">
+              {hasInput && (
+                <a
+                  href={cta}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500"
+                >
+                  {unavailable ? "Unavilable Now" : "Join"}
+                </a>
+              )}
+
+              {hasInput && (
+                <div className="mt-2">
+                  <Input
+                    type="text"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="Enter code here"
+                    className="mb-4"
+                  />
+                </div>
+              )}
+              <div className="flex">
+                <Button className="mr-2 bg-yellow-200 cursor-auto hover:bg-yellow-200">
+                  + {xp} XP
+                </Button>
+                {hasInput ? (
+                  <Button className="w-full" onClick={handleClaim}>
+                    Claim
+                  </Button>
+                ) : (
+                  <Button className="cursor-auto bg-cream hover:bg-cream">
+                    {" "}
+                    <Repeat2 size={14} className="mr-1" /> Automatic
+                  </Button>
+                )}
+              </div>
+            </div>
           ) : (
-            <Badge variant="outline">
-              <Repeat2 size={14} className="mr-1" /> Repeatable
-            </Badge>
+            <p className="text-green-500 mt-4">Obtained</p>
           )}
         </div>
-
-        <p>{description}</p>
-        <div className="w-full flex justify-center items-center">
-          {muhar && <Mimage muhar={muhar} />}
-        </div>
-        {!claimed ? (
-          <div className="mt-4">
-            {hasInput && (
-              <a
-                href={cta}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500"
-              >
-                {unavailable ? "Unavilable Now" : "Join"}
-              </a>
-            )}
-
-            {hasInput && (
-              <div className="mt-2">
-                <Input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="Enter code here"
-                  className="mb-4"
-                />
-              </div>
-            )}
-            <div className="flex">
-              <Button className="mr-2 bg-yellow-200 cursor-auto hover:bg-yellow-200">
-                + {xp} XP
-              </Button>
-              {hasInput ? (
-                <Button className="w-full" onClick={handleClaim}>
-                  Claim
-                </Button>
-              ) : (
-                <Button className="cursor-auto bg-yellow-200 hover:bg-yellow-200">
-                  {" "}
-                  <Repeat2 size={14} className="mr-1" /> Automatic
-                </Button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <p className="text-green-500 mt-4">Obtained</p>
-        )}
       </div>
     );
   }
@@ -108,29 +110,34 @@ const XPProgressBar = ({ xp }) => {
   return (
     <div className="relative w-full h-10">
       {/* XP segments */}
-      <div className="flex w-full h-full">
+      <div className="flex w-full h-full overflow-x-scroll overflow-y-hidden scrollbar-hide font-strike mt-8 lg:mt-2">
         {Array.from({ length: totalSegments }, (_, index) => (
           <div
             key={index}
-            className="relative flex-1 h-full mx-[2px]  justify-center items-center text-2xl"
+            className={`relative flex-1 h-[40px] mx-[2px] justify-center items-center text-2xl ${
+              index < filledSegments
+                ? "bg-gradient-to-r from-primary to-orange-400"
+                : "bg-gray-200"
+            } `}
             style={{
-              backgroundColor: index < filledSegments ? "#F59E0B" : "#E5E7EB",
               clipPath: "polygon(12% 0, 100% 0, 88% 100%, 0 100%)",
             }}
           >
-            <div className="ml-10 mt-1">
-              {(index + 1) * 10}
-              <span className="text-xs">XP</span>
-            </div>
-            {index === filledSegments && (
-              <div
-                className="absolute top-0 left-0 h-full bg-yellow-400"
-                style={{ width: `${partialFill}%` }}
-              >
-                <div className="ml-10 mt-1">
+            {index === filledSegments ? (
+              <div className="flex justify-center items-center px-8 py-1 relative">
+                <div className="z-10">
                   {(index + 1) * 10}
                   <span className="text-xs">XP</span>
                 </div>
+                <div
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-orange-400"
+                  style={{ width: `${partialFill}%` }}
+                />
+              </div>
+            ) : (
+              <div className="flex justify-center items-center px-8 py-1">
+                {(index + 1) * 10}
+                <span className="text-xs">XP</span>
               </div>
             )}
           </div>
@@ -199,64 +206,64 @@ const RewardsCard = ({ reward, userLevel, onClaim }) => {
   const isClaimed = reward.isClaimed;
 
   return (
-    <div className="flex justify-between p-4 mb-4 border h-[160px]">
-      <div className="flex items-center h-full">
-        <div className="flex flex-col justify-between items-between h-full">
-          <div
-            className=" h-[40px]  bg-primary justify-center items-center text-2xl"
-            style={{
-              clipPath: "polygon(12% 0, 100% 0, 88% 100%, 0 100%)",
-            }}
-          >
-            <div className="flex justify-center items-center px-8 py-1">
-              {reward.requiresLvl * 10}
-              <span className="text-xs">XP</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="ml-4 h-full flex flex-col justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">{reward.title}</h3>
-            <p className="text-sm text-gray-500">{reward.description}</p>
-            <div className="flex items-center gap-2">
-              <div>Related Game:</div>
-              <Link
-                href={`/product-details/${reward.productSlug}`}
-                className="text-blue-500 hover:underline text-sm"
-              >
-                {reward.belongsToGame}
-              </Link>
-            </div>
-          </div>
-          <div>
-            {isClaimed ? (
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="text-green-500" size={24} />
-                <span className="text-green-500 font-semibold">Unlocked</span>
+    <div className="box-inner">
+      <div className="box-broken flex justify-between p-4 lg:p-8 mb-4 border h-[160px]">
+        <div className="flex items-center h-full">
+          <div className="flex flex-col justify-between items-between h-full">
+            <div
+              className="h-[40px] bg-gradient-to-r from-primary to-orange-400 justify-center items-center text-2xl"
+              style={{
+                clipPath: "polygon(12% 0, 100% 0, 88% 100%, 0 100%)",
+              }}
+            >
+              <div className="flex justify-center items-center px-8 py-1">
+                {reward.requiresLvl * 10}
+                <span className="text-xs">XP</span>
               </div>
-            ) : isUnlocked ? (
-              <Button variant="outline" onClick={() => onClaim(reward)}>
-                Claim Reward
-              </Button>
-            ) : (
-              <Button disabled className="bg-black text-white flex gap-2">
-                <Lock size={24} />
-                <span>Locked</span>
-              </Button>
-            )}
+            </div>
+          </div>
+
+          <div className="ml-4 h-full flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg">{reward.title}</h3>
+              <p className="text-sm text-gray-500">{reward.description}</p>
+              <div className="flex items-center gap-2 text-sm">
+                <div>Related Game:</div>
+                <Link
+                  href={`/product-details/${reward.productSlug}`}
+                  className="text-blue-500 hover:underline text-sm"
+                >
+                  {reward.belongsToGame}
+                </Link>
+              </div>
+            </div>
+            <div>
+              {isClaimed ? (
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="text-green-500" size={24} />
+                  <span className="text-green-500 font-semibold">Unlocked</span>
+                </div>
+              ) : isUnlocked ? (
+                <Button onClick={() => onClaim(reward)}>Claim Reward</Button>
+              ) : (
+                <Button disabled className="bg-black text-white flex gap-2">
+                  <Lock size={24} />
+                  <span>Locked</span>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center space-x-4">
-        <Image
-          src={reward.thumbnail}
-          alt={reward.title}
-          width={128}
-          height={128}
-          className="rounded-lg"
-        />
+        <div className="flex items-center space-x-4">
+          <Image
+            src={reward.thumbnail}
+            alt={reward.title}
+            width={128}
+            height={128}
+            className="rounded-lg"
+          />
+        </div>
       </div>
     </div>
   );
@@ -292,26 +299,30 @@ const ProfilePage = observer(() => {
   const lvl = calculateLevel(user.xp);
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="text-2xl font-bold mt-4">Profile</div>
+    <div className="container mx-auto p-2 lg:p-8">
+      <div className="text-2xl font-strike uppercase mt-4">Profile</div>
       {/* User Info */}
-      <div className="my-4 border p-8">
-        <div className="flex flex-col items-center justify-center gap-2">
-          <Image
-            src={avatarImg}
-            alt={user.username}
-            width={100}
-            height={100}
-            className="h-16 w-16 sm:h-32 sm:w-32 object-cover rounded-full"
-          />
-          <div className="text-xl font-bold capitalize">{user.username}</div>
-          <p>{user.email}</p>
-          <div>Level {lvl}</div>
+      <div className="box-inner  max-w-[400px]">
+        <div className="box-broken my-4 border p-8">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <Image
+              src={avatarImg}
+              alt={user.username}
+              width={100}
+              height={100}
+              className="h-16 w-16 sm:h-32 sm:w-32 object-cover rounded-full"
+            />
+            <div className="text-xl font-bold capitalize">{user.username}</div>
+            <p>{user.email}</p>
+            <div>Level {lvl}</div>
 
-          <Button variant="outline">Edit Profile</Button>
+            <Button variant="reverse">Edit Profile</Button>
+          </div>
         </div>
       </div>
-      <div className="text-2xl font-bold my-4">Rewards Track</div>
+      <div className="text-2xl font-strike uppercase my-4 mt-12">
+        Rewards Track
+      </div>
 
       <XPProgressBar xp={user.xp} />
       <ul>
@@ -326,7 +337,9 @@ const ProfilePage = observer(() => {
         onClaimReward={() => console.log("Claimed")}
       />
       {/* Action Cards */}
-      <div className="text-2xl font-bold mt-4">How to Earn XP?</div>
+      <div className="text-2xl font-strike uppercase mt-12">
+        How to Earn XP?
+      </div>
       {/* <div className="w-full sm:w-1/2">
         Rules: You earn XP by doing certain activities:
         <ul>

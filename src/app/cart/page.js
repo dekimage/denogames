@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Mimage } from "@/components/Mimage";
+import PaymentButton from "@/components/PaymentButton";
 
 export function getCartStatus(cartItemsLength) {
   let muhar;
@@ -55,16 +56,18 @@ const CartPage = observer(() => {
   }
 
   return (
-    <div className="sm:mx-auto py-4 m-0 p-2 sm:p-8">
-      <div className="text-2xl font-bold mb-6">Your Cart</div>
-      <Mimage muhar={getCartStatus(cartItems.length)} />
+    <div className="sm:mx-auto py-4 m-0 p-2 sm:p-8 pb-24">
+      <div className="text-2xl font-strike uppercase mb-2">Your Cart</div>
+      <Mimage
+        muhar={getCartStatus(cartItems.length)}
+        height={200}
+        width={200}
+      />
 
       {cartItems.length === 0 ? (
-        <div className="p-8 border">
-          <p>The cart is empty. muhar zagrizen art</p>
-          <div className="mb-4">
-            Let`s fill it up with bunch of cool games :3
-          </div>
+        <div className="p-8 border border-dashed flex items-center justify-center flex-col gap-4">
+          <div className="text-2xl font-strike">Your cart is empty</div>
+
           <Link href="/">
             <Button className="h-16 text-xl">
               Browse Games <ArrowRight className="ml-1" size={24} />
@@ -72,13 +75,10 @@ const CartPage = observer(() => {
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col items-between justify-between h-[80vh]">
-          <div>
-            {cartItems.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between border-b py-4"
-              >
+        <div className="flex flex-col items-between justify-between">
+          {cartItems.map((product) => (
+            <div className="box-inner" key={product.id}>
+              <div className="box-broken flex items-center justify-between border-b px-8 my-2 p-4">
                 <div className="flex items-center">
                   <Image
                     src={product.thumbnail}
@@ -89,7 +89,7 @@ const CartPage = observer(() => {
                   />
                   <div className="ml-4 flex justify-start items-start">
                     <Link href={`/product-details/${product.slug}`}>
-                      <div className="text-sm sm:text-lg font-bold  sm:w-[150px]">
+                      <div className="text-sm sm:text-lg   sm:w-[150px]">
                         {product.name}
                       </div>
                     </Link>
@@ -107,29 +107,25 @@ const CartPage = observer(() => {
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* <div className="flex justify-center items-center border w-full h-64">
-            Suggestions: Upsell
-          </div> */}
-
-          <div className=" flex justify-end">
-            <div className="mt-8 w-full">
-              <div className="flex justify-between mb-6">
-                <div className="text-lg font-bold">Total</div>
-                <div className="text-lg font-bold">${totalPrice}.00</div>
-              </div>
-
-              <Link href="/checkout" className="w-full">
-                <Button
-                  className="w-full h-16 text-xl"
-                  disabled={cartItems.length === 0}
-                >
-                  Checkout
-                </Button>
-              </Link>
             </div>
+          ))}
+        </div>
+      )}
+      {cartItems.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+          <div className="max-w-screen-xl mx-auto flex justify-between items-center">
+            <div className="font-strike uppercase text-lg">
+              Total: ${totalPrice}.00
+            </div>
+            <PaymentButton cartItems={cartItems} />
+            <Link href="/checkout" className="w-1/2 sm:w-1/3">
+              <Button
+                className="w-full h-12 text-lg"
+                disabled={cartItems.length === 0}
+              >
+                Checkout
+              </Button>
+            </Link>
           </div>
         </div>
       )}

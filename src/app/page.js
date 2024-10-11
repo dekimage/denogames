@@ -266,7 +266,7 @@ const ProductSection = ({ title, products }) => {
   );
 };
 
-export const ProductCard = observer(({ product }) => {
+export const ProductCard = observer(({ product, isSmall = false }) => {
   const { addToCart, cart, user } = MobxStore;
 
   const isInCart = cart.includes(product.id);
@@ -286,45 +286,55 @@ export const ProductCard = observer(({ product }) => {
   };
 
   return (
-    <div className="box">
+    <div className={`box ${isSmall ? "space-y-2 w-[220px]" : "space-y-4"}`}>
       <div className="box-inner">
         <div className="box-broken relative">
           <div
-            className={`absolute flag ${getFlagColor(
-              product.type
-            )} p-3 w-[135px] flex pl-6 left-[0px] top-[18px] text-white uppercase text-[14px]`}
+            className={`absolute flag ${getFlagColor(product.type)} ${
+              isSmall
+                ? "p-1 top-[14px] w-[100px] text-[12px]"
+                : "p-4 w-[135px] top-[18px] text-[14px]"
+            } flex pl-6 left-[0px] text-white uppercase`}
           >
             {product.type}
           </div>
           <div>
             <Link
               href={`/product-details/${product.slug}`}
-              className="p-8 flex justify-center items-center flex-col pt-8"
+              className={`flex justify-center items-center flex-col ${
+                isSmall ? "p-4" : "p-8"
+              }`}
             >
               <Image
                 src={product.thumbnail || placeholderImg}
                 alt={product.name}
-                width={300}
-                height={300}
-                // className="w-full h-64 object-cover"
-                className="w-54 h-54"
+                width={isSmall ? 300 : 300}
+                height={isSmall ? 300 : 300}
+                className={isSmall ? "w-28 h-28" : "w-54 h-54"}
               />
-              <div className="flex pt-4 flex-col w-full">
-                <div className=" w-full">
-                  <div className="text-lg  h-[56px]">{product.name}</div>
+              <div
+                className={`flex flex-col w-full ${isSmall ? "pt-2" : "pt-4"}`}
+              >
+                <div className="w-full">
+                  <div
+                    className={`${isSmall ? "mt-2 text-lg" : "mt-4 text-xl"}`}
+                  >
+                    {product.name}
+                  </div>
                   <div className="text-xs">{product.description}</div>
-                  <p className="text-xl mt-4">${product.price}.00</p>
+                  <p className={`${isSmall ? "mt-2 text-sm" : "mt-4 text-xl"}`}>
+                    ${product.price}.00
+                  </p>
                 </div>
               </div>
             </Link>
-            <div className="p-8">
+            <div className={isSmall ? "p-4 pt-0" : "p-8 pt-0"}>
               {isPurchased ? (
                 <Link
                   href={`/product-details/${product.slug}`}
                   className="w-full"
                 >
                   <Button className="bg-blacky text-white hover:bg-green-500 w-1/2">
-                    {/* <Dice6 size={16} className="mr-1" /> */}
                     PLAY
                   </Button>
                 </Link>
@@ -336,9 +346,13 @@ export const ProductCard = observer(({ product }) => {
                     </Button>
                   </Link>
                   {isInCart && (
-                    <div className="flex justify-center items-center w-[120px]">
+                    <div
+                      className={`flex justify-center items-center w-[120px] ${
+                        isSmall ? "ml-2" : "ml-4"
+                      }`}
+                    >
                       <CheckCheck className="text-orange-400 mr-2" size={20} />
-                      <span className="text-orange-400 ">IN CART</span>
+                      <span className="text-orange-400">IN CART</span>
                     </div>
                   )}
                 </div>

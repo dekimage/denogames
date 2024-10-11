@@ -229,7 +229,7 @@ const ShopPage = observer(() => {
             title="Type"
             options={typeOptions}
             selectedOptions={filters.types}
-            onToggle={(option) => toggleFilter("types", option)}
+            onToggle={(option) => toggleFilter("types", option.toLowerCase())}
             isOpen={openSections.types}
             toggleOpen={() => toggleSection("types")}
           />
@@ -237,7 +237,9 @@ const ShopPage = observer(() => {
             title="Difficulty"
             options={difficultyOptions}
             selectedOptions={filters.difficulty}
-            onToggle={(option) => toggleFilter("difficulty", option)}
+            onToggle={(option) =>
+              toggleFilter("difficulty", option.toLowerCase())
+            }
             isOpen={openSections.difficulty}
             toggleOpen={() => toggleSection("difficulty")}
           />

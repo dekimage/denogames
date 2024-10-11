@@ -105,18 +105,12 @@ const CreateListDialog = () => {
 
 const ReusableLayout = observer(({ children }) => {
   const { user, cart, logout } = MobxStore;
-
   const pathname = usePathname();
-  const isRoute = (route) => {
-    if (route === "/") {
-      return pathname.toLowerCase() === `/${route.toLowerCase()}`
-        ? "default"
-        : "ghost";
-    }
 
-    return pathname.toLowerCase().includes(route.toLowerCase())
-      ? "default"
-      : "ghost";
+  // Add this function to determine if the footer should be shown
+  const shouldShowFooter = () => {
+    const routesWithoutFooter = ["/login", "/signup", "/app", "/cart"];
+    return !routesWithoutFooter.includes(pathname);
   };
 
   const cartItemCount = cart.length;
@@ -237,7 +231,7 @@ const ReusableLayout = observer(({ children }) => {
         {/* <MobileHeader /> */}
         {children}
       </div>
-      <Footer />
+      {shouldShowFooter() && <Footer />}
     </div>
   );
 });

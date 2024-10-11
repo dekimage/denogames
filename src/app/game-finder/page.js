@@ -175,18 +175,15 @@ const GameFinder = () => {
       {/* Results Section (only show when all steps are completed) */}
       {currentStep === 4 && (
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Recommended Games</h2>
+          <h2 className="text-2xl font-strike uppercase mb-4">
+            Recommended Games
+          </h2>
           {/* Add game recommendations here */}
           <div className="flex justify-center space-x-4 mt-8">
-            <button className="bg-primary text-white px-4 py-2 rounded">
-              Add all to cart
-            </button>
-            <button
-              className="bg-blacky text-black px-4 py-2 rounded"
-              onClick={() => setCurrentStep(1)}
-            >
+            <Button>Add all to cart</Button>
+            <Button variant="reverse" onClick={() => setCurrentStep(1)}>
               Start again
-            </button>
+            </Button>
           </div>
         </div>
       )}
