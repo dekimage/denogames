@@ -260,6 +260,57 @@ body {
       0% 15%
     );
   }
+  .prose h2,
+  .prose h3.wp-block-heading {
+    @apply text-2xl font-bold mt-8 mb-4 font-strike uppercase;
+  }
+
+  .prose h3,
+  .prose h4.wp-block-heading {
+    @apply text-xl font-bold mt-6 mb-3 font-strike uppercase;
+  }
+
+  .prose p {
+    @apply mb-4;
+  }
+
+  .prose ul,
+  .prose ol,
+  .prose ul.wp-block-list {
+    @apply list-disc pl-5 mb-4;
+  }
+
+  .prose ol {
+    @apply list-decimal;
+  }
+
+  .prose li {
+    @apply mb-2;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic my-4;
+  }
+
+  .prose img {
+    @apply rounded-lg my-8 mx-auto;
+  }
+
+  .prose strong {
+    @apply font-bold;
+  }
+
+  .prose a {
+    @apply text-blue-600 hover:underline;
+  }
+
+  .prose .wp-block-image img {
+    @apply rounded-lg my-8 mx-auto;
+  }
+
+  .prose .wp-block-quote {
+    @apply border-l-4 border-gray-300 pl-4 italic my-4;
+  }
 }
 
 /* experiment css */
@@ -287,60 +338,6 @@ body {
 
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
 }
-
-/* .nav-text {
-  box-sizing: border-box;
-  display: block;
-  color: white;
-  
-  text-transform: uppercase;
-  font-size: 18px;
-  text-decoration-color: rgb(0, 171, 255);
-  text-decoration-style: solid;
-  text-decoration-thickness: auto;
-  cursor: pointer;
-  font-weight: 400;
-  line-height: 25.2px;
-  text-align: left;
-}
-
-.nav-icon {
-  color: white;
-  font-variant: normal;
-  font-weight: 400;
-  line-height: 25px;
-  box-sizing: border-box;
-  font-size: 25px;
-  animation: 1s ease 0s 1 normal none running swing;
-  margin-right: 12px;
-  
-  text-decoration-color: rgb(0, 171, 255);
-  text-decoration-style: solid;
-  text-decoration-thickness: auto;
-  cursor: pointer;
-  text-align: left;
-}
-.nav-item {
-  box-sizing: border-box;
-  align-items: center;
-  
-  display: flex;
-  font-size: 18px;
-  height: 46px;
-  justify-content: flex-start;
-  transition: none;
-  width: 109.844px;
-  text-decoration: none solid rgb(0, 171, 255);
-  position: relative;
-  cursor: pointer;
-  padding: 10px 12px 10px 21px;
-  outline: rgb(0, 171, 255) none 0px;
-  font-weight: 400;
-  line-height: 25.2px;
-  text-align: left;
-  background: none 0% 0% / auto repeat scroll padding-box border-box
-    rgba(0, 0, 0, 0);
-} */
 
 .box {
   box-sizing: border-box;

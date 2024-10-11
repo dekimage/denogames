@@ -65,20 +65,21 @@ export async function POST(request) {
 }
 
 function formatBlogPost(post) {
-  const category =
+  let categories = [];
+  if (
     post._embedded &&
     post._embedded["wp:term"] &&
-    post._embedded["wp:term"][0] &&
-    post._embedded["wp:term"][0][0]
-      ? post._embedded["wp:term"][0][0].name
-      : "Uncategorized";
+    post._embedded["wp:term"][0]
+  ) {
+    categories = post._embedded["wp:term"][0].map((term) => term.name);
+  }
+  if (categories.length === 0) {
+    categories.push("Uncategorized");
+  }
 
-  const thumbnail =
-    post._embedded &&
-    post._embedded["wp:featuredmedia"] &&
-    post._embedded["wp:featuredmedia"][0]
-      ? post._embedded["wp:featuredmedia"][0].source_url
-      : "/default-thumbnail.jpg"; // Replace with a default image path
+  console.log("Categories for post", post.id, ":", categories);
+
+  const thumbnail = post.jetpack_featured_media_url || "/default-thumbnail.jpg";
 
   return {
     id: post.id,
@@ -87,7 +88,7 @@ function formatBlogPost(post) {
     content: post.content ? post.content.rendered : "",
     excerpt: post.excerpt ? post.excerpt.rendered : "",
     date: post.date ? new Date(post.date).toLocaleDateString() : "No date",
-    category,
+    categories, // Now it's an array of all categories
     thumbnail,
   };
 }

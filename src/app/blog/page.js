@@ -24,6 +24,8 @@ const categories = [
   "Tutorial",
   "Social Media",
   "News",
+  "App",
+  "Mechanic",
 ];
 
 import MobxStore from "@/mobx";
@@ -48,7 +50,7 @@ const BlogCard = ({ blog }) => {
         <div
           className={`absolute flag p-3 w-[150px] bg-green-400 flex pl-6 left-[0px] top-[18px] text-white uppercase text-[14px]`}
         >
-          {blog.category}
+          {blog.categories.join(", ")}
         </div>
         <Image
           src={blog.thumbnail}
@@ -81,13 +83,10 @@ function BlogGrid({ blogs }) {
   );
 }
 
-function BlogFilter({ onCategoryChange }) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
+function BlogFilter({ onCategoryChange, selectedCategory }) {
   const handleCategoryChange = (e) => {
     const category = e.target.value;
-    setSelectedCategory(category);
-    onCategoryChange(category.toLowerCase());
+    onCategoryChange(category);
   };
 
   return (
@@ -121,7 +120,9 @@ const BlogPage = observer(() => {
   const filteredBlogs = MobxStore.blogs.filter(
     (blog) =>
       selectedCategory === "All" ||
-      blog.category.toLowerCase() === selectedCategory.toLowerCase()
+      blog.categories.some(
+        (category) => category.toLowerCase() === selectedCategory.toLowerCase()
+      )
   );
 
   return (
@@ -131,7 +132,10 @@ const BlogPage = observer(() => {
         {format(new Date(), "MMMM dd yyyy")}
       </p>
 
-      <BlogFilter onCategoryChange={setSelectedCategory} />
+      <BlogFilter
+        onCategoryChange={setSelectedCategory}
+        selectedCategory={selectedCategory}
+      />
 
       {filteredBlogs.length > 0 ? (
         <BlogGrid blogs={filteredBlogs} />
