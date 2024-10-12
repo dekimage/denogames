@@ -65,7 +65,7 @@ const OrderDetails = ({ order }) => {
               <ul className="grid gap-3">
                 <li className="flex items-center justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{order.total.toFixed(2)}</span>
+                  <span>{order.amountTotal.toFixed(2)}</span>
                 </li>
 
                 <li className="flex items-center justify-between">
@@ -74,7 +74,7 @@ const OrderDetails = ({ order }) => {
                 </li>
                 <li className="flex items-center justify-between font-semibold">
                   <span className="text-muted-foreground">Total</span>
-                  <span>{order.total.toFixed(2)}</span>
+                  <span>{order.amountTotal.toFixed(2)}</span>
                 </li>
               </ul>
             </div>
@@ -161,7 +161,7 @@ const OrdersPage = observer(() => {
                 )}
               </TableCell>
               <TableCell className="sm:table-cell">
-                ${order.total.toFixed(2)}
+                ${order.amountTotal.toFixed(2)}
               </TableCell>
               <TableCell className="sm:table-cell">
                 <Badge className="text-xs" variant="outline">

@@ -1,7 +1,9 @@
 import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
+import { observer } from "mobx-react-lite";
+import { auth } from "@/firebase";
 
-const PaymentButton = ({ cartItems }) => {
+const PaymentButton = observer(({ cartItems }) => {
   const [stripePromise, setStripePromise] = useState(null);
 
   useEffect(() => {
@@ -14,11 +16,24 @@ const PaymentButton = ({ cartItems }) => {
       return;
     }
 
+    const user = auth.currentUser; // Get current user from Firebase Auth
+
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
+    }
+
+    // Get the Firebase token
+    const token = await user.getIdToken();
+
     const stripe = await stripePromise;
+
+    // Send the token in the Authorization header and cartItems in the body
     const response = await fetch("/api/checkout-session", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Send token securely
       },
       body: JSON.stringify({ cartItems }),
     });
@@ -49,6 +64,6 @@ const PaymentButton = ({ cartItems }) => {
       Proceed to Payment
     </button>
   );
-};
+});
 
 export default PaymentButton;
