@@ -1,6 +1,7 @@
 import { auth, firestore } from "@/firebaseAdmin";
 import Stripe from "stripe";
 
+const baseUrl = process.env.NEXT_PUBLIC_URL || "https://denogames.com";
 const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
 
 export async function POST(req) {
@@ -51,8 +52,8 @@ export async function POST(req) {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/cart`,
+      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
+      cancel_url: `${baseUrl}/cart`,
       metadata: {
         cartItems: JSON.stringify(
           cartItems.map((item) => ({
