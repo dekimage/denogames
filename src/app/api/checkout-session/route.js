@@ -1,8 +1,8 @@
 import { auth, firestore } from "@/firebaseAdmin";
 import Stripe from "stripe";
 
-const baseUrl = process.env.NEXT_PUBLIC_URL || "https://denogames.com";
-const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
+// const baseUrl = process.env.NEXT_PUBLIC_URL || "https://denogames.com";
+// const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   const { token, cartItems } = await req.json(); // Parse token and cartItems from request body
