@@ -48,22 +48,24 @@ export async function POST(req) {
     );
 
     // Only send product IDs and quantities in metadata to Stripe
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: lineItems,
-      mode: "payment",
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
-      cancel_url: `${baseUrl}/cart`,
-      metadata: {
-        cartItems: JSON.stringify(
-          cartItems.map((item) => ({
-            id: item.id,
-            quantity: 1,
-          }))
-        ),
-        userId: userId || "", // Send userId if authenticated, otherwise empty
-      },
-    });
+    // const session = await stripe.checkout.sessions.create({
+    //   payment_method_types: ["card"],
+    //   line_items: lineItems,
+    //   mode: "payment",
+    //   success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
+    //   cancel_url: `${baseUrl}/cart`,
+    //   metadata: {
+    //     cartItems: JSON.stringify(
+    //       cartItems.map((item) => ({
+    //         id: item.id,
+    //         quantity: 1,
+    //       }))
+    //     ),
+    //     userId: userId || "", // Send userId if authenticated, otherwise empty
+    //   },
+    // });
+
+    const session = { id: 1 };
 
     return new Response(JSON.stringify({ id: session.id }), { status: 200 });
   } catch (error) {
