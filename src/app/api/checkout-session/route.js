@@ -51,7 +51,7 @@ export async function POST(req) {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/cart`,
       metadata: {
         cartItems: JSON.stringify(
