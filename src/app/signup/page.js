@@ -151,9 +151,17 @@ export const SignupForm = observer(() => {
 const SignupCard = observer(() => {
   const router = useRouter();
   const { isUserAnonymous, signInWithGoogle } = MobxStore;
+  const [isLoading, setIsLoading] = useState(false);
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
-    router.push("/");
+    setIsLoading(true); // Set loading state to true
+    try {
+      await signInWithGoogle();
+      setIsLoading(false);
+      router.push("/");
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      setIsLoading(false); // Reset loading state if an error occurs
+    }
   };
   return (
     <div className="box">
@@ -173,9 +181,17 @@ const SignupCard = observer(() => {
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid grid-cols-1 gap-6">
-              <Button variant="reverse" onClick={handleGoogleSignIn}>
-                <FaGoogle className="mr-2 h-4 w-4" />
-                Google
+              <Button
+                variant="reverse"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <CgSpinner className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <FaGoogle className="mr-2 h-4 w-4" />
+                )}
+                {isLoading ? "Signing in..." : "Sign in with Google"}
               </Button>
             </div>
             <div className="relative">

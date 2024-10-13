@@ -93,11 +93,14 @@ class Store {
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
+    this.fetchProducts();
 
     this.fetchProducts = this.fetchProducts.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
     this.loginWithEmail = this.loginWithEmail.bind(this);
     this.signupWithEmail = this.signupWithEmail.bind(this);
+    this.logout = this.logout.bind(this);
+    this.signInWithGoogle = this.signInWithGoogle.bind(this);
 
     this.fetchCart = this.fetchCart.bind(this);
     this.addToCart = this.addToCart.bind(this);
@@ -1016,6 +1019,39 @@ class Store {
     }
   }
 
+  // async signupWithEmail(email, password, username) {
+  //   try {
+  //     this.loading = true;
+  //     const userCredential = await createUserWithEmailAndPassword(
+  //       auth,
+  //       email,
+  //       password
+  //     );
+
+  //     // Additional user properties
+  //     const newUserProfile = {
+  //       ...DEFAULT_USER,
+  //       createdAt: new Date(),
+  //       username: username,
+  //       email: email,
+  //       uid: userCredential.user.uid,
+  //     };
+
+  //     // Create a user profile in Firestore
+  //     await setDoc(doc(db, "users", userCredential.user.uid), newUserProfile);
+
+  //     runInAction(() => {
+  //       this.user = newUserProfile;
+  //       this.loading = false;
+  //     });
+  //   } catch (error) {
+  //     console.log("Error signing up:", error);
+  //     runInAction(() => {
+  //       this.loading = false;
+  //     });
+  //     throw error;
+  //   }
+  // }
   async signupWithEmail(email, password, username) {
     try {
       this.loading = true;
@@ -1024,25 +1060,33 @@ class Store {
         email,
         password
       );
+      const user = userCredential.user;
 
-      // Additional user properties
-      const newUserProfile = {
-        ...DEFAULT_USER,
-        createdAt: new Date(),
-        username: username,
-        email: email,
-        uid: userCredential.user.uid,
-      };
-
-      // Create a user profile in Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), newUserProfile);
-
-      runInAction(() => {
-        this.user = newUserProfile;
-        this.loading = false;
+      // Call your API to handle Firestore profile creation and merging
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          uid: user.uid,
+          username: username,
+        }),
       });
+
+      const result = await response.json();
+
+      if (result.success) {
+        runInAction(() => {
+          this.user = result.user; // Store full user profile from API response
+          this.loading = false;
+        });
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
-      console.log("Error signing up:", error);
+      console.error("Error signing up with email:", error);
       runInAction(() => {
         this.loading = false;
       });
@@ -1064,36 +1108,75 @@ class Store {
 
   async signInWithGoogle() {
     try {
+      this.loading = true;
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        const newUserProfile = {
-          ...DEFAULT_USER,
-          createdAt: new Date(),
-          username: user.displayName || "New User",
+      // Call your API to handle Firestore profile creation and merging (just like email sign-up)
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           email: user.email,
           uid: user.uid,
-        };
+          username: user.displayName || "New User",
+        }),
+      });
 
-        await setDoc(userDocRef, newUserProfile);
+      const resultData = await response.json();
 
+      if (resultData.success) {
         runInAction(() => {
-          this.user = newUserProfile;
+          this.user = resultData.user; // Store full user profile from API response
+          this.loading = false;
         });
       } else {
-        runInAction(() => {
-          this.user = { uid: user.uid, ...userDoc.data() };
-        });
+        throw new Error(resultData.error);
       }
     } catch (error) {
-      console.log("Error with Google sign-in:", error);
+      console.error("Error with Google sign-in:", error);
+      runInAction(() => {
+        this.loading = false;
+      });
+      throw error;
     }
   }
+
+  // async signInWithGoogle() {
+  //   try {
+  //     const provider = new GoogleAuthProvider();
+  //     const result = await signInWithPopup(auth, provider);
+  //     const user = result.user;
+
+  //     const userDocRef = doc(db, "users", user.uid);
+  //     const userDoc = await getDoc(userDocRef);
+
+  //     if (!userDoc.exists()) {
+  //       const newUserProfile = {
+  //         ...DEFAULT_USER,
+  //         createdAt: new Date(),
+  //         username: user.displayName || "New User",
+  //         email: user.email,
+  //         uid: user.uid,
+  //       };
+
+  //       await setDoc(userDocRef, newUserProfile);
+
+  //       runInAction(() => {
+  //         this.user = newUserProfile;
+  //       });
+  //     } else {
+  //       runInAction(() => {
+  //         this.user = { uid: user.uid, ...userDoc.data() };
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.log("Error with Google sign-in:", error);
+  //   }
+  // }
 
   async sendPasswordReset(email) {
     try {

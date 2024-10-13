@@ -4,22 +4,23 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
 
 export async function POST(req) {
-  const authHeader = req.headers.get("authorization"); // Get the Authorization header
-  const token = authHeader ? authHeader.split("Bearer ")[1] : null; // Extract the token
+  const { token, cartItems } = await req.json(); // Parse token and cartItems from request body
+  let userId = null;
 
-  if (!token) {
-    return new Response(JSON.stringify({ error: "No token provided" }), {
-      status: 401,
-    });
+  if (token) {
+    try {
+      // Verify the Firebase token to get the user ID
+      const decodedToken = await auth.verifyIdToken(token);
+      userId = decodedToken.uid; // Extract userId securely
+    } catch (error) {
+      console.error("Error verifying token:", error);
+      return new Response(JSON.stringify({ error: "Authentication failed" }), {
+        status: 401,
+      });
+    }
   }
 
   try {
-    // Verify the Firebase token to get the user ID
-    const decodedToken = await auth.verifyIdToken(token);
-    const userId = decodedToken.uid; // Extract userId securely
-
-    const { cartItems } = await req.json(); // Parse the cart items from the body
-
     const lineItems = await Promise.all(
       cartItems.map(async (cartItem) => {
         const { id } = cartItem;
@@ -56,18 +57,18 @@ export async function POST(req) {
         cartItems: JSON.stringify(
           cartItems.map((item) => ({
             id: item.id,
-            quantity: item.quantity,
+            quantity: 1,
           }))
         ),
-        userId, // Send the userId in metadata
+        userId: userId || "", // Send userId if authenticated, otherwise empty
       },
     });
 
     return new Response(JSON.stringify({ id: session.id }), { status: 200 });
   } catch (error) {
-    console.error("Error verifying token or creating checkout session:", error);
+    console.error("Error creating checkout session:", error);
     return new Response(
-      JSON.stringify({ error: "Authentication failed or checkout error" }),
+      JSON.stringify({ error: "Checkout session creation failed" }),
       { status: 500 }
     );
   }

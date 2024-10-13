@@ -29,14 +29,13 @@ export async function POST(req) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    const userId = session.metadata.userId; // Extract userId from metadata
+    const userId = session.metadata.userId || null; // Extract userId from metadata (it may not exist for guest users)
+    const email = session.customer_details.email; // This email is collected by Stripe during checkout
+    const cartItems = JSON.parse(session.metadata.cartItems); // Only product IDs and quantities
 
     try {
-      const cartItems = JSON.parse(session.metadata.cartItems); // Only product IDs and quantities
-
       // Use a Firestore transaction to ensure atomic updates
       await firestore.runTransaction(async (transaction) => {
-        // Fetch the product prices for reference
         const productPrices = await Promise.all(
           cartItems.map(async (item) => {
             const productDoc = await transaction.get(
@@ -51,8 +50,7 @@ export async function POST(req) {
         );
 
         // Store the order in Firestore inside the transaction
-        transaction.set(firestore.collection("orders").doc(), {
-          userId, // Add userId for easier querying
+        const orderData = {
           cartItems: productPrices.map((item) => ({
             id: item.id,
             price: item.price, // Only store product ID and price
@@ -61,20 +59,27 @@ export async function POST(req) {
           amountTotal: session.amount_total / 100, // Stripe sends amount in cents, convert to dollars
           stripeSessionId: session.id,
           createdAt: new Date(),
-          customerEmail: session.customer_details.email,
-        });
+          customerEmail: email,
+          userId: userId,
+          isPending: !userId, // Mark order as pending if no userId (guest)
+        };
 
-        // Add product IDs to the user's purchasedProducts array inside the transaction
-        transaction.update(firestore.collection("users").doc(userId), {
-          purchasedProducts: admin.firestore.FieldValue.arrayUnion(
-            ...cartItems.map((item) => item.id) // Add the product IDs to the user's array
-          ),
-        });
+        const orderRef = firestore.collection("orders").doc();
+        transaction.set(orderRef, orderData);
 
-        // Clear the user's cart inside the transaction
-        transaction.update(firestore.collection("carts").doc(userId), {
-          items: [], // Clear the cart by setting the items array to empty
-        });
+        if (userId) {
+          // Add product IDs to the authenticated user's purchasedProducts array
+          transaction.update(firestore.collection("users").doc(userId), {
+            purchasedProducts: admin.firestore.FieldValue.arrayUnion(
+              ...cartItems.map((item) => item.id) // Add the product IDs to the user's array
+            ),
+          });
+
+          // Clear the user's cart inside the transaction
+          transaction.update(firestore.collection("carts").doc(userId), {
+            items: [], // Clear the cart by setting the items array to empty
+          });
+        }
       });
 
       return NextResponse.json({ success: true });

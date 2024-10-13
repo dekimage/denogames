@@ -16,26 +16,29 @@ const PaymentButton = observer(({ cartItems }) => {
       return;
     }
 
-    const user = auth.currentUser; // Get current user from Firebase Auth
-
-    if (!user) {
-      console.error("User is not authenticated");
-      return;
-    }
-
-    // Get the Firebase token
-    const token = await user.getIdToken();
-
     const stripe = await stripePromise;
 
-    // Send the token in the Authorization header and cartItems in the body
+    // Check if user is logged in
+    const user = auth.currentUser;
+
+    // Initialize the payload for the checkout session request
+    let payload = {
+      cartItems, // Send the cart items in the body
+    };
+
+    if (user) {
+      // If authenticated, get the Firebase token
+      const token = await user.getIdToken();
+      payload.token = token;
+    }
+
+    // Send the request to the backend to create the checkout session
     const response = await fetch("/api/checkout-session", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Send token securely
       },
-      body: JSON.stringify({ cartItems }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -46,6 +49,7 @@ const PaymentButton = observer(({ cartItems }) => {
 
     const session = await response.json();
 
+    // Redirect to Stripe Checkout
     const result = await stripe.redirectToCheckout({
       sessionId: session.id,
     });
