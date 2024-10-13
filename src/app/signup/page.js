@@ -148,7 +148,7 @@ export const SignupForm = observer(() => {
   );
 });
 
-const SignupCard = observer(() => {
+export const SignupCard = observer(() => {
   const router = useRouter();
   const { isUserAnonymous, signInWithGoogle } = MobxStore;
   const [isLoading, setIsLoading] = useState(false);

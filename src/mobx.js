@@ -106,6 +106,8 @@ class Store {
     this.addToCart = this.addToCart.bind(this);
     this.removeFromCart = this.removeFromCart.bind(this);
     this.clearCart = this.clearCart.bind(this);
+    this.transferLocalStorageCartToFirestore =
+      this.transferLocalStorageCartToFirestore.bind(this);
     this.continueToCheckout = this.continueToCheckout.bind(this);
 
     this.claimXP = this.claimXP.bind(this);
@@ -758,13 +760,14 @@ class Store {
   async fetchCart() {
     if (this.loadingCart) return;
     this.loadingCart = true;
-    if (this.user) {
-      this.fetchCartFromFirestore();
-    } else {
-      // this.fetchCartFromLocalStorage();
-    }
-  }
 
+    if (this.user) {
+      await this.fetchCartFromFirestore();
+    } else {
+      this.fetchCartFromLocalStorage();
+    }
+    this.loadingCart = false;
+  }
   clearCart() {
     runInAction(() => {
       this.cart = [];
@@ -809,7 +812,7 @@ class Store {
     if (this.user) {
       this.syncCartWithFirestore();
     } else {
-      // this.syncCartWithLocalStorage();
+      this.syncCartWithLocalStorage();
     }
   }
 
@@ -822,7 +825,7 @@ class Store {
     if (this.user) {
       this.syncCartWithFirestore();
     } else {
-      // this.syncCartWithLocalStorage();
+      this.syncCartWithLocalStorage();
     }
   }
 
@@ -839,6 +842,51 @@ class Store {
   syncCartWithLocalStorage() {
     localStorage.setItem("cart", JSON.stringify(this.cart));
   }
+
+  async transferLocalStorageCartToFirestore() {
+    const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (localCart.length > 0 && this.user) {
+      try {
+        // Get the existing Firestore cart for the authenticated user
+        const cartDocRef = doc(db, "carts", this.user.uid);
+        const cartDoc = await getDoc(cartDocRef);
+        const firestoreCart = cartDoc.exists() ? cartDoc.data().items : [];
+
+        // Get the user's purchased products to filter them out of the cart
+        const userDocRef = doc(db, "users", this.user.uid);
+        const userDoc = await getDoc(userDocRef);
+        const purchasedProducts = userDoc.exists()
+          ? userDoc.data().purchasedProducts || []
+          : [];
+
+        // Merge the local cart and Firestore cart, avoiding duplicates
+        let mergedCart = [...new Set([...firestoreCart, ...localCart])];
+
+        // Filter out already purchased products
+        mergedCart = mergedCart.filter(
+          (productId) => !purchasedProducts.includes(productId)
+        );
+
+        // Update the cart in Mobx and sync the merged cart with Firestore
+        runInAction(() => {
+          this.cart = mergedCart;
+        });
+
+        // Sync the filtered and merged cart with Firestore
+        await this.syncCartWithFirestore();
+
+        // Clear the localStorage cart after successful transfer
+        localStorage.removeItem("cart");
+      } catch (error) {
+        console.error(
+          "Error transferring localStorage cart to Firestore:",
+          error
+        );
+      }
+    }
+  }
+
   // Continue to Checkout
   continueToCheckout() {
     if (!this.cart.length) return;
@@ -1010,6 +1058,7 @@ class Store {
         this.user = userCredential.user;
         this.loading = false;
       });
+      await this.transferLocalStorageCartToFirestore();
     } catch (error) {
       console.log("Error logging in:", error);
       runInAction(() => {
@@ -1082,6 +1131,7 @@ class Store {
           this.user = result.user; // Store full user profile from API response
           this.loading = false;
         });
+        await this.transferLocalStorageCartToFirestore();
       } else {
         throw new Error(result.error);
       }
@@ -1133,6 +1183,7 @@ class Store {
           this.user = resultData.user; // Store full user profile from API response
           this.loading = false;
         });
+        await this.transferLocalStorageCartToFirestore();
       } else {
         throw new Error(resultData.error);
       }

@@ -52,7 +52,11 @@ const parseEffectString = (effectString) => {
         );
       }
     }
-    return <span key={index}>{part}</span>;
+    return (
+      <span className="text-black font-strike uppercase" key={index}>
+        {part}
+      </span>
+    );
   });
 };
 
@@ -98,36 +102,38 @@ export const BonusCard = ({ effect, isHistory, type }) => {
   const cardStyle = getCardStyle();
 
   return (
-    <div
-      style={cardStyle}
-      className={`border-4 rounded-[20px] shadow-md max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center ${
-        animate ? "animate-card-flip" : ""
-      }`}
-    >
-      <div className="flex flex-wrap items-center space-x-2">
-        {Array.isArray(effect) ? (
-          // If the effect is an array, iterate over it
-          effect.map((item, index) =>
-            iconMapping[item] ? (
-              <Image
-                key={index}
-                width={200}
-                height={200}
-                // src={`${baseUrl}/${iconMapping[item]}`}
-                src={`/${iconMapping[item]}`}
-                alt={item}
-                className="inline-block w-12 h-12"
-              />
-            ) : (
-              <span key={index}>{item}</span>
+    <div className="box-inner">
+      <div
+        style={cardStyle}
+        className={`box-broken border-8 rounded-[20px] text-black shadow-md max-w-[350px] min-w-[300px] min-h-[300px] flex justify-center items-center ${
+          animate ? "animate-card-flip" : ""
+        }`}
+      >
+        <div className="flex flex-wrap items-center space-x-2">
+          {Array.isArray(effect) ? (
+            // If the effect is an array, iterate over it
+            effect.map((item, index) =>
+              iconMapping[item] ? (
+                <Image
+                  key={index}
+                  width={200}
+                  height={200}
+                  // src={`${baseUrl}/${iconMapping[item]}`}
+                  src={`/${iconMapping[item]}`}
+                  alt={item}
+                  className="inline-block w-12 h-12"
+                />
+              ) : (
+                <span key={index}>{item}</span>
+              )
             )
-          )
-        ) : (
-          // If the effect is a string, parse it
-          <p className="text-lg flex items-center flex-wrap text-background">
-            {parseEffectString(effect)}
-          </p>
-        )}
+          ) : (
+            // If the effect is a string, parse it
+            <p className="text-lg flex items-center flex-wrap text-background">
+              {parseEffectString(effect)}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -109,7 +109,13 @@ const ReusableLayout = observer(({ children }) => {
 
   // Add this function to determine if the footer should be shown
   const shouldShowFooter = () => {
-    const routesWithoutFooter = ["/login", "/signup", "/app", "/cart"];
+    const routesWithoutFooter = [
+      "/login",
+      "/signup",
+      "/app",
+      "/cart",
+      "/app/the-last-faire",
+    ];
     return !routesWithoutFooter.includes(pathname);
   };
 

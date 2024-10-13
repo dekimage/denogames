@@ -2,6 +2,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { auth } from "@/firebase";
+import { Button } from "./ui/button";
 
 const PaymentButton = observer(({ cartItems }) => {
   const [stripePromise, setStripePromise] = useState(null);
@@ -60,13 +61,13 @@ const PaymentButton = observer(({ cartItems }) => {
   };
 
   return (
-    <button
+    <Button
       onClick={handlePayment}
-      className="bg-blue-500 text-white p-4 rounded-lg"
-      disabled={!stripePromise}
+      disabled={!stripePromise || cartItems.length === 0}
+      className="w-full h-12 text-lg w-1/2"
     >
-      Proceed to Payment
-    </button>
+      Checkout
+    </Button>
   );
 });
 

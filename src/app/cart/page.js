@@ -40,14 +40,18 @@ export function getCartStatus(cartItemsLength) {
 const CartPage = observer(() => {
   const { cart, products, removeFromCart, continueToCheckout, loading } =
     MobxStore;
-
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   // Get the product details for each item in the cart
-  const cartItems = cart.map((productId) =>
-    products.find((product) => product.id === productId)
-  );
+  const cartItems = cart
+    .map((productId) => products.find((product) => product.id === productId))
+    .filter((product) => product !== undefined);
+
+  console.log(cartItems);
 
   const totalPrice = cartItems.reduce(
-    (total, product) => total + product.price,
+    (total, product) => total + (product.price || 0),
     0
   );
 
@@ -118,14 +122,6 @@ const CartPage = observer(() => {
               Total: ${totalPrice}.00
             </div>
             <PaymentButton cartItems={cartItems} />
-            <Link href="/checkout" className="w-1/2 sm:w-1/3">
-              <Button
-                className="w-full h-12 text-lg"
-                disabled={cartItems.length === 0}
-              >
-                Checkout
-              </Button>
-            </Link>
           </div>
         </div>
       )}

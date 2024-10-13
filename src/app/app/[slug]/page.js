@@ -135,28 +135,56 @@ const GameDetails = observer(({ params }) => {
 
   // Function to draw a card and add it to the history
   const handleDrawMethod = () => {
+    console.log("handleDrawMethod called");
+
     if (selectedCardHistory.length > 0) {
       const lastCard = selectedCardHistory[selectedCardHistory.length - 1];
-      // Draw a new card and add it to history, then go back to method view
+      console.log("Last card in history: ", lastCard);
+
+      // Draw a new card based on the last method
       const result = filterCardsByMethod(
         game,
         lastCard.method,
         selectedCardHistory,
         sessionOpen
       );
+
+      console.log("Result from filterCardsByMethod: ", result);
+
       if (typeof result === "string") {
         setLastCardMessage(result);
       } else if (result) {
         setLastCardMessage("");
-        // Add the newly drawn card to the history only once
-        setSelectedCardHistory([
-          ...selectedCardHistory,
-          { ...result, method: lastCard.method },
-        ]);
-        setIsCardView(false); // Go back to method view
+
+        // Check if the card is already in history
+        const isCardAlreadyInHistory = selectedCardHistory.some(
+          (card) => card.id === result.id
+        );
+
+        console.log("Is card already in history?", isCardAlreadyInHistory);
+
+        if (!isCardAlreadyInHistory) {
+          console.log("Adding card to history...");
+
+          // Clear the previous state and then add the card cleanly
+          setSelectedCardHistory((prevHistory) => {
+            const updatedHistory = [
+              ...prevHistory,
+              { ...result, method: lastCard.method },
+            ];
+            console.log("Updated card history: ", updatedHistory);
+            return updatedHistory;
+          });
+
+          // Ensure the view goes back to methods after drawing
+          setIsCardView(false);
+        }
       }
+    } else {
+      console.log("No cards in history to draw from.");
     }
   };
+
   const handleMethodClick = (method) => {
     const result = filterCardsByMethod(
       game,
@@ -204,7 +232,7 @@ const GameDetails = observer(({ params }) => {
           >
             <ArrowLeft size={16} className="mr-1" /> Back to Games
           </Link> */}
-          <h1 className="text-3xl font-bold mb-4">{game.name}</h1>
+          <h1 className="text-3xl font-strike uppercase mb-4">{game.name}</h1>
           <p className="text-gray-700 mb-6">{game.description}</p>
           <Button
             className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 transition mb-4"
@@ -213,11 +241,11 @@ const GameDetails = observer(({ params }) => {
             {showHistory ? "Hide History" : "View History"}
           </Button>
           {showHistory && (
-            <div className="w-full overflow-x-scroll flex space-x-4 py-4 hide-scrollbar mb-8 min-h-[200px]">
+            <div className="w-full overflow-x-scroll flex space-x-4 py-4 hide-scrollbar mb-8 min-h-[300px]">
               {selectedCardHistory.map((card, index) => (
                 <div
                   key={index}
-                  className="min-w-[150px] p-2 border border-gray-300 rounded-lg flex-shrink-0"
+                  className="min-w-[150px] p-2 rounded-lg flex-shrink-0"
                 >
                   {/* <Image
                     src={card.imageUrl}
@@ -236,34 +264,38 @@ const GameDetails = observer(({ params }) => {
           <div className="flex flex-wrap justify-center gap-4 mb-6">
             {selectedType ? (
               // Show a "Back to All Types" button when a type is selected s
-              <Button variant="outline" onClick={() => setSelectedType(null)}>
+              <Button variant="reverse" onClick={() => setSelectedType(null)}>
                 <ChevronLeft className="mr-1" /> Back
               </Button>
             ) : (
               // Show the types when no type is selected
               Object.entries(game.types).map(([key, value], i) => (
-                <div
-                  key={key}
-                  className={` max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
-                    selectedType === key
-                      ? "bg-blue-300 border-blue-500"
-                      : "hover:bg-gray-100"
-                  } transition`}
-                  onClick={() => setSelectedType(key)}
-                >
-                  <h2 className="text-xl font-semibold mb-2">{value.name}</h2>
-                  <Image
-                    // src={`${baseUrl}/${getImageFromType(key)}`}
-                    src={`/${getImageFromType(key)}`}
-                    alt={value.name}
-                    width={250}
-                    height={250}
-                    className="w-[125px] h-[125px] object-cover rounded-md"
-                  />
+                <div className="box-inner" key={key}>
+                  <div
+                    className={`box-broken max-w-[350px] border flex justify-center flex-col items-center p-4 rounded-lg cursor-pointer ${
+                      selectedType === key
+                        ? "bg-blue-300 border-blue-500"
+                        : "hover:bg-gray-100"
+                    } transition`}
+                    onClick={() => setSelectedType(key)}
+                  >
+                    <h2 className="text-xl font-strike uppercase mb-2">
+                      {value.name}
+                    </h2>
+                    <Image
+                      // src={`${baseUrl}/${getImageFromType(key)}`}
+                      src={`/${getImageFromType(key)}`}
+                      alt={value.name}
+                      width={250}
+                      height={250}
+                      className="w-[125px] h-[125px] object-cover rounded-md"
+                    />
+                  </div>
                 </div>
               ))
             )}
           </div>
+
           {/* {selectedType && (
             <div className="mb-4 gap-2 flex">
               <Button variant="outline">What are {selectedType}?</Button>
@@ -281,7 +313,9 @@ const GameDetails = observer(({ params }) => {
                     // onClick={() => handleMethodClick(method)}
                   >
                     <div className="mr-4">
-                      <h3 className="text-4xl font-semibold">{method.name}</h3>
+                      <div className="text-2xl font-strike uppercase">
+                        {method.name}
+                      </div>
                     </div>
                     <Image
                       // src={`${baseUrl}/${getImageFromType(selectedType)}`}
@@ -306,7 +340,9 @@ const GameDetails = observer(({ params }) => {
       ) : // Card view
       lastCardMessage ? (
         <div className="w-full mt-6 border border-gray-300 rounded-lg text-center">
-          <h2 className="text-2xl font-semibold mb-2">{lastCardMessage}</h2>
+          <h2 className="text-2xl font-strike uppercase mb-2">
+            {lastCardMessage}
+          </h2>
           <button
             className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 transition"
             onClick={handleBackToMethods}
@@ -317,7 +353,9 @@ const GameDetails = observer(({ params }) => {
       ) : (
         lastCard && (
           <div className="w-full max-w-[600px] h-full flex flex-col justify-between   text-center items-center">
-            <h2 className="text-2xl font-semibold mb-2">{lastCard.name}</h2>
+            <h2 className="text-2xl font-strike uppercase mb-2">
+              {lastCard.name}
+            </h2>
             {/* <p className="text-gray-700 mb-4">{lastCard.description}</p> */}
 
             {lastCard.type !== "newtype" ? (
@@ -350,14 +388,14 @@ const GameDetails = observer(({ params }) => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-6 gap-6">
-              <Button variant="outline" onClick={handleBackToMethods}>
+            <div className="flex justify-between mt-6 mb-10 gap-6">
+              <Button variant="reverse" onClick={handleBackToMethods}>
                 <ChevronLeft className="mr-1" /> Back
               </Button>
-              <Button variant="outline" onClick={handleRerollMethod}>
+              <Button variant="reverse" onClick={handleRerollMethod}>
                 <RefreshCcw className="mr-1" /> Reroll
               </Button>
-              <Button variant="outline" onClick={handleDrawMethod}>
+              <Button variant="reverse" onClick={handleDrawMethod}>
                 Draw
               </Button>
             </div>

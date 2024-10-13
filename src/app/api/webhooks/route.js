@@ -29,11 +29,33 @@ export async function POST(req) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    const userId = session.metadata.userId || null; // Extract userId from metadata (it may not exist for guest users)
+    let userId = session.metadata.userId || null; // Extract userId from metadata
     const email = session.customer_details.email; // This email is collected by Stripe during checkout
     const cartItems = JSON.parse(session.metadata.cartItems); // Only product IDs and quantities
 
     try {
+      // Check if the email already exists in Firebase Auth
+      if (!userId) {
+        console.log(`Checking Firebase for existing user with email: ${email}`);
+
+        const existingUser = await admin
+          .auth()
+          .getUserByEmail(email)
+          .catch((error) => {
+            console.log(
+              `No existing user found for email: ${email}. Error: ${error.message}`
+            );
+            return null;
+          });
+
+        if (existingUser) {
+          userId = existingUser.uid; // If a user exists, use their userId
+          console.log(`Found existing user with uid: ${userId}`);
+        } else {
+          console.log(`No existing user found with email: ${email}`);
+        }
+      }
+
       // Use a Firestore transaction to ensure atomic updates
       await firestore.runTransaction(async (transaction) => {
         const productPrices = await Promise.all(
@@ -60,7 +82,7 @@ export async function POST(req) {
           stripeSessionId: session.id,
           createdAt: new Date(),
           customerEmail: email,
-          userId: userId,
+          userId: userId || null, // Attach userId if authenticated or found via email check
           isPending: !userId, // Mark order as pending if no userId (guest)
         };
 
@@ -68,7 +90,7 @@ export async function POST(req) {
         transaction.set(orderRef, orderData);
 
         if (userId) {
-          // Add product IDs to the authenticated user's purchasedProducts array
+          // Add product IDs to the authenticated or identified user's purchasedProducts array
           transaction.update(firestore.collection("users").doc(userId), {
             purchasedProducts: admin.firestore.FieldValue.arrayUnion(
               ...cartItems.map((item) => item.id) // Add the product IDs to the user's array
