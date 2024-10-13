@@ -4,11 +4,12 @@ import { firestore, admin } from "@/firebaseAdmin"; // Ensure you import admin t
 
 const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable body parsing to handle Stripe's raw request body
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false, // Disable body parsing to handle Stripe's raw request body
+//   },
+// };
+export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   const rawBody = await req.text();
