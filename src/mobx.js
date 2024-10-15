@@ -794,10 +794,17 @@ class Store {
   }
 
   fetchCartFromLocalStorage() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    runInAction(() => {
-      this.cart = cart;
-    });
+    if (typeof window !== "undefined") {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      runInAction(() => {
+        this.cart = cart;
+      });
+    } else {
+      // Set an empty cart for SSR
+      runInAction(() => {
+        this.cart = [];
+      });
+    }
   }
 
   // Add to Cart
@@ -840,11 +847,16 @@ class Store {
   }
 
   syncCartWithLocalStorage() {
-    localStorage.setItem("cart", JSON.stringify(this.cart));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cart", JSON.stringify(this.cart));
+    }
   }
 
   async transferLocalStorageCartToFirestore() {
-    const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const localCart =
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("cart") || "[]")
+        : [];
 
     if (localCart.length > 0 && this.user) {
       try {
@@ -877,7 +889,9 @@ class Store {
         await this.syncCartWithFirestore();
 
         // Clear the localStorage cart after successful transfer
-        localStorage.removeItem("cart");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("cart");
+        }
       } catch (error) {
         console.error(
           "Error transferring localStorage cart to Firestore:",

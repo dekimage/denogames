@@ -52,6 +52,20 @@ import {
 import NotificationDropdown from "@/components/Notifications";
 import Footer from "@/components/Footer";
 
+const routesWithoutHeaderFooter = [
+  "/login",
+  "/signup",
+  "/app",
+  "/cart",
+  "/app/the-last-faire",
+  "/mvp/builders-town/test",
+  "/mvp/builders-town/tracker",
+];
+
+const shouldShowHeaderFooter = (pathname) => {
+  return !routesWithoutHeaderFooter.includes(pathname);
+};
+
 const defaultLayout = [20, 80];
 
 const CreateListDialog = () => {
@@ -107,116 +121,106 @@ const ReusableLayout = observer(({ children }) => {
   const { user, cart, logout } = MobxStore;
   const pathname = usePathname();
 
-  // Add this function to determine if the footer should be shown
-  const shouldShowFooter = () => {
-    const routesWithoutFooter = [
-      "/login",
-      "/signup",
-      "/app",
-      "/cart",
-      "/app/the-last-faire",
-    ];
-    return !routesWithoutFooter.includes(pathname);
-  };
+  const showHeaderFooter = shouldShowHeaderFooter(pathname);
 
   const cartItemCount = cart.length;
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className="hidden sm:block flex-grow">
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white">
-          <div className="navigation">
-            <NavigationMenu>
-              <NavigationMenuList className="gap-4">
-                <NavigationMenuItem>
-                  <Link href="/">
-                    <Image
-                      src={logoImg}
-                      alt="logo"
-                      width={75}
-                      height={75}
-                      className="cursor-pointer"
-                    />
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/shop" legacyBehavior passHref>
-                    <Button variant="reverse" className="text-lg">
-                      SHOP
-                    </Button>
-                  </Link>
-                </NavigationMenuItem>
+        {showHeaderFooter && (
+          <div className="fixed top-0 left-0 right-0 z-50 bg-white">
+            <div className="navigation">
+              <NavigationMenu>
+                <NavigationMenuList className="gap-4">
+                  <NavigationMenuItem>
+                    <Link href="/">
+                      <Image
+                        src={logoImg}
+                        alt="logo"
+                        width={75}
+                        height={75}
+                        className="cursor-pointer"
+                      />
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/shop" legacyBehavior passHref>
+                      <Button variant="reverse" className="text-lg">
+                        SHOP
+                      </Button>
+                    </Link>
+                  </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <Link href="/app" legacyBehavior passHref>
-                    <Button variant="reverse" className="text-lg">
-                      APP
-                    </Button>
-                  </Link>
-                </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/app" legacyBehavior passHref>
+                      <Button variant="reverse" className="text-lg">
+                        APP
+                      </Button>
+                    </Link>
+                  </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <Link href="/blog" legacyBehavior passHref>
-                    <Button variant="reverse" className="text-lg">
-                      BLOG
-                    </Button>
-                  </Link>
-                </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/blog" legacyBehavior passHref>
+                      <Button variant="reverse" className="text-lg">
+                        BLOG
+                      </Button>
+                    </Link>
+                  </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <Link href="/game-finder" legacyBehavior passHref>
-                    <Button variant="reverse" className="text-lg">
-                      FINDER TOOL
-                    </Button>
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-            <div className="flex justify-end gap-4 items-center">
-              <Link href="/app">
-                <Button size="icon" variant="reverse">
-                  <Smartphone />
-                </Button>
-              </Link>
-              <Link href="/">
-                <Button size="icon" variant="reverse">
-                  <Home />
-                </Button>
-              </Link>
-              <Link href="/cart">
-                <div className="relative inline-block">
+                  <NavigationMenuItem>
+                    <Link href="/game-finder" legacyBehavior passHref>
+                      <Button variant="reverse" className="text-lg">
+                        FINDER TOOL
+                      </Button>
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+              <div className="flex justify-end gap-4 items-center">
+                <Link href="/app">
                   <Button size="icon" variant="reverse">
-                    <ShoppingCart />
+                    <Smartphone />
                   </Button>
-                  {cartItemCount > 0 && (
-                    <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </div>
-              </Link>
-              {user ? (
-                <>
-                  <NotificationDropdown />
+                </Link>
+                <Link href="/">
+                  <Button size="icon" variant="reverse">
+                    <Home />
+                  </Button>
+                </Link>
+                <Link href="/cart">
+                  <div className="relative inline-block">
+                    <Button size="icon" variant="reverse">
+                      <ShoppingCart />
+                    </Button>
+                    {cartItemCount > 0 && (
+                      <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">
+                        {cartItemCount}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+                {user ? (
+                  <>
+                    <NotificationDropdown />
 
-                  <UserNav user={user} logout={logout} />
-                </>
-              ) : (
-                <div className="flex gap-2">
-                  <Link href="/login">
-                    <Button variant="cream">Login</Button>
-                  </Link>
-                  <Link href="/signup">
-                    <Button>Create Free Account</Button>
-                  </Link>
-                </div>
-              )}
+                    <UserNav user={user} logout={logout} />
+                  </>
+                ) : (
+                  <div className="flex gap-2">
+                    <Link href="/login">
+                      <Button variant="cream">Login</Button>
+                    </Link>
+                    <Link href="/signup">
+                      <Button>Create Free Account</Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="pt-[53px]">
-          {" "}
-          {/* Add padding to account for fixed navigation */}
+        )}
+        <div className={showHeaderFooter ? "pt-[53px]" : ""}>
           <ResizablePanelGroup
             direction="horizontal"
             className="h-full items-stretch"
@@ -234,10 +238,10 @@ const ReusableLayout = observer(({ children }) => {
         </div>
       </div>
       <div className="block sm:hidden flex-grow">
-        {/* <MobileHeader /> */}
+        {showHeaderFooter && <MobileHeader />}
         {children}
       </div>
-      {shouldShowFooter() && <Footer />}
+      {showHeaderFooter && <Footer />}
     </div>
   );
 });
