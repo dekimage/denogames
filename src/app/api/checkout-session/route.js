@@ -1,8 +1,8 @@
 import { auth, firestore } from "@/firebaseAdmin";
 import Stripe from "stripe";
 
-// const baseUrl = process.env.NEXT_PUBLIC_URL || "https://denogames.com";
-// const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
+const baseUrl = process.env.NEXT_PUBLIC_URL || "https://denogames.com";
+const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   const { token, cartItems } = await req.json(); // Parse token and cartItems from request body
@@ -47,25 +47,22 @@ export async function POST(req) {
       })
     );
 
-    // Only send product IDs and quantities in metadata to Stripe
-    // const session = await stripe.checkout.sessions.create({
-    //   payment_method_types: ["card"],
-    //   line_items: lineItems,
-    //   mode: "payment",
-    //   success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
-    //   cancel_url: `${baseUrl}/cart`,
-    //   metadata: {
-    //     cartItems: JSON.stringify(
-    //       cartItems.map((item) => ({
-    //         id: item.id,
-    //         quantity: 1,
-    //       }))
-    //     ),
-    //     userId: userId || "", // Send userId if authenticated, otherwise empty
-    //   },
-    // });
-
-    const session = { id: 1 };
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
+      cancel_url: `${baseUrl}/cart`,
+      metadata: {
+        cartItems: JSON.stringify(
+          cartItems.map((item) => ({
+            id: item.id,
+            quantity: 1,
+          }))
+        ),
+        userId: userId || "", // Send userId if authenticated, otherwise empty
+      },
+    });
 
     return new Response(JSON.stringify({ id: session.id }), { status: 200 });
   } catch (error) {
