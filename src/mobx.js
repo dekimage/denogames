@@ -144,6 +144,8 @@ class Store {
     this.fetchBlogs = this.fetchBlogs.bind(this);
     this.fetchBlogDetails = this.fetchBlogDetails.bind(this);
     this.isBlogDetailsLoading = this.isBlogDetailsLoading.bind(this);
+    this.getRelatedExpansions = this.getRelatedExpansions.bind(this);
+    this.getRelatedGames = this.getRelatedGames.bind(this);
   }
 
   initializeAuth() {
@@ -511,14 +513,14 @@ class Store {
           where("productId", "==", productId),
           orderBy("createdAt", "desc"),
           startAfter(lastVisible),
-          limit(2)
+          limit(1)
         );
       } else {
         q = query(
           reviewsCollectionRef,
           where("productId", "==", productId),
           orderBy("createdAt", "desc"),
-          limit(2)
+          limit(1)
         );
       }
 
@@ -529,30 +531,46 @@ class Store {
         ...doc.data(),
       }));
 
+      console.log("Fetched new reviews:", newReviews);
+
       runInAction(() => {
         if (!this.reviewsByProduct[productId]) {
           this.reviewsByProduct[productId] = [];
         }
 
-        // Use a Set to track review IDs and filter out duplicates
-        const existingReviewIds = new Set(
-          this.reviewsByProduct[productId].map((r) => r.id)
+        // Use a Set to ensure uniqueness based on review ID
+        const uniqueReviews = new Set(
+          [...this.reviewsByProduct[productId], ...newReviews].map((review) =>
+            JSON.stringify(review)
+          )
         );
-        const uniqueNewReviews = newReviews.filter(
-          (r) => !existingReviewIds.has(r.id)
+        this.reviewsByProduct[productId] = Array.from(uniqueReviews).map(
+          (review) => JSON.parse(review)
         );
 
-        this.reviewsByProduct[productId] = [
-          ...this.reviewsByProduct[productId],
-          ...uniqueNewReviews,
-        ];
         this.lastReviewFetchedByProduct[productId] =
           querySnapshot.docs[querySnapshot.docs.length - 1];
+
+        const totalReviews =
+          this.products.find((p) => p.id === productId)?.totalReviews || 0;
         this.hasMoreReviewsByProduct[productId] =
-          querySnapshot.docs.length === 2;
+          this.reviewsByProduct[productId].length < totalReviews;
+
+        console.log("Updated reviews:", this.reviewsByProduct[productId]);
+        console.log(
+          "Has more reviews:",
+          this.hasMoreReviewsByProduct[productId]
+        );
+        console.log(
+          "Last review fetched:",
+          this.lastReviewFetchedByProduct[productId]
+        );
       });
+
+      return newReviews;
     } catch (error) {
-      console.log("Error fetching reviews:", error);
+      console.error("Error fetching reviews:", error);
+      return [];
     }
   }
 
@@ -1033,12 +1051,13 @@ class Store {
           id: doc.id,
           ...doc.data(),
         }));
-        this.loading = false;
+        this.loadingProducts = false;
       });
     } catch (error) {
       console.log("Error fetching products:", error);
       runInAction(() => {
         this.loadingProducts = false;
+        this.products = []; // Ensure products is an array even if fetch fails
       });
     }
   }
@@ -1340,6 +1359,35 @@ class Store {
   // Getter for checking if a specific blog's details are loading
   isBlogDetailsLoading(slug) {
     return this.blogDetailsLoading.get(slug) || false;
+  }
+
+  getRelatedGames(gameId) {
+    return this.products
+      .filter((product) => {
+        return (
+          product.type === "game" &&
+          product.id !== gameId &&
+          product.relatedGames &&
+          product.relatedGames.includes(gameId) &&
+          (!this.user ||
+            !this.user.purchasedProducts ||
+            !this.user.purchasedProducts.includes(product.id))
+        );
+      })
+      .slice(0, 4); // Limit to 4 related games
+  }
+
+  getRelatedExpansions(gameId) {
+    return this.products.filter((product) => {
+      return (
+        product.type === "expansion" &&
+        product.relatedGames &&
+        product.relatedGames.includes(gameId) &&
+        (!this.user ||
+          !this.user.purchasedProducts ||
+          !this.user.purchasedProducts.includes(product.id))
+      );
+    });
   }
 }
 

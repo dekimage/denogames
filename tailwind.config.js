@@ -17,6 +17,9 @@ module.exports = {
       },
     },
     extend: {
+      zIndex: {
+        60: "60",
+      },
       ...colors,
       colors: {
         blacky: "#232323",

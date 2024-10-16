@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useCallback } from "react";
+import FullScreenImage from "./FullScreenImage";
 
 // ImageCarousel Component
 const ImageCarousel = ({ images }) => {
@@ -22,41 +23,35 @@ const ImageCarousel = ({ images }) => {
     if (isTransitioning) return; // Prevent multiple transitions at once
     setIsTransitioning(true);
 
-    if (direction === "left") {
-      setCurrentImageIndex((prevIndex) => {
-        const newIndex = prevIndex === 0 ? images.length - 1 : prevIndex - 1;
-        setTranslateX(newIndex * -100); // Slide right
+    setCurrentImageIndex((prevIndex) => {
+      let newIndex;
+      if (direction === "left") {
+        newIndex = prevIndex === 0 ? images.length - 1 : prevIndex - 1;
+      } else if (direction === "right") {
+        newIndex = prevIndex === images.length - 1 ? 0 : prevIndex + 1;
+      }
 
-        // Update thumbnail carousel start index if needed
-        if (newIndex < carouselStartIndex) {
-          setCarouselStartIndex((prevStartIndex) =>
-            Math.max(0, prevStartIndex - 1)
-          );
-        } else if (newIndex === images.length - 1) {
-          // If looping back to last image, update thumbnails to show the last set
-          setCarouselStartIndex(images.length - maxVisibleThumbnails);
-        }
+      setTranslateX(newIndex * -100); // Slide in the appropriate direction
 
-        return newIndex;
-      });
-    } else if (direction === "right") {
-      setCurrentImageIndex((prevIndex) => {
-        const newIndex = prevIndex === images.length - 1 ? 0 : prevIndex + 1;
-        setTranslateX(newIndex * -100); // Slide left
+      // Update thumbnail carousel start index if needed
+      if (newIndex < carouselStartIndex) {
+        setCarouselStartIndex((prevStartIndex) =>
+          Math.max(0, prevStartIndex - 1)
+        );
+      } else if (newIndex >= carouselStartIndex + maxVisibleThumbnails) {
+        setCarouselStartIndex((prevStartIndex) =>
+          Math.min(images.length - maxVisibleThumbnails, prevStartIndex + 1)
+        );
+      } else if (newIndex === 0) {
+        // If looping back to first image, reset thumbnails to start
+        setCarouselStartIndex(0);
+      } else if (newIndex === images.length - 1) {
+        // If looping to last image, update thumbnails to show the last set
+        setCarouselStartIndex(images.length - maxVisibleThumbnails);
+      }
 
-        // Update thumbnail carousel start index if needed
-        if (newIndex >= carouselStartIndex + maxVisibleThumbnails) {
-          setCarouselStartIndex((prevStartIndex) =>
-            Math.min(images.length - maxVisibleThumbnails, prevStartIndex + 1)
-          );
-        } else if (newIndex === 0) {
-          // If looping back to first image, reset thumbnails to start
-          setCarouselStartIndex(0);
-        }
-
-        return newIndex;
-      });
-    }
+      return newIndex;
+    });
 
     // Reset the transition state after the animation completes
     setTimeout(() => {
@@ -103,37 +98,18 @@ const ImageCarousel = ({ images }) => {
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
   const handleMouseEnter = () => {
-    setIsZoomed(true);
+    // Disabled for now
+    // setIsZoomed(true);
   };
 
   const handleMouseLeave = () => {
-    setIsZoomed(false);
+    // Disabled for now
+    // setIsZoomed(false);
   };
 
   const handleMouseMove = (e) => {
-    // Find the currently visible image element
-    const currentImageElement =
-      e.currentTarget.querySelectorAll("img")[currentImageIndex];
-    const rect = currentImageElement.getBoundingClientRect(); // Get the bounding box of the current image
-
-    // Calculate the cursor's position in pixels relative to the current image
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    // Calculate the percentage position within the image where the mouse is located
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
-
-    // Update state with these calculated values
-
-    setZoomPosition({
-      x: xPercent, // Percentage relative to the current image
-      y: yPercent, // Percentage relative to the current image
-      zoomX: x,
-      zoomY: y,
-      width: rect.width * 2, // Double size for zoom
-      height: rect.height * 2, // Double size for zoom
-    });
+    // Disabled for now
+    // ... existing code ...
   };
 
   const handleSwipe = useCallback(
@@ -170,6 +146,20 @@ const ImageCarousel = ({ images }) => {
     setStartX(0); // Reset start position after swipe
   };
 
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  const handleImageClick = () => {
+    setIsFullScreen(true);
+  };
+
+  const handleCloseFullScreen = () => {
+    setIsFullScreen(false);
+  };
+
+  const handleFullScreenNavigate = (direction) => {
+    handleArrowClick(direction);
+  };
+
   return (
     <div className="relative w-full sm:w-[600px] h-auto">
       <div
@@ -183,20 +173,22 @@ const ImageCarousel = ({ images }) => {
             style={{
               transform: `translateX(${translateX}%)`,
               transition: isTransitioning ? "transform 0.3s ease" : "none",
+              cursor: "zoom-in", // Add this line to set the cursor to zoom-in
             }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onMouseMove={handleMouseMove}
-            onTouchStart={handleTouchStart} // Add touch start event
-            onTouchMove={handleTouchMove} // Add touch move event
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onClick={handleImageClick}
           >
             {images.map((image, index) => (
               <div key={index} className="w-full flex-shrink-0">
                 <Image
                   src={image}
                   alt={`Game image ${index + 1}`}
-                  className="w-full h-auto cursor-zoom-in"
+                  className="w-full h-auto" // Remove cursor-zoom-in from here
                   height={400}
                   width={400}
                 />
@@ -205,27 +197,19 @@ const ImageCarousel = ({ images }) => {
           </div>
         </div>
 
-        {/* Zoom effect overlay */}
-        {isZoomed && (
+        {/* Zoom effect overlay - Commented out for now */}
+        {/* {isZoomed && (
           <div
             className="absolute bg-cover bg-no-repeat border border-gray-200"
             style={{
-              borderRadius: "50%",
-              width: "250px", // Size of the zoom window
-              height: "250px", // Size of the zoom window
-              top: `${zoomPosition.zoomY - 125}px`, // Center the zoom window vertically on the cursor
-              left: `${zoomPosition.zoomX - 125}px`, // Center the zoom window horizontally on the cursor
-              backgroundImage: `url(${images[currentImageIndex]})`,
-              backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`, // Position the background image based on cursor location
-              backgroundSize: `${zoomPosition.width}px ${zoomPosition.height}px`, // Zoom level
-              pointerEvents: "none",
-              zIndex: 999999,
+              // ... existing styles ...
             }}
           />
-        )}
+        )} */}
+
         {/* Left Arrow */}
         <Button
-          className="absolute left-[-6px] sm:left-[-25px] top-1/2 transform -translate-y-1/2 rounded-full bg-black hover:bg-gray-800 text-white h-[60px] w-[60px]"
+          className="absolute left-[-6px] sm:left-[-12px] top-1/2 transform -translate-y-1/2 rounded-full bg-black hover:bg-gray-800 text-white h-[60px] w-[60px]"
           onClick={() => handleArrowClick("left")}
         >
           <ChevronLeft />
@@ -233,7 +217,7 @@ const ImageCarousel = ({ images }) => {
 
         {/* Right Arrow */}
         <Button
-          className="absolute right-[-6px] sm:right-[-25px] top-1/2 transform -translate-y-1/2  rounded-full bg-black hover:bg-gray-800 text-white h-[60px] w-[60px]"
+          className="absolute right-[-6px] sm:right-[-12px] top-1/2 transform -translate-y-1/2  rounded-full bg-black hover:bg-gray-800 text-white h-[60px] w-[60px]"
           onClick={() => handleArrowClick("right")}
         >
           <ChevronRight />
@@ -244,14 +228,15 @@ const ImageCarousel = ({ images }) => {
       <div className="flex items-center mt-4">
         {/* Left Arrow for Carousel */}
         {carouselStartIndex > 0 && (
-          <button
-            className="bg-gray-700 text-white p-2 rounded-full"
+          <Button
+            variant="reverse"
+            className="rounded-full"
             onClick={() =>
               setCarouselStartIndex((prev) => Math.max(0, prev - 1))
             }
           >
             &lt;
-          </button>
+          </Button>
         )}
 
         {/* Thumbnails */}
@@ -278,8 +263,9 @@ const ImageCarousel = ({ images }) => {
 
         {/* Right Arrow for Carousel */}
         {carouselStartIndex + maxVisibleThumbnails < images.length && (
-          <button
-            className="bg-gray-700 text-white p-2 rounded-full"
+          <Button
+            variant="reverse"
+            className="rounded-full"
             onClick={() =>
               setCarouselStartIndex((prev) =>
                 Math.min(images.length - maxVisibleThumbnails, prev + 1)
@@ -287,9 +273,19 @@ const ImageCarousel = ({ images }) => {
             }
           >
             &gt;
-          </button>
+          </Button>
         )}
       </div>
+
+      {/* Full Screen Mode */}
+      {isFullScreen && (
+        <FullScreenImage
+          images={images}
+          currentIndex={currentImageIndex}
+          onClose={handleCloseFullScreen}
+          onNavigate={handleFullScreenNavigate}
+        />
+      )}
     </div>
   );
 };

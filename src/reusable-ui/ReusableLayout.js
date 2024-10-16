@@ -7,6 +7,7 @@ import { VerticalNavbar } from "./VerticalNavbar";
 import {
   AppWindow,
   BookOpen,
+  FileText,
   GaugeCircle,
   Home,
   LayoutDashboard,
@@ -16,6 +17,7 @@ import {
   SearchCheck,
   ShoppingCart,
   Smartphone,
+  Store,
   UserIcon,
 } from "lucide-react";
 import MobxStore from "../mobx";
@@ -147,6 +149,7 @@ const ReusableLayout = observer(({ children }) => {
                   <NavigationMenuItem>
                     <Link href="/shop" legacyBehavior passHref>
                       <Button variant="reverse" className="text-lg">
+                        {/* <Store className="mr-2" /> */}
                         SHOP
                       </Button>
                     </Link>
@@ -155,6 +158,7 @@ const ReusableLayout = observer(({ children }) => {
                   <NavigationMenuItem>
                     <Link href="/app" legacyBehavior passHref>
                       <Button variant="reverse" className="text-lg">
+                        {/* <Smartphone className="mr-2" /> */}
                         APP
                       </Button>
                     </Link>
@@ -163,6 +167,7 @@ const ReusableLayout = observer(({ children }) => {
                   <NavigationMenuItem>
                     <Link href="/blog" legacyBehavior passHref>
                       <Button variant="reverse" className="text-lg">
+                        {/* <FileText className="mr-2" /> */}
                         BLOG
                       </Button>
                     </Link>
@@ -171,6 +176,7 @@ const ReusableLayout = observer(({ children }) => {
                   <NavigationMenuItem>
                     <Link href="/game-finder" legacyBehavior passHref>
                       <Button variant="reverse" className="text-lg">
+                        {/* <Search className="mr-2" /> */}
                         FINDER TOOL
                       </Button>
                     </Link>
@@ -178,7 +184,7 @@ const ReusableLayout = observer(({ children }) => {
                 </NavigationMenuList>
               </NavigationMenu>
               <div className="flex justify-end gap-4 items-center">
-                <Link href="/app">
+                {/* <Link href="/app">
                   <Button size="icon" variant="reverse">
                     <Smartphone />
                   </Button>
@@ -187,11 +193,12 @@ const ReusableLayout = observer(({ children }) => {
                   <Button size="icon" variant="reverse">
                     <Home />
                   </Button>
-                </Link>
+                </Link> */}
                 <Link href="/cart">
                   <div className="relative inline-block">
-                    <Button size="icon" variant="reverse">
-                      <ShoppingCart />
+                    <Button variant="reverse">
+                      <ShoppingCart className="mr-2" />
+                      CART
                     </Button>
                     {cartItemCount > 0 && (
                       <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">

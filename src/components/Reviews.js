@@ -15,6 +15,7 @@ import { useRef } from "react";
 import { Textarea } from "./ui/textarea";
 import { Edit, Plus, ShieldCheck } from "lucide-react";
 import { getRelativeTime } from "@/utils/date";
+import { toJS } from "mobx";
 
 export const ReviewSection = observer(({ productDetails, productId }) => {
   const {
@@ -27,35 +28,27 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
     lastReviewFetchedByProduct,
   } = MobxStore;
 
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [existingReview, setExistingReview] = useState(null);
-
   const reviews = reviewsByProduct[productId] || [];
   const hasMoreReviews = hasMoreReviewsByProduct[productId];
   const lastReviewFetched = lastReviewFetchedByProduct[productId];
+
+  // Add this to get the existing review for the current user
+  const existingReview = user
+    ? reviews.find((review) => review.userId === user.uid)
+    : null;
+
+  const [rating, setRating] = useState(
+    existingReview ? existingReview.rating : 0
+  );
+  const [comment, setComment] = useState(
+    existingReview ? existingReview.comment : ""
+  );
 
   useEffect(() => {
     if (reviews.length === 0) {
       fetchReviews(productId);
     }
   }, [productId, fetchReviews, reviews.length]);
-
-  useEffect(() => {
-    const userReview = reviews.find(
-      (review) => review.userId === user.uid && review.productId === productId
-    );
-    if (userReview) {
-      setRating(userReview.rating);
-      setComment(userReview.comment);
-      setExistingReview(userReview);
-    } else {
-      setRating(0);
-      setComment("");
-      setExistingReview(null);
-    }
-  }, [reviews, user?.uid, productId]);
 
   const loadMoreReviews = () => {
     fetchReviews(productId, lastReviewFetched);
@@ -80,7 +73,7 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
 
   return (
     <div className="mt-8 w-full px-2 sm:px-8 flex flex-col" id="ratings">
-      <div className="text-4xl font-bold my-4">Reviews</div>
+      <div className="text-4xl font-strike uppercase my-4">Reviews</div>
       <div className="flex items-center text-lg mb-2">
         <div className="flex items-center gap-2">
           <div className="text-yellow-400 flex">
@@ -93,77 +86,86 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
               />
             ))}
           </div>
-          <div className="font-bold text-2xl">
+          <div className="font-strike uppercase text-2xl">
             {averageRating?.toFixed(1) || 0}
           </div>
-          <div className="text-md">Average Rating</div>
+          <div className="text-sm">Average Rating</div>
         </div>
       </div>
-      <p className="text-lg">{productDetails.totalReviews} store reviews</p>
+      <p className="text-sm">({productDetails.totalReviews} store reviews)</p>
       <div className="flex">
         <Dialog>
           <DialogTrigger>
-            <Button
-              className="my-4"
-              variant={existingReview ? "outline" : "primary"}
-            >
+            <div className="my-4">
               {existingReview ? (
-                <div className="flex gap-2 items-center">
+                <Button variant="reverse" className="flex gap-2 items-center">
                   Edit Your Review <Edit />
-                </div>
+                </Button>
               ) : (
-                <div className="flex gap-2 items-center">
+                <Button variant="reverse" className="flex gap-2 items-center">
                   Submit Your Review <Plus />
-                </div>
+                </Button>
               )}
-            </Button>
+            </div>
           </DialogTrigger>
           <DialogContent
-            className="bg-white rounded-lg p-6 mx-auto mt-10"
+            className="bg-white rounded-lg p-8 mx-auto mt-10 max-w-md"
             style={{ maxWidth: "500px" }}
           >
-            <div className="rating mb-4 flex justify-center">
+            <h2 className="text-2xl font-strike uppercase text-center mb-4">
+              Share Your Experience
+            </h2>
+            <p className="text-center text-gray-600 mb-6">
+              Thank you so much for taking the time to leave a review! It helps
+              me improve each game and allows others to know what to expect.
+            </p>
+            <div className="rating mb-6 flex justify-center">
               {[1, 2, 3, 4, 5].map((star) => (
                 <FaStar
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`cursor-pointer text-4xl ${
+                  onMouseEnter={() => setRating(star)}
+                  onMouseLeave={() => setRating(rating)}
+                  className={`cursor-pointer text-5xl transition-colors ${
                     rating >= star ? "text-yellow-400" : "text-gray-300"
                   }`}
                 />
               ))}
             </div>
+            <p className="text-center font-semibold mb-4">
+              {rating === 0
+                ? "Select your rating"
+                : `You've rated ${rating} star${rating !== 1 ? "s" : ""}`}
+            </p>
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Leave a comment (optional)"
+              placeholder="Share your thoughts about the product (optional)"
+              className="mb-6 h-32"
             />
-            <div className="flex justify-between mt-4"></div>
-            <DialogFooter>
-              <Button onClick={handleSubmit}>
+            <DialogFooter className="flex-col items-stretch sm:flex-row sm:justify-between">
+              <p className="flex items-center text-sm text-gray-500 mb-4 sm:mb-0">
+                {existingReview
+                  ? "Updating your review"
+                  : "Submitting a new review"}{" "}
+                will earn you 50 XP!
+              </p>
+              <Button onClick={handleSubmit} className="w-full sm:w-auto">
                 {existingReview ? "Update Review" : "Submit Review"}
               </Button>
-              {/* {existingReview && (
-            <button
-              onClick={handleDelete}
-              className="bg-red-500 text-white px-4 py-2 rounded"
-            >
-              Delete Review
-            </button>
-          )} */}
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
       <ul className="space-y-4">
-        {[existingReview, ...reviews.filter((r) => r !== existingReview)]
+        {reviews
           .filter((review) => review && review.username && review.createdAt)
           .map((review) => (
             <li key={review.id} className="flex border-b py-4">
               <div className="flex-shrink-0 flex flex-col items-start justify-between mr-4">
                 <div>
-                  <div className="text-lg font-bold mb-2">
+                  <div className="text-lg font-bold mb-2 capitalize">
                     {review.username}
                   </div>
                   <div className="flex text-sm items-center">
@@ -171,7 +173,7 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex-grow">
+              <div className="flex-grow items-between justify-between">
                 <div className="flex items-center mb-2 justify-between">
                   <div className="rating text-yellow-400 flex">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -206,11 +208,12 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
             </li>
           ))}
       </ul>
+
       {hasMoreReviews && (
         <Button
           variant="outline"
           className="w-fit mt-4"
-          onClick={() => loadMoreReviews()}
+          onClick={loadMoreReviews}
         >
           Load More Reviews
         </Button>
