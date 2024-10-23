@@ -1,6 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require("tailwindcss/colors");
 module.exports = {
+  variants: {
+    extend: {
+      display: ["print"],
+    },
+  },
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,jsx}",

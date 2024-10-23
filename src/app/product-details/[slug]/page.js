@@ -2,7 +2,7 @@
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   ProductReviews,
@@ -27,6 +27,8 @@ import {
   Printer,
   Smartphone,
   BadgeCheck,
+  Plus,
+  Minus,
 } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { ProductCard } from "@/app/page"; // Adjust the import path as needed
@@ -483,19 +485,96 @@ const Expansions = observer(({ gameId }) => {
 
 // Add this new component
 const ComponentsList = () => {
+  const [expandedItems, setExpandedItems] = useState({});
+
   const neededComponents = [
-    "4x Dice (6-sided)",
-    "4x Pens/Pencils (different color for each player)",
-    "8 colored euro-size cubes per player (different color)- Optional (alternative its provided as print and cut tokens for each player in all colors)",
+    { name: "4x Dice (6-sided)", image: "/path/to/dice-image.jpg" },
+    {
+      name: "4x Pens/Pencils (different color for each player)",
+      image: "/path/to/pens-image.jpg",
+    },
+    {
+      name: "8 colored euro-size cubes per player (different color)- Optional (alternative its provided as print and cut tokens for each player in all colors)",
+      image: "/path/to/cubes-image.jpg",
+    },
   ];
 
   const providedComponents = [
-    "1x Map (10,000+ print variations)*",
-    "1x Market Sheet (4000+ combinations)",
-    "4x Characters Sheets (2 per A4 paper - cut in half)",
-    "Optional (euro cubes as tokens)",
-    "App - Digital deck of 100+ cards included*",
+    {
+      name: "1x Map (10,000+ print variations)*",
+      image: "/path/to/map-image.jpg",
+    },
+    {
+      name: "1x Market Sheet (4000+ combinations)",
+      image: "/path/to/market-sheet-image.jpg",
+    },
+    {
+      name: "4x Characters Sheets (2 per A4 paper - cut in half)",
+      image: "/path/to/character-sheets-image.jpg",
+    },
+    {
+      name: "Optional (euro cubes as tokens)",
+      image: "/path/to/tokens-image.jpg",
+    },
+    {
+      name: "App - Digital deck of 100+ cards included*",
+      image: "/path/to/app-image.jpg",
+    },
   ];
+
+  const toggleItem = (type, index) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [index]: !prev[type]?.[index],
+      },
+    }));
+  };
+
+  const renderComponentTable = (components, type) => (
+    <Table>
+      <TableBody>
+        {components.map((item, index) => (
+          <React.Fragment key={index}>
+            <TableRow
+              className="cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+              onClick={() => toggleItem(type, index)}
+            >
+              <TableCell className="font-medium flex justify-between items-center">
+                {item.name}
+                <div
+                  className={`transition-transform duration-300 ${
+                    expandedItems[type]?.[index] ? "rotate-45" : ""
+                  }`}
+                >
+                  {expandedItems[type]?.[index] ? (
+                    <Minus size={20} />
+                  ) : (
+                    <Plus size={20} />
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+            {expandedItems[type]?.[index] && (
+              <TableRow>
+                <TableCell colSpan={2} className="p-0">
+                  <div className="h-48 relative overflow-hidden">
+                    <Image
+                      src={item.image || "/placeholder-image.jpg"}
+                      alt={item.name}
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </React.Fragment>
+        ))}
+      </TableBody>
+    </Table>
+  );
 
   return (
     <div className="box-inner">
@@ -506,29 +585,13 @@ const ComponentsList = () => {
               <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
                 Needed Components
               </h3>
-              <Table>
-                <TableBody>
-                  {neededComponents.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {renderComponentTable(neededComponents, "needed")}
             </div>
             <div className="flex-1">
               <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
                 Provided Components
               </h3>
-              <Table>
-                <TableBody>
-                  {providedComponents.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {renderComponentTable(providedComponents, "provided")}
             </div>
           </div>
         </div>

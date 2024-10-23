@@ -42,17 +42,21 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import {
   NavigationMenu,
+  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
+  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import NotificationDropdown from "@/components/Notifications";
 import Footer from "@/components/Footer";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const routesWithoutHeaderFooter = [
   "/login",
@@ -62,6 +66,9 @@ const routesWithoutHeaderFooter = [
   "/app/the-last-faire",
   "/mvp/builders-town/test",
   "/mvp/builders-town/tracker",
+  "/mvp/farming/map",
+  "/mvp/farming/cards",
+  "/mvp/pdf",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {
@@ -122,15 +129,17 @@ const CreateListDialog = () => {
 const ReusableLayout = observer(({ children }) => {
   const { user, cart, logout } = MobxStore;
   const pathname = usePathname();
+  const router = useRouter();
 
   const showHeaderFooter = shouldShowHeaderFooter(pathname);
+  const showMvpHeader = pathname.startsWith("/mvp");
 
   const cartItemCount = cart.length;
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className="hidden sm:block flex-grow">
-        {showHeaderFooter && (
+        {showHeaderFooter && !showMvpHeader && (
           <div className="fixed top-0 left-0 right-0 z-50 bg-white">
             <div className="navigation">
               <NavigationMenu>
@@ -227,7 +236,100 @@ const ReusableLayout = observer(({ children }) => {
             </div>
           </div>
         )}
-        <div className={showHeaderFooter ? "pt-[53px]" : ""}>
+        {showMvpHeader && (
+          <div className="fixed top-0 left-0 right-0 z-50 bg-white print:hidden">
+            <div className="navigation">
+              <NavigationMenu>
+                <NavigationMenuList className="gap-4">
+                  <NavigationMenuItem>
+                    <Link href="/mvp">
+                      <Image
+                        src={logoImg}
+                        alt="logo"
+                        width={75}
+                        height={75}
+                        className="cursor-pointer"
+                      />
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>Builders Town</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                        <li className="row-span-3">
+                          <NavigationMenuLink asChild>
+                            <a
+                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                              href="/mvp/builders-town"
+                            >
+                              <div className="mb-2 mt-4 text-lg font-medium">
+                                Builders Town
+                              </div>
+                              <p className="text-sm leading-tight text-muted-foreground">
+                                Explore all Builders Town features and tools.
+                              </p>
+                            </a>
+                          </NavigationMenuLink>
+                        </li>
+                        <ListItem href="/mvp/builders-town/test" title="Cards">
+                          View and manage Builders Town cards.
+                        </ListItem>
+                        <ListItem
+                          href="/mvp/builders-town/tracker"
+                          title="Tracker"
+                        >
+                          Track your progress in Builders Town.
+                        </ListItem>
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>Farming</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                        <li className="row-span-3">
+                          <NavigationMenuLink asChild>
+                            <a
+                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                              href="/mvp/farming"
+                            >
+                              <div className="mb-2 mt-4 text-lg font-medium">
+                                Farming
+                              </div>
+                              <p className="text-sm leading-tight text-muted-foreground">
+                                Explore all Farming features and tools.
+                              </p>
+                            </a>
+                          </NavigationMenuLink>
+                        </li>
+                        <ListItem href="/mvp/farming/map" title="Map">
+                          View and interact with the Farming map.
+                        </ListItem>
+                        <ListItem href="/mvp/farming/cards" title="Cards">
+                          Manage your Farming cards.
+                        </ListItem>
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/mvp/pdf" legacyBehavior passHref>
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        PDF
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
+          </div>
+        )}
+        <div
+          className={`${
+            showHeaderFooter || showMvpHeader ? "pt-[53px] print:pt-0" : ""
+          }`}
+        >
           <ResizablePanelGroup
             direction="horizontal"
             className="h-full items-stretch"
@@ -245,7 +347,11 @@ const ReusableLayout = observer(({ children }) => {
         </div>
       </div>
       <div className="block sm:hidden flex-grow">
-        {showHeaderFooter && <MobileHeader />}
+        {showHeaderFooter && !showMvpHeader && <MobileHeader />}
+        {showMvpHeader && (
+          // Add a mobile version of the MVP header here if needed
+          <div>MVP Header</div>
+        )}
         {children}
       </div>
       {showHeaderFooter && <Footer />}
@@ -254,3 +360,28 @@ const ReusableLayout = observer(({ children }) => {
 });
 
 export default ReusableLayout;
+
+const ListItem = React.forwardRef(
+  ({ className, title, children, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+              className
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  }
+);
+ListItem.displayName = "ListItem";
