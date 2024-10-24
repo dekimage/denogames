@@ -323,7 +323,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
                   </div>
                   <div className="text-xs">{product.description}</div>
                   <p className={`${isSmall ? "mt-2 text-sm" : "mt-4 text-xl"}`}>
-                    ${product.price}.00
+                    ${product.price}
                   </p>
                 </div>
               </div>

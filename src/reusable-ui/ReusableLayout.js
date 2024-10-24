@@ -58,21 +58,28 @@ import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const routesWithoutHeaderFooter = [
-  "/login",
-  "/signup",
-  "/app",
-  "/cart",
+const routesWithoutHeaderFooter = ["/login", "/signup", "/app", "/cart"];
+
+const routePrefixesWithoutHeaderFooter = [
+  "/admin",
   "/app/the-last-faire",
-  "/mvp/builders-town/test",
-  "/mvp/builders-town/tracker",
-  "/mvp/farming/map",
-  "/mvp/farming/cards",
+  "/mvp/builders-town",
+  "/mvp/farming",
   "/mvp/pdf",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {
-  return !routesWithoutHeaderFooter.includes(pathname);
+  if (routesWithoutHeaderFooter.includes(pathname)) {
+    return false;
+  }
+
+  for (const prefix of routePrefixesWithoutHeaderFooter) {
+    if (pathname.startsWith(prefix)) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 const defaultLayout = [20, 80];
