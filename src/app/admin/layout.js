@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  Layers,
   ShoppingCart,
   GamepadIcon,
 } from "lucide-react";
@@ -22,17 +21,26 @@ import {
   SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Users, label: "Customers", href: "/admin/customers" },
-  // { icon: Layers, label: "Segments", href: "/admin/segments" },
   { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
   { icon: GamepadIcon, label: "Games", href: "/admin/games" },
 ];
 
 export default function Layout({ children }) {
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null; // or a loading spinner
+  }
 
   return (
     <SidebarProvider className="w-full bg-gray-100">
