@@ -70,6 +70,14 @@ const Home = observer(() => {
     gameStore.setIsRefill(value);
   };
 
+  const handleMarketplaceItemSelect = (index) => {
+    gameStore.selectMarketplaceItem(index);
+  };
+
+  const renderItem = (item) => {
+    return item.type === "die" ? <Die item={item} /> : <Card item={item} />;
+  };
+
   const renderLevel1And2UI = () => (
     <>
       <div className="border p-4 mb-4">
@@ -125,38 +133,64 @@ const Home = observer(() => {
     </>
   );
 
+  const renderMarketplace = () => (
+    <div className="border p-4 mb-4">
+      <h2 className="text-xl font-semibold mb-2">Marketplace</h2>
+      <div className="flex flex-wrap">
+        {gameStore.marketplaceDisplay.map((item, index) => (
+          <div
+            key={item.id}
+            className="m-1 cursor-pointer"
+            onClick={() => handleMarketplaceItemSelect(index)}
+          >
+            {renderItem(item)}
+          </div>
+        ))}
+      </div>
+      <p>
+        Marketplace Deck: {gameStore.marketplaceDeck.length} items remaining
+      </p>
+      <p>
+        Purchases this turn: {gameStore.marketplacePurchasesThisTurn} /{" "}
+        {gameStore.gameConfig.maxMarketplacePurchases}
+      </p>
+      <p>Click Next Turn to end your marketplace phase early</p>
+    </div>
+  );
+
   const renderLevel3UI = () => (
-    <div className="grid grid-cols-2 gap-4 mb-4">
-      {gameStore.players.map((player, index) => (
-        <div
-          key={player.id}
-          className={`border p-4 ${
-            index === gameStore.activePlayerIndex ? "bg-yellow-100" : ""
-          }`}
-        >
-          <h3 className="font-semibold mb-2">
-            {player.name}{" "}
-            {index === gameStore.activePlayerIndex ? "(Active)" : ""}
-          </h3>
-          <p>Deck: {player.personalDeck.length} items</p>
-          <p>Discard: {player.personalDiscardPile.length} items</p>
-          <div className="mt-2">
-            <h4 className="font-semibold">Central Board:</h4>
-            <div className="flex flex-wrap">
-              {player.personalCentralBoard.map((item) => (
-                <div key={item.id} className="m-1">
-                  {item.type === "die" ? (
-                    <Die item={item} />
-                  ) : (
-                    <Card item={item} />
-                  )}
-                </div>
-              ))}
+    <>
+      {gameStore.isMarketplaceActive &&
+        !gameStore.isMarketplaceEmpty() &&
+        renderMarketplace()}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {gameStore.players.map((player, index) => (
+          <div
+            key={player.id}
+            className={`border p-4 ${
+              index === gameStore.activePlayerIndex ? "bg-yellow-100" : ""
+            }`}
+          >
+            <h3 className="font-semibold mb-2">
+              {player.name}{" "}
+              {index === gameStore.activePlayerIndex ? "(Active)" : ""}
+            </h3>
+            <p>Deck: {player.personalDeck.length} items</p>
+            <p>Discard: {player.personalDiscardPile.length} items</p>
+            <div className="mt-2">
+              <h4 className="font-semibold">Central Board:</h4>
+              <div className="flex flex-wrap">
+                {player.personalCentralBoard.map((item) => (
+                  <div key={item.id} className="m-1">
+                    {renderItem(item)}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 
   return (

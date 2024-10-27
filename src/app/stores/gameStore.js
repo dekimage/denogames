@@ -24,6 +24,10 @@ class GameStore {
   customDrawCount = 3;
   customNewItemsInterval = 3;
   customNewItemsCount = 2;
+  marketplaceDeck = [];
+  marketplaceDisplay = [];
+  isMarketplaceActive = false;
+  marketplacePurchasesThisTurn = 0;
 
   constructor() {
     makeAutoObservable(this);
@@ -113,17 +117,104 @@ class GameStore {
 
   initializeLevel3Game() {
     if (this.players.length === 0) {
-      this.setPlayerCount(2); // Set a default player count if not set
+      console.error("No players initialized. Setting default player count.");
+      this.setPlayerCount(2);
+      this.initializeGame();
+      return;
     }
+
     this.players.forEach((player) => {
       player.personalDeck = this.createInitialDeck();
-      player.personalCentralBoard = [];
-      player.personalDiscardPile = [];
-      player.hand = [];
       player.shufflePersonalDeck();
+      player.personalDiscardPile = [];
+      player.personalCentralBoard = [];
     });
-    this.currentTurn = 1;
     this.activePlayerIndex = 0;
+    this.initializeMarketplace();
+    this.startPlayerTurn();
+  }
+
+  initializeMarketplace() {
+    this.marketplaceDeck = [...this.gameConfig.marketplaceItems];
+    this.shuffleArray(this.marketplaceDeck);
+    this.marketplaceDisplay = this.drawFromMarketplaceDeck(
+      this.gameConfig.marketplaceDisplaySize
+    );
+    this.marketplacePurchasesThisTurn = 0;
+  }
+
+  drawFromMarketplaceDeck(count) {
+    return this.marketplaceDeck.splice(0, count);
+  }
+
+  refillMarketplaceDisplay() {
+    const missingCount =
+      this.gameConfig.marketplaceDisplaySize - this.marketplaceDisplay.length;
+    if (missingCount > 0) {
+      const newItems = this.drawFromMarketplaceDeck(missingCount);
+      this.marketplaceDisplay.push(...newItems);
+    }
+  }
+
+  selectMarketplaceItem(index) {
+    if (
+      index >= 0 &&
+      index < this.marketplaceDisplay.length &&
+      this.marketplacePurchasesThisTurn <
+        this.gameConfig.maxMarketplacePurchases
+    ) {
+      const selectedItem = this.marketplaceDisplay.splice(index, 1)[0];
+      const activePlayer = this.players[this.activePlayerIndex];
+      activePlayer.addMarketplaceItemToDiscardPile(selectedItem);
+      this.refillMarketplaceDisplay();
+      this.marketplacePurchasesThisTurn++;
+
+      if (
+        this.marketplacePurchasesThisTurn >=
+        this.gameConfig.maxMarketplacePurchases
+      ) {
+        this.moveToNextPlayer();
+      }
+    }
+  }
+
+  nextTurn() {
+    if (this.gameLevel === 3) {
+      if (this.isMarketplaceActive) {
+        // If in marketplace phase, move to next player
+        this.moveToNextPlayer();
+      } else {
+        this.discardActivePlayerCards();
+        if (this.isMarketplaceEmpty()) {
+          this.moveToNextPlayer();
+        } else {
+          this.isMarketplaceActive = true;
+          this.marketplacePurchasesThisTurn = 0;
+        }
+      }
+    } else {
+      this.nextTurnLevelOther();
+    }
+  }
+
+  discardActivePlayerCards() {
+    const activePlayer = this.players[this.activePlayerIndex];
+    activePlayer.discardCentralBoard();
+  }
+
+  isMarketplaceEmpty() {
+    return (
+      this.marketplaceDisplay.length === 0 && this.marketplaceDeck.length === 0
+    );
+  }
+
+  moveToNextPlayer() {
+    this.activePlayerIndex = (this.activePlayerIndex + 1) % this.players.length;
+    if (this.activePlayerIndex === 0) {
+      this.currentTurn++;
+    }
+    this.isMarketplaceActive = false;
+    this.marketplacePurchasesThisTurn = 0;
     this.startPlayerTurn();
   }
 
@@ -167,7 +258,7 @@ class GameStore {
 
       if (Array.isArray(drawnItems)) {
         drawnItems.forEach((item) => {
-          if (item instanceof Die) {
+          if (item.type === "die") {
             item.roll();
           }
         });
@@ -187,7 +278,7 @@ class GameStore {
         if (this.deck.length === 0) break;
       }
       const item = this.deck.pop();
-      if (item instanceof Die) {
+      if (item.type === "die") {
         item.roll();
       }
       drawnItems.push(item);
@@ -201,21 +292,31 @@ class GameStore {
   }
 
   startPlayerTurn() {
-    if (
-      this.gameLevel === 3 &&
-      this.activePlayerIndex !== -1 &&
-      this.players[this.activePlayerIndex]
-    ) {
-      this.drawItemsLevel3();
+    if (this.players.length === 0) {
+      console.error("No players in the game.");
+      return;
     }
-  }
 
-  nextTurn() {
-    if (this.gameLevel === 3) {
-      this.nextTurnLevel3();
-    } else {
-      this.nextTurnLevelOther();
+    if (
+      this.activePlayerIndex < 0 ||
+      this.activePlayerIndex >= this.players.length
+    ) {
+      console.error("Invalid active player index.");
+      this.activePlayerIndex = 0; // Reset to the first player
     }
+
+    const activePlayer = this.players[this.activePlayerIndex];
+    if (!activePlayer) {
+      console.error("Active player is undefined.");
+      return;
+    }
+
+    const drawnItems = activePlayer.drawItems(this.gameConfig.drawCount);
+    drawnItems.forEach((item) => {
+      if (item.type === "die") {
+        item.roll();
+      }
+    });
   }
 
   nextTurnLevel3() {
@@ -328,12 +429,11 @@ class GameStore {
   }
 
   shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
+    for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      [array[i], array[j]] = [array[j], array[i]];
     }
-    return newArray;
+    return array;
   }
 
   setTestConfiguration(config) {
@@ -360,6 +460,10 @@ class GameStore {
 
   setCustomNewItemsCount(count) {
     this.customNewItemsCount = count;
+  }
+
+  setMaxMarketplacePurchases(max) {
+    this.gameConfig.maxMarketplacePurchases = max;
   }
 }
 

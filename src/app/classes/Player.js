@@ -47,11 +47,11 @@ export class Player {
       drawnItems.push(item);
     }
     this.personalCentralBoard.push(...drawnItems);
-    return drawnItems; // Always return an array, even if empty
+    return drawnItems;
   }
 
   reshuffleDiscardPile() {
-    this.personalDeck = [...this.personalDiscardPile];
+    this.personalDeck.push(...this.personalDiscardPile);
     this.shufflePersonalDeck();
     this.personalDiscardPile = [];
   }
@@ -59,5 +59,9 @@ export class Player {
   discardCentralBoard() {
     this.personalDiscardPile.push(...this.personalCentralBoard);
     this.personalCentralBoard = [];
+  }
+
+  addMarketplaceItemToDiscardPile(item) {
+    this.personalDiscardPile.push(item);
   }
 }

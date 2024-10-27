@@ -144,6 +144,42 @@ export const diceCardsConfig = {
   drawCount: 3,
 };
 
+const marketplaceColors = [
+  "#FF6B6B",
+  "#4ECDC4",
+  "#45B7D1",
+  "#FFA07A",
+  "#98D8C8",
+  "#F06292",
+  "#AED581",
+  "#FFD54F",
+  "#4DB6AC",
+  "#7986CB",
+  "#BA68C8",
+  "#4DD0E1",
+  "#DCE775",
+  "#FFB74D",
+  "#A1887F",
+  "#90A4AE",
+  "#F48FB1",
+  "#9CCC65",
+  "#FFE082",
+  "#80CBC4",
+];
+
+const createMarketplaceItems = () => {
+  const cards = Array.from(
+    { length: 11 },
+    (_, i) => new Card(i + 20, i + 20, marketplaceColors[i])
+  );
+  const dice = Array.from(
+    { length: 10 },
+    (_, i) =>
+      new Die(i + 31, [8, 9, 10, 11, 12, 13, 14], marketplaceColors[i + 11])
+  );
+  return [...cards, ...dice];
+};
+
 export const level3Config = {
   [gameTypes.SIMPLE_CARDS]: {
     type: gameTypes.SIMPLE_CARDS,
@@ -162,6 +198,9 @@ export const level3Config = {
     ],
     drawCount: 3,
     turnEvents: [],
+    marketplaceItems: createMarketplaceItems(),
+    marketplaceDisplaySize: 5,
+    maxMarketplacePurchases: 3,
   },
   [gameTypes.SIMPLE_DICE]: {
     type: gameTypes.SIMPLE_DICE,
@@ -180,6 +219,9 @@ export const level3Config = {
     ],
     drawCount: 3,
     turnEvents: [],
+    marketplaceItems: createMarketplaceItems(),
+    marketplaceDisplaySize: 5,
+    maxMarketplacePurchases: 3,
   },
   [gameTypes.DICE_CARDS]: {
     type: gameTypes.DICE_CARDS,
@@ -198,5 +240,8 @@ export const level3Config = {
     ],
     drawCount: 3,
     turnEvents: [],
+    marketplaceItems: createMarketplaceItems(),
+    marketplaceDisplaySize: 5,
+    maxMarketplacePurchases: 3,
   },
 };

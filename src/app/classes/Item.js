@@ -6,22 +6,27 @@ export class Item {
   }
 }
 
-export class Card extends Item {
+export class Card {
   constructor(id, value, color) {
-    super(id, "card", color);
+    this.id = id;
     this.value = value;
+    this.color = color;
+    this.type = "card";
   }
 }
 
-export class Die extends Item {
+export class Die {
   constructor(id, sides, color) {
-    super(id, "die", color);
+    this.id = id;
     this.sides = sides;
-    this.value = null;
+    this.color = color;
+    this.currentValue = null;
+    this.type = "die";
   }
 
   roll() {
-    this.value = this.sides[Math.floor(Math.random() * this.sides.length)];
-    return this.value;
+    this.currentValue =
+      this.sides[Math.floor(Math.random() * this.sides.length)];
+    return this.currentValue;
   }
 }
