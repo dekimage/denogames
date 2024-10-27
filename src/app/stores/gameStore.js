@@ -13,10 +13,35 @@ class GameStore {
   centralBoard = [];
   discardPile = [];
   currentTurn = 1;
+  customDrawCount = 3;
+  customNewItemsInterval = 3;
+  customNewItemsCount = 2;
+  gameLevel = 1;
+  players = [];
+  activePlayerIndex = 0;
+  draftingRound = 0;
+  maxDraftingRounds = 1;
+  isRefill = true;
 
   constructor() {
     makeAutoObservable(this);
     this.setGameType(gameTypes.SIMPLE_CARDS);
+  }
+
+  setGameLevel(level) {
+    this.gameLevel = level;
+    this.initializeGame();
+  }
+
+  setPlayerCount(count) {
+    this.players = Array(count)
+      .fill()
+      .map((_, i) => ({
+        id: i + 1,
+        name: `Player ${i + 1}`,
+        hand: [],
+      }));
+    this.initializeGame();
   }
 
   setGameType(type) {
@@ -42,6 +67,9 @@ class GameStore {
     this.centralBoard = [];
     this.discardPile = [];
     this.shuffleItems();
+    this.activePlayerIndex = 0;
+    this.draftingRound = 0;
+    this.players.forEach((player) => (player.hand = []));
   }
 
   shuffleItems() {
@@ -75,9 +103,73 @@ class GameStore {
     }
 
     this.centralBoard = [...this.centralBoard, ...drawnItems];
+    if (this.gameLevel === 2) {
+      this.startDrafting();
+    }
+  }
+
+  startDrafting() {
+    this.activePlayerIndex = 0;
+    this.draftingRound = 0;
+  }
+
+  draftItem(itemIndex) {
+    if (this.gameLevel !== 2 || this.centralBoard.length === 0) return;
+
+    const activePlayer = this.players[this.activePlayerIndex];
+    const [draftedItem] = this.centralBoard.splice(itemIndex, 1);
+    activePlayer.hand.push(draftedItem);
+
+    if (this.isRefill) {
+      this.refillCentralBoard();
+    }
+
+    this.activePlayerIndex = (this.activePlayerIndex + 1) % this.players.length;
+    if (this.activePlayerIndex === 0) {
+      this.draftingRound++;
+    }
+
+    if (
+      this.draftingRound >= this.maxDraftingRounds ||
+      this.centralBoard.length === 0
+    ) {
+      this.endDrafting();
+    }
+  }
+
+  refillCentralBoard() {
+    if (this.items.length === 0) {
+      this.reshuffleDiscardPile();
+    }
+
+    if (this.items.length > 0) {
+      let newItem = this.items.pop();
+
+      // If the item is a die, roll it
+      if (this.gameConfig.itemType === "die") {
+        newItem = {
+          ...newItem,
+          value:
+            newItem.sides[Math.floor(Math.random() * newItem.sides.length)],
+        };
+      }
+
+      this.centralBoard.push(newItem);
+    }
+  }
+
+  endDrafting() {
+    this.activePlayerIndex = -1;
+    this.draftingRound = 0;
   }
 
   nextTurn() {
+    if (this.gameLevel === 2) {
+      this.players.forEach((player) => {
+        this.discardPile.push(...player.hand);
+        player.hand = [];
+      });
+    }
     this.discardPile = [...this.discardPile, ...this.centralBoard];
     this.centralBoard = [];
     this.currentTurn++;
@@ -103,7 +195,7 @@ class GameStore {
   }
 
   reshuffleDiscardPile() {
-    this.items = this.shuffleArray([...this.discardPile]);
+    this.items = this.discardPile.sort(() => Math.random() - 0.5);
     this.discardPile = [];
   }
 
@@ -119,6 +211,15 @@ class GameStore {
   setTestConfiguration(config) {
     this.gameConfig = { ...config };
     this.initializeGame();
+  }
+
+  setIsRefill(value) {
+    this.isRefill = value;
+  }
+
+  setMaxDraftingRounds(value) {
+    this.maxDraftingRounds = value;
+    this.draftingRound = 0; // Reset the drafting round when changing this value
   }
 }
 
