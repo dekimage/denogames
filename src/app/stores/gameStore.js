@@ -170,7 +170,12 @@ class GameStore {
     ) {
       const selectedItem = this.marketplaceDisplay.splice(index, 1)[0];
       const activePlayer = this.players[this.activePlayerIndex];
-      activePlayer.addMarketplaceItemToDiscardPile(selectedItem);
+      // Create a unique copy for the purchasing player
+      const playerCopy = {
+        ...selectedItem,
+        id: `${activePlayer.id}-${selectedItem.id}`,
+      };
+      activePlayer.addMarketplaceItemToDiscardPile(playerCopy);
       this.refillMarketplaceDisplay();
       this.marketplacePurchasesThisTurn++;
     }
@@ -500,12 +505,14 @@ class GameStore {
   }
 
   selectUpgradeItem(item) {
+    // Store the full unique ID
     this.selectedUpgradeItem = item;
   }
 
   upgradeItem() {
     if (this.selectedUpgradeItem) {
       const activePlayer = this.players[this.activePlayerIndex];
+      // Pass the full unique ID to upgradeItem
       activePlayer.upgradeItem(this.selectedUpgradeItem.id);
       this.isUpgradePhaseActive = false;
       this.selectedUpgradeItem = null;

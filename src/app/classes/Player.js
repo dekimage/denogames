@@ -8,6 +8,15 @@ export class Player {
     this.personalCentralBoard = [];
   }
 
+  initializePersonalDeck(initialDeck) {
+    // Create deep copies of items with unique IDs for this player
+    this.personalDeck = initialDeck.map((item) => ({
+      ...item,
+      id: `player${this.id}-item${item.id}`, // Make the ID format more distinct
+    }));
+    this.shufflePersonalDeck();
+  }
+
   addToHand(item) {
     this.hand.push(item);
   }
@@ -66,14 +75,19 @@ export class Player {
   }
 
   upgradeItem(itemId) {
+    // itemId should now be the full unique ID (e.g., "player1-item3")
     const upgradeItem = (item) => {
+      // Exact match on the full unique ID
       if (item.id === itemId) {
-        item.level = (item.level || 1) + 1;
-        if (item.type === "card") {
-          item.value += 2; // Example: Increase card value by 2 for each level
-        } else if (item.type === "die") {
-          item.sides = item.sides.map((side) => side + 1); // Example: Increase each die side by 1
-        }
+        return {
+          ...item,
+          level: (item.level || 1) + 1,
+          value: item.type === "card" ? item.value + 2 : item.value,
+          sides:
+            item.type === "die"
+              ? item.sides.map((side) => side + 1)
+              : item.sides,
+        };
       }
       return item;
     };
