@@ -11,30 +11,20 @@ const Home = observer(() => {
   const [selectedGameType, setSelectedGameType] = useState(
     gameStore.gameConfig.type
   );
-  const [gameLevel, setGameLevel] = useState(1);
+  const [gameLevel, setGameLevel] = useState(gameStore.gameLevel);
   const [playerCount, setPlayerCount] = useState(2);
-  const [isRefill, setIsRefill] = useState(gameStore.isRefill);
-  const [maxDraftingRounds, setMaxDraftingRounds] = useState(
-    gameStore.maxDraftingRounds
-  );
+  const [maxDraftingRounds, setMaxDraftingRounds] = useState(1);
+  const [isRefill, setIsRefill] = useState(true);
 
   useEffect(() => {
     gameStore.setGameLevel(gameLevel);
   }, [gameLevel]);
 
   useEffect(() => {
-    if (gameLevel === 2) {
+    if (gameLevel === 2 || gameLevel === 3) {
       gameStore.setPlayerCount(playerCount);
     }
   }, [gameLevel, playerCount]);
-
-  useEffect(() => {
-    gameStore.setIsRefill(isRefill);
-  }, [isRefill]);
-
-  useEffect(() => {
-    gameStore.setMaxDraftingRounds(maxDraftingRounds);
-  }, [maxDraftingRounds]);
 
   const handleGameTypeChange = (e) => {
     const newGameType = e.target.value;
@@ -42,9 +32,126 @@ const Home = observer(() => {
     gameStore.setGameType(newGameType);
   };
 
-  const handleDraftItem = (itemIndex) => {
-    gameStore.draftItem(itemIndex);
+  const handleDrawItems = () => {
+    gameStore.drawItems();
   };
+
+  const handleNextTurn = () => {
+    gameStore.nextTurn();
+  };
+
+  const handleRestartGame = () => {
+    gameStore.restartGame();
+  };
+
+  const handleItemClick = (index) => {
+    if (gameStore.gameLevel === 2 && gameStore.activePlayerIndex !== -1) {
+      gameStore.draftItem(index);
+    }
+  };
+
+  const activePlayer = gameStore.players[gameStore.activePlayerIndex];
+
+  const handleMaxDraftingRoundsChange = (e) => {
+    const value = Number(e.target.value);
+    setMaxDraftingRounds(value);
+    gameStore.setMaxDraftingRounds(value);
+  };
+
+  const handleIsRefillChange = (e) => {
+    const value = e.target.checked;
+    setIsRefill(value);
+    gameStore.setIsRefill(value);
+  };
+
+  const renderLevel1And2UI = () => (
+    <>
+      <div className="border p-4 mb-4">
+        <h2 className="text-xl font-semibold mb-2">Central Board</h2>
+        <div className="flex flex-wrap">
+          {gameStore.centralBoard.map((item, index) => (
+            <div
+              key={item.id}
+              className={`m-1 ${
+                gameStore.gameLevel === 2 && gameStore.activePlayerIndex !== -1
+                  ? "cursor-pointer"
+                  : ""
+              }`}
+              onClick={() => handleItemClick(index)}
+            >
+              {item.type === "die" ? <Die item={item} /> : <Card item={item} />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {gameLevel === 2 && (
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {gameStore.players.map((player) => (
+            <div key={player.id} className="border p-4">
+              <h3 className="font-semibold mb-2">{player.name}</h3>
+              <div className="flex flex-wrap">
+                {player.hand.map((item) => (
+                  <div key={item.id} className="m-1">
+                    {item.type === "die" ? (
+                      <Die item={item} />
+                    ) : (
+                      <Card item={item} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex justify-between">
+        <div className="border p-4 flex-1 mr-2">
+          <h2 className="text-xl font-semibold mb-2">Deck/Dice Pool</h2>
+          <p>{gameStore.deck.length} items remaining</p>
+        </div>
+        <div className="border p-4 flex-1 ml-2">
+          <h2 className="text-xl font-semibold mb-2">Discard Pile</h2>
+          <p>{gameStore.discardPile.length} items discarded</p>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderLevel3UI = () => (
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      {gameStore.players.map((player, index) => (
+        <div
+          key={player.id}
+          className={`border p-4 ${
+            index === gameStore.activePlayerIndex ? "bg-yellow-100" : ""
+          }`}
+        >
+          <h3 className="font-semibold mb-2">
+            {player.name}{" "}
+            {index === gameStore.activePlayerIndex ? "(Active)" : ""}
+          </h3>
+          <p>Deck: {player.personalDeck.length} items</p>
+          <p>Discard: {player.personalDiscardPile.length} items</p>
+          <div className="mt-2">
+            <h4 className="font-semibold">Central Board:</h4>
+            <div className="flex flex-wrap">
+              {player.personalCentralBoard.map((item) => (
+                <div key={item.id} className="m-1">
+                  {item.type === "die" ? (
+                    <Die item={item} />
+                  ) : (
+                    <Card item={item} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="container mx-auto p-4">
@@ -68,127 +175,77 @@ const Home = observer(() => {
         >
           <option value={1}>Level 1</option>
           <option value={2}>Level 2</option>
+          <option value={3}>Level 3</option>
         </select>
+
+        {(gameLevel === 2 || gameLevel === 3) && (
+          <select
+            value={playerCount}
+            onChange={(e) => setPlayerCount(Number(e.target.value))}
+            className="mr-2 p-2 border rounded"
+          >
+            {[2, 3, 4, 5, 6].map((num) => (
+              <option key={num} value={num}>
+                {num} Players
+              </option>
+            ))}
+          </select>
+        )}
 
         {gameLevel === 2 && (
           <>
             <select
-              value={playerCount}
-              onChange={(e) => setPlayerCount(Number(e.target.value))}
-              className="mr-2 p-2 border rounded"
-            >
-              {[2, 3, 4, 5, 6].map((num) => (
-                <option key={num} value={num}>
-                  {num} Players
-                </option>
-              ))}
-            </select>
-
-            <select
               value={maxDraftingRounds}
-              onChange={(e) => setMaxDraftingRounds(Number(e.target.value))}
+              onChange={handleMaxDraftingRoundsChange}
               className="mr-2 p-2 border rounded"
             >
-              {[1, 2, 3, 4, 5].map((num) => (
+              {[1, 2, 3, 4].map((num) => (
                 <option key={num} value={num}>
-                  Draft {num} {num === 1 ? "card/die" : "cards/dice"}
+                  Draft {num} {num === 1 ? "Card/Die" : "Cards/Dice"}
                 </option>
               ))}
             </select>
-
-            <label className="flex items-center mr-4">
+            <label className="mr-2">
               <input
                 type="checkbox"
                 checked={isRefill}
-                onChange={(e) => setIsRefill(e.target.checked)}
-                className="mr-2"
+                onChange={handleIsRefillChange}
+                className="mr-1"
               />
-              Refill after draft
+              Refill after each draft
             </label>
           </>
         )}
 
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-          onClick={() => gameStore.drawItems()}
+          onClick={handleDrawItems}
         >
           Draw Items
         </button>
         <button
           className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2"
-          onClick={() => gameStore.nextTurn()}
+          onClick={handleNextTurn}
         >
           Next Turn
         </button>
         <button
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-          onClick={() => gameStore.restartGame()}
+          onClick={handleRestartGame}
         >
           Restart Game
         </button>
         <span className="ml-4 font-bold">Turn: {gameStore.currentTurn}</span>
       </div>
 
-      <div className="border p-4 mb-4">
-        <h2 className="text-xl font-semibold mb-2">Central Board</h2>
-        <div className="flex flex-wrap">
-          {gameStore.centralBoard.map((item, index) => (
-            <div key={item.id} className="m-1">
-              <button
-                onClick={() => handleDraftItem(index)}
-                disabled={gameStore.activePlayerIndex === -1}
-              >
-                {gameStore.gameConfig.itemType === "die" ? (
-                  <Die item={item} />
-                ) : (
-                  <Card item={item} />
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+      {gameLevel === 3 ? renderLevel3UI() : renderLevel1And2UI()}
 
-      {gameLevel === 2 && (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {gameStore.players.map((player) => (
-            <div key={player.id} className="border p-4">
-              <h3 className="font-semibold mb-2">{player.name}</h3>
-              <div className="flex flex-wrap">
-                {player.hand.map((item) => (
-                  <div key={item.id} className="m-1">
-                    {gameStore.gameConfig.itemType === "die" ? (
-                      <Die item={item} />
-                    ) : (
-                      <Card item={item} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+      {gameStore.activePlayerIndex !== -1 && (
+        <div className="mt-4 font-bold">
+          Active Player:{" "}
+          {gameStore.players[gameStore.activePlayerIndex]?.name || "Unknown"}
         </div>
       )}
-
-      <div className="flex justify-between">
-        <div className="border p-4 flex-1 mr-2">
-          <h2 className="text-xl font-semibold mb-2">Deck/Dice Pool</h2>
-          <p>{gameStore.items.length} items remaining</p>
-        </div>
-        <div className="border p-4 flex-1 ml-2">
-          <h2 className="text-xl font-semibold mb-2">Discard Pile</h2>
-          <p>{gameStore.discardPile.length} items discarded</p>
-        </div>
-      </div>
-
-      {gameLevel === 2 &&
-        gameStore.activePlayerIndex !== -1 &&
-        gameStore.players.length > 0 && (
-          <div className="mt-4 font-bold">
-            Active Player:{" "}
-            {gameStore.players[gameStore.activePlayerIndex]?.name || "Unknown"}
-          </div>
-        )}
     </div>
   );
 });

@@ -61,6 +61,7 @@ import { cn } from "@/lib/utils";
 const routesWithoutHeaderFooter = ["/login", "/signup", "/app", "/cart"];
 
 const routePrefixesWithoutHeaderFooter = [
+  "/app/engine",
   "/admin",
   "/app/the-last-faire",
   "/mvp/builders-town",

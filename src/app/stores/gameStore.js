@@ -1,27 +1,29 @@
 import { makeAutoObservable } from "mobx";
-
+import { Player } from "../classes/Player";
+import { Card, Die } from "../classes/Item";
 import {
-  diceCardsConfig,
   gameTypes,
   simpleCardsConfig,
   simpleDiceConfig,
+  diceCardsConfig,
+  level3Config,
 } from "../gameConfig";
 
 class GameStore {
   gameConfig = simpleCardsConfig;
-  items = [];
+  deck = [];
   centralBoard = [];
   discardPile = [];
+  players = [];
   currentTurn = 1;
+  activePlayerIndex = -1;
+  gameLevel = 1;
+  isRefill = true;
+  maxDraftingRounds = 1;
+  draftingRound = 0;
   customDrawCount = 3;
   customNewItemsInterval = 3;
   customNewItemsCount = 2;
-  gameLevel = 1;
-  players = [];
-  activePlayerIndex = 0;
-  draftingRound = 0;
-  maxDraftingRounds = 1;
-  isRefill = true;
 
   constructor() {
     makeAutoObservable(this);
@@ -30,82 +32,210 @@ class GameStore {
 
   setGameLevel(level) {
     this.gameLevel = level;
+    this.gameConfig = level === 3 ? level3Config : this.gameConfig;
     this.initializeGame();
   }
 
   setPlayerCount(count) {
     this.players = Array(count)
       .fill()
-      .map((_, i) => ({
-        id: i + 1,
-        name: `Player ${i + 1}`,
-        hand: [],
-      }));
+      .map((_, i) => new Player(i + 1, `Player ${i + 1}`));
     this.initializeGame();
   }
 
   setGameType(type) {
+    let newConfig;
     switch (type) {
       case gameTypes.SIMPLE_DICE:
-        this.gameConfig = simpleDiceConfig;
+        newConfig =
+          this.gameLevel === 3
+            ? level3Config[gameTypes.SIMPLE_DICE]
+            : simpleDiceConfig;
         break;
       case gameTypes.SIMPLE_CARDS:
-        this.gameConfig = simpleCardsConfig;
+        newConfig =
+          this.gameLevel === 3
+            ? level3Config[gameTypes.SIMPLE_CARDS]
+            : simpleCardsConfig;
         break;
       case gameTypes.DICE_CARDS:
-        this.gameConfig = diceCardsConfig;
+        newConfig =
+          this.gameLevel === 3
+            ? level3Config[gameTypes.DICE_CARDS]
+            : diceCardsConfig;
         break;
       default:
         throw new Error(`Unknown game type: ${type}`);
     }
+
+    if (!newConfig) {
+      console.error(
+        `Invalid configuration for game type: ${type} and level: ${this.gameLevel}`
+      );
+      return;
+    }
+
+    this.gameConfig = newConfig;
     this.initializeGame();
   }
 
   initializeGame() {
-    this.items = [...this.gameConfig.initialItems];
-    this.currentTurn = 1;
+    this.deck = this.createInitialDeck();
     this.centralBoard = [];
     this.discardPile = [];
-    this.shuffleItems();
-    this.activePlayerIndex = 0;
+    this.currentTurn = 1;
+    this.activePlayerIndex = -1;
     this.draftingRound = 0;
-    this.players.forEach((player) => (player.hand = []));
+    this.shuffleDeck();
+
+    if (this.gameLevel === 2) {
+      this.drawItems(); // This will also start the drafting process
+    } else if (this.gameLevel === 3) {
+      this.initializeLevel3Game();
+    } else {
+      this.drawItems();
+    }
+
+    this.players.forEach((player) => {
+      player.hand = [];
+    });
   }
 
-  shuffleItems() {
-    this.items = this.shuffleArray([...this.items]);
+  initializeLevel3Game() {
+    if (this.players.length === 0) {
+      this.setPlayerCount(2); // Set a default player count if not set
+    }
+    this.players.forEach((player) => {
+      player.personalDeck = this.createInitialDeck();
+      player.personalCentralBoard = [];
+      player.personalDiscardPile = [];
+      player.hand = [];
+      player.shufflePersonalDeck();
+    });
+    this.currentTurn = 1;
+    this.activePlayerIndex = 0;
+    this.startPlayerTurn();
+  }
+
+  createInitialDeck() {
+    const items =
+      this.gameLevel === 3
+        ? this.gameConfig.playerStartingDeck
+        : this.gameConfig.initialItems;
+
+    if (!items || !Array.isArray(items)) {
+      console.error("Invalid or missing items configuration");
+      return [];
+    }
+
+    return items.map((item) => {
+      if (item instanceof Card || item instanceof Die) {
+        return item;
+      }
+      return this.gameConfig.itemType === "die"
+        ? new Die(item.id, item.sides, item.color)
+        : new Card(item.id, item.value, item.color);
+    });
+  }
+
+  shuffleDeck() {
+    this.deck = this.shuffleArray([...this.deck]);
   }
 
   drawItems() {
-    const count = this.gameConfig.drawCount;
-    let drawnItems = [];
-    let remainingCount = count;
+    if (this.gameLevel === 3) {
+      this.drawItemsLevel3();
+    } else {
+      this.drawItemsLevelOther();
+    }
+  }
 
-    while (
-      remainingCount > 0 &&
-      (this.items.length > 0 || this.discardPile.length > 0)
-    ) {
-      if (this.items.length === 0) {
-        this.reshuffleDiscardPile();
-        if (this.items.length === 0) break;
+  drawItemsLevel3() {
+    if (this.activePlayerIndex !== -1 && this.players[this.activePlayerIndex]) {
+      const activePlayer = this.players[this.activePlayerIndex];
+      const drawnItems = activePlayer.drawItems(this.gameConfig.drawCount);
+
+      if (Array.isArray(drawnItems)) {
+        drawnItems.forEach((item) => {
+          if (item instanceof Die) {
+            item.roll();
+          }
+        });
+      } else {
+        console.error("drawItems did not return an array as expected");
       }
-      const itemsToDraw = Math.min(remainingCount, this.items.length);
-      const newItems = this.items.splice(0, itemsToDraw);
-      drawnItems = [...drawnItems, ...newItems];
-      remainingCount -= itemsToDraw;
+    }
+  }
+
+  drawItemsLevelOther() {
+    const count = this.customDrawCount;
+    let drawnItems = [];
+
+    for (let i = 0; i < count; i++) {
+      if (this.deck.length === 0) {
+        this.reshuffleDiscardPile();
+        if (this.deck.length === 0) break;
+      }
+      const item = this.deck.pop();
+      if (item instanceof Die) {
+        item.roll();
+      }
+      drawnItems.push(item);
     }
 
-    if (this.gameConfig.itemType === "die") {
-      drawnItems = drawnItems.map((item) => ({
-        ...item,
-        value: item.sides[Math.floor(Math.random() * item.sides.length)],
-      }));
-    }
+    this.centralBoard.push(...drawnItems);
 
-    this.centralBoard = [...this.centralBoard, ...drawnItems];
     if (this.gameLevel === 2) {
       this.startDrafting();
     }
+  }
+
+  startPlayerTurn() {
+    if (
+      this.gameLevel === 3 &&
+      this.activePlayerIndex !== -1 &&
+      this.players[this.activePlayerIndex]
+    ) {
+      this.drawItemsLevel3();
+    }
+  }
+
+  nextTurn() {
+    if (this.gameLevel === 3) {
+      this.nextTurnLevel3();
+    } else {
+      this.nextTurnLevelOther();
+    }
+  }
+
+  nextTurnLevel3() {
+    if (this.activePlayerIndex !== -1 && this.players[this.activePlayerIndex]) {
+      const activePlayer = this.players[this.activePlayerIndex];
+      activePlayer.discardCentralBoard();
+      this.activePlayerIndex =
+        (this.activePlayerIndex + 1) % this.players.length;
+      if (this.activePlayerIndex === 0) {
+        this.currentTurn++;
+      }
+      this.startPlayerTurn();
+    }
+  }
+
+  nextTurnLevelOther() {
+    if (this.gameLevel === 2) {
+      this.players.forEach((player) => {
+        this.discardPile.push(...player.clearHand());
+      });
+    }
+    this.discardPile.push(...this.centralBoard);
+    this.centralBoard = [];
+    this.currentTurn++;
+    this.checkTurnEvents();
+    this.drawItems();
+  }
+
+  restartGame() {
+    this.initializeGame();
   }
 
   startDrafting() {
@@ -114,11 +244,18 @@ class GameStore {
   }
 
   draftItem(itemIndex) {
-    if (this.gameLevel !== 2 || this.centralBoard.length === 0) return;
+    if (
+      this.gameLevel !== 2 ||
+      this.centralBoard.length === 0 ||
+      this.activePlayerIndex === -1
+    )
+      return;
 
     const activePlayer = this.players[this.activePlayerIndex];
+    if (!activePlayer) return;
+
     const [draftedItem] = this.centralBoard.splice(itemIndex, 1);
-    activePlayer.hand.push(draftedItem);
+    activePlayer.addToHand(draftedItem);
 
     if (this.isRefill) {
       this.refillCentralBoard();
@@ -138,22 +275,15 @@ class GameStore {
   }
 
   refillCentralBoard() {
-    if (this.items.length === 0) {
+    if (this.deck.length === 0) {
       this.reshuffleDiscardPile();
     }
 
-    if (this.items.length > 0) {
-      let newItem = this.items.pop();
-
-      // If the item is a die, roll it
-      if (this.gameConfig.itemType === "die") {
-        newItem = {
-          ...newItem,
-          value:
-            newItem.sides[Math.floor(Math.random() * newItem.sides.length)],
-        };
+    if (this.deck.length > 0) {
+      const newItem = this.deck.pop();
+      if (newItem.type === "die") {
+        newItem.roll();
       }
-
       this.centralBoard.push(newItem);
     }
   }
@@ -161,19 +291,6 @@ class GameStore {
   endDrafting() {
     this.activePlayerIndex = -1;
     this.draftingRound = 0;
-  }
-
-  nextTurn() {
-    if (this.gameLevel === 2) {
-      this.players.forEach((player) => {
-        this.discardPile.push(...player.hand);
-        player.hand = [];
-      });
-    }
-    this.discardPile = [...this.discardPile, ...this.centralBoard];
-    this.centralBoard = [];
-    this.currentTurn++;
-    this.checkTurnEvents();
   }
 
   checkTurnEvents() {
@@ -186,16 +303,17 @@ class GameStore {
   }
 
   addNewItems(newItems) {
-    this.items = [...this.items, ...newItems];
-    this.shuffleItems();
-  }
-
-  restartGame() {
-    this.initializeGame();
+    const createdItems = newItems.map((item) =>
+      this.gameConfig.itemType === "die"
+        ? new Die(item.id, item.sides, item.color)
+        : new Card(item.id, item.value, item.color)
+    );
+    this.deck.push(...createdItems);
+    this.shuffleDeck();
   }
 
   reshuffleDiscardPile() {
-    this.items = this.discardPile.sort(() => Math.random() - 0.5);
+    this.deck = this.shuffleArray([...this.discardPile]);
     this.discardPile = [];
   }
 
@@ -219,8 +337,20 @@ class GameStore {
 
   setMaxDraftingRounds(value) {
     this.maxDraftingRounds = value;
-    this.draftingRound = 0; // Reset the drafting round when changing this value
+    this.draftingRound = 0;
+  }
+
+  setCustomDrawCount(count) {
+    this.customDrawCount = count;
+  }
+
+  setCustomNewItemsInterval(interval) {
+    this.customNewItemsInterval = interval;
+  }
+
+  setCustomNewItemsCount(count) {
+    this.customNewItemsCount = count;
   }
 }
 
-export default new GameStore(); // Create and export a single instance
+export default new GameStore();
