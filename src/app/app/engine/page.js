@@ -18,6 +18,7 @@ const Home = observer(() => {
 
   useEffect(() => {
     gameStore.setGameLevel(gameLevel);
+    setSelectedGameType(gameStore.gameConfig.type);
   }, [gameLevel]);
 
   useEffect(() => {
@@ -25,6 +26,11 @@ const Home = observer(() => {
       gameStore.setPlayerCount(playerCount);
     }
   }, [gameLevel, playerCount]);
+
+  const handleGameLevelChange = (e) => {
+    const newLevel = Number(e.target.value);
+    setGameLevel(newLevel);
+  };
 
   const handleGameTypeChange = (e) => {
     const newGameType = e.target.value;
@@ -170,7 +176,7 @@ const Home = observer(() => {
 
         <select
           value={gameLevel}
-          onChange={(e) => setGameLevel(Number(e.target.value))}
+          onChange={handleGameLevelChange}
           className="mr-2 p-2 border rounded"
         >
           <option value={1}>Level 1</option>

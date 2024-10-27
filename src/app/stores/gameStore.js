@@ -32,8 +32,18 @@ class GameStore {
 
   setGameLevel(level) {
     this.gameLevel = level;
-    this.gameConfig = level === 3 ? level3Config : this.gameConfig;
-    this.initializeGame();
+
+    // Set a default game type based on the level
+    let defaultGameType;
+    if (level === 3) {
+      defaultGameType = gameTypes.SIMPLE_CARDS;
+      this.gameConfig = level3Config[defaultGameType];
+    } else {
+      defaultGameType = gameTypes.SIMPLE_CARDS;
+      this.gameConfig = simpleCardsConfig;
+    }
+
+    this.setGameType(defaultGameType);
   }
 
   setPlayerCount(count) {
