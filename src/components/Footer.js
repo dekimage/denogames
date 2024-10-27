@@ -55,8 +55,8 @@ const Footer = () => {
         <Image
           src={footerImg}
           alt="Footer background"
-          layout="fill"
-          objectFit="cover"
+          fill
+          style={{ objectFit: "cover" }}
         />
       </div>
 
