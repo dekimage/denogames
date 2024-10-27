@@ -28,6 +28,10 @@ class GameStore {
   marketplaceDisplay = [];
   isMarketplaceActive = false;
   marketplacePurchasesThisTurn = 0;
+  isChoicePhaseActive = false;
+  isUpgradePhaseActive = false;
+  upgradeVirtualView = [];
+  selectedUpgradeItem = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -48,6 +52,7 @@ class GameStore {
     }
 
     this.setGameType(defaultGameType);
+    this.initializeGame(); // Reinitialize the game when changing levels
   }
 
   setPlayerCount(count) {
@@ -168,38 +173,46 @@ class GameStore {
       activePlayer.addMarketplaceItemToDiscardPile(selectedItem);
       this.refillMarketplaceDisplay();
       this.marketplacePurchasesThisTurn++;
-
-      if (
-        this.marketplacePurchasesThisTurn >=
-        this.gameConfig.maxMarketplacePurchases
-      ) {
-        this.moveToNextPlayer();
-      }
     }
   }
 
   nextTurn() {
     if (this.gameLevel === 3) {
-      if (this.isMarketplaceActive) {
-        // If in marketplace phase, move to next player
-        this.moveToNextPlayer();
-      } else {
-        this.discardActivePlayerCards();
-        if (this.isMarketplaceEmpty()) {
-          this.moveToNextPlayer();
-        } else {
-          this.isMarketplaceActive = true;
-          this.marketplacePurchasesThisTurn = 0;
-        }
-      }
+      this.endCurrentPlayerTurn();
+      this.moveToNextPlayer();
+      this.startNewPlayerTurn();
     } else {
       this.nextTurnLevelOther();
     }
   }
 
-  discardActivePlayerCards() {
-    const activePlayer = this.players[this.activePlayerIndex];
-    activePlayer.discardCentralBoard();
+  endCurrentPlayerTurn() {
+    const currentPlayer = this.players[this.activePlayerIndex];
+    currentPlayer.discardCentralBoard();
+    this.isChoicePhaseActive = false;
+    this.isUpgradePhaseActive = false;
+    this.isMarketplaceActive = false;
+    this.marketplacePurchasesThisTurn = 0;
+    this.selectedUpgradeItem = null;
+  }
+
+  moveToNextPlayer() {
+    this.activePlayerIndex = (this.activePlayerIndex + 1) % this.players.length;
+    if (this.activePlayerIndex === 0) {
+      this.currentTurn++;
+    }
+  }
+
+  startNewPlayerTurn() {
+    const newActivePlayer = this.players[this.activePlayerIndex];
+    newActivePlayer.personalCentralBoard = []; // Ensure the central board is clear
+    const drawnItems = newActivePlayer.drawItems(this.gameConfig.drawCount);
+    drawnItems.forEach((item) => {
+      if (item.type === "die") {
+        item.roll();
+      }
+    });
+    this.isChoicePhaseActive = true;
   }
 
   isMarketplaceEmpty() {
@@ -208,14 +221,9 @@ class GameStore {
     );
   }
 
-  moveToNextPlayer() {
-    this.activePlayerIndex = (this.activePlayerIndex + 1) % this.players.length;
-    if (this.activePlayerIndex === 0) {
-      this.currentTurn++;
-    }
-    this.isMarketplaceActive = false;
-    this.marketplacePurchasesThisTurn = 0;
-    this.startPlayerTurn();
+  discardActivePlayerCards() {
+    const activePlayer = this.players[this.activePlayerIndex];
+    activePlayer.discardCentralBoard();
   }
 
   createInitialDeck() {
@@ -462,8 +470,62 @@ class GameStore {
     this.customNewItemsCount = count;
   }
 
+  setMarketplaceDisplaySize(size) {
+    this.gameConfig.marketplaceDisplaySize = size;
+    this.refillMarketplaceDisplay();
+  }
+
   setMaxMarketplacePurchases(max) {
     this.gameConfig.maxMarketplacePurchases = max;
+  }
+
+  chooseAction(action) {
+    this.isChoicePhaseActive = false;
+    if (action === "upgrade") {
+      this.startUpgradePhase();
+    } else if (action === "marketplace") {
+      this.isMarketplaceActive = true;
+      this.marketplacePurchasesThisTurn = 0;
+    }
+  }
+
+  startUpgradePhase() {
+    this.isUpgradePhaseActive = true;
+    const activePlayer = this.players[this.activePlayerIndex];
+    this.upgradeVirtualView = [
+      ...activePlayer.personalDeck,
+      ...activePlayer.personalCentralBoard,
+      ...activePlayer.personalDiscardPile,
+    ];
+  }
+
+  selectUpgradeItem(item) {
+    this.selectedUpgradeItem = item;
+  }
+
+  upgradeItem() {
+    if (this.selectedUpgradeItem) {
+      const activePlayer = this.players[this.activePlayerIndex];
+      activePlayer.upgradeItem(this.selectedUpgradeItem.id);
+      this.isUpgradePhaseActive = false;
+      this.selectedUpgradeItem = null;
+      this.endCurrentPlayerTurn();
+      this.moveToNextPlayer();
+      this.startNewPlayerTurn();
+    }
+  }
+
+  cancelUpgrade() {
+    this.selectedUpgradeItem = null;
+  }
+
+  backToChoicePhase() {
+    this.isUpgradePhaseActive = false;
+    this.isMarketplaceActive = false;
+    this.isChoicePhaseActive = true;
+    this.upgradeVirtualView = [];
+    this.selectedUpgradeItem = null;
+    this.marketplacePurchasesThisTurn = 0;
   }
 }
 

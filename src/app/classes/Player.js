@@ -46,7 +46,7 @@ export class Player {
       const item = this.personalDeck.pop();
       drawnItems.push(item);
     }
-    this.personalCentralBoard.push(...drawnItems);
+    this.personalCentralBoard = drawnItems; // Replace the central board instead of adding to it
     return drawnItems;
   }
 
@@ -63,5 +63,23 @@ export class Player {
 
   addMarketplaceItemToDiscardPile(item) {
     this.personalDiscardPile.push(item);
+  }
+
+  upgradeItem(itemId) {
+    const upgradeItem = (item) => {
+      if (item.id === itemId) {
+        item.level = (item.level || 1) + 1;
+        if (item.type === "card") {
+          item.value += 2; // Example: Increase card value by 2 for each level
+        } else if (item.type === "die") {
+          item.sides = item.sides.map((side) => side + 1); // Example: Increase each die side by 1
+        }
+      }
+      return item;
+    };
+
+    this.personalDeck = this.personalDeck.map(upgradeItem);
+    this.personalCentralBoard = this.personalCentralBoard.map(upgradeItem);
+    this.personalDiscardPile = this.personalDiscardPile.map(upgradeItem);
   }
 }

@@ -15,6 +15,12 @@ const Home = observer(() => {
   const [playerCount, setPlayerCount] = useState(2);
   const [maxDraftingRounds, setMaxDraftingRounds] = useState(1);
   const [isRefill, setIsRefill] = useState(true);
+  const [marketplaceDisplaySize, setMarketplaceDisplaySize] = useState(
+    gameStore.gameConfig.marketplaceDisplaySize
+  );
+  const [maxMarketplacePurchases, setMaxMarketplacePurchases] = useState(
+    gameStore.gameConfig.maxMarketplacePurchases
+  );
 
   useEffect(() => {
     gameStore.setGameLevel(gameLevel);
@@ -74,8 +80,60 @@ const Home = observer(() => {
     gameStore.selectMarketplaceItem(index);
   };
 
+  const handleMarketplaceDisplaySizeChange = (e) => {
+    const newSize = Number(e.target.value);
+    setMarketplaceDisplaySize(newSize);
+    gameStore.setMarketplaceDisplaySize(newSize);
+  };
+
+  const handleMaxMarketplacePurchasesChange = (e) => {
+    const newMax = Number(e.target.value);
+    setMaxMarketplacePurchases(newMax);
+    gameStore.setMaxMarketplacePurchases(newMax);
+  };
+
+  const handleChoiceAction = (action) => {
+    gameStore.chooseAction(action);
+  };
+
+  const handleUpgradeItemSelect = (item) => {
+    gameStore.selectUpgradeItem(item);
+  };
+
+  const handleUpgrade = () => {
+    gameStore.upgradeItem();
+  };
+
+  const handleCancelUpgrade = () => {
+    gameStore.cancelUpgrade();
+  };
+
+  const handleBackToChoicePhase = () => {
+    gameStore.backToChoicePhase();
+  };
+
   const renderItem = (item) => {
-    return item.type === "die" ? <Die item={item} /> : <Card item={item} />;
+    const levelIndicator = (
+      <span className="absolute top-0 right-0 bg-yellow-500 text-white rounded-full px-2 py-1 text-xs">
+        Lvl {item.level}
+      </span>
+    );
+
+    if (item.type === "die") {
+      return (
+        <div className="relative">
+          <Die item={item} />
+          {levelIndicator}
+        </div>
+      );
+    } else {
+      return (
+        <div className="relative">
+          <Card item={item} />
+          {levelIndicator}
+        </div>
+      );
+    }
   };
 
   const renderLevel1And2UI = () => (
@@ -136,61 +194,159 @@ const Home = observer(() => {
   const renderMarketplace = () => (
     <div className="border p-4 mb-4">
       <h2 className="text-xl font-semibold mb-2">Marketplace</h2>
+      {gameStore.isMarketplaceEmpty() ? (
+        <p>The marketplace is empty.</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap">
+            {gameStore.marketplaceDisplay.map((item, index) => (
+              <div
+                key={item.id}
+                className="m-1 cursor-pointer"
+                onClick={() => handleMarketplaceItemSelect(index)}
+              >
+                {renderItem(item)}
+              </div>
+            ))}
+          </div>
+          <p>
+            Marketplace Deck: {gameStore.marketplaceDeck.length} items remaining
+          </p>
+          <p>
+            Purchases this turn: {gameStore.marketplacePurchasesThisTurn} /{" "}
+            {gameStore.gameConfig.maxMarketplacePurchases}
+          </p>
+        </>
+      )}
+      <div className="mt-4 flex justify-between">
+        <button
+          onClick={handleBackToChoicePhase}
+          className="bg-gray-500 text-white p-2 rounded"
+        >
+          Back to Choice
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderChoicePhase = () => (
+    <div className="flex justify-center space-x-4">
+      <div
+        className="border p-4 cursor-pointer"
+        onClick={() => handleChoiceAction("upgrade")}
+      >
+        <img src="/hammer-icon.png" alt="Upgrade" />
+        <p>Upgrade</p>
+      </div>
+      <div
+        className="border p-4 cursor-pointer"
+        onClick={() => handleChoiceAction("marketplace")}
+      >
+        <img src="/purchase-icon.png" alt="Marketplace" />
+        <p>Marketplace</p>
+      </div>
+    </div>
+  );
+
+  const renderUpgradeVirtualView = () => (
+    <div className="border p-4">
+      <h2 className="text-xl font-semibold mb-2">Upgrade View</h2>
       <div className="flex flex-wrap">
-        {gameStore.marketplaceDisplay.map((item, index) => (
+        {gameStore.upgradeVirtualView.map((item) => (
           <div
             key={item.id}
             className="m-1 cursor-pointer"
-            onClick={() => handleMarketplaceItemSelect(index)}
+            onClick={() => handleUpgradeItemSelect(item)}
           >
             {renderItem(item)}
           </div>
         ))}
       </div>
-      <p>
-        Marketplace Deck: {gameStore.marketplaceDeck.length} items remaining
-      </p>
-      <p>
-        Purchases this turn: {gameStore.marketplacePurchasesThisTurn} /{" "}
-        {gameStore.gameConfig.maxMarketplacePurchases}
-      </p>
-      <p>Click Next Turn to end your marketplace phase early</p>
+      <button
+        onClick={handleBackToChoicePhase}
+        className="mt-4 bg-gray-500 text-white p-2 rounded"
+      >
+        Back
+      </button>
+    </div>
+  );
+
+  const renderUpgradeDifferenceView = () => (
+    <div className="border p-4">
+      <h2 className="text-xl font-semibold mb-2">Upgrade Difference</h2>
+      <div className="flex justify-center items-center space-x-4">
+        {renderItem(gameStore.selectedUpgradeItem)}
+        <span>→</span>
+        {renderItem({
+          ...gameStore.selectedUpgradeItem,
+          level: (gameStore.selectedUpgradeItem.level || 1) + 1,
+        })}
+      </div>
+      <div className="mt-4 flex justify-center space-x-4">
+        <button
+          onClick={handleUpgrade}
+          className="bg-green-500 text-white p-2 rounded"
+        >
+          Upgrade
+        </button>
+        <button
+          onClick={handleCancelUpgrade}
+          className="bg-red-500 text-white p-2 rounded"
+        >
+          Back
+        </button>
+      </div>
     </div>
   );
 
   const renderLevel3UI = () => (
     <>
-      {gameStore.isMarketplaceActive &&
-        !gameStore.isMarketplaceEmpty() &&
-        renderMarketplace()}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {gameStore.players.map((player, index) => (
-          <div
-            key={player.id}
-            className={`border p-4 ${
-              index === gameStore.activePlayerIndex ? "bg-yellow-100" : ""
-            }`}
-          >
-            <h3 className="font-semibold mb-2">
-              {player.name}{" "}
-              {index === gameStore.activePlayerIndex ? "(Active)" : ""}
-            </h3>
-            <p>Deck: {player.personalDeck.length} items</p>
-            <p>Discard: {player.personalDiscardPile.length} items</p>
-            <div className="mt-2">
-              <h4 className="font-semibold">Central Board:</h4>
-              <div className="flex flex-wrap">
-                {player.personalCentralBoard.map((item) => (
-                  <div key={item.id} className="m-1">
-                    {renderItem(item)}
-                  </div>
-                ))}
-              </div>
+      {gameStore.isChoicePhaseActive && renderChoicePhase()}
+      {gameStore.isUpgradePhaseActive &&
+        !gameStore.selectedUpgradeItem &&
+        renderUpgradeVirtualView()}
+      {gameStore.isUpgradePhaseActive &&
+        gameStore.selectedUpgradeItem &&
+        renderUpgradeDifferenceView()}
+      {gameStore.isMarketplaceActive && renderMarketplace()}
+      {renderPlayers()}
+      <button
+        onClick={handleNextTurn}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+      >
+        Next Turn
+      </button>
+    </>
+  );
+
+  const renderPlayers = () => (
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      {gameStore.players.map((player, index) => (
+        <div
+          key={player.id}
+          className={`border p-4 ${
+            index === gameStore.activePlayerIndex ? "bg-yellow-100" : ""
+          }`}
+        >
+          <h3 className="font-semibold mb-2">
+            {player.name}{" "}
+            {index === gameStore.activePlayerIndex ? "(Active)" : ""}
+          </h3>
+          <p>Deck: {player.personalDeck.length} items</p>
+          <p>Discard: {player.personalDiscardPile.length} items</p>
+          <div className="mt-2">
+            <h4 className="font-semibold">Central Board:</h4>
+            <div className="flex flex-wrap">
+              {player.personalCentralBoard.map((item) => (
+                <div key={item.id} className="m-1">
+                  {renderItem(item)}
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
-    </>
+        </div>
+      ))}
+    </div>
   );
 
   return (

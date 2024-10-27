@@ -3,25 +3,22 @@ export class Item {
     this.id = id;
     this.type = type;
     this.color = color;
+    this.level = 1;
   }
 }
 
-export class Card {
+export class Card extends Item {
   constructor(id, value, color) {
-    this.id = id;
+    super(id, "card", color);
     this.value = value;
-    this.color = color;
-    this.type = "card";
   }
 }
 
-export class Die {
+export class Die extends Item {
   constructor(id, sides, color) {
-    this.id = id;
+    super(id, "die", color);
     this.sides = sides;
-    this.color = color;
     this.currentValue = null;
-    this.type = "die";
   }
 
   roll() {

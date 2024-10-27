@@ -200,7 +200,7 @@ export const level3Config = {
     turnEvents: [],
     marketplaceItems: createMarketplaceItems(),
     marketplaceDisplaySize: 5,
-    maxMarketplacePurchases: 3,
+    maxMarketplacePurchases: 1,
   },
   [gameTypes.SIMPLE_DICE]: {
     type: gameTypes.SIMPLE_DICE,
@@ -221,7 +221,7 @@ export const level3Config = {
     turnEvents: [],
     marketplaceItems: createMarketplaceItems(),
     marketplaceDisplaySize: 5,
-    maxMarketplacePurchases: 3,
+    maxMarketplacePurchases: 1,
   },
   [gameTypes.DICE_CARDS]: {
     type: gameTypes.DICE_CARDS,
@@ -242,6 +242,6 @@ export const level3Config = {
     turnEvents: [],
     marketplaceItems: createMarketplaceItems(),
     marketplaceDisplaySize: 5,
-    maxMarketplacePurchases: 3,
+    maxMarketplacePurchases: 1,
   },
 };
