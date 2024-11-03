@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import { gameTypes } from "@/app/gameConfig";
 import Die from "@/app/components/Die";
 import Card from "@/app/components/Card";
+import Image from "next/image";
 
 const Home = observer(() => {
   const [selectedGameType, setSelectedGameType] = useState(
@@ -235,14 +236,19 @@ const Home = observer(() => {
         className="border p-4 cursor-pointer"
         onClick={() => handleChoiceAction("upgrade")}
       >
-        <img src="/hammer-icon.png" alt="Upgrade" />
+        <Image src="/hammer-icon.png" alt="Upgrade" width={32} height={32} />
         <p>Upgrade</p>
       </div>
       <div
         className="border p-4 cursor-pointer"
         onClick={() => handleChoiceAction("marketplace")}
       >
-        <img src="/purchase-icon.png" alt="Marketplace" />
+        <Image
+          src="/purchase-icon.png"
+          alt="Marketplace"
+          width={32}
+          height={32}
+        />
         <p>Marketplace</p>
       </div>
     </div>

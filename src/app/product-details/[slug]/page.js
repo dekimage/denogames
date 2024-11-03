@@ -104,11 +104,11 @@ const MechanicsSection = ({ mechanics }) => {
   const mechanicsToUse = mechanics || mechanicsData.map((m) => m.name);
 
   return (
-    <div className="my-8">
-      <h2 className="text-3xl font-bold text-center mb-4 font-strike uppercase">
+    <div className="my-2">
+      {/* <h2 className="text-3xl font-bold text-center mb-4 font-strike uppercase">
         Game Mechanics
-      </h2>
-      <div className="flex flex-wrap justify-center gap-4">
+      </h2> */}
+      <div className="flex flex-wrap  gap-4">
         {mechanicsToUse.map((mechanic) => (
           <MechanicTag key={mechanic} mechanic={mechanic} />
         ))}
@@ -256,12 +256,8 @@ const BasicFeatures = ({ productDetails }) => {
 
 const HowToPlay = ({ productDetails }) => {
   return (
-    <div className="flex flex-col items-center gap-8 justify-center  bg-[#FFD045] w-full py-8 ">
-      <div className="text-[32px] font-bold text-center">
-        {/* Heyya! Reading is the slow way to learn how to play! Watch the video
-        instead! */}
-        How to Play - Fast Version
-      </div>
+    <div className="flex flex-col items-center gap-8 justify-center font-strike uppercase  bg-[#FFD045] w-full py-8 ">
+      <div className="text-[32px] text-center">How to Play - Fast Version</div>
       {/* 
       {productDetails.howToVideos.map((video, index) => (
           <div key={index}>
@@ -272,7 +268,7 @@ const HowToPlay = ({ productDetails }) => {
         ))} */}
 
       <div>
-        <iframe
+        {/* <iframe
           width="560"
           height="315"
           src="https://www.youtube.com/embed/I1kamcPFiAM"
@@ -280,11 +276,9 @@ const HowToPlay = ({ productDetails }) => {
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
-        ></iframe>
+        ></iframe> */}
       </div>
-      <div className="text-[32px] font-bold text-center">
-        Or Slow in Details
-      </div>
+      <div className="text-[32px] text-center">Or Slow in Details</div>
       <Button className="bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
         Download Rules <Download className="ml-2" />
       </Button>
@@ -413,7 +407,7 @@ const KickstarterBenefits = () => {
             <div className="box-inner" key={index}>
               <div className="box-broken relative flex flex-row items-center p-4 shadow-lg rounded-lg bg-white mb-4">
                 {/* Circular number */}
-                <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center mx-4 flex-shrink-0">
                   {index + 1}
                 </div>
                 {/* Benefit content */}
@@ -426,9 +420,7 @@ const KickstarterBenefits = () => {
                     className="mr-4 rounded-lg object-cover"
                   />
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {benefit.title}
-                    </h3>
+                    <h3 className="text-xl mb-2">{benefit.title}</h3>
                     <p className="text-gray-600">{benefit.description}</p>
                   </div>
                 </div>
@@ -661,6 +653,37 @@ const RelatedGames = observer(({ gameId }) => {
   );
 });
 
+const ProductDescription = ({ description }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isLongDescription = description?.length > 150;
+  const shortDescription = description?.slice(0, 150);
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div className="text-sm my-4">
+      <span>
+        {/* Show truncated description or full text depending on isExpanded */}
+        {isExpanded || !isLongDescription
+          ? description
+          : `${shortDescription}...`}
+
+        {/* Add the "Read more" or "Show less" button in-line */}
+        {isLongDescription && (
+          <button
+            onClick={toggleExpand}
+            className="text-blue-500 hover:underline ml-1 inline-block"
+          >
+            {isExpanded ? "Show less" : "Read more"}
+          </button>
+        )}
+      </span>
+    </div>
+  );
+};
+
 const ProductDetailsPage = observer(({ params }) => {
   const { slug } = params;
 
@@ -721,10 +744,10 @@ Buy once, play endlessly - that's our promise to you!`;
               <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike">
                 {productDetails.name}
               </div>
-              <div className="text-sm leading-[28px] my-4">
-                A film, music, and TV guessing game where U must speak good or
-                get hit with stick.
-              </div>
+              <ProductDescription
+                description={productDetails.description || "No Description"}
+              />
+              <MechanicsSection mechanics={productDetails.mechanics} />
               <Link href="#ratings" className="w-fit">
                 <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-4 hover:border-foreground">
                   <div className="text-yellow-400 flex">
@@ -788,7 +811,6 @@ Buy once, play endlessly - that's our promise to you!`;
           <ComponentsList />
           <SystemsFeatures />
           {productDetails && <RelatedGames gameId={productDetails.id} />}
-          <MechanicsSection mechanics={productDetails.mechanics} />
         </div>
       </div>
     </div>
