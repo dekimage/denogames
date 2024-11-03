@@ -4,13 +4,15 @@ import { Card, Die } from "../classes/Item";
 class Player {
   id;
   name;
+  color;
   personalDeck = [];
   personalDiscardPile = [];
   personalCentralBoard = [];
 
-  constructor(id, name) {
+  constructor(id, name, color) {
     this.id = id;
     this.name = name;
+    this.color = color;
     makeAutoObservable(this);
   }
 
@@ -70,6 +72,7 @@ class DeckBuilderStore {
   players = [];
   currentTurn = 1;
   activePlayerIndex = -1;
+  playerCount = 2;
   marketplaceDeck = [];
   marketplaceDisplay = [];
   isMarketplaceActive = false;
@@ -88,7 +91,40 @@ class DeckBuilderStore {
     if (!config) return;
     this.gameConfig = config;
     this.maxMarketplacePurchases = config.maxMarketplacePurchases || 1;
+    this.playerCount = config.playerCount || 2;
     this.initializeGame();
+  }
+
+  setPlayerCount(count, colors) {
+    if (!colors) return;
+
+    this.playerCount = count;
+
+    const existingSettings = this.players.map((p) => ({
+      name: p.name,
+      color: p.color,
+    }));
+
+    this.players = Array.from(
+      { length: count },
+      (_, i) =>
+        new Player(
+          i + 1,
+          existingSettings[i]?.name || `Player ${i + 1}`,
+          existingSettings[i]?.color ||
+            Object.values(colors)[i % Object.keys(colors).length]
+        )
+    );
+
+    this.initializeGame();
+  }
+
+  updatePlayerSettings(settings) {
+    this.players = this.players.map((player, i) => {
+      player.name = settings[i].name;
+      player.color = settings[i].color;
+      return player;
+    });
   }
 
   initializeGame() {
@@ -109,10 +145,19 @@ class DeckBuilderStore {
   }
 
   initializePlayers() {
-    const playerCount = this.gameConfig.playerCount || 2;
+    const existingSettings = this.players.map((p) => ({
+      name: p.name,
+      color: p.color,
+    }));
+
     this.players = Array.from(
-      { length: playerCount },
-      (_, i) => new Player(i + 1, `Player ${i + 1}`)
+      { length: this.playerCount },
+      (_, i) =>
+        new Player(
+          i + 1,
+          existingSettings[i]?.name || `Player ${i + 1}`,
+          existingSettings[i]?.color || "#3B82F6"
+        )
     );
 
     this.players.forEach((player, playerIndex) => {

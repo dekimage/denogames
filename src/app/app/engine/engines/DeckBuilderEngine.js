@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import DieComponent from "@/app/components/Die";
 import CardComponent from "@/app/components/Card";
 import deckBuilderStore from "@/app/stores/deckBuilderStore";
+import PlayerSetup from "@/app/components/PlayerSetup";
 
 const DeckBuilderEngine = observer(({ config }) => {
   useEffect(() => {
@@ -100,10 +101,16 @@ const DeckBuilderEngine = observer(({ config }) => {
             index === deckBuilderStore.activePlayerIndex ? "bg-yellow-100" : ""
           }`}
         >
-          <h3 className="font-semibold mb-2">
-            {player.name}
-            {index === deckBuilderStore.activePlayerIndex ? " (Active)" : ""}
-          </h3>
+          <div className="flex items-center gap-2 mb-2">
+            <div
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor: player.color }}
+            />
+            <h3 className="font-semibold">
+              {player.name}
+              {index === deckBuilderStore.activePlayerIndex ? " (Active)" : ""}
+            </h3>
+          </div>
           <div className="mb-2">
             <h4 className="font-semibold">
               Deck: {player.personalDeck.length}
@@ -135,15 +142,16 @@ const DeckBuilderEngine = observer(({ config }) => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Deck Builder Engine</h1>
 
-      <div className="mb-4 flex items-center">
+      <div className="mb-4 flex items-center gap-2">
+        <PlayerSetup store={deckBuilderStore} />
         <button
-          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2"
+          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
           onClick={() => deckBuilderStore.nextTurn()}
         >
           End Turn
         </button>
         <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
           onClick={() => deckBuilderStore.restartGame()}
         >
           Restart Game

@@ -13,6 +13,7 @@ class DraftStore {
   maxDraftingRounds = 1;
   isRefill = true;
   customDrawCount = 3;
+  playerCount = 2;
 
   constructor() {
     makeAutoObservable(this);
@@ -24,6 +25,7 @@ class DraftStore {
     this.maxDraftingRounds = config.maxDraftingRounds || 1;
     this.isRefill = config.isRefill ?? true;
     this.customDrawCount = config.drawCount || 3;
+    this.playerCount = config.playerCount || 2;
     this.initializeGame();
   }
 
@@ -44,8 +46,7 @@ class DraftStore {
   }
 
   initializePlayers() {
-    const playerCount = this.gameConfig.playerCount || 2;
-    this.players = Array.from({ length: playerCount }, (_, i) => ({
+    this.players = Array.from({ length: this.playerCount }, (_, i) => ({
       id: i + 1,
       name: `Player ${i + 1}`,
       hand: [],
@@ -183,6 +184,50 @@ class DraftStore {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  setPlayerCount(count, colors) {
+    if (!colors) return;
+
+    this.playerCount = count;
+
+    const existingSettings = this.players.map((p) => ({
+      name: p.name,
+      color: p.color,
+      hand: p.hand || [],
+    }));
+
+    this.players = Array(count)
+      .fill()
+      .map((_, i) => ({
+        id: i + 1,
+        name: existingSettings[i]?.name || `Player ${i + 1}`,
+        color:
+          existingSettings[i]?.color ||
+          Object.values(colors)[i % Object.keys(colors).length],
+        hand: [],
+        clearHand: function () {
+          const discarded = [...this.hand];
+          this.hand = [];
+          return discarded;
+        },
+        addToHand: function (item) {
+          this.hand.push(item);
+        },
+      }));
+
+    this.initializeGame();
+  }
+
+  updatePlayerSettings(settings) {
+    this.players = this.players.map((player, i) => ({
+      ...player,
+      name: settings[i].name,
+      color: settings[i].color,
+      hand: player.hand,
+      clearHand: player.clearHand,
+      addToHand: player.addToHand,
+    }));
   }
 }
 

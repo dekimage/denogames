@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import DieComponent from "@/app/components/Die";
 import CardComponent from "@/app/components/Card";
 import draftStore from "@/app/stores/draftStore";
+import PlayerSetup from "@/app/components/PlayerSetup";
 
 const DraftEngine = observer(({ config }) => {
   useEffect(() => {
@@ -31,42 +32,31 @@ const DraftEngine = observer(({ config }) => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Draft Engine</h1>
 
-      <div className="mb-4 flex items-center">
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-          onClick={handleDrawItems}
-        >
-          Draw Items
-        </button>
+      <div className="mb-4 flex items-center gap-2">
+        <PlayerSetup store={draftStore} />
 
         <button
-          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2"
+          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleNextTurn}
         >
           Next Turn
         </button>
-
         <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleRestartGame}
         >
           Restart Game
         </button>
-
         <span className="ml-4 font-bold">Turn: {draftStore.currentTurn}</span>
-        <span className="ml-4 font-bold">
-          Drafting Round: {draftStore.draftingRound} /{" "}
-          {draftStore.maxDraftingRounds}
-        </span>
       </div>
 
       <div className="border p-4 mb-4">
         <h2 className="text-xl font-semibold mb-2">Central Board</h2>
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap gap-2">
           {draftStore.centralBoard.map((item, index) => (
             <div
               key={item.id}
-              className="m-1 cursor-pointer"
+              className="cursor-pointer"
               onClick={() => handleItemClick(index)}
             >
               {item.type === "die" ? (
@@ -80,20 +70,24 @@ const DraftEngine = observer(({ config }) => {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
-        {draftStore.players.map((player, playerIndex) => (
+        {draftStore.players.map((player, index) => (
           <div
             key={player.id}
             className={`border p-4 ${
-              playerIndex === draftStore.activePlayerIndex
-                ? "bg-yellow-100"
-                : ""
+              index === draftStore.activePlayerIndex ? "bg-yellow-100" : ""
             }`}
           >
-            <h3 className="font-semibold mb-2">
-              {player.name}
-              {playerIndex === draftStore.activePlayerIndex ? " (Active)" : ""}
-            </h3>
-            <div className="flex flex-wrap">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: player.color }}
+              />
+              <h3 className="font-semibold">
+                {player.name}
+                {index === draftStore.activePlayerIndex ? " (Active)" : ""}
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {player.hand.map((item) => (
                 <div key={item.id} className="m-1">
                   {item.type === "die" ? (
