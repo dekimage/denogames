@@ -245,3 +245,21 @@ export const level3Config = {
     maxMarketplacePurchases: 1,
   },
 };
+
+//seperate file Vampires move later
+export const vampiresConfig = {
+  type: gameTypes.SIMPLE_CARDS,
+  gameLevel: 2,
+  itemType: "card",
+  initialItems: [
+    new Card(101, 1, colors.red),
+    new Card(102, 2, colors.blue),
+    new Card(103, 3, colors.green),
+    new Card(104, 4, colors.purple),
+    new Card(105, 5, colors.gray),
+  ],
+  turnEvents: [],
+  drawCount: 3,
+  maxDraftingRounds: 3,
+  isRefill: true,
+};

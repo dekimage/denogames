@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { action, makeAutoObservable } from "mobx";
 import { Player } from "../classes/Player";
 import { Card, Die } from "../classes/Item";
 import {
@@ -9,8 +9,10 @@ import {
   level3Config,
 } from "../gameConfig";
 
+let instance = null;
+
 class GameStore {
-  gameConfig = simpleCardsConfig;
+  gameConfig = [];
   deck = [];
   centralBoard = [];
   discardPile = [];
@@ -33,15 +35,100 @@ class GameStore {
   upgradeVirtualView = [];
   selectedUpgradeItem = null;
 
-  constructor() {
-    makeAutoObservable(this);
-    this.setGameType(gameTypes.SIMPLE_CARDS);
+  constructor(config = null) {
+    makeAutoObservable(this, {
+      setConfig: action,
+      reset: action,
+      initializeGame: action,
+    });
+
+    if (config) {
+      this.reset(config);
+    }
+  }
+
+  static getInstance(config) {
+    if (!instance) {
+      instance = new GameStore(config);
+    } else if (config) {
+      instance.reset(config);
+    }
+    return instance;
+  }
+
+  reset(config) {
+    if (!config) return;
+
+    this.setConfig(config);
+    this.initializeGame(config);
+  }
+
+  setConfig(config) {
+    console.log(config);
+    this.gameConfig = config;
+    this.maxDraftingRounds = config.maxDraftingRounds || 1;
+    this.isRefill = config.isRefill ?? true;
+    this.gameLevel = config.gameLevel || 1;
+    this.setGameType(config.type || gameTypes.SIMPLE_CARDS);
+  }
+
+  initializeGame(config) {
+    if (!config) return;
+
+    this.deck = config?.initialItems
+      ? [...config.initialItems]
+      : this.createInitialDeck();
+    this.centralBoard = [];
+    this.discardPile = [];
+    this.currentTurn = 1;
+    this.activePlayerIndex = -1;
+    this.draftingRound = 0;
+    this.isRefill = config?.isRefill ?? true;
+    this.maxDraftingRounds =
+      config?.maxDraftingRounds || this.maxDraftingRounds;
+
+    if (this.deck) this.shuffleDeck();
+
+    if (this.gameLevel === 2) {
+      this.drawItems();
+    } else if (this.gameLevel === 3) {
+      this.initializeLevel3Game();
+    } else {
+      this.drawItems();
+    }
+  }
+
+  initializeLevel3Game() {
+    if (this.players.length === 0) {
+      console.error("No players initialized. Setting default player count.");
+      this.setPlayerCount(2);
+      this.initializeGame();
+      return;
+    }
+
+    this.players.forEach((player) => {
+      player.personalDeck = this.createInitialDeck();
+      player.shufflePersonalDeck();
+      player.personalDiscardPile = [];
+      player.personalCentralBoard = [];
+    });
+    this.activePlayerIndex = 0;
+    this.initializeMarketplace();
+    this.startPlayerTurn();
+  }
+
+  initializeMarketplace() {
+    this.marketplaceDeck = [...this.gameConfig.marketplaceItems];
+    this.shuffleArray(this.marketplaceDeck);
+    this.marketplaceDisplay = this.drawFromMarketplaceDeck(
+      this.gameConfig.marketplaceDisplaySize
+    );
+    this.marketplacePurchasesThisTurn = 0;
   }
 
   setGameLevel(level) {
     this.gameLevel = level;
 
-    // Set a default game type based on the level
     let defaultGameType;
     if (level === 3) {
       defaultGameType = gameTypes.SIMPLE_CARDS;
@@ -52,7 +139,7 @@ class GameStore {
     }
 
     this.setGameType(defaultGameType);
-    this.initializeGame(); // Reinitialize the game when changing levels
+    this.initializeGame();
   }
 
   setPlayerCount(count) {
@@ -98,54 +185,9 @@ class GameStore {
     this.initializeGame();
   }
 
-  initializeGame() {
-    this.deck = this.createInitialDeck();
-    this.centralBoard = [];
-    this.discardPile = [];
-    this.currentTurn = 1;
-    this.activePlayerIndex = -1;
-    this.draftingRound = 0;
+  setInitialDeck(deck) {
+    this.deck = deck.length > 0 ? deck : this.deck; // Only replace if deck is provided
     this.shuffleDeck();
-
-    if (this.gameLevel === 2) {
-      this.drawItems(); // This will also start the drafting process
-    } else if (this.gameLevel === 3) {
-      this.initializeLevel3Game();
-    } else {
-      this.drawItems();
-    }
-
-    this.players.forEach((player) => {
-      player.hand = [];
-    });
-  }
-
-  initializeLevel3Game() {
-    if (this.players.length === 0) {
-      console.error("No players initialized. Setting default player count.");
-      this.setPlayerCount(2);
-      this.initializeGame();
-      return;
-    }
-
-    this.players.forEach((player) => {
-      player.personalDeck = this.createInitialDeck();
-      player.shufflePersonalDeck();
-      player.personalDiscardPile = [];
-      player.personalCentralBoard = [];
-    });
-    this.activePlayerIndex = 0;
-    this.initializeMarketplace();
-    this.startPlayerTurn();
-  }
-
-  initializeMarketplace() {
-    this.marketplaceDeck = [...this.gameConfig.marketplaceItems];
-    this.shuffleArray(this.marketplaceDeck);
-    this.marketplaceDisplay = this.drawFromMarketplaceDeck(
-      this.gameConfig.marketplaceDisplaySize
-    );
-    this.marketplacePurchasesThisTurn = 0;
   }
 
   drawFromMarketplaceDeck(count) {
@@ -359,7 +401,7 @@ class GameStore {
   }
 
   restartGame() {
-    this.initializeGame();
+    this.initializeGame(this.gameConfig);
   }
 
   startDrafting() {
@@ -368,6 +410,8 @@ class GameStore {
   }
 
   draftItem(itemIndex) {
+    console.log(this.maxDraftingRounds);
+
     if (
       this.gameLevel !== 2 ||
       this.centralBoard.length === 0 ||
@@ -536,4 +580,7 @@ class GameStore {
   }
 }
 
-export default new GameStore();
+if (!instance) {
+  instance = new GameStore();
+}
+export default instance;
