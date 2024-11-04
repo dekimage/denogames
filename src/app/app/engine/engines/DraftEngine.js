@@ -1,63 +1,109 @@
-import { useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import DieComponent from "@/app/components/Die";
 import CardComponent from "@/app/components/Card";
 import draftStore from "@/app/stores/draftStore";
 import PlayerSetup from "@/app/components/PlayerSetup";
+import Modal from "@/app/components/Modal";
+import { FaCog, FaInbox, FaTrash } from "react-icons/fa"; // Make sure to install react-icons
 
 const DraftEngine = observer(({ config }) => {
+  const [showSettings, setShowSettings] = useState(false);
+  const [showDeckModal, setShowDeckModal] = useState(false);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+
   useEffect(() => {
     draftStore.setConfig(config);
   }, [config]);
 
-  const handleDrawItems = () => {
-    draftStore.drawItems();
-  };
+  const activePlayer = draftStore.players[draftStore.activePlayerIndex] || null;
 
-  const handleNextTurn = () => {
-    draftStore.nextTurn();
-  };
-
-  const handleRestartGame = () => {
-    draftStore.restartGame();
-  };
-
-  const handleItemClick = (index) => {
-    if (draftStore.activePlayerIndex !== -1) {
-      draftStore.draftItem(index);
-    }
-  };
+  const renderPileModal = (title, items, onClose) => (
+    <Modal onClose={onClose}>
+      <div className="p-6">
+        <h2 className="text-xl font-semibold mb-4">{title}</h2>
+        <p className="mb-4">{items.length} items</p>
+        <div className="flex flex-wrap gap-2 max-h-96 overflow-y-auto">
+          {items.map((item) => (
+            <div key={item.id}>
+              {item.type === "die" ? (
+                <DieComponent item={item} />
+              ) : (
+                <CardComponent item={item} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Draft Engine</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Draft Engine</h1>
 
-      <div className="mb-4 flex items-center gap-2">
-        <PlayerSetup store={draftStore} />
+        <div className="flex items-center gap-4">
+          {/* Deck and Discard pile indicators */}
+          <button
+            onClick={() => setShowDeckModal(true)}
+            className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-100"
+            title="View Deck"
+          >
+            <FaInbox className="text-gray-600" />
+          </button>
 
-        <button
-          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleNextTurn}
-        >
-          Next Turn
-        </button>
-        <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleRestartGame}
-        >
-          Restart Game
-        </button>
-        <span className="ml-4 font-bold">Turn: {draftStore.currentTurn}</span>
+          <button
+            onClick={() => setShowDiscardModal(true)}
+            className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-100"
+            title="View Discard Pile"
+          >
+            <FaTrash className="text-gray-600" />
+          </button>
+
+          {/* Settings button */}
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-100"
+            title="Settings"
+          >
+            <FaCog className="text-gray-600" />
+          </button>
+        </div>
       </div>
 
-      <div className="border p-4 mb-4">
+      {/* Settings panel */}
+      {showSettings && (
+        <div className="mb-4 p-4 border rounded-lg bg-gray-50">
+          <div className="flex items-center gap-2 flex-wrap">
+            <PlayerSetup store={draftStore} />
+            <button
+              className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => draftStore.nextTurn()}
+            >
+              Next Turn
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => draftStore.restartGame()}
+            >
+              Restart Game
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Central Board */}
+      <div className="border p-4 mb-4 rounded-lg">
         <h2 className="text-xl font-semibold mb-2">Central Board</h2>
         <div className="flex flex-wrap gap-2">
           {draftStore.centralBoard.map((item, index) => (
             <div
               key={item.id}
               className="cursor-pointer"
-              onClick={() => handleItemClick(index)}
+              onClick={() => draftStore.draftItem(index)}
             >
               {item.type === "die" ? (
                 <DieComponent item={item} />
@@ -69,49 +115,39 @@ const DraftEngine = observer(({ config }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {draftStore.players.map((player, index) => (
-          <div
-            key={player.id}
-            className={`border p-4 ${
-              index === draftStore.activePlayerIndex ? "bg-yellow-100" : ""
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: player.color }}
-              />
-              <h3 className="font-semibold">
-                {player.name}
-                {index === draftStore.activePlayerIndex ? " (Active)" : ""}
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {player.hand.map((item) => (
-                <div key={item.id} className="m-1">
-                  {item.type === "die" ? (
-                    <DieComponent item={item} />
-                  ) : (
-                    <CardComponent item={item} />
-                  )}
-                </div>
-              ))}
-            </div>
+      {/* Active Player's Board */}
+      {activePlayer && (
+        <div className="border p-4 rounded-lg bg-yellow-50">
+          <div className="flex items-center gap-2 mb-4">
+            <div
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor: activePlayer.color }}
+            />
+            <h2 className="text-xl font-semibold">
+              {activePlayer.name}`s Turn
+            </h2>
           </div>
-        ))}
-      </div>
+          <div className="flex flex-wrap gap-2">
+            {activePlayer.hand.map((item) => (
+              <div key={item.id}>
+                {item.type === "die" ? (
+                  <DieComponent item={item} />
+                ) : (
+                  <CardComponent item={item} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <div className="flex justify-between">
-        <div className="border p-4 flex-1 mr-2">
-          <h2 className="text-xl font-semibold mb-2">Deck/Dice Pool</h2>
-          <p>{draftStore.deck.length} items remaining</p>
-        </div>
-        <div className="border p-4 flex-1 ml-2">
-          <h2 className="text-xl font-semibold mb-2">Discard Pile</h2>
-          <p>{draftStore.discardPile.length} items discarded</p>
-        </div>
-      </div>
+      {/* Modals */}
+      {showDeckModal &&
+        renderPileModal("Deck", draftStore.deck, () => setShowDeckModal(false))}
+      {showDiscardModal &&
+        renderPileModal("Discard Pile", draftStore.discardPile, () =>
+          setShowDiscardModal(false)
+        )}
     </div>
   );
 });
