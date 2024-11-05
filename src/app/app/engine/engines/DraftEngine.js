@@ -9,7 +9,7 @@ import PlayerSetup from "@/app/components/PlayerSetup";
 import Modal from "@/app/components/Modal";
 import { FaCog, FaInbox, FaTrash } from "react-icons/fa"; // Make sure to install react-icons
 
-const DraftEngine = observer(({ config }) => {
+const DraftEngine = observer(({ config, CardComponent }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showDeckModal, setShowDeckModal] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
@@ -39,6 +39,17 @@ const DraftEngine = observer(({ config }) => {
       </div>
     </Modal>
   );
+
+  const renderItem = (item) => {
+    if (item.type === "die") {
+      return <DieComponent item={item} />;
+    }
+    return CardComponent ? (
+      <CardComponent item={item} />
+    ) : (
+      <CardComponent item={item} />
+    );
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -105,11 +116,7 @@ const DraftEngine = observer(({ config }) => {
               className="cursor-pointer"
               onClick={() => draftStore.draftItem(index)}
             >
-              {item.type === "die" ? (
-                <DieComponent item={item} />
-              ) : (
-                <CardComponent item={item} />
-              )}
+              {renderItem(item)}
             </div>
           ))}
         </div>
@@ -128,14 +135,8 @@ const DraftEngine = observer(({ config }) => {
             </h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            {activePlayer.hand.map((item) => (
-              <div key={item.id}>
-                {item.type === "die" ? (
-                  <DieComponent item={item} />
-                ) : (
-                  <CardComponent item={item} />
-                )}
-              </div>
+            {activePlayer?.hand.map((item) => (
+              <div key={item.id}>{renderItem(item)}</div>
             ))}
           </div>
         </div>

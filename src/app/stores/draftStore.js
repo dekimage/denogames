@@ -14,6 +14,9 @@ class DraftStore {
   isRefill = true;
   customDrawCount = 3;
   playerCount = 2;
+  currentAge = 1;
+  ageDecks = null;
+  ageConfig = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -26,6 +29,13 @@ class DraftStore {
     this.isRefill = config.isRefill ?? true;
     this.customDrawCount = config.drawCount || 3;
     this.playerCount = config.playerCount || 2;
+
+    if (config.multipleDecks) {
+      this.ageDecks = config.ageDecks;
+      this.ageConfig = config.ageConfig;
+      this.currentAge = 1;
+    }
+
     this.initializeGame();
   }
 
@@ -62,12 +72,10 @@ class DraftStore {
   }
 
   createInitialDeck() {
-    if (!this.gameConfig?.initialItems) {
-      console.error("Invalid or missing items configuration");
-      return [];
+    if (this.gameConfig?.multipleDecks) {
+      return [...(this.ageDecks[this.currentAge] || [])];
     }
-
-    return [...this.gameConfig.initialItems];
+    return [...(this.gameConfig?.initialItems || [])];
   }
 
   drawItems() {
@@ -156,12 +164,35 @@ class DraftStore {
   }
 
   checkTurnEvents() {
+    if (this.gameConfig?.multipleDecks) {
+      const nextAge = this.ageConfig.find(
+        (age) => this.currentTurn === age.startTurn
+      );
+
+      if (nextAge) {
+        this.transitionToNewAge(nextAge.age);
+        return;
+      }
+    }
+
     const event = this.gameConfig.turnEvents?.find(
       (e) => e.turn === this.currentTurn
     );
     if (event) {
       this.addNewItems(event.newItems);
     }
+  }
+
+  transitionToNewAge(newAge) {
+    this.currentAge = newAge;
+
+    this.discardPile = [];
+    this.centralBoard = [];
+    this.players.forEach((player) => player.clearHand());
+
+    this.deck = this.createInitialDeck();
+    this.shuffleDeck();
+    this.drawItems();
   }
 
   addNewItems(newItems) {
