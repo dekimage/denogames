@@ -1,60 +1,57 @@
 "use client";
 import DraftEngine from "../engines/DraftEngine";
-import { Card } from "@/app/classes/Item";
-
-const colors = {
-  red: "#EF4444",
-  purple: "#8B5CF6",
-  blue: "#3B82F6",
-};
+import { age1Deck, age2Deck, age3Deck } from "./data";
+import { renderIcons } from "@/app/mvp/vampires/components/Icons";
 
 // Vampire-specific card component
-export const VampireCard = ({ item }) => (
-  <div
-    className="w-32 h-48 border-2 rounded-lg flex items-center justify-center shadow-md"
-    style={{
-      backgroundColor: item.color,
-      borderColor: "rgba(0,0,0,0.2)",
-    }}
-  >
-    <div className="text-white text-center">
-      <div className="text-2xl font-bold">Power</div>
-      <div className="text-4xl">{item.value}</div>
-    </div>
-  </div>
-);
+const VampireCard = ({ item }) => {
+  return (
+    <div className="w-32 h-48 border-2 rounded-lg flex flex-col justify-between shadow-md p-2">
+      {/* Layer 1 */}
+      <div className="flex-1 flex items-center justify-center border-b">
+        <div className="flex gap-2">{renderIcons(item.layer1)}</div>
+      </div>
 
-// Create age-specific decks
-const createVampireDeck = (startId, count, age) => {
-  return Array.from({ length: count }, (_, i) => {
-    const id = startId + i;
-    const value = age * 10 + (i + 1);
-    return new Card(id, value, colors.purple);
-  });
+      {/* Layer 2 */}
+      <div className="flex-1 flex items-center justify-center border-b">
+        <div className="flex gap-2">{renderIcons(item.layer2)}</div>
+      </div>
+
+      {/* Layer 3 */}
+      <div className="flex-1 flex items-center">
+        <div className="w-1/4 flex items-center justify-center">
+          {/* Left box */}
+          {item.layer3.includes("fragment") && (
+            <span className="w-6 h-6 bg-gray-700 text-white text-xs font-bold rounded flex items-center justify-center">
+              F
+            </span>
+          )}
+        </div>
+        <div className="flex-1 flex gap-2">{renderIcons(item.layer3)}</div>
+      </div>
+    </div>
+  );
 };
 
 const vampiresConfig = {
-  multipleDecks: true, // Enable multiple decks feature
-  maxDraftingRounds: 1, // Only one card per player
+  multipleDecks: true,
+  maxDraftingRounds: 1,
   isRefill: true,
   drawCount: 3,
   playerCount: 3,
 
-  // Define decks for each age
   ageDecks: {
-    1: createVampireDeck(1, 15, 1), // Age 1 deck
-    2: createVampireDeck(16, 12, 2), // Age 2 deck
-    3: createVampireDeck(28, 10, 3), // Age 3 deck
+    1: age1Deck,
+    2: age2Deck,
+    3: age3Deck,
   },
 
-  // Configure age transitions
   ageConfig: [
     { age: 1, startTurn: 1 },
     { age: 2, startTurn: 11 },
     { age: 3, startTurn: 19 },
   ],
 
-  // Game ends after turn 26
   maxTurns: 26,
 };
 

@@ -7,16 +7,27 @@ import CardComponent from "@/app/components/Card";
 import draftStore from "@/app/stores/draftStore";
 import PlayerSetup from "@/app/components/PlayerSetup";
 import Modal from "@/app/components/Modal";
-import { FaCog, FaInbox, FaTrash } from "react-icons/fa"; // Make sure to install react-icons
+import { FaCog, FaInbox, FaTrash, FaEye } from "react-icons/fa"; // Make sure to install react-icons
 
 const DraftEngine = observer(({ config, CardComponent }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showDeckModal, setShowDeckModal] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [showDraftResults, setShowDraftResults] = useState(false);
 
   useEffect(() => {
     draftStore.setConfig(config);
   }, [config]);
+
+  useEffect(() => {
+    const isLastPlayer = draftStore.activePlayerIndex === -1;
+    const isDraftComplete =
+      draftStore.draftingRound >= draftStore.maxDraftingRounds;
+
+    if (isLastPlayer && isDraftComplete) {
+      setShowDraftResults(true);
+    }
+  }, [draftStore.activePlayerIndex, draftStore.draftingRound]);
 
   const activePlayer = draftStore.players[draftStore.activePlayerIndex] || null;
 
@@ -51,10 +62,60 @@ const DraftEngine = observer(({ config, CardComponent }) => {
     );
   };
 
+  const DraftResults = () => (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="bg-white rounded-lg p-4 w-full max-w-6xl">
+        <h2 className="text-2xl font-bold mb-4">Draft Results</h2>
+        <div className="flex flex-wrap gap-4">
+          {draftStore.players.map((player) => (
+            <div
+              key={player.id}
+              className="flex-1 min-w-[200px] p-4 rounded-lg"
+              style={{ backgroundColor: player.color + "20" }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: player.color }}
+                />
+                <h3 className="font-semibold">{player.name}</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {player.hand.map((item) => (
+                  <div key={item.id}>{renderItem(item)}</div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => {
+              setShowDraftResults(false);
+              draftStore.continueDrafting();
+            }}
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Draft Engine</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold">Draft Engine</h1>
+          <div className="text-gray-600">
+            Turn: {draftStore.currentTurn} | Age: {draftStore.currentAge} |
+            Round: {draftStore.draftingRound + 1}/{draftStore.maxDraftingRounds}
+          </div>
+        </div>
 
         <div className="flex items-center gap-4">
           {/* Deck and Discard pile indicators */}
@@ -81,6 +142,14 @@ const DraftEngine = observer(({ config, CardComponent }) => {
             title="Settings"
           >
             <FaCog className="text-gray-600" />
+          </button>
+
+          <button
+            onClick={() => setShowDraftResults(true)}
+            className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-100"
+            title="View Draft Results"
+          >
+            <FaEye className="text-gray-600" />
           </button>
         </div>
       </div>
@@ -149,6 +218,7 @@ const DraftEngine = observer(({ config, CardComponent }) => {
         renderPileModal("Discard Pile", draftStore.discardPile, () =>
           setShowDiscardModal(false)
         )}
+      {showDraftResults && <DraftResults />}
     </div>
   );
 });

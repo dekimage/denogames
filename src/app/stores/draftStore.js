@@ -116,16 +116,19 @@ class DraftStore {
       this.refillCentralBoard();
     }
 
+    const isLastPlayer = this.activePlayerIndex === this.players.length - 1;
+    const isLastRound =
+      this.draftingRound + (isLastPlayer ? 1 : 0) >= this.maxDraftingRounds;
+
+    if (isLastPlayer && isLastRound) {
+      this.activePlayerIndex = -1;
+      this.draftingRound = this.maxDraftingRounds;
+      return;
+    }
+
     this.activePlayerIndex = (this.activePlayerIndex + 1) % this.players.length;
     if (this.activePlayerIndex === 0) {
       this.draftingRound++;
-    }
-
-    if (
-      this.draftingRound >= this.maxDraftingRounds ||
-      this.centralBoard.length === 0
-    ) {
-      this.endDrafting();
     }
   }
 
@@ -201,6 +204,8 @@ class DraftStore {
   }
 
   reshuffleDiscardPile() {
+    if (this.discardPile.length === 0) return;
+
     this.deck = this.shuffleArray([...this.discardPile]);
     this.discardPile = [];
   }
@@ -259,6 +264,17 @@ class DraftStore {
       clearHand: player.clearHand,
       addToHand: player.addToHand,
     }));
+  }
+
+  continueDrafting() {
+    this.players.forEach((player) => {
+      this.discardPile.push(...player.clearHand());
+    });
+
+    this.activePlayerIndex = 0;
+    this.draftingRound = 0;
+    this.currentTurn++;
+    this.checkTurnEvents();
   }
 }
 
