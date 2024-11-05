@@ -67,6 +67,7 @@ const routePrefixesWithoutHeaderFooter = [
   "/mvp/builders-town",
   "/mvp/farming",
   "/mvp/pdf",
+  "/mvp/vampires",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {
@@ -140,7 +141,8 @@ const ReusableLayout = observer(({ children }) => {
   const router = useRouter();
 
   const showHeaderFooter = shouldShowHeaderFooter(pathname);
-  const showMvpHeader = pathname.startsWith("/mvp");
+  const showMvpHeader =
+    pathname.startsWith("/mvp") && !pathname.startsWith("/mvp/vampires");
 
   const cartItemCount = cart.length;
 
