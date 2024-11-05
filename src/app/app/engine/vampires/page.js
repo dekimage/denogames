@@ -1,12 +1,89 @@
 "use client";
+import { toJS } from "mobx";
 import DraftEngine from "../engines/DraftEngine";
-import { age1Deck, age2Deck, age3Deck } from "./data";
+import {
+  age1Deck,
+  age1Layer1Deck,
+  age1Layer2Deck,
+  age1Layer3Deck,
+  age2Deck,
+  age2Layer1Deck,
+  age2Layer2Deck,
+  age2Layer3Deck,
+  age3Deck,
+  age3Layer1Deck,
+  age3Layer2Deck,
+  age3Layer3Deck,
+} from "./data";
 import { renderIcons } from "@/app/mvp/vampires/components/Icons";
 
-// Vampire-specific card component
+//TODO: MOVE THHIS TO UTILS
+const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+export const createAgeDeck = (
+  layer1Deck,
+  layer2Deck,
+  layer3Deck,
+  count,
+  age
+) => {
+  // Shuffle each layer deck to ensure random order
+  const shuffledLayer1 = shuffleArray([...layer1Deck]);
+  const shuffledLayer2 = shuffleArray([...layer2Deck]);
+  const shuffledLayer3 = shuffleArray([...layer3Deck]);
+
+  const ageDeck = [];
+
+  // Construct final deck with one unique card from each layer
+  for (let i = 0; i < count; i++) {
+    if (
+      i >= shuffledLayer1.length ||
+      i >= shuffledLayer2.length ||
+      i >= shuffledLayer3.length
+    ) {
+      break; // Avoids going out of bounds if count exceeds layer deck sizes
+    }
+
+    ageDeck.push({
+      ...shuffledLayer1[i],
+      ...shuffledLayer2[i],
+      ...shuffledLayer3[i],
+      age: age, // Add the age property here
+    });
+  }
+
+  return shuffleArray(ageDeck); // Final shuffle for additional randomness
+};
+
 const VampireCard = ({ item }) => {
+  const { age } = item;
+  const ageColors = {
+    1: "bg-blue-400", // Age 1 color
+    2: "bg-red-400", // Age 2 color
+    3: "bg-green-400", // Age 3 color
+  };
+
+  // Define text for each age (I, II, III)
+  const ageText = {
+    1: "I",
+    2: "II",
+    3: "III",
+  };
+
   return (
-    <div className="w-32 h-48 border-2 rounded-lg flex flex-col justify-between shadow-md p-2">
+    <div className="relative w-32 h-48 border-2 rounded-lg flex flex-col justify-between shadow-md p-2">
+      {/* Age Indicator Badge */}
+      <div
+        className={`absolute top-1 left-1 px-2 py-1 text-xs font-bold text-white rounded ${ageColors[age]}`}
+      >
+        {ageText[age]}
+      </div>
+
       {/* Layer 1 */}
       <div className="flex-1 flex items-center justify-center border-b">
         <div className="flex gap-2">{renderIcons(item.layer1)}</div>
@@ -39,17 +116,32 @@ const vampiresConfig = {
   isRefill: true,
   drawCount: 3,
   playerCount: 3,
+  multiLayer: true,
 
-  ageDecks: {
-    1: age1Deck,
-    2: age2Deck,
-    3: age3Deck,
+  createDeckFunction: createAgeDeck,
+
+  // Define separate layer decks for each age
+  age1LayerDecks: {
+    layer1: age1Layer1Deck,
+    layer2: age1Layer2Deck,
+    layer3: age1Layer3Deck,
+  },
+  age2LayerDecks: {
+    layer1: age2Layer1Deck,
+    layer2: age2Layer2Deck,
+    layer3: age2Layer3Deck,
+  },
+  age3LayerDecks: {
+    layer1: age3Layer1Deck,
+    layer2: age3Layer2Deck,
+    layer3: age3Layer3Deck,
   },
 
+  // Configure age transitions
   ageConfig: [
-    { age: 1, startTurn: 1 },
-    { age: 2, startTurn: 11 },
-    { age: 3, startTurn: 19 },
+    { age: 1, startTurn: 1, deckCount: 30 }, // Age 1 has 30 cards total
+    { age: 2, startTurn: 11, deckCount: 25 }, // Age 2 has 25 cards total
+    { age: 3, startTurn: 19, deckCount: 20 }, // Age 3 has 20 cards total
   ],
 
   maxTurns: 26,

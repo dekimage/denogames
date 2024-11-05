@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { Card, Die } from "../classes/Item";
+import { createAgeDeck } from "../app/engine/vampires/page";
 
 class DraftStore {
   gameConfig = null;
@@ -72,10 +72,29 @@ class DraftStore {
   }
 
   createInitialDeck() {
-    if (this.gameConfig?.multipleDecks) {
-      return [...(this.ageDecks[this.currentAge] || [])];
+    if (this.gameConfig.multiLayer) {
+      const currentAgeConfig = this.gameConfig.ageConfig.find(
+        (age) => age.age === this.currentAge
+      );
+      if (currentAgeConfig) {
+        const ageLayerDecks =
+          this.gameConfig[`age${this.currentAge}LayerDecks`];
+        if (ageLayerDecks) {
+          // Pass the current age as the last parameter
+          return this.gameConfig.createDeckFunction(
+            ageLayerDecks.layer1,
+            ageLayerDecks.layer2,
+            ageLayerDecks.layer3,
+            currentAgeConfig.deckCount,
+            this.currentAge // Add the age here
+          );
+        }
+      }
+      return [];
+    } else if (this.gameConfig?.multipleDecks && this.gameConfig.ageDecks) {
+      return [...(this.gameConfig.ageDecks[this.currentAge] || [])];
     }
-    return [...(this.gameConfig?.initialItems || [])];
+    return [...(this.gameConfig.initialItems || [])];
   }
 
   drawItems() {
