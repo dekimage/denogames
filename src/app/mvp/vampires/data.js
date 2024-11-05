@@ -1,25 +1,50 @@
 // data.js
+const houses = ["house_1", "house_2", "house_3", "house_4"];
+const artifacts = [
+  "artifact_1",
+  "artifact_2",
+  "artifact_3",
+  "artifact_4",
+  "artifact_5",
+  "artifact_6",
+  "artifact_7",
+];
+const bonuses = [
+  "draw_card_age_1",
+  "discover_card_age_1",
+  "draw_card_age_2",
+  "discover_card_age_2",
+  "draw_card_age_3",
+  "discover_card_age_3",
+  "random_fragment",
+  "discover_fragment",
+  "random_dice",
+  "discover_dice",
+  "random_resource",
+  "reroll",
+  "reroll_3",
+];
 
-// Completion bonus arrays for each row
-const completionBonusesRow1 = ["symbol1", "symbol2", "symbol3", "symbol4"];
-const completionBonusesRow2 = ["symbol5", "symbol6", "symbol7", "symbol8"];
-const completionBonusesRow3 = ["symbol9", "symbol10", "symbol11", "symbol12"];
-const completionBonusesRow4 = ["symbol13", "symbol14", "symbol15", "symbol16"];
+const completionBonusesRow1 = ["house_1", "reroll_3"];
+const completionBonusesRow2 = ["house_2", "discover_fragment"];
+const completionBonusesRow3 = ["house_3", "draw_card_age_1"];
+const completionBonusesRow4 = ["house_4", "random_resource", "random_resource"];
 
 // Military condition array
 const militaryConditions = [
-  { condition: "if you have 2 military tiles", advancedBonus: "power +2" },
-  { condition: "if you have 3 prestige tiles", advancedBonus: "power +3" },
+  { condition: "engines_2", advancedBonus: "+2" },
+  { condition: "farms_2", advancedBonus: "+2" },
+  { condition: "military_3", advancedBonus: "+2" },
+  { condition: "emblem_2", advancedBonus: "+2" },
 ];
 
-// Row-specific tile decks
 const row1Deck = [
   {
     cost: [3, 3, 4, 5],
     tileType: "farming",
     completionBonus: null,
     content: {
-      resources: ["wheat", "water"],
+      resources: "[1, 2, 3]",
     },
   },
   {
@@ -113,7 +138,7 @@ const row3Deck = [
     tileType: "farming",
     completionBonus: null,
     content: {
-      resources: ["fish", "fruit"],
+      resources: "[1, 4, 6]",
     },
   },
   {
@@ -151,7 +176,7 @@ const row4Deck = [
     tileType: "farming",
     completionBonus: null,
     content: {
-      resources: ["wood", "meat"],
+      resources: "[1, silver]",
     },
   },
   {
@@ -168,52 +193,74 @@ const row4Deck = [
 
 const blocksDeck = [
   {
-    name: "Block A",
+    name: "Emblem of Charisma",
+    image: "/images/emblem_charisma.png",
     resources: "[1, 1, 3, garlic, garlic]",
   },
   {
-    name: "Block B",
+    name: "Emblem of Charm",
+    image: "/images/emblem_charm.png",
     resources: "[2, 3, 5, silver, cross]",
   },
   {
-    name: "Block C",
+    name: "Emblem of Satisfaction",
+    image: "/images/emblem_satisfaction.png",
     resources: "[4, 2, 2, silver, silver, cross]",
   },
   {
-    name: "Block D",
+    name: "Emblem of Power",
+    image: "/images/emblem_power.png",
     resources: "[3, 6, 1, garlic, cross, silver]",
   },
   {
-    name: "Block E",
+    name: "Fighting Prowess",
+    image: "/images/block_fighting_prowess.png",
     resources: "[5, 3, 3, cross, garlic]",
   },
   {
-    name: "Block F",
+    name: "The Silver Cross",
+    image: "/images/block_silver_cross.png",
     resources: "[6, 6, 4, garlic, silver, cross]",
   },
   {
-    name: "Block G",
+    name: "Selective Hunter",
+    image: "/images/block_selective_hunter.png",
     resources: "[1, 5, 2, garlic, cross, silver]",
   },
   {
-    name: "Block H",
+    name: "Blood Alchemist",
+    image: "/images/block_blood_alchemist.png",
     resources: "[2, 4, 6, garlic, silver]",
   },
   {
-    name: "Block I",
+    name: "Resource Hoarder",
+    image: "/images/block_resource_hoarder.png",
     resources: "[5, 5, 3, silver, garlic, garlic]",
   },
   {
-    name: "Block J",
+    name: "Attuned to All",
+    image: "/images/block_attuned_to_all.png",
     resources: "[3, 1, 4, cross, garlic, silver]",
   },
   {
-    name: "Block K",
+    name: "Family Ties",
+    image: "/images/block_family_ties.png",
     resources: "[6, 2, 2, cross, silver, garlic]",
   },
   {
-    name: "Block L",
+    name: "Artificer",
+    image: "/images/block_artificer.png",
     resources: "[4, 4, 1, garlic, cross, cross]",
+  },
+  {
+    name: "Engineer",
+    image: "/images/block_engineer.png",
+    resources: "[1, 3, 6, garlic, silver, cross]",
+  },
+  {
+    name: "Rewinder",
+    image: "/images/block_rewinder.png",
+    resources: "[2, 4, cross]",
   },
 ];
 
@@ -234,44 +281,32 @@ export const vampireDeck = [
   {
     image: "/images/vampire1.png", // Example path, replace with actual image paths
     name: "Count Bloodlust",
-    startingBonuses: "[1, 2, silver, draw, cross]",
-    passive: "[3, ->, 1, /, 2, ->, 5]",
-    uses: 4,
+    startingBonuses: "[1, 2, silver, reroll, reroll_3]",
   },
   {
     image: "/images/vampire2.png",
     name: "Lady Nocturna",
-    startingBonuses: "[3, 5, garlic, fragment, silver]",
-    passive: "[1, ->, 4, ->, 6]",
-    uses: 3,
+    startingBonuses: "[3, 5, garlic, random_fragment, random_fragment]",
   },
   {
     image: "/images/vampire3.png",
     name: "The Shadow",
-    startingBonuses: "[2, 6, cross, reroll, draw]",
-    passive: "[4, /, 2, ->, 1]",
-    uses: 5,
+    startingBonuses: "[2, 4, 6, cross, reroll, random_fragment]",
   },
   {
     image: "/images/vampire4.png",
     name: "Dark Mistress",
-    startingBonuses: "[5, fragment, silver, 3, garlic]",
-    passive: "[5, ->, 2, ->, 4]",
-    uses: 2,
+    startingBonuses: "[1, 3, 5, garlic, reroll_3, random_fragment]",
   },
   {
     image: "/images/vampire5.png",
     name: "Baron Von Bite",
-    startingBonuses: "[6, garlic, draw, 1, reroll]",
-    passive: "[2, /, 6, ->, 3]",
-    uses: 6,
+    startingBonuses: "[1, garlic, silver, power_1]",
   },
   {
     image: "/images/vampire6.png",
     name: "Elder Fang",
-    startingBonuses: "[4, cross, fragment, silver, 2]",
-    passive: "[3, ->, 5, ->, 1, /, 4]",
-    uses: 3,
+    startingBonuses: "[4, cross, silver, artifact_4]",
   },
 ];
 
@@ -282,7 +317,7 @@ export const tombsDeck = [
     cost: "[1, 3, 5, garlic, cross, silver]", // Cost array with dice and resources
     vp: 3,
     powerVp: 5,
-    condition: "Complete 3 farms",
+    condition: "[farm_completed, ->, 2, max_3]", // for each farm completed + 2vp max 3
   },
   {
     name: "Forgotten Mausoleum",
@@ -290,7 +325,7 @@ export const tombsDeck = [
     cost: "[2, 4, 6, silver, cross, garlic]",
     vp: 4,
     powerVp: 6,
-    condition: "Have 2 blocks",
+    condition: "[blocks_completed, ->, 1]", // for each block completed + 1vp
   },
   {
     name: "Cursed Catacomb",
@@ -298,7 +333,7 @@ export const tombsDeck = [
     cost: "[3, 5, 2, garlic, silver, cross]",
     vp: 5,
     powerVp: 7,
-    condition: "Complete 2 artifacts",
+    condition: "[unque_artifact, ->, 1, max_6]", // at 7 unique artifacts + 3vp, at 10 + 7vp
   },
   {
     name: "Sacred Burial",
@@ -306,7 +341,7 @@ export const tombsDeck = [
     cost: "[1, 3, 6, silver, garlic]",
     vp: 2,
     powerVp: 4,
-    condition: "Own 1 vampire",
+    condition: "[power_6, ->, 3, power_10, ->, 5]", // at 6 power + 3vp, at 10 power + 5vp
   },
   {
     name: "Hallowed Chamber",
@@ -314,7 +349,7 @@ export const tombsDeck = [
     cost: "[2, 2, 5, garlic, cross, silver]",
     vp: 3,
     powerVp: 6,
-    condition: "Complete 4 tombs",
+    condition: "Complete 4 tombs", // fill all 4 tombs (resources not fragments) + 8vp
   },
   {
     name: "Lost Vault",
@@ -322,7 +357,7 @@ export const tombsDeck = [
     cost: "[4, 4, 6, garlic, silver]",
     vp: 4,
     powerVp: 8,
-    condition: "Have 2 silver resources",
+    condition: "[row, ->, 2]",
   },
   {
     name: "Dark Passage",
@@ -330,7 +365,7 @@ export const tombsDeck = [
     cost: "[5, 6, 3, silver, garlic]",
     vp: 3,
     powerVp: 5,
-    condition: "Have 3 garlic resources",
+    condition: "[column, ->, 2]",
   },
   {
     name: "Shadowed Lair",
@@ -338,7 +373,7 @@ export const tombsDeck = [
     cost: "[1, 1, 4, garlic, cross, silver]",
     vp: 2,
     powerVp: 6,
-    condition: "Complete 2 blocks",
+    condition: "[unused_fragment, ->, 1, max_6]",
   },
   {
     name: "Sanctified Grave",
@@ -346,7 +381,7 @@ export const tombsDeck = [
     cost: "[2, 6, 4, cross, silver, garlic]",
     vp: 4,
     powerVp: 7,
-    condition: "Own 1 farm",
+    condition: "[engine_completed, ->, 2, max_3]",
   },
   {
     name: "Haunted Resting Place",
@@ -354,6 +389,7 @@ export const tombsDeck = [
     cost: "[5, 5, 2, cross, silver]",
     vp: 3,
     powerVp: 5,
-    condition: "Complete 1 ritual",
+    condition: "[prestige_completed, ->, 2, max_3]",
   },
+  // in future add here expansions where conditions are like monsters slain, gifts recieved, donations gained, events captured etc... from event cards in deck that memorize in history at end of game you view statas and calculate
 ];

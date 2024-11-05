@@ -1,6 +1,7 @@
 // TileContent.js
 
 import React from "react";
+import { renderIcons } from "./Icons";
 
 // Individual content components for each tile type
 const MilitaryContent = ({ content }) => (
@@ -30,9 +31,8 @@ const EngineContent = ({ content }) => (
 
 const FarmingContent = ({ content }) => (
   <div className="farming-content">
-    <p className="font-semibold text-yellow-600">
-      Resources: {content.resources.join(", ")}
-    </p>
+    <p className="font-semibold text-yellow-600">Resources:</p>
+    <div className="flex gap-2">{renderIcons(content.resources)}</div>
   </div>
 );
 

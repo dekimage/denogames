@@ -25,17 +25,17 @@ const VampireCard = ({ image, name, startingBonuses, passive, uses }) => {
       </div>
 
       {/* Passive Section */}
-      <div className="flex justify-center mt-2">{renderIcons(passive)}</div>
+      {/* <div className="flex justify-center mt-2">{renderIcons(passive)}</div> */}
 
       {/* Uses Section (Dashed Squares) */}
-      <div className="flex justify-center mt-2 space-x-1">
+      {/* <div className="flex justify-center mt-2 space-x-1">
         {Array.from({ length: uses }).map((_, index) => (
           <div
             key={index}
             className="w-4 h-4 border-2 border-dashed border-gray-400"
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
