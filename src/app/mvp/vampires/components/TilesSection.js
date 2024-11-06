@@ -15,6 +15,7 @@ import {
   completionBonusesRow4,
 } from "../data";
 import { Heart } from "lucide-react";
+import { renderIcons } from "./Icons";
 
 // Helper function to randomly select n items from an array
 const getRandomTiles = (deck, bonuses, numTiles = 4) => {
@@ -28,14 +29,14 @@ const getRandomTiles = (deck, bonuses, numTiles = 4) => {
 };
 
 // BonusTile Component
-const BonusTile = ({ isVertical }) => {
+const BonusTile = ({ symbols, isVertical }) => {
   return (
     <div
       className={`${
         isVertical ? "w-10 h-full flex-col" : "h-10 w-full flex-row"
       } bg-white border border-gray-300 flex items-center justify-center`}
     >
-      4 x <Heart />
+      {renderIcons(symbols, 35)}
     </div>
   );
 };
@@ -74,25 +75,32 @@ const TilesSection = () => {
         ))
       )}
 
-      {/* Vertical Bonus Tiles in the 5th Column */}
+      {Array.from({ length: 4 }).map((_, index) => {
+        const horizontalSymbols = [
+          "[house_1, refresh]",
+          "[house_2, refresh_all]",
+          "[house_3, discover_fragment]",
+          "[house_4, draw_card]",
+        ];
+
+        return (
+          <div
+            key={`horizontal-${index}`}
+            className="flex items-center justify-center"
+            style={{ gridRow: 5, gridColumn: index + 1 }}
+          >
+            <BonusTile symbols={horizontalSymbols[index]} isVertical={false} />
+          </div>
+        );
+      })}
+
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={`vertical-${index}`}
           className="flex items-center justify-center"
           style={{ gridRow: index + 1, gridColumn: 5 }}
         >
-          <BonusTile isVertical />
-        </div>
-      ))}
-
-      {/* Horizontal Bonus Tiles in the 5th Row */}
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div
-          key={`horizontal-${index}`}
-          className="flex items-center justify-center"
-          style={{ gridRow: 5, gridColumn: index + 1 }}
-        >
-          <BonusTile isVertical={false} />
+          <BonusTile symbols="[vp_3]" isVertical />
         </div>
       ))}
     </div>

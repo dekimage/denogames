@@ -4,16 +4,31 @@ import { renderIcons } from "./Icons";
 import { tombsDeck } from "../data";
 import { drawRandomItems } from "../utils";
 
-const TombCard = ({ name, image, nextScoring, cost, vp, powerVp }) => {
+import tomb1Image from "../../../../../public/vampires/tombs/tomb-emerald.png";
+import tomb2Image from "../../../../../public/vampires/tombs/t2.png";
+import tomb3Image from "../../../../../public/vampires/tombs/t3.png";
+import tomb4Image from "../../../../../public/vampires/tombs/t4.png";
+
+const tombImages = [tomb1Image, tomb2Image, tomb3Image, tomb4Image];
+
+import Image from "next/image";
+
+const TombCard = ({ name, index, nextScoring, cost, vp, powerVp }) => {
   return (
     <div className="w-[150px] h-[250px] border border-gray-300 rounded-md bg-white flex flex-col items-center shadow-lg">
       {/* Image Section */}
       <div className="w-[150px] h-[150px] bg-gray-100 flex items-center justify-center">
-        <img src={image} alt={name} className="w-full h-full object-cover" />
+        <Image
+          src={tombImages[index]}
+          alt={name}
+          width={250}
+          height={250}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Name Section */}
-      <h2 className="text-center font-bold text-sm mt-2">{name}</h2>
+      <h2 className="text-center uppercase font-strike text-xs mt-1">{name}</h2>
 
       {/* Next Scoring Section */}
       <div className="flex justify-center mt-2">{renderIcons(nextScoring)}</div>
@@ -46,8 +61,8 @@ const TombsSection = () => {
       {tombs.map((tomb, index) => (
         <TombCard
           key={index}
+          index={index}
           name={tomb.name}
-          image={`/images/tomb${index + 1}.png`} // Map images based on position
           nextScoring={tomb.nextScoring}
           cost={tomb.cost}
           vp={tomb.vp}

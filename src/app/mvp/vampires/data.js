@@ -10,6 +10,8 @@ const artifacts = [
   "artifact_7",
 ];
 const bonuses = [
+  "draw_card",
+  // unofficial
   "draw_card_age_1",
   "discover_card_age_1",
   "draw_card_age_2",
@@ -21,13 +23,13 @@ const bonuses = [
   "random_dice",
   "discover_dice",
   "random_resource",
-  "reroll",
-  "reroll_3",
+  "refresh",
+  "refresh_all",
 ];
 
-const completionBonusesRow1 = ["house_1", "reroll_3"];
+const completionBonusesRow1 = ["house_1", "refresh_all"];
 const completionBonusesRow2 = ["house_2", "discover_fragment"];
-const completionBonusesRow3 = ["house_3", "draw_card_age_1"];
+const completionBonusesRow3 = ["house_3", "draw_card"];
 const completionBonusesRow4 = ["house_4", "random_resource", "random_resource"];
 
 // Military condition array
@@ -40,7 +42,7 @@ const militaryConditions = [
 
 const row1Deck = [
   {
-    cost: [3, 3, 4, 5],
+    cost: "[3, 3, 4, 5]",
     tileType: "farming",
     completionBonus: null,
     content: {
@@ -48,7 +50,7 @@ const row1Deck = [
     },
   },
   {
-    cost: [1, 2, 6, 6],
+    cost: "[1, 2, 6, 6]",
     tileType: "engine",
     completionBonus: null,
     content: {
@@ -57,7 +59,7 @@ const row1Deck = [
     },
   },
   {
-    cost: [4, 4, 3, 1],
+    cost: "[4, 4, 3, 1]",
     tileType: "prestige",
     completionBonus: null,
     content: {
@@ -65,7 +67,7 @@ const row1Deck = [
     },
   },
   {
-    cost: [2, 5, 3, 4],
+    cost: "[2, 5, 3, 4]",
     tileType: "military",
     completionBonus: null,
     content: {
@@ -78,7 +80,7 @@ const row1Deck = [
 
 const row2Deck = [
   {
-    cost: [4, 5, 2, 3],
+    cost: "[4, 5, 2, 3]",
     tileType: "artifact",
     completionBonus: null,
     content: {
@@ -86,7 +88,7 @@ const row2Deck = [
     },
   },
   {
-    cost: [2, 2, 5, 6],
+    cost: "[2, 2, 5, 6]",
     tileType: "military",
     completionBonus: null,
     content: {
@@ -96,7 +98,7 @@ const row2Deck = [
     },
   },
   {
-    cost: [3, 3, 4, 6],
+    cost: "[3, 3, 4, 6]",
     tileType: "engine",
     completionBonus: null,
     content: {
@@ -105,7 +107,7 @@ const row2Deck = [
     },
   },
   {
-    cost: [1, 4, 4, 5],
+    cost: "[1, 4, 4, 5]",
     tileType: "prestige",
     completionBonus: null,
     content: {
@@ -116,7 +118,7 @@ const row2Deck = [
 
 const row3Deck = [
   {
-    cost: [4, 5, 2, 3],
+    cost: "[4, 5, 2, 3]",
     tileType: "artifact",
     completionBonus: null,
     content: {
@@ -124,7 +126,7 @@ const row3Deck = [
     },
   },
   {
-    cost: [2, 2, 5, 6],
+    cost: "[2, 2, 5, 6]",
     tileType: "military",
     completionBonus: null,
     content: {
@@ -134,7 +136,7 @@ const row3Deck = [
     },
   },
   {
-    cost: [3, 1, 5, 5],
+    cost: "[3, 1, 5, 5]",
     tileType: "farming",
     completionBonus: null,
     content: {
@@ -142,7 +144,7 @@ const row3Deck = [
     },
   },
   {
-    cost: [2, 3, 6, 6],
+    cost: "[2, 3, 6, 6]",
     tileType: "engine",
     completionBonus: null,
     content: {
@@ -154,7 +156,7 @@ const row3Deck = [
 
 const row4Deck = [
   {
-    cost: [4, 5, 2, 3],
+    cost: "[4, 5, 2, 3]",
     tileType: "artifact",
     completionBonus: null,
     content: {
@@ -162,7 +164,7 @@ const row4Deck = [
     },
   },
   {
-    cost: [2, 2, 5, 6],
+    cost: "[2, 2, 5, 6]",
     tileType: "military",
     completionBonus: null,
     content: {
@@ -172,7 +174,7 @@ const row4Deck = [
     },
   },
   {
-    cost: [3, 2, 4, 4],
+    cost: "[3, 2, 4, 4]",
     tileType: "farming",
     completionBonus: null,
     content: {
@@ -180,7 +182,7 @@ const row4Deck = [
     },
   },
   {
-    cost: [1, 4, 5, 6],
+    cost: "[1, 4, 5, 6]",
     tileType: "prestige",
     completionBonus: null,
     content: {
@@ -189,77 +191,75 @@ const row4Deck = [
   },
 ];
 
-// blocksData.js
-
 const blocksDeck = [
   {
     name: "Emblem of Charisma",
-    image: "/images/emblem_charisma.png",
+    symbol: "emblem_1",
     resources: "[1, 1, 3, garlic, garlic]",
   },
   {
     name: "Emblem of Charm",
-    image: "/images/emblem_charm.png",
+    symbol: "emblem_2",
     resources: "[2, 3, 5, silver, cross]",
   },
   {
     name: "Emblem of Satisfaction",
-    image: "/images/emblem_satisfaction.png",
+    symbol: "emblem_3",
     resources: "[4, 2, 2, silver, silver, cross]",
   },
   {
     name: "Emblem of Power",
-    image: "/images/emblem_power.png",
+    symbol: "emblem_4",
     resources: "[3, 6, 1, garlic, cross, silver]",
   },
   {
     name: "Fighting Prowess",
-    image: "/images/block_fighting_prowess.png",
+    symbol: "block_fighting_prowess",
     resources: "[5, 3, 3, cross, garlic]",
   },
   {
     name: "The Silver Cross",
-    image: "/images/block_silver_cross.png",
+    symbol: "block_silver_cross",
     resources: "[6, 6, 4, garlic, silver, cross]",
   },
   {
     name: "Selective Hunter",
-    image: "/images/block_selective_hunter.png",
+    symbol: "block_selective_hunter",
     resources: "[1, 5, 2, garlic, cross, silver]",
   },
   {
     name: "Blood Alchemist",
-    image: "/images/block_blood_alchemist.png",
+    symbol: "block_blood_alchemist",
     resources: "[2, 4, 6, garlic, silver]",
   },
   {
     name: "Resource Hoarder",
-    image: "/images/block_resource_hoarder.png",
+    symbol: "block_resource_hoarder",
     resources: "[5, 5, 3, silver, garlic, garlic]",
   },
   {
     name: "Attuned to All",
-    image: "/images/block_attuned_to_all.png",
+    symbol: "block_attuned_to_all",
     resources: "[3, 1, 4, cross, garlic, silver]",
   },
   {
     name: "Family Ties",
-    image: "/images/block_family_ties.png",
+    symbol: "block_family_ties",
     resources: "[6, 2, 2, cross, silver, garlic]",
   },
   {
     name: "Artificer",
-    image: "/images/block_artificer.png",
+    symbol: "block_artificer",
     resources: "[4, 4, 1, garlic, cross, cross]",
   },
   {
     name: "Engineer",
-    image: "/images/block_engineer.png",
+    symbol: "block_engineer",
     resources: "[1, 3, 6, garlic, silver, cross]",
   },
   {
     name: "Rewinder",
-    image: "/images/block_rewinder.png",
+    symbol: "block_rewinder",
     resources: "[2, 4, cross]",
   },
 ];
@@ -281,7 +281,7 @@ export const vampireDeck = [
   {
     image: "/images/vampire1.png", // Example path, replace with actual image paths
     name: "Count Bloodlust",
-    startingBonuses: "[1, 2, silver, reroll, reroll_3]",
+    startingBonuses: "[1, 2, silver, refresh, refresh_all]",
   },
   {
     image: "/images/vampire2.png",
@@ -291,12 +291,12 @@ export const vampireDeck = [
   {
     image: "/images/vampire3.png",
     name: "The Shadow",
-    startingBonuses: "[2, 4, 6, cross, reroll, random_fragment]",
+    startingBonuses: "[2, 4, 6, cross, refresh, random_fragment]",
   },
   {
     image: "/images/vampire4.png",
     name: "Dark Mistress",
-    startingBonuses: "[1, 3, 5, garlic, reroll_3, random_fragment]",
+    startingBonuses: "[1, 3, 5, garlic, refresh_all, random_fragment]",
   },
   {
     image: "/images/vampire5.png",

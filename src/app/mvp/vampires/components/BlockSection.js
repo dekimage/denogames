@@ -9,24 +9,22 @@ import { drawRandomItems } from "../utils";
 import { getIcon, renderIcons } from "./Icons";
 
 // Block Component
-const Block = ({ name, resources }) => {
+const Block = ({ name, symbol, resources }) => {
   return (
-    <div className="relative flex items-center p-2 border border-gray-200 rounded-md h-[80px]">
-      {/* Block name (absolutely positioned above) */}
+    <div className="relative flex items-center p-2 border border-gray-200 rounded-md h-[80px] ">
+      {/* BLURRED GLASS -> backdrop-blur-sm bg-white/30 border-white/40 */}
+
       <div className="absolute -top-3 left-2 text-xs text-gray-500 font-semibold">
         {name}
       </div>
 
-      {/* Icon on the left side, based on block name */}
       <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mr-4">
-        {/* <img src={iconMap[name]} alt={name} className="w-12 h-12" /> */}
+        {getIcon(symbol, 70)}
       </div>
 
-      {/* Resources/Dice on the right */}
       <div className="flex items-center space-x-2">
         {renderIcons(resources)}
 
-        {/* Completion checkbox at the end */}
         <div className="w-6 h-6 border-2 border-dashed border-gray-400 rounded" />
       </div>
     </div>
@@ -47,7 +45,12 @@ const BlocksLayout = () => {
   return (
     <div className="grid grid-cols-3 gap-2 my-6">
       {selectedBlocks.map((block, index) => (
-        <Block key={index} name={block.name} resources={block.resources} />
+        <Block
+          key={index}
+          symbol={block.symbol}
+          name={block.name}
+          resources={block.resources}
+        />
       ))}
     </div>
   );
