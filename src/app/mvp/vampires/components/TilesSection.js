@@ -58,7 +58,7 @@ const TilesSection = () => {
 
   return (
     <div
-      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] grid-rows-[1fr_1fr_1fr_1fr_auto] gap-2"
+      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] grid-rows-[1fr_1fr_1fr_1fr_auto]"
       style={{ width: "fit-content", height: "fit-content" }}
     >
       {/* Main 4x4 Tile Grid */}

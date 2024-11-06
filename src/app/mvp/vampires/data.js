@@ -63,7 +63,7 @@ const row1Deck = [
     tileType: "prestige",
     completionBonus: null,
     content: {
-      vpCondition: "2 VP per farming tile",
+      vpCondition: "vp_3",
     },
   },
   {
@@ -84,7 +84,7 @@ const row2Deck = [
     tileType: "artifact",
     completionBonus: null,
     content: {
-      artifacts: ["symbolA", "symbolB"],
+      artifacts: "[artifact_1, artifact_2]",
     },
   },
   {
@@ -111,7 +111,7 @@ const row2Deck = [
     tileType: "prestige",
     completionBonus: null,
     content: {
-      vpCondition: "3 VP per military tile",
+      vpCondition: "vp_3",
     },
   },
 ];
@@ -122,7 +122,7 @@ const row3Deck = [
     tileType: "artifact",
     completionBonus: null,
     content: {
-      artifacts: ["symbolC", "symbolD"],
+      artifacts: "[artifact_3, artifact_4]",
     },
   },
   {
@@ -160,7 +160,7 @@ const row4Deck = [
     tileType: "artifact",
     completionBonus: null,
     content: {
-      artifacts: ["symbolE", "symbolF"],
+      artifacts: "[artifact_5, artifact_6]",
     },
   },
   {
@@ -186,7 +186,7 @@ const row4Deck = [
     tileType: "prestige",
     completionBonus: null,
     content: {
-      vpCondition: "5 VP if all farming tiles are completed",
+      vpCondition: "vp_4",
     },
   },
 ];

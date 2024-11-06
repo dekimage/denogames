@@ -1,24 +1,20 @@
-// TileContent.js
-
 import React from "react";
-import { renderIcons } from "./Icons";
+import { getIcon, renderIcons } from "./Icons";
 
-// Individual content components for each tile type
 const MilitaryContent = ({ content }) => (
-  <div className="military-content">
-    <p className="font-semibold text-red-500">Power: {content.power}</p>
-    <p className="text-gray-700">Advanced Power: {content.advancedPower}</p>
+  <div className="flex justify-center items-center">
+    {getIcon(`power_${content.power}`, 30)}
+
+    {/* <p className="text-gray-700">Advanced Power: {content.advancedPower}</p>
     <p className="italic text-sm text-gray-500">
       Condition: {content.condition.condition}
-    </p>
+    </p> */}
   </div>
 );
 
 const ArtifactsContent = ({ content }) => (
-  <div className="artifact-content">
-    <p className="font-semibold text-blue-500">
-      Artifacts: {content.artifacts.join(", ")}
-    </p>
+  <div className="flex justify-center items-center">
+    {renderIcons(content.artifacts, 40)}
   </div>
 );
 
@@ -30,16 +26,14 @@ const EngineContent = ({ content }) => (
 );
 
 const FarmingContent = ({ content }) => (
-  <div className="farming-content">
-    <p className="font-semibold text-yellow-600">Resources:</p>
+  <div className="flex justify-center items-center">
     <div className="flex gap-2">{renderIcons(content.resources)}</div>
   </div>
 );
 
 const PrestigeContent = ({ content }) => (
-  <div className="prestige-content">
-    <p className="font-semibold text-purple-500">End Game VP Condition:</p>
-    <p className="text-gray-700">{content.vpCondition}</p>
+  <div className="flex justify-center items-center">
+    {getIcon(content.vpCondition, 30)}
   </div>
 );
 

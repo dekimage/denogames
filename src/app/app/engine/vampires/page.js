@@ -15,7 +15,7 @@ import {
   age3Layer2Deck,
   age3Layer3Deck,
 } from "./data";
-import { renderIcons } from "@/app/mvp/vampires/components/Icons";
+import { getIcon, renderIcons } from "@/app/mvp/vampires/components/Icons";
 
 //TODO: MOVE THHIS TO UTILS
 const shuffleArray = (array) => {
@@ -76,10 +76,10 @@ const VampireCard = ({ item }) => {
   };
 
   return (
-    <div className="relative w-32 h-48 border-2 rounded-lg flex flex-col justify-between shadow-md p-2">
+    <div className="relative w-32 h-48 border-2 rounded-[12px] flex flex-col justify-between p-2">
       {/* Age Indicator Badge */}
       <div
-        className={`absolute top-1 left-1 px-2 py-1 text-xs font-bold text-white rounded ${ageColors[age]}`}
+        className={`absolute top-[-5px] left-[-5px] font-strike uppercase px-2 py-1 text-xs  text-white rounded ${ageColors[age]}`}
       >
         {ageText[age]}
       </div>
@@ -95,16 +95,16 @@ const VampireCard = ({ item }) => {
       </div>
 
       {/* Layer 3 */}
-      <div className="flex-1 flex items-center">
-        <div className="w-1/4 flex items-center justify-center">
+      <div className="flex justify-between mt-2 items-center">
+        <div className="flex items-center justify-center">
           {/* Left box */}
-          {item.layer3.includes("fragment") && (
-            <span className="w-6 h-6 bg-gray-700 text-white text-xs font-bold rounded flex items-center justify-center">
-              F
+          {item.condition && (
+            <span className="bg-gray-100 rounded w-[45px] h-[45px] border border-gray-300 flex items-center justify-center">
+              {getIcon(item.condition, 40)}
             </span>
           )}
         </div>
-        <div className="flex-1 flex gap-2">{renderIcons(item.layer3)}</div>
+        <div className="flex gap-2">{renderIcons(item.layer3)}</div>
       </div>
     </div>
   );
@@ -140,8 +140,8 @@ const vampiresConfig = {
   // Configure age transitions
   ageConfig: [
     { age: 1, startTurn: 1, deckCount: 30 }, // Age 1 has 30 cards total
-    { age: 2, startTurn: 11, deckCount: 25 }, // Age 2 has 25 cards total
-    { age: 3, startTurn: 19, deckCount: 20 }, // Age 3 has 20 cards total
+    { age: 2, startTurn: 4, deckCount: 25 }, // Age 2 has 25 cards total
+    { age: 3, startTurn: 8, deckCount: 20 }, // Age 3 has 20 cards total
   ],
 
   maxTurns: 26,

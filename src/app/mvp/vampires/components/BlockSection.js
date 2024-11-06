@@ -25,7 +25,7 @@ const Block = ({ name, symbol, resources }) => {
       <div className="flex items-center space-x-2">
         {renderIcons(resources)}
 
-        <div className="w-6 h-6 border-2 border-dashed border-gray-400 rounded" />
+        {/* <div className="w-6 h-6 border-2 border-dashed border-gray-400 rounded" /> */}
       </div>
     </div>
   );

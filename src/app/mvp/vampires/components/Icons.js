@@ -42,6 +42,19 @@ import artifact5Image from "../../../../../public/vampires/artifacts/artifact_5.
 import artifact6Image from "../../../../../public/vampires/artifacts/artifact_6.png";
 import artifact7Image from "../../../../../public/vampires/artifacts/artifact_7.png";
 
+import fragmentEmerald1Image from "../../../../../public/vampires/fragments/fragment_emerald_1.png";
+import fragmentGranite1Image from "../../../../../public/vampires/fragments/fragment_granite_1.png";
+import fragmentCrimson1Image from "../../../../../public/vampires/fragments/fragment_crimson_1.png";
+import fragmentEbony1Image from "../../../../../public/vampires/fragments/fragment_ebony_1.png";
+import fragmentEmerald2Image from "../../../../../public/vampires/fragments/fragment_emerald_2.png";
+import fragmentGranite2Image from "../../../../../public/vampires/fragments/fragment_granite_2.png";
+import fragmentCrimson2Image from "../../../../../public/vampires/fragments/fragment_crimson_2.png";
+import fragmentEbony2Image from "../../../../../public/vampires/fragments/fragment_ebony_2.png";
+import fragmentEmerald3Image from "../../../../../public/vampires/fragments/fragment_emerald_3.png";
+import fragmentGranite3Image from "../../../../../public/vampires/fragments/fragment_granite_3.png";
+import fragmentCrimson3Image from "../../../../../public/vampires/fragments/fragment_crimson_3.png";
+import fragmentEbony3Image from "../../../../../public/vampires/fragments/fragment_ebony_3.png";
+
 import Image from "next/image";
 import BasicDice from "@/app/app/common/BasicDice";
 
@@ -93,6 +106,20 @@ const resourceMap = {
   artifact_5: artifact5Image,
   artifact_6: artifact6Image,
   artifact_7: artifact7Image,
+
+  // fragments
+  fragment_emerald_1: fragmentEmerald1Image,
+  fragment_granite_1: fragmentGranite1Image,
+  fragment_crimson_1: fragmentCrimson1Image,
+  fragment_ebony_1: fragmentEbony1Image,
+  fragment_emerald_2: fragmentEmerald2Image,
+  fragment_granite_2: fragmentGranite2Image,
+  fragment_crimson_2: fragmentCrimson2Image,
+  fragment_ebony_2: fragmentEbony2Image,
+  fragment_emerald_3: fragmentEmerald3Image,
+  fragment_granite_3: fragmentGranite3Image,
+  fragment_crimson_3: fragmentCrimson3Image,
+  fragment_ebony_3: fragmentEbony3Image,
 };
 
 const specialResources = {
@@ -115,24 +142,27 @@ const renderSpecialResource = (resource, size) => {
       <Image
         src={imageSrc}
         alt={key}
-        className="absolute"
+        className="absolute z-0"
         style={{ width: size, height: size }}
         width={size}
         height={size}
       />
-      <span className="text-black font-bold text-center">{level}</span>
+      <span className="text-black font-bold text-center absolute z-10">
+        {level}
+      </span>
     </div>
   );
 };
 
 // Main function to determine the correct icon or text to display
 export const getIcon = (resource, size = 25) => {
-  // Check if the resource is a dice number (1–6)
+  // Dice 1-6
   const diceValue = parseInt(resource);
   if (diceValue >= 1 && diceValue <= 6) {
     return <BasicDice value={diceValue} />;
   }
 
+  // Special resources
   if (resource && resource.includes("_")) {
     const [key] = resource.split("_");
     if (specialResources.hasOwnProperty(key)) {
@@ -141,14 +171,13 @@ export const getIcon = (resource, size = 25) => {
     }
   }
 
-  // Check if the resource is a named resource with an image
+  // All other images
   if (resourceMap[resource]) {
     return (
       <Image
         src={resourceMap[resource]}
-        alt={resource}
-        className="w-6 h-6"
-        style={size ? { width: size, height: size } : {}}
+        alt={"."}
+        style={{ width: size, height: size }}
         width={250}
         height={250}
       />
@@ -156,7 +185,7 @@ export const getIcon = (resource, size = 25) => {
   }
 
   // Default fallback: Render text if the resource isn’t found in the mappings
-  return <span className="text-sm">{resource}</span>;
+  return <span className="text-sm">.</span>;
 };
 
 // Universal renderIcons function that can be used anywhere
