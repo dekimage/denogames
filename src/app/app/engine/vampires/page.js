@@ -2,19 +2,16 @@
 import { toJS } from "mobx";
 import DraftEngine from "../engines/DraftEngine";
 import {
-  age1Deck,
   age1Layer1Deck,
   age1Layer2Deck,
   age1Layer3Deck,
-  age2Deck,
   age2Layer1Deck,
   age2Layer2Deck,
   age2Layer3Deck,
-  age3Deck,
   age3Layer1Deck,
   age3Layer2Deck,
   age3Layer3Deck,
-} from "./data";
+} from "@/app/mvp/vampires/data";
 import { getIcon, renderIcons } from "@/app/mvp/vampires/components/Icons";
 
 //TODO: MOVE THHIS TO UTILS

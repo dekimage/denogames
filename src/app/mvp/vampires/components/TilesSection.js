@@ -58,7 +58,7 @@ const TilesSection = () => {
 
   return (
     <div
-      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] grid-rows-[1fr_1fr_1fr_1fr_auto]"
+      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] grid-rows-[1fr_1fr_1fr_1fr_auto] gap-1"
       style={{ width: "fit-content", height: "fit-content" }}
     >
       {/* Main 4x4 Tile Grid */}
@@ -77,10 +77,10 @@ const TilesSection = () => {
 
       {Array.from({ length: 4 }).map((_, index) => {
         const horizontalSymbols = [
-          "[house_1, refresh]",
-          "[house_2, refresh_all]",
-          "[house_3, discover_fragment]",
-          "[house_4, draw_card]",
+          "[housePurple]",
+          "[houseBrown]",
+          "[houseRed]",
+          "[houseGreen]",
         ];
 
         return (
@@ -94,15 +94,23 @@ const TilesSection = () => {
         );
       })}
 
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div
-          key={`vertical-${index}`}
-          className="flex items-center justify-center"
-          style={{ gridRow: index + 1, gridColumn: 5 }}
-        >
-          <BonusTile symbols="[vp_3]" isVertical />
-        </div>
-      ))}
+      {Array.from({ length: 4 }).map((_, index) => {
+        const verticalSymbols = [
+          "[refresh, ?, vp_2]",
+          "[?, x, vp_3]",
+          "[?, discoverFragment_3, vp_2]",
+          "[x, draw, vp_3]",
+        ];
+        return (
+          <div
+            key={`vertical-${index}`}
+            className="flex items-center justify-center"
+            style={{ gridRow: index + 1, gridColumn: 5 }}
+          >
+            <BonusTile symbols={verticalSymbols[index]} isVertical />
+          </div>
+        );
+      })}
     </div>
   );
 };

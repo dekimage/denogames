@@ -9,6 +9,7 @@ import artifactImage from "../../../../../public/vampires/tiles/artifacts.png";
 import engineImage from "../../../../../public/vampires/tiles/engine.png";
 import farmingImage from "../../../../../public/vampires/tiles/farm.png";
 import prestigeImage from "../../../../../public/vampires/tiles/prestige.png";
+
 import house1Image from "../../../../../public/vampires/houses/house_1.png";
 import house2Image from "../../../../../public/vampires/houses/house_2.png";
 import house3Image from "../../../../../public/vampires/houses/house_3.png";
@@ -86,12 +87,6 @@ const resourceMap = {
   discover_card: discoverCardImage,
   random_fragment: randomFragmentImage,
 
-  // houses
-  house_1: house1Image,
-  house_2: house2Image,
-  house_3: house3Image,
-  house_4: house4Image,
-
   // emblems
   emblem_1: emblem1Image,
   emblem_2: emblem2Image,
@@ -120,15 +115,42 @@ const resourceMap = {
   fragment_granite_3: fragmentGranite3Image,
   fragment_crimson_3: fragmentCrimson3Image,
   fragment_ebony_3: fragmentEbony3Image,
+
+  //houses
+  housePurple: house1Image,
+  houseBrown: house2Image,
+  houseRed: house3Image,
+  houseGreen: house4Image,
 };
 
 const specialResources = {
   power: powerImage,
   vp: vpImage,
-  // Add more special types if needed
+  refresh: refreshImage,
+  discover: discoverImage,
+  discoverFragment: discoverFragmentImage,
+  discoverDice: discoverDiceImage,
+  discoverCard: discoverCardImage,
+  housePurple: house1Image,
+  houseBrown: house2Image,
+  houseRed: house3Image,
+  houseGreen: house4Image,
 };
 
-const renderSpecialResource = (resource, size) => {
+// Define which icons should have the badge in the top-right corner by default
+const iconsWithIsUp = [
+  "refresh",
+  "discover",
+  "discoverFragment",
+  "discoverDice",
+  "discoverCard",
+  "housePurple",
+  "houseBrown",
+  "houseRed",
+  "houseGreen",
+]; // List any keys here that should use top-right badge styling
+
+const renderSpecialResource = (resource, size, isUp = false) => {
   const [key, level] = resource.split("_");
   const imageSrc = specialResources[key];
 
@@ -147,9 +169,30 @@ const renderSpecialResource = (resource, size) => {
         width={size}
         height={size}
       />
-      <span className="text-black font-bold text-center absolute z-10">
-        {level}
-      </span>
+
+      {isUp ? (
+        // Smaller superscript-style number in the top-right corner
+        <span
+          className="absolute text-xs font-bold text-center text-white bg-red-600 rounded-full"
+          style={{
+            top: "10%", // Position near the top right
+            right: "10%",
+            width: size / 3, // Make the badge size relative to the image size
+            height: size / 3,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: size / 4, // Adjust font size
+          }}
+        >
+          {level}
+        </span>
+      ) : (
+        // Default centered text for `power` and `vp`
+        <span className="text-black font-bold text-center absolute z-10">
+          {level}
+        </span>
+      )}
     </div>
   );
 };
@@ -161,12 +204,16 @@ export const getIcon = (resource, size = 25) => {
   if (diceValue >= 1 && diceValue <= 6) {
     return <BasicDice value={diceValue} />;
   }
+  if (resource === "?" || resource === "x") {
+    return <BasicDice value={resource} />;
+  }
 
   // Special resources
   if (resource && resource.includes("_")) {
     const [key] = resource.split("_");
+    const isUp = iconsWithIsUp.includes(key); // Check if this key should use the top-right badge styling
     if (specialResources.hasOwnProperty(key)) {
-      const specialIcon = renderSpecialResource(resource, size);
+      const specialIcon = renderSpecialResource(resource, size, isUp);
       if (specialIcon) return specialIcon;
     }
   }
@@ -185,7 +232,7 @@ export const getIcon = (resource, size = 25) => {
   }
 
   // Default fallback: Render text if the resource isn’t found in the mappings
-  return <span className="text-sm">.</span>;
+  return <span className="text-sm">{resource}</span>;
 };
 
 // Universal renderIcons function that can be used anywhere

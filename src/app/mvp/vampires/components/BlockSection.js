@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 
 import { blocksDeck } from "../data";
-import { drawRandomItems } from "../utils";
+import { drawRandomItems, drawSpecificCards } from "../utils";
 import { getIcon, renderIcons } from "./Icons";
 
 // Block Component
@@ -31,6 +31,15 @@ const Block = ({ name, symbol, resources }) => {
   );
 };
 
+const criteriaConfigs = [
+  {
+    key: "symbol",
+    matchValue: "emblem",
+    count: 2,
+    positions: [0, 3],
+  },
+];
+
 // Layout Component for rendering 6 blocks in 2 rows
 const BlocksLayout = () => {
   const [selectedBlocks, setSelectedBlocks] = useState([]);
@@ -38,7 +47,7 @@ const BlocksLayout = () => {
 
   useEffect(() => {
     // Perform random drawing only on the client side
-    const blocks = drawRandomItems(blocksDeck, 6);
+    const blocks = drawSpecificCards(blocksDeck, criteriaConfigs, 6);
     setSelectedBlocks(blocks);
   }, []);
 

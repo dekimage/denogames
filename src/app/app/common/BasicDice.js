@@ -45,38 +45,56 @@ const defaultColors = {
   6: "#e2b8b8", // Pale Rose
 };
 
+const specialColors = {
+  x: "#84a59d",
+  "?": "#ffd6a5",
+};
+
 const BasicDice = ({
   value,
-  color = defaultColors[value],
+  color = defaultColors[value] || specialColors[value],
   id = false,
   min = false,
   max = false,
-}) => (
-  <div
-    className="relative w-6 h-6 border-2 border-black rounded-[20%] grid grid-rows-3 grid-cols-3 p-1"
-    style={{ backgroundColor: color }}
-  >
-    {/* Dice ID in top-left */}
-    {id && <div className="absolute top-1 left-1 text-xs font-bold">{id}</div>}
+}) => {
+  const isSpecialValue = value === "x" || value === "?";
 
-    {/* Dice pips */}
-    {Array.from({ length: 3 }).map((_, row) =>
-      Array.from({ length: 3 }).map((_, col) => (
-        <div key={`${row}-${col}`} className="flex items-center justify-center">
-          {dots[value].some(([r, c]) => r === row && c === col) && (
-            <div className="w-[2px] h-[2px] bg-black rounded-full"></div>
-          )}
+  return (
+    <div
+      className="relative w-6 h-6 border-2 border-black rounded-[20%] grid grid-rows-3 grid-cols-3 p-1 flex items-center justify-center"
+      style={{ backgroundColor: color }}
+    >
+      {/* Dice ID in top-left */}
+      {id && (
+        <div className="absolute top-1 left-1 text-xs font-bold">{id}</div>
+      )}
+
+      {/* Render 'x' or '?' if special, else render pips */}
+      {isSpecialValue ? (
+        <span className="text-xl font-bold text-black">{value}</span>
+      ) : (
+        Array.from({ length: 3 }).map((_, row) =>
+          Array.from({ length: 3 }).map((_, col) => (
+            <div
+              key={`${row}-${col}`}
+              className="flex items-center justify-center"
+            >
+              {dots[value]?.some(([r, c]) => r === row && c === col) && (
+                <div className="w-[2px] h-[2px] bg-black rounded-full"></div>
+              )}
+            </div>
+          ))
+        )
+      )}
+
+      {/* Range in bottom-right */}
+      {min && max && (
+        <div className="absolute bottom-1 right-1 text-xs">
+          {min}-{max}
         </div>
-      ))
-    )}
-
-    {/* Range in bottom-right */}
-    {min && max && (
-      <div className="absolute bottom-1 right-1 text-xs">
-        {min}-{max}
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
+};
 
 export default BasicDice;

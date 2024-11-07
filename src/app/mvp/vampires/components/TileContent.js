@@ -19,9 +19,8 @@ const ArtifactsContent = ({ content }) => (
 );
 
 const EngineContent = ({ content }) => (
-  <div className="engine-content">
-    <p className="font-semibold text-green-500">Uses: {content.uses}</p>
-    <p className="text-gray-700">Effect: {content.effect}</p>
+  <div className="flex justify-center items-center">
+    {renderIcons(content.effect)}
   </div>
 );
 
