@@ -19,22 +19,18 @@ const bonuses = [
   "draw_card_age_3",
   "discoverCard_3_age_3",
   "random_fragment",
-  "discoverFragment_3",
+  "discover_fragment",
   "random_dice",
   "discoverDice_3",
   "random_resource",
   "refresh",
-  "refresh_3",
+  "refresh",
 ];
 
-const completionBonusesRow1 = ["housePurple", "refresh_3"];
-const completionBonusesRow2 = ["houseBrown", "discoverFragment_3"];
-const completionBonusesRow3 = ["houseRed", "draw_card"];
-const completionBonusesRow4 = [
-  "houseGreen",
-  "random_resource",
-  "random_resource",
-];
+const completionBonusesRow1 = ["refresh", "dice"];
+const completionBonusesRow2 = ["dice", "random_resource"];
+const completionBonusesRow3 = ["dice_any", "discover_fragment"];
+const completionBonusesRow4 = ["discover_fragment", "dice_any", "draw_card"];
 
 // Military condition array
 const militaryConditions = [
@@ -106,7 +102,7 @@ const row2Deck = [
 
     content: {
       uses: 2,
-      effect: "Convert dice 4 -> dice 6",
+      effect: "[6, ->, 1, /, 5, ->, 2]",
     },
   },
   {
@@ -208,70 +204,80 @@ const blocksDeck = [
     resources: "[1, 1, 3, garlic, garlic]",
   },
   {
-    name: "Emblem of Charm",
+    name: "Emblem of Fear",
     symbol: "emblem_2",
     resources: "[2, 3, 5, silver, silver]",
   },
   {
-    name: "Emblem of Satisfaction",
+    name: "Emblem of Lust",
     symbol: "emblem_3",
     resources: "[4, 2, 2, cross, cross]",
   },
   {
-    name: "Emblem of Power",
+    name: "Emblem of Envy",
     symbol: "emblem_4",
     resources: "[3, 6, 1, garlic, cross]",
   },
   {
     name: "Fighting Prowess",
-    symbol: "block_fighting_prowess",
+
+    symbol: "p1",
     resources: "[5, 3, 3, silver, garlic]",
   },
   {
     name: "The Silver Cross",
-    symbol: "block_silver_cross",
+
+    symbol: "p2",
     resources: "[6, 6, 4, silver, cross]",
   },
   {
-    name: "Selective Hunter",
-    symbol: "block_selective_hunter",
+    name: "Rewinder",
+
+    symbol: "p3",
     resources: "[1, 5, 2, garlic, silver]",
   },
   {
-    name: "Blood Alchemist",
-    symbol: "block_blood_alchemist",
+    name: "Attuned to All",
+
+    symbol: "p4",
     resources: "[2, 4, 6, garlic, cross]",
   },
   {
-    name: "Resource Hoarder",
-    symbol: "block_resource_hoarder",
+    name: "Family Ties",
+
+    symbol: "p5",
     resources: "[5, 5, 3, silver, cross]",
   },
   {
-    name: "Attuned to All",
-    symbol: "block_attuned_to_all",
+    name: "Engineer",
+
+    symbol: "p6",
     resources: "[3, 1, 4, cross, cross]",
   },
   {
-    name: "Family Ties",
-    symbol: "block_family_ties",
+    name: "Archeologist",
+
+    symbol: "p7",
     resources: "[6, 2, 2, silver, silver]",
   },
   {
-    name: "Artificer",
-    symbol: "block_artificer",
+    name: "Royalty",
+
+    symbol: "p8",
     resources: "[4, 4, 1, garlic, garlic]",
   },
-  {
-    name: "Engineer",
-    symbol: "block_engineer",
-    resources: "[1, 3, 6, garlic, silver]",
-  },
-  {
-    name: "Rewinder",
-    symbol: "block_rewinder",
-    resources: "[2, 4, cross, silver]",
-  },
+  // {
+  //   name: "Blood Alchemist",
+  //   // symbol: "block_engineer",
+  //   symbol: "p9",
+  //   resources: "[1, 3, 6, garlic, silver]",
+  // },
+  // {
+  //   name: "Selective Hunter",
+  //   // symbol: "block_rewinder",
+  //   symbol: "p10",
+  //   resources: "[2, 4, cross, silver]",
+  // },
 ];
 
 export {
@@ -291,7 +297,7 @@ export const vampireDeck = [
   {
     image: "/images/vampire1.png", // Example path, replace with actual image paths
     name: "Count Bloodlust",
-    startingBonuses: "[1, 2, silver, refresh, refresh_3]",
+    startingBonuses: "[1, 2, silver, refresh, refresh]",
   },
   {
     image: "/images/vampire2.png",
@@ -306,7 +312,7 @@ export const vampireDeck = [
   {
     image: "/images/vampire4.png",
     name: "Dark Mistress",
-    startingBonuses: "[1, 3, 5, garlic, refresh_3, random_fragment]",
+    startingBonuses: "[1, 3, 5, garlic, refresh, random_fragment]",
   },
   {
     image: "/images/vampire5.png",

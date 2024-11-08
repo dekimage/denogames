@@ -10,16 +10,17 @@ import { getIcon, renderIcons } from "./Icons";
 
 // Block Component
 const Block = ({ name, symbol, resources }) => {
+  const isEmblem = symbol.startsWith("emblem");
   return (
     <div className="relative flex items-center p-2 border border-gray-200 rounded-md h-[80px] ">
       {/* BLURRED GLASS -> backdrop-blur-sm bg-white/30 border-white/40 */}
 
-      <div className="absolute -top-3 left-2 text-xs text-gray-500 font-semibold">
+      <div className="absolute top-[0px] left-[55px] text-xs text-gray-500 font-semibold border bg-white rounded-[5px] px-2 border-t-0  flex justify-center">
         {name}
       </div>
 
       <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mr-4">
-        {getIcon(symbol, 70)}
+        {getIcon(symbol, isEmblem ? 70 : 60)}
       </div>
 
       <div className="flex items-center space-x-2">
@@ -52,7 +53,7 @@ const BlocksLayout = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-3 gap-2 my-6">
+    <div className="grid grid-cols-3 gap-2 my-2">
       {selectedBlocks.map((block, index) => (
         <Block
           key={index}

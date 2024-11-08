@@ -12,6 +12,7 @@ const nextConfig = {
       "denogames.com",
       "www.denogames.com",
       "denogames5.wordpress.com",
+      "via.placeholder.com",
     ],
   },
 };

@@ -15,16 +15,16 @@ import house2Image from "../../../../../public/vampires/houses/house_2.png";
 import house3Image from "../../../../../public/vampires/houses/house_3.png";
 import house4Image from "../../../../../public/vampires/houses/house_4.png";
 
-import diceImage from "../../../../../public/vampires/bonuses/dice.png";
+// import diceImage from "../../../../../public/vampires/bonuses/dice.png";
 import drawImage from "../../../../../public/vampires/bonuses/draw.png";
-import drawCardImage from "../../../../../public/vampires/bonuses/draw_card.png";
+// import drawCardImage from "../../../../../public/vampires/bonuses/draw_card.png";
 import discoverImage from "../../../../../public/vampires/bonuses/discover.png";
-import discoverFragmentImage from "../../../../../public/vampires/bonuses/discover_fragment.png";
+// import discoverFragmentImage from "../../../../../public/vampires/bonuses/discover_fragment.png";
 import discoverDiceImage from "../../../../../public/vampires/bonuses/discover_dice.png";
 import discoverCardImage from "../../../../../public/vampires/bonuses/discover_card.png";
 import randomFragmentImage from "../../../../../public/vampires/bonuses/random_fragment.png";
 
-import refreshImage from "../../../../../public/vampires/bonuses/refresh.png";
+// import refreshImage from "../../../../../public/vampires/bonuses/refresh.png";
 import refreshAllImage from "../../../../../public/vampires/bonuses/refresh_all.png";
 
 import powerImage from "../../../../../public/vampires/general/power.png";
@@ -56,6 +56,31 @@ import fragmentGranite3Image from "../../../../../public/vampires/fragments/frag
 import fragmentCrimson3Image from "../../../../../public/vampires/fragments/fragment_crimson_3.png";
 import fragmentEbony3Image from "../../../../../public/vampires/fragments/fragment_ebony_3.png";
 
+import randomResourceImage from "../../../../../public/vampires/powers/random-resource.png";
+import drawCardImage from "../../../../../public/vampires/powers/draw.png";
+import diceImage from "../../../../../public/vampires/powers/dice.png";
+import diceAnyImage from "../../../../../public/vampires/powers/dice-any.png";
+import refreshImage from "../../../../../public/vampires/powers/refresh.png";
+import discoverFragmentImage from "../../../../../public/vampires/powers/random_fragment.png";
+
+import vp1Image from "../../../../../public/vampires/vp/vp_1.png";
+import vp2Image from "../../../../../public/vampires/vp/vp_2.png";
+import vp3Image from "../../../../../public/vampires/vp/vp_3.png";
+import vp4Image from "../../../../../public/vampires/vp/vp_4.png";
+import vp5Image from "../../../../../public/vampires/vp/vp_5.png";
+import vp6Image from "../../../../../public/vampires/vp/vp_6.png";
+import vp7Image from "../../../../../public/vampires/vp/vp_7.png";
+import vp8Image from "../../../../../public/vampires/vp/vp_8.png";
+
+import p1Image from "../../../../../public/vampires/blocks/p1.png";
+import p2Image from "../../../../../public/vampires/blocks/p2.png";
+import p3Image from "../../../../../public/vampires/blocks/p3.png";
+import p4Image from "../../../../../public/vampires/blocks/p4.png";
+import p5Image from "../../../../../public/vampires/blocks/p5.png";
+import p6Image from "../../../../../public/vampires/blocks/p6.png";
+import p7Image from "../../../../../public/vampires/blocks/p7.png";
+import p8Image from "../../../../../public/vampires/blocks/p8.png";
+
 import Image from "next/image";
 import BasicDice from "@/app/app/common/BasicDice";
 
@@ -86,6 +111,7 @@ const resourceMap = {
   discover_dice: discoverDiceImage,
   discover_card: discoverCardImage,
   random_fragment: randomFragmentImage,
+  dice_any: diceAnyImage,
 
   // emblems
   emblem_1: emblem1Image,
@@ -121,16 +147,40 @@ const resourceMap = {
   houseBrown: house2Image,
   houseRed: house3Image,
   houseGreen: house4Image,
+
+  random_resource: randomResourceImage,
+
+  // blocks
+  p1: p1Image,
+  p2: p2Image,
+  p3: p3Image,
+  p4: p4Image,
+  p5: p5Image,
+  p6: p6Image,
+  p7: p7Image,
+  p8: p8Image,
+  // p9: p9Image,
+  // p10: p10Image,
+
+  // vp
+  vp_1: vp1Image,
+  vp_2: vp2Image,
+  vp_3: vp3Image,
+  vp_4: vp4Image,
+  vp_5: vp5Image,
+  vp_6: vp6Image,
+  vp_7: vp7Image,
+  vp_8: vp8Image,
 };
 
 const specialResources = {
   power: powerImage,
-  vp: vpImage,
-  refresh: refreshImage,
-  discover: discoverImage,
-  discoverFragment: discoverFragmentImage,
-  discoverDice: discoverDiceImage,
-  discoverCard: discoverCardImage,
+  // vp: vpImage,
+  // refresh: refreshImage,
+  // discover: discoverImage,
+  // discoverFragment: discoverFragmentImage,
+  // discoverDice: discoverDiceImage,
+  // discoverCard: discoverCardImage,
   housePurple: house1Image,
   houseBrown: house2Image,
   houseRed: house3Image,

@@ -46,52 +46,45 @@ const defaultColors = {
 };
 
 const specialColors = {
-  x: "#84a59d",
+  x: "#a5a58d",
   "?": "#ffd6a5",
 };
 
 const BasicDice = ({
   value,
   color = defaultColors[value] || specialColors[value],
-  id = false,
-  min = false,
-  max = false,
 }) => {
   const isSpecialValue = value === "x" || value === "?";
 
+  if (isSpecialValue) {
+    // Render a separate parent for special values
+    return (
+      <div
+        className="relative w-6 h-6 border-2 border-black rounded-[20%] flex items-center justify-center"
+        style={{ backgroundColor: color }}
+      >
+        <span className="text-xs font-bold text-black">{value}</span>
+      </div>
+    );
+  }
+
+  // Render the default dice with pips
   return (
     <div
-      className="relative w-6 h-6 border-2 border-black rounded-[20%] grid grid-rows-3 grid-cols-3 p-1 flex items-center justify-center"
+      className="relative w-6 h-6 border-2 border-black rounded-[20%] grid grid-rows-3 grid-cols-3 p-1"
       style={{ backgroundColor: color }}
     >
-      {/* Dice ID in top-left */}
-      {id && (
-        <div className="absolute top-1 left-1 text-xs font-bold">{id}</div>
-      )}
-
-      {/* Render 'x' or '?' if special, else render pips */}
-      {isSpecialValue ? (
-        <span className="text-xl font-bold text-black">{value}</span>
-      ) : (
-        Array.from({ length: 3 }).map((_, row) =>
-          Array.from({ length: 3 }).map((_, col) => (
-            <div
-              key={`${row}-${col}`}
-              className="flex items-center justify-center"
-            >
-              {dots[value]?.some(([r, c]) => r === row && c === col) && (
-                <div className="w-[2px] h-[2px] bg-black rounded-full"></div>
-              )}
-            </div>
-          ))
-        )
-      )}
-
-      {/* Range in bottom-right */}
-      {min && max && (
-        <div className="absolute bottom-1 right-1 text-xs">
-          {min}-{max}
-        </div>
+      {Array.from({ length: 3 }).map((_, row) =>
+        Array.from({ length: 3 }).map((_, col) => (
+          <div
+            key={`${row}-${col}`}
+            className="flex items-center justify-center"
+          >
+            {dots[value]?.some(([r, c]) => r === row && c === col) && (
+              <div className="w-[2px] h-[2px] bg-black rounded-full"></div>
+            )}
+          </div>
+        ))
       )}
     </div>
   );

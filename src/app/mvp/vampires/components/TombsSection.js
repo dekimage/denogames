@@ -15,9 +15,9 @@ import Image from "next/image";
 
 const TombCard = ({ name, index, nextScoring, cost, vp, powerVp }) => {
   return (
-    <div className="w-[150px] h-[250px] border border-gray-300 rounded-md bg-white flex flex-col items-center shadow-lg">
+    <div className="w-[150px] h-[200px] border border-gray-300 rounded-md bg-white flex flex-col items-center shadow-lg">
       {/* Image Section */}
-      <div className="w-[150px] h-[150px] bg-gray-100 flex items-center justify-center">
+      <div className="w-[150px] h-[125px] bg-gray-100 flex items-center justify-center">
         <Image
           src={tombImages[index]}
           alt={name}

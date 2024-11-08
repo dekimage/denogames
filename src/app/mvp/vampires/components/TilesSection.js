@@ -58,7 +58,7 @@ const TilesSection = () => {
 
   return (
     <div
-      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] grid-rows-[1fr_1fr_1fr_1fr_auto] gap-1"
+      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] grid-rows-[1fr_1fr_1fr_1fr_auto] gap-2"
       style={{ width: "fit-content", height: "fit-content" }}
     >
       {/* Main 4x4 Tile Grid */}
@@ -66,6 +66,7 @@ const TilesSection = () => {
         row.map((tile, tileIndex) => (
           <Tile
             key={`${rowIndex}-${tileIndex}`}
+            column={tileIndex + 1}
             cost={tile.cost}
             tileType={tile.tileType}
             completionBonus={tile.completionBonus}
@@ -77,10 +78,10 @@ const TilesSection = () => {
 
       {Array.from({ length: 4 }).map((_, index) => {
         const horizontalSymbols = [
-          "[housePurple]",
-          "[houseBrown]",
-          "[houseRed]",
-          "[houseGreen]",
+          "[housePurple, housePurple, housePurple, housePurple]",
+          "[houseBrown, houseBrown, houseBrown, houseBrown]",
+          "[houseRed, houseRed, houseRed, houseRed]",
+          "[houseGreen, houseGreen, houseGreen, houseGreen]",
         ];
 
         return (
@@ -96,10 +97,10 @@ const TilesSection = () => {
 
       {Array.from({ length: 4 }).map((_, index) => {
         const verticalSymbols = [
-          "[refresh, ?, vp_2]",
-          "[?, x, vp_3]",
-          "[?, discoverFragment_3, vp_2]",
-          "[x, draw, vp_3]",
+          "[refresh, dice, vp_2]",
+          "[dice, dice_any, vp_3]",
+          "[dice, discover_fragment, vp_2]",
+          "[dice_any, draw_card, vp_3]",
         ];
         return (
           <div
