@@ -7,10 +7,12 @@ import { vampireDeck } from "../data";
 import { useState } from "react";
 import { drawRandomItems } from "../utils";
 
+import vampireImage from "../../../../../public/vampires/vampires/vampire-art.png";
+
 // VampireCard Component
 const VampireCard = ({ image, name, startingBonuses, passive, uses }) => {
   return (
-    <div className="border border-gray-300 rounded-lg w-[150px] h-[250px] flex flex-col items-center bg-white">
+    <div className="border border-gray-300 rounded-lg w-[150px] h-[270px] flex flex-col items-center bg-white">
       {/* Image Section */}
       <div className="w-[150px] h-[150px]">
         <img src={image} alt={name} className="w-full h-full object-cover" />
@@ -54,7 +56,8 @@ const VampireCardDisplay = () => {
 
   return (
     <VampireCard
-      image={vampire.image}
+      // image={vampire.image}
+      image={vampireImage}
       name={vampire.name}
       startingBonuses={vampire.startingBonuses}
       passive={vampire.passive}

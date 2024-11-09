@@ -13,7 +13,7 @@ import QRCodeComponent from "@/utils/qr";
 
 const GameFooter = () => {
   return (
-    <div className="flex justify-between items-center bg-white  border-t">
+    <div className="flex justify-between items-center bg-white w-[90%]">
       <div>DenoGames Copyright 2024</div>
       <QRCodeComponent url="https://denogames.com/app/engine/vampires" />
     </div>

@@ -54,6 +54,7 @@ const data = [
       "Icons Renderer",
       "Layout Design Maker",
       "Deck Drawing and Rendering",
+      "Rulebooks Crafter",
     ],
   },
   {
@@ -63,6 +64,21 @@ const data = [
     progress: 100,
     url: "#",
     details: ["Deck Builder", "Drafting", "Flip", "Push your Luck", "Lootbox"],
+  },
+];
+
+const activities = [
+  {
+    id: 1,
+    title: "Watch How to play videos",
+    image: "https://via.placeholder.com/150",
+    url: "#",
+  },
+  {
+    id: 2,
+    title: "Watch Gameplay Videos",
+    image: "https://via.placeholder.com/150",
+    url: "#",
   },
 ];
 

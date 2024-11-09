@@ -18,7 +18,7 @@ const bonuses = [
   "discoverCard_3_age_2",
   "draw_card_age_3",
   "discoverCard_3_age_3",
-  "random_fragment",
+  "discover_fragment",
   "discover_fragment",
   "random_dice",
   "discoverDice_3",
@@ -46,7 +46,7 @@ const row1Deck = [
     tileType: "farming",
 
     content: {
-      resources: "[?, +, ?]",
+      resources: "[3, o]",
     },
   },
   {
@@ -55,6 +55,7 @@ const row1Deck = [
 
     content: {
       effect: "[1, ->, 2, ->, 3]",
+      // resources: "[?, +, ?]",
     },
   },
   {
@@ -70,7 +71,7 @@ const row1Deck = [
     tileType: "military",
 
     content: {
-      power: 4,
+      power: 3,
       advancedPower: 6,
       condition: militaryConditions[0],
     },
@@ -103,6 +104,7 @@ const row2Deck = [
     content: {
       uses: 2,
       effect: "[6, ->, 1, /, 5, ->, 2]",
+      // [?, -, ?]
     },
   },
   {
@@ -118,7 +120,7 @@ const row2Deck = [
     tileType: "farming",
 
     content: {
-      resources: "[?, -, ?]",
+      resources: "[4, o, o]",
     },
   },
 ];
@@ -147,7 +149,7 @@ const row3Deck = [
     tileType: "farming",
 
     content: {
-      resources: "[1, 4, 6]",
+      resources: "[1, 2, o, o]",
     },
   },
   {
@@ -174,7 +176,7 @@ const row4Deck = [
     tileType: "military",
 
     content: {
-      power: 5,
+      power: 4,
       advancedPower: 7,
       condition: militaryConditions[1],
     },
@@ -184,7 +186,7 @@ const row4Deck = [
     tileType: "farming",
 
     content: {
-      resources: "[1, silver]",
+      resources: "[3, 6, o, o, o]",
     },
   },
   {
@@ -228,7 +230,7 @@ const blocksDeck = [
     name: "The Silver Cross",
 
     symbol: "p2",
-    resources: "[6, 6, 4, silver, cross]",
+    resources: "[1, 2, silver]",
   },
   {
     name: "Rewinder",
@@ -297,22 +299,22 @@ export const vampireDeck = [
   {
     image: "/images/vampire1.png", // Example path, replace with actual image paths
     name: "Count Bloodlust",
-    startingBonuses: "[1, 2, silver, refresh, refresh]",
+    startingBonuses: "[1, 2, 3, silver, refresh, refresh]",
   },
   {
     image: "/images/vampire2.png",
     name: "Lady Nocturna",
-    startingBonuses: "[3, 5, garlic, random_fragment, random_fragment]",
+    startingBonuses: "[3, 5, 6, garlic, discover_fragment]",
   },
   {
     image: "/images/vampire3.png",
     name: "The Shadow",
-    startingBonuses: "[2, 4, 6, cross, refresh, random_fragment]",
+    startingBonuses: "[silver, draw_card]",
   },
   {
     image: "/images/vampire4.png",
     name: "Dark Mistress",
-    startingBonuses: "[1, 3, 5, garlic, refresh, random_fragment]",
+    startingBonuses: "[1, 2, 3, 4, 5]",
   },
   {
     image: "/images/vampire5.png",
@@ -331,81 +333,92 @@ export const tombsDeck = [
     name: "Ancient Crypt",
     nextScoring: "[garlic, silver, cross]",
     cost: "[1, 2, 3, 4]",
-    vp: 3,
-    powerVp: 5,
-    condition: "[farm_completed, ->, 2, max_3]", // for each farm completed + 2vp max 3
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[farming, ->, vp_2]", // for each farm completed + 2vp max 3
+    max: 3,
   },
   {
     name: "Forgotten Mausoleum",
     nextScoring: "[silver, garlic, cross]",
     cost: "[2, 3, 5, 6]",
-    vp: 4,
-    powerVp: 6,
-    condition: "[blocks_completed, ->, 1]", // for each block completed + 1vp
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[p1, ->, vp_1]", // for each block completed + 1vp
+    max: 3,
   },
   {
     name: "Cursed Catacomb",
     nextScoring: "[cross, silver, garlic]",
     cost: "[1, 3, 4, 6]",
-    vp: 5,
-    powerVp: 7,
-    condition: "[unque_artifact, ->, 1, max_6]", // at 7 unique artifacts + 3vp, at 10 + 7vp
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[=/=, artifact_1, ->, vp_1]", // at 7 unique artifacts + 3vp, at 10 + 7vp
+    max: 6,
   },
   {
     name: "Sacred Burial",
     nextScoring: "[silver, cross, garlic]",
     cost: "[2, 3, 4, 5]",
-    vp: 2,
-    powerVp: 4,
-    condition: "[power_6, ->, 3, power_10, ->, 5]", // at 6 power + 3vp, at 10 power + 5vp
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[power_4, ->, vp_3, /, power_8, ->, vp_5]", // at 6 power + 3vp, at 10 power + 5vp
+    max: 8,
   },
   {
     name: "Hallowed Chamber",
     nextScoring: "[garlic, garlic, silver]",
     cost: "[1, 2, 5, 6]",
-    vp: 3,
-    powerVp: 6,
-    condition: "Complete 4 tombs", // fill all 4 tombs (resources not fragments) + 8vp
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition:
+      "[fragment_emerald_1, fragment_emerald_2, fragment_emerald_3, ->, vp_3]",
+    max: 8,
   },
   {
     name: "Lost Vault",
     nextScoring: "[cross, silver, silver]",
     cost: "[1, 3, 5, 6]",
-    vp: 4,
-    powerVp: 8,
-    condition: "[row, ->, 2]",
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[row, ->, vp_2]",
+    max: 8,
   },
   {
     name: "Dark Passage",
     nextScoring: "[garlic, cross, silver]",
     cost: "[2, 3, 4, 6]",
-    vp: 3,
-    powerVp: 5,
-    condition: "[column, ->, 2]",
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[column, ->, vp_2]",
+    max: 8,
   },
   {
     name: "Shadowed Lair",
     nextScoring: "[silver, garlic, cross]",
     cost: "[1, 2, 4, 5]",
-    vp: 2,
-    powerVp: 6,
-    condition: "[unused_fragment, ->, 1, max_6]",
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[=/=, fragment_emerald_1, ->, vp_1]",
+    max: 6,
   },
   {
     name: "Sanctified Grave",
     nextScoring: "[cross, garlic, garlic]",
     cost: "[2, 3, 5, 6]",
-    vp: 4,
-    powerVp: 7,
-    condition: "[engine_completed, ->, 2, max_3]",
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[engine, ->, vp_2]",
+    max: 3,
   },
   {
     name: "Haunted Resting Place",
     nextScoring: "[silver, cross, garlic]",
     cost: "[1, 3, 4, 5]",
-    vp: 3,
-    powerVp: 5,
-    condition: "[prestige_completed, ->, 2, max_3]",
+    vp: "[vp_4]",
+    powerVp: "[vp_7]",
+    condition: "[prestige, ->, vp_2]",
+    max: 3,
   },
   // in future add here expansions where conditions are like monsters slain, gifts recieved, donations gained, events captured etc... from event cards in deck that memorize in history at end of game you view statas and calculate
 ];

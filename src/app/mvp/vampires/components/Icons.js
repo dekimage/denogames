@@ -208,7 +208,7 @@ const renderSpecialResource = (resource, size, isUp = false) => {
 
   return (
     <div
-      className="relative flex items-center justify-center"
+      className="relative flex items-center justify-center  font-strike uppercase text-gray-400"
       style={{ width: size, height: size }}
     >
       <Image
@@ -256,6 +256,12 @@ export const getIcon = (resource, size = 25) => {
   }
   if (resource === "?" || resource === "x") {
     return <BasicDice value={resource} />;
+  }
+
+  if (resource === "o") {
+    return (
+      <div className="w-6 h-6 border-2 border-dashed border-gray-400 rounded-sm"></div>
+    );
   }
 
   // Special resources
