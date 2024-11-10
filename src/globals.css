@@ -15,6 +15,44 @@
     U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* VAMPIRE ENGINE CARDS TRY TO FLIP */
+
+@keyframes cardIn {
+  0% {
+    transform: rotateY(90deg) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: rotateY(180deg) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cardOut {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5) translate(200px, -200px);
+    opacity: 0;
+  }
+}
+
+.animate-cardIn {
+  animation: cardIn 0.8s ease-in-out;
+}
+
+.animate-cardOut {
+  animation: cardOut 0.8s ease-in-out;
+}
+
+/* DARKMOON FAIRE FLIPS */
+
 @keyframes cardFlip {
   0% {
     transform: perspective(1000px) rotateY(90deg) scale(0.5);

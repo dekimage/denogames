@@ -52,6 +52,7 @@ const specialColors = {
 
 const BasicDice = ({
   value,
+  size = 25,
   color = defaultColors[value] || specialColors[value],
 }) => {
   const isSpecialValue = value === "x" || value === "?";
@@ -61,7 +62,7 @@ const BasicDice = ({
     return (
       <div
         className="relative w-6 h-6 border-2 border-black rounded-[20%] flex items-center justify-center"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: color, width: size, height: size }}
       >
         <span className="text-xs font-bold text-black">{value}</span>
       </div>
@@ -72,7 +73,7 @@ const BasicDice = ({
   return (
     <div
       className="relative w-6 h-6 border-2 border-black rounded-[20%] grid grid-rows-3 grid-cols-3 p-1"
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: color, width: size, height: size }}
     >
       {Array.from({ length: 3 }).map((_, row) =>
         Array.from({ length: 3 }).map((_, col) => (
@@ -81,7 +82,13 @@ const BasicDice = ({
             className="flex items-center justify-center"
           >
             {dots[value]?.some(([r, c]) => r === row && c === col) && (
-              <div className="w-[2px] h-[2px] bg-black rounded-full"></div>
+              <div
+                className="bg-black rounded-full"
+                style={{
+                  width: size === 50 ? "4px" : "2px",
+                  height: size === 50 ? "4px" : "2px",
+                }}
+              ></div>
             )}
           </div>
         ))

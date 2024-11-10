@@ -470,7 +470,7 @@ export const age1Layer1Deck = [
 
   { layer1: "[fragment_granite_1]" },
   { layer1: "[fragment_crimson_1]" },
-  { layer1: "[fragment_ebony_1]" },
+  // { layer1: "[fragment_ebony_1]" },
   { layer1: "[fragment_emerald_1]" },
 ];
 
@@ -541,7 +541,7 @@ export const age2Layer1Deck = [
 
   { layer1: "4, [fragment_granite_2]" },
   { layer1: "5, [fragment_crimson_2]" },
-  { layer1: "6, [fragment_ebony_2]" },
+  // { layer1: "6, [fragment_ebony_2]" },
   { layer1: "1, [fragment_emerald_2]" },
 
   // { layer1: "[3, /, 4, 6, /, 1]" },
@@ -550,11 +550,11 @@ export const age2Layer1Deck = [
 // Age 2 - Layer 2 Deck
 export const age2Layer2Deck = [
   { layer2: "[garlic, /, artifact_1]" },
-  { layer2: "[silver, /,  artifact_2]" },
+  { layer2: "[silver, /, artifact_2]" },
   { layer2: "[cross, /, artifact_3]" },
   { layer2: "[garlic, /, fragment_granite_1]" },
   { layer2: "[silver, /, fragment_crimson_1]" },
-  { layer2: "[cross, /, fragment_ebony_1]" },
+  // { layer2: "[cross, /, fragment_ebony_1]" },
   { layer2: "[silver, /, fragment_emerald_1]" },
 
   { layer2: "[1, /, garlic]" },
@@ -577,7 +577,7 @@ export const age2Layer2Deck = [
 export const age2Layer3Deck = [
   { layer3: "[1, /, garlic]", condition: "emblem_1" },
   { layer3: "[2, /, cross]", condition: "emblem_2" },
-  { layer3: "[3, /,silver]", condition: "emblem_3" },
+  { layer3: "[3, /, silver]", condition: "emblem_3" },
   { layer3: "[4, /, garlic]", condition: "emblem_4" },
   { layer3: "[5, 6]", condition: "emblem_1" },
   { layer3: "[3, 5]", condition: "emblem_2" },
@@ -618,7 +618,7 @@ export const age3Layer1Deck = [
 
   { layer1: "[2, /, fragment_granite_3]" },
   { layer1: "[3, /, fragment_crimson_3]" },
-  { layer1: "[4, /, fragment_ebony_3]" },
+  // { layer1: "[4, /, fragment_ebony_3]" },
   { layer1: "[5, /, fragment_emerald_3]" },
 ];
 
@@ -633,7 +633,7 @@ export const age3Layer2Deck = [
 
   { layer2: "[4, garlic, /, fragment_granite_2]" },
   { layer2: "[5, silver, /, fragment_crimson_2]" },
-  { layer2: "[6, cross, /, fragment_ebony_2]" },
+  // { layer2: "[6, cross, /, fragment_ebony_2]" },
   { layer2: "[1, silver, /, fragment_emerald_2]" },
 ];
 
@@ -641,7 +641,7 @@ export const age3Layer2Deck = [
 export const age3Layer3Deck = [
   { layer3: "[1, 2, /, fragment_emerald_3]", condition: "emblem_1" },
   { layer3: "[2, 3, /, fragment_crimson_3]", condition: "emblem_2" },
-  { layer3: "[3, 4, /, fragment_ebony_3]", condition: "emblem_3" },
+  // { layer3: "[3, 4, /, fragment_ebony_3]", condition: "emblem_3" },
   { layer3: "[4, 5, /, fragment_granite_3]", condition: "emblem_4" },
 
   { layer3: "[1, 3, /, artifact_1]", condition: "emblem_1" },

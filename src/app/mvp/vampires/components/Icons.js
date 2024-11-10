@@ -252,10 +252,10 @@ export const getIcon = (resource, size = 25) => {
   // Dice 1-6
   const diceValue = parseInt(resource);
   if (diceValue >= 1 && diceValue <= 6) {
-    return <BasicDice value={diceValue} />;
+    return <BasicDice value={diceValue} size={size} />;
   }
   if (resource === "?" || resource === "x") {
-    return <BasicDice value={resource} />;
+    return <BasicDice value={resource} size={size} />;
   }
 
   if (resource === "o") {

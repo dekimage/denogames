@@ -176,9 +176,9 @@ const DraftEngine = observer(({ config, CardComponent }) => {
       )}
 
       {/* Central Board */}
-      <div className="border p-4 mb-4 rounded-lg">
-        <h2 className="text-xl font-semibold mb-2">Central Board</h2>
-        <div className="flex flex-wrap gap-2">
+      <div className="border p-4 mb-4 rounded-lg ">
+        {/* <h2 className="text-xl font-semibold mb-2">Central Board</h2> */}
+        <div className="flex justify-center items-center min-h-[600px] gap-4">
           {draftStore.centralBoard.map((item, index) => (
             <div
               key={item.id}

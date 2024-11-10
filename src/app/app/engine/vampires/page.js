@@ -13,6 +13,8 @@ import {
   age3Layer3Deck,
 } from "@/app/mvp/vampires/data";
 import { getIcon, renderIcons } from "@/app/mvp/vampires/components/Icons";
+import { useEffect } from "react";
+import { useState } from "react";
 
 //TODO: MOVE THHIS TO UTILS
 const shuffleArray = (array) => {
@@ -59,50 +61,67 @@ export const createAgeDeck = (
 
 const VampireCard = ({ item }) => {
   const { age } = item;
+
   const ageColors = {
     1: "bg-blue-400", // Age 1 color
     2: "bg-red-400", // Age 2 color
     3: "bg-green-400", // Age 3 color
   };
 
-  // Define text for each age (I, II, III)
   const ageText = {
     1: "I",
     2: "II",
     3: "III",
   };
 
+  const [isMounting, setIsMounting] = useState(true);
+  const [isUnmounting, setIsUnmounting] = useState(false);
+
+  useEffect(() => {
+    // Trigger the mounting animation
+    setIsMounting(true);
+  }, []);
+
   return (
-    <div className="relative w-32 h-48 border-2 rounded-[12px] flex flex-col justify-between p-2">
+    <div
+      className={`relative shadow-xl w-[250px] h-[350px] border-2 rounded-[12px] flex flex-col justify-between p-2 
+        ${isMounting ? "animate-cardIn" : ""}
+        ${isUnmounting ? "animate-cardOut" : ""}
+      `}
+    >
       {/* Age Indicator Badge */}
       <div
-        className={`absolute top-[-5px] left-[-5px] font-strike uppercase px-2 py-1 text-xs  text-white rounded ${ageColors[age]}`}
+        className={`absolute top-[-5px] left-[-5px] font-strike uppercase px-2 py-1 text-xs text-white rounded ${ageColors[age]}`}
       >
         {ageText[age]}
       </div>
 
       {/* Layer 1 */}
       <div className="flex-1 flex items-center justify-center border-b">
-        <div className="flex gap-2">{renderIcons(item.layer1)}</div>
+        <div className="flex gap-2">{renderIcons(item.layer1, 50)}</div>
       </div>
 
       {/* Layer 2 */}
       <div className="flex-1 flex items-center justify-center border-b">
-        <div className="flex gap-2">{renderIcons(item.layer2)}</div>
+        <div className="flex gap-2">{renderIcons(item.layer2, 50)}</div>
       </div>
 
       {/* Layer 3 */}
       <div className="flex justify-between mt-2 items-center">
-        <div className="flex items-center justify-center">
-          {/* Left box */}
-          {item.condition && (
-            <span className="bg-gray-100 rounded w-[45px] h-[45px] border border-gray-300 flex items-center justify-center">
-              {getIcon(item.condition, 40)}
-            </span>
-          )}
+        <div className="relative flex items-center">
+          <span className="bg-gray-100 rounded w-[45px] h-[45px] border border-gray-300 flex items-center justify-center">
+            {getIcon(item.condition, 50)}
+          </span>
+          {/* Arrow shape using absolute positioning and borders */}
+          <div className="absolute -right-4 top-1/2 -translate-y-1/2">
+            <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[16px] border-l-gray-300 border-b-[10px] border-b-transparent" />
+            <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-t-transparent border-l-[14px] border-l-gray-100 border-b-[10px] border-b-transparent -translate-x-[1px]" />
+          </div>
         </div>
-        <div className="flex gap-2">{renderIcons(item.layer3)}</div>
+        <div className="flex gap-2">{renderIcons(item.layer3, 50)}</div>
       </div>
+
+      {/* Click to Remove Button */}
     </div>
   );
 };
@@ -112,7 +131,7 @@ const vampiresConfig = {
   maxDraftingRounds: 1,
   isRefill: true,
   drawCount: 3,
-  playerCount: 3,
+  playerCount: 2,
   multiLayer: true,
 
   createDeckFunction: createAgeDeck,
@@ -137,11 +156,11 @@ const vampiresConfig = {
   // Configure age transitions
   ageConfig: [
     { age: 1, startTurn: 1, deckCount: 30 }, // Age 1 has 30 cards total
-    { age: 2, startTurn: 4, deckCount: 25 }, // Age 2 has 25 cards total
-    { age: 3, startTurn: 8, deckCount: 20 }, // Age 3 has 20 cards total
+    { age: 2, startTurn: 8, deckCount: 25 }, // Age 2 has 25 cards total
+    { age: 3, startTurn: 14, deckCount: 20 }, // Age 3 has 20 cards total
   ],
 
-  maxTurns: 26,
+  maxTurns: 14,
 };
 
 const VampiresGame = () => {
