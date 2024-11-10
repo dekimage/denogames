@@ -8,6 +8,8 @@ import draftStore from "@/app/stores/draftStore";
 import PlayerSetup from "@/app/components/PlayerSetup";
 import Modal from "@/app/components/Modal";
 import { FaCog, FaInbox, FaTrash, FaEye } from "react-icons/fa"; // Make sure to install react-icons
+import { Button } from "@/components/ui/button";
+import { getIcon } from "@/app/mvp/vampires/components/Icons";
 
 const DraftEngine = observer(({ config, CardComponent }) => {
   const [showSettings, setShowSettings] = useState(false);
@@ -62,55 +64,149 @@ const DraftEngine = observer(({ config, CardComponent }) => {
     );
   };
 
-  const DraftResults = () => (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="bg-white rounded-lg p-4 w-full max-w-6xl">
-        <h2 className="text-2xl font-bold mb-4">Draft Results</h2>
-        <div className="flex flex-wrap gap-4">
-          {draftStore.players.map((player) => (
-            <div
-              key={player.id}
-              className="flex-1 min-w-[200px] p-4 rounded-lg"
-              style={{ backgroundColor: player.color + "20" }}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: player.color }}
-                />
-                <h3 className="font-semibold">{player.name}</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {player.hand.map((item) => (
-                  <div key={item.id}>{renderItem(item)}</div>
-                ))}
-              </div>
+  const DraftResults = () => {
+    const [showRewardModal, setShowRewardModal] = useState(false);
+    const [currentReward, setCurrentReward] = useState(null);
+    const [rewardType, setRewardType] = useState(null);
+
+    const resources = ["silver", "cross", "garlic"]; // example resources
+    const dice = ["1", "2", "3", "4", "5", "6"]; // example dice
+    const fragments = [
+      "fragment_crimson_1",
+      "fragment_crimson_2",
+      "fragment_crimson_3",
+      "fragment_emerald_1",
+      "fragment_emerald_2",
+      "fragment_emerald_3",
+      "fragment_granite_1",
+      "fragment_granite_2",
+      "fragment_granite_3",
+    ];
+    const getRandomReward = (options) => {
+      const randomIndex = Math.floor(Math.random() * options.length);
+      return options[randomIndex];
+    };
+
+    const handleRewardClick = (type) => {
+      let reward;
+      setRewardType(type);
+
+      switch (type) {
+        case "resource":
+          reward = getRandomReward(resources);
+          break;
+        case "dice":
+          reward = getRandomReward(dice);
+          break;
+        case "fragment":
+          reward = getRandomReward(fragments);
+          break;
+      }
+
+      setCurrentReward(reward);
+      setShowRewardModal(true);
+    };
+
+    const RewardModal = () => (
+      <div className="uppercase font-strike fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full text-center">
+          <h3 className="text-xl font-bold mb-4">Your {rewardType} Reward</h3>
+          <div className="mb-6">
+            {/* Use getIcons here to display the reward */}
+            <div className="flex justify-center items-center text-4xl mb-4">
+              {getIcon(currentReward, 50)}
             </div>
-          ))}
-        </div>
-        <div className="mt-4 flex justify-end">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              setShowDraftResults(false);
-              draftStore.continueDrafting();
-            }}
+          </div>
+          <Button
+            variant="default"
+            size="lg"
+            onClick={() => setShowRewardModal(false)}
           >
-            Continue
-          </button>
+            Done
+          </Button>
         </div>
       </div>
-    </div>
-  );
+    );
+
+    return (
+      <div
+        className="uppercase font-strike fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="bg-white rounded-lg p-4 w-full max-w-6xl">
+          <div className="flex justify-between items-center text-2xl mb-4">
+            <div>Draft Results</div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => handleRewardClick("resource")}
+              >
+                {getIcon("random_resource", 50)}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleRewardClick("dice")}
+              >
+                {getIcon("dice", 50)}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleRewardClick("fragment")}
+              >
+                {getIcon("discover_fragment", 50)}
+              </Button>
+            </div>
+          </div>
+
+          {/* Existing draft results content */}
+          <div className="flex flex-wrap gap-4">
+            {draftStore.players.map((player) => (
+              <div
+                key={player.id}
+                className="flex-1 min-w-[200px] p-4 rounded-lg"
+                style={{ backgroundColor: player.color + "20" }}
+              >
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: player.color }}
+                  />
+                  <h3>{player.name}</h3>
+                </div>
+                <div className="flex justify-center items-center gap-2">
+                  {player.hand.map((item) => (
+                    <div key={item.id}>{renderItem(item)}</div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Keep the continue button at the bottom */}
+          <div className="mt-4 flex justify-center">
+            <Button
+              variant="default"
+              className="text-white bg-black hover:bg-gray-800"
+              onClick={() => {
+                setShowDraftResults(false);
+                draftStore.continueDrafting();
+              }}
+            >
+              Continue
+            </Button>
+          </div>
+
+          {showRewardModal && <RewardModal />}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 font-strike uppercase">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Draft Engine</h1>
+          <h1 className="text-2xl">Draft Engine</h1>
           <div className="text-gray-600">
             Turn: {draftStore.currentTurn} | Age: {draftStore.currentAge} |
             Round: {draftStore.draftingRound + 1}/{draftStore.maxDraftingRounds}
@@ -159,18 +255,18 @@ const DraftEngine = observer(({ config, CardComponent }) => {
         <div className="mb-4 p-4 border rounded-lg bg-gray-50">
           <div className="flex items-center gap-2 flex-wrap">
             <PlayerSetup store={draftStore} />
-            <button
-              className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+            <Button
+              className="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded"
               onClick={() => draftStore.nextTurn()}
             >
               Next Turn
-            </button>
-            <button
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            </Button>
+            <Button
+              className="bg-red-500 hover:bg-red-700 text-white  py-2 px-4 rounded"
               onClick={() => draftStore.restartGame()}
             >
               Restart Game
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -194,14 +290,12 @@ const DraftEngine = observer(({ config, CardComponent }) => {
       {/* Active Player's Board */}
       {activePlayer && (
         <div className="border p-4 rounded-lg bg-yellow-50">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center  gap-2 mb-4">
             <div
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: activePlayer.color }}
             />
-            <h2 className="text-xl font-semibold">
-              {activePlayer.name}`s Turn
-            </h2>
+            <h2 className="text-xl">{activePlayer.name}`s Turn</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {activePlayer?.hand.map((item) => (

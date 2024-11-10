@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Modal from "./Modal"; // We'll create this basic modal component
+import { Button } from "@/components/ui/button";
 
 const colors = {
   red: "#EF4444",
@@ -89,17 +90,17 @@ const PlayerSetup = ({ store, minPlayers = 2, maxPlayers = 6 }) => {
         ))}
       </select>
 
-      <button
+      <Button
         onClick={() => setIsModalOpen(true)}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className="text-white bg-black py-2 px-4 rounded"
       >
         Customize Players
-      </button>
+      </Button>
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Customize Players</h2>
+            <h2 className="text-xl mb-4">Customize Players</h2>
             {playerSettings.map((player, index) => (
               <div key={player.id} className="mb-4 p-4 border rounded">
                 <div className="flex items-center gap-4 mb-2">
@@ -128,18 +129,18 @@ const PlayerSetup = ({ store, minPlayers = 2, maxPlayers = 6 }) => {
               </div>
             ))}
             <div className="flex justify-end gap-2">
-              <button
+              <Button
                 onClick={() => setIsModalOpen(false)}
                 className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={saveChanges}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               >
                 Save
-              </button>
+              </Button>
             </div>
           </div>
         </Modal>
