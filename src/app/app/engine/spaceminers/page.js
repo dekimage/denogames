@@ -23,7 +23,12 @@ const PickAxeIcon = () => (
   </svg>
 );
 
-const SpaceMinerCard = ({ item }) => {
+const SpaceMinerCard = ({
+  item,
+  isHighlighted,
+  isSelected,
+  selectionColor,
+}) => {
   // Color mappings using hex codes (pastel palette)
   const COLORS = {
     cardTypes: {
@@ -137,8 +142,17 @@ const SpaceMinerCard = ({ item }) => {
         w-24 h-32
         rounded-xl shadow-lg flex flex-col
         hover:z-10 transition-all duration-200
+        ${isHighlighted ? "animate-highlight" : ""}
+        ${isSelected ? "opacity-70" : "hover:scale-105"}
       `}
-      style={{ backgroundColor: getCardBackground() }}
+      style={{
+        backgroundColor: getCardBackground(),
+        ...(isHighlighted && {
+          boxShadow: "0 0 0 4px #22c55e, 0 0 20px rgba(34, 197, 94, 0.5)",
+          transform: "scale(1.1)",
+          transition: "all 0.3s ease-in-out",
+        }),
+      }}
     >
       {/* Type Indicator */}
       <div

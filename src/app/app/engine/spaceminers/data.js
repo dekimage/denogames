@@ -112,9 +112,9 @@ const resources = [
 const blueprints = [
   // Government Blueprints (1-6)
   { id: 25, card: "blueprint", type: "government", count: 6 },
-  { id: 25, card: "blueprint", type: "private", count: 6 },
-  { id: 25, card: "blueprint", type: "rebel", count: 6 },
-  { id: 25, card: "blueprint", type: "alien", count: 6 },
+  { id: 26, card: "blueprint", type: "private", count: 6 },
+  { id: 27, card: "blueprint", type: "rebel", count: 6 },
+  { id: 28, card: "blueprint", type: "alien", count: 6 },
 
   // { id: 25, card: "blueprint", type: "government" },
   // { id: 26, card: "blueprint", type: "government" },

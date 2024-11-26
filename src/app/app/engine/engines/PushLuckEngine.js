@@ -14,26 +14,49 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const [highlightedCards, setHighlightedCards] = useState(new Set());
   const previousActions = useRef(pushLuckStore.actions);
   const actionSound = useRef(null);
+  const boomSound = useRef(null);
+  const [soundLoaded, setSoundLoaded] = useState(false);
 
   useEffect(() => {
     pushLuckStore.setConfig(config);
+    actionSound.current = new Audio("/sounds/action-gained.mp3");
+
+    // Initialize sounds with error handling
+    try {
+      boomSound.current = new Audio();
+      boomSound.current.src = "/sounds/boom.mp3";
+
+      // Add event listeners to handle loading
+      boomSound.current.addEventListener("canplaythrough", () => {
+        setSoundLoaded(true);
+      });
+
+      boomSound.current.addEventListener("error", (e) => {
+        console.error("Error loading sound:", e);
+      });
+
+      // Preload the sound
+      boomSound.current.load();
+    } catch (error) {
+      console.error("Error initializing sound:", error);
+    }
+
+    // Cleanup
+    return () => {
+      if (boomSound.current) {
+        boomSound.current.removeEventListener("canplaythrough", () => {
+          setSoundLoaded(false);
+        });
+      }
+    };
   }, [config]);
 
   useEffect(() => {
-    // Initialize sound
-    actionSound.current = new Audio("/sounds/action-gained.mp3"); // You'll need to add this file
-  }, []);
-
-  useEffect(() => {
     if (pushLuckStore.actions > previousActions.current) {
-      // Play sound
       actionSound.current?.play();
-
-      // Animate actions counter
       setIsActionsAnimating(true);
       setTimeout(() => setIsActionsAnimating(false), ANIMATION_DURATION * 1000);
 
-      // Find matching cards and highlight them
       const matchingCards = findMatchingCards();
       setHighlightedCards(new Set(matchingCards));
       setTimeout(
@@ -54,59 +77,99 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       .map((card) => card.id);
   };
 
-  const renderExplosionModal = () => (
-    <Modal>
-      <div className="p-6 text-center">
-        <h2 className="text-2xl font-bold mb-4">BOOM!</h2>
-        <p className="mb-6">
-          You`ve hit an explosion! What would you like to do?
-        </p>
-        <div className="flex justify-center gap-4">
-          <Button variant="default" onClick={() => pushLuckStore.diffuseBomb()}>
-            Diffuse Bomb
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              pushLuckStore.diffuseBomb();
-              pushLuckStore.nextTurn();
-            }}
-          >
-            End Turn
-          </Button>
+  const playBoomSound = () => {
+    if (boomSound.current && soundLoaded) {
+      try {
+        // Reset the sound to the beginning if it's already playing
+        boomSound.current.currentTime = 0;
+
+        // Play with error handling
+        const playPromise = boomSound.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Error playing sound:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error playing boom sound:", error);
+      }
+    }
+  };
+
+  const renderShields = (count) => {
+    return Array.from({ length: count }, (_, i) => (
+      <span key={i} className="inline-block">
+        🛡️
+      </span>
+    ));
+  };
+
+  const renderExplosionModal = () => {
+    const disasterCard =
+      pushLuckStore.centralBoard[pushLuckStore.centralBoard.length - 1];
+    const threatLevel = disasterCard.threat || 1;
+
+    playBoomSound();
+
+    return (
+      <Modal>
+        <div className="p-6 text-center animate-wobble">
+          <div className="text-4xl mb-6 animate-bounce">👁️</div>
+          <h2 className="text-2xl font-bold mb-4 text-red-500">
+            Enemy Saw You!
+          </h2>
+
+          {/* Disaster Card Container */}
+          <div className="mb-6 flex justify-center animate-shake">
+            <div className="transform scale-90">
+              <CardComponent item={disasterCard} />
+            </div>
+          </div>
+
+          <p className="mb-6 text-lg">What would you like to do?</p>
+
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="default"
+              onClick={() => pushLuckStore.diffuseBomb()}
+              className="animate-pulse flex items-center gap-2"
+            >
+              <span>Mine</span>
+              <span className="flex gap-1">{renderShields(threatLevel)}</span>
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                pushLuckStore.diffuseBomb();
+                pushLuckStore.nextTurn();
+              }}
+              className="animate-pulse"
+            >
+              End Turn
+            </Button>
+          </div>
         </div>
-      </div>
-    </Modal>
-  );
+      </Modal>
+    );
+  };
 
   const renderCard = (card, index) => {
     const isSelected = pushLuckStore.selectedCards.has(card.id);
     const selectionColor = pushLuckStore.selectedCards.get(card.id);
+    const isHighlighted = highlightedCards.has(card.id);
 
     return (
       <div
         key={`${card.id}-${index}`}
-        className={`relative cursor-pointer transition-all duration-200
-          ${isSelected ? "opacity-70" : "hover:scale-105"}
-        `}
+        className="relative cursor-pointer"
         onClick={() => pushLuckStore.toggleCardSelection(card.id)}
       >
-        {CardComponent ? (
-          <CardComponent item={card} />
-        ) : (
-          <div className="w-32 h-48 border rounded flex items-center justify-center">
-            {card.type}
-          </div>
-        )}
-        {isSelected && (
-          <div
-            className="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2"
-            style={{
-              backgroundColor:
-                selectionColor === "main" ? "#4A5568" : selectionColor,
-            }}
-          />
-        )}
+        <CardComponent
+          item={card}
+          isHighlighted={isHighlighted}
+          isSelected={isSelected}
+          selectionColor={selectionColor}
+        />
       </div>
     );
   };
@@ -117,10 +180,14 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b sm:relative sm:bg-transparent sm:border-none">
         <div className="flex justify-between items-center p-2 sm:my-6 sm:p-0">
           <div className="flex items-center gap-2 sm:gap-4 justify-center w-full">
-            {/* <h1 className="text-lg sm:text-2xl font-bold">Push Your Luck</h1> */}
-            <div className="text-sm sm:text-base">
-              {/* Turn:{pushLuckStore.currentTurn} */}
-              Actions:{pushLuckStore.actions}
+            <div
+              className={`text-sm sm:text-base ${
+                isActionsAnimating
+                  ? "text-green-500 scale-125"
+                  : "text-white scale-100"
+              } transition-all duration-300`}
+            >
+              Actions: {pushLuckStore.actions}
             </div>
           </div>
           <Button
@@ -141,27 +208,22 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           <p>{pushLuckStore.deck.length} cards remaining</p>
         </div>
         <div className="border rounded p-4">
-          <h3 className=" mb-2">Discard Pile</h3>
+          <h3 className="mb-2">Discard Pile</h3>
           <p>{pushLuckStore.discardPile.length} cards discarded</p>
         </div>
       </div>
 
-      {/* Central Board - Optimized for mobile */}
+      {/* Central Board */}
       <div className="border rounded-lg p-2 sm:p-6 mb-16 sm:mb-6 min-h-screen">
-        <div className="flex flex-wrap gap-2 sm:gap-4 sm:justify-center justify-center mt-12">
-          {pushLuckStore.centralBoard.map((card, index) => (
-            <div key={`${card.id}-${index}`} className=" first:ml-0 sm:ml-0">
-              <CardComponent
-                item={card}
-                isHighlighted={highlightedCards.has(card.id)}
-              />
-            </div>
-          ))}
+        <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-12">
+          {pushLuckStore.centralBoard.map((card, index) =>
+            renderCard(card, index)
+          )}
         </div>
       </div>
 
-      {/* Action Buttons - Fixed at bottom on mobile */}
-      <div className="fixed bottom-0 left-0 right-0  flex justify-center gap-2  p-2 bg-background/80 backdrop-blur-sm border-t">
+      {/* Action Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 flex justify-center gap-2 p-2 bg-background/80 backdrop-blur-sm border-t">
         {pushLuckStore.canDraw ? (
           <>
             <Button
