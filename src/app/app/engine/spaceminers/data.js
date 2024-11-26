@@ -203,3 +203,29 @@ export const spaceMinersDeck = expandDeckWithCopies([
   ...blueprints,
   ...disasters,
 ]);
+
+// Mock building cards data
+export const mockBuildings = [
+  {
+    id: "b1",
+    name: "Mining Station",
+    description: "Generates 2 resources per turn",
+    cost: "3 Crystal",
+    image: "🏭",
+  },
+  {
+    id: "b2",
+    name: "Research Lab",
+    description: "Draw 1 extra card per turn",
+    cost: "2 Gem, 1 Gas",
+    image: "🔬",
+  },
+  {
+    id: "b3",
+    name: "Defense Tower",
+    description: "Prevent 1 disaster per game",
+    cost: "2 Asteroid, 1 Dust",
+    image: "🗼",
+  },
+  // Add more buildings as needed
+];

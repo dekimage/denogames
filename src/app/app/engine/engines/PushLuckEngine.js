@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import pushLuckStore from "@/app/stores/pushLuckStore";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
+import { BlueprintPurchaseModals } from "../spaceminers/BlueprintModals";
 
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
@@ -16,6 +17,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const actionSound = useRef(null);
   const boomSound = useRef(null);
   const [soundLoaded, setSoundLoaded] = useState(false);
+  const [selectedBlueprint, setSelectedBlueprint] = useState(null);
 
   useEffect(() => {
     pushLuckStore.setConfig(config);
@@ -162,7 +164,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       <div
         key={`${card.id}-${index}`}
         className="relative cursor-pointer"
-        onClick={() => pushLuckStore.toggleCardSelection(card.id)}
+        onClick={() => handleCardSelection(card)}
       >
         <CardComponent
           item={card}
@@ -172,6 +174,14 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         />
       </div>
     );
+  };
+
+  const handleCardSelection = (card) => {
+    if (card.card === "blueprint") {
+      setSelectedBlueprint(card);
+    } else {
+      pushLuckStore.toggleCardSelection(card.id);
+    }
   };
 
   return (
@@ -266,6 +276,22 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
       {/* Explosion Modal */}
       {pushLuckStore.isExploding && renderExplosionModal()}
+
+      {selectedBlueprint && (
+        <BlueprintPurchaseModals
+          blueprint={selectedBlueprint}
+          onCancel={() => {
+            setSelectedBlueprint(null);
+            pushLuckStore.toggleCardSelection(selectedBlueprint.id);
+          }}
+          onComplete={(building) => {
+            // Handle building purchase here
+            setSelectedBlueprint(null);
+            // Continue with normal card selection
+            pushLuckStore.toggleCardSelection(selectedBlueprint.id);
+          }}
+        />
+      )}
     </div>
   );
 });
