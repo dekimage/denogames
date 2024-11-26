@@ -2,7 +2,7 @@
 export const buildingCards = [
   {
     id: 1,
-    number: "#1",
+    number: 1,
     name: "Mining Station",
     vp: 3,
     imageUrl: "/buildings/mining-station.png",
@@ -11,7 +11,7 @@ export const buildingCards = [
   },
   {
     id: 2,
-    number: "#2",
+    number: 2,
     name: "Research Lab",
     vp: 2,
     imageUrl: "/buildings/research-lab.png",
@@ -20,7 +20,7 @@ export const buildingCards = [
   },
   {
     id: 3,
-    number: "#3",
+    number: 3,
     name: "Defense Tower",
     vp: 4,
     imageUrl: "/buildings/defense-tower.png",
@@ -29,7 +29,7 @@ export const buildingCards = [
   },
   {
     id: 4,
-    number: "#4",
+    number: 4,
     name: "Alien Embassy",
     vp: 5,
     imageUrl: "/buildings/alien-embassy.png",
@@ -38,7 +38,7 @@ export const buildingCards = [
   },
   {
     id: 5,
-    number: "#5",
+    number: 5,
     name: "Power Plant",
     vp: 3,
     imageUrl: "/buildings/power-plant.png",
@@ -47,7 +47,7 @@ export const buildingCards = [
   },
   {
     id: 6,
-    number: "#6",
+    number: 6,
     name: "Storage Facility",
     vp: 2,
     imageUrl: "/buildings/storage.png",
@@ -56,7 +56,7 @@ export const buildingCards = [
   },
   {
     id: 7,
-    number: "#7",
+    number: 7,
     name: "Trading Post",
     vp: 3,
     imageUrl: "/buildings/trading-post.png",
@@ -65,7 +65,7 @@ export const buildingCards = [
   },
   {
     id: 8,
-    number: "#8",
+    number: 8,
     name: "Shield Generator",
     vp: 4,
     imageUrl: "/buildings/shield-gen.png",
@@ -74,7 +74,7 @@ export const buildingCards = [
   },
   {
     id: 9,
-    number: "#9",
+    number: 9,
     name: "Recycling Center",
     vp: 3,
     imageUrl: "/buildings/recycling.png",
@@ -83,7 +83,7 @@ export const buildingCards = [
   },
   {
     id: 10,
-    number: "#10",
+    number: 10,
     name: "Observatory",
     vp: 2,
     imageUrl: "/buildings/observatory.png",
@@ -92,7 +92,7 @@ export const buildingCards = [
   },
   {
     id: 11,
-    number: "#11",
+    number: 11,
     name: "Teleporter",
     vp: 5,
     imageUrl: "/buildings/teleporter.png",
@@ -101,7 +101,7 @@ export const buildingCards = [
   },
   {
     id: 12,
-    number: "#12",
+    number: 12,
     name: "Repair Bay",
     vp: 3,
     imageUrl: "/buildings/repair-bay.png",
@@ -110,7 +110,7 @@ export const buildingCards = [
   },
   {
     id: 13,
-    number: "#13",
+    number: 13,
     name: "Command Center",
     vp: 4,
     imageUrl: "/buildings/command.png",
@@ -119,7 +119,7 @@ export const buildingCards = [
   },
   {
     id: 14,
-    number: "#14",
+    number: 14,
     name: "Resource Converter",
     vp: 3,
     imageUrl: "/buildings/converter.png",
@@ -128,7 +128,7 @@ export const buildingCards = [
   },
   {
     id: 15,
-    number: "#15",
+    number: 15,
     name: "Scanner Array",
     vp: 2,
     imageUrl: "/buildings/scanner.png",
@@ -137,7 +137,7 @@ export const buildingCards = [
   },
   {
     id: 16,
-    number: "#16",
+    number: 16,
     name: "Quantum Lab",
     vp: 5,
     imageUrl: "/buildings/quantum-lab.png",
