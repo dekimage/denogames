@@ -155,16 +155,36 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     );
   };
 
+  const handleCardSelection = (card) => {
+    // Only allow blueprint selection during collection or other players phase
+    const isCollectPhase = !pushLuckStore.canDraw;
+    const isOtherPlayersPhase = pushLuckStore.isOtherPlayersPhase;
+
+    if (card.card === "blueprint" && (isCollectPhase || isOtherPlayersPhase)) {
+      setSelectedBlueprint(card);
+    } else if (card.card !== "blueprint") {
+      pushLuckStore.toggleCardSelection(card.id);
+    }
+  };
+
   const renderCard = (card, index) => {
     const isSelected = pushLuckStore.selectedCards.has(card.id);
     const selectionColor = pushLuckStore.selectedCards.get(card.id);
     const isHighlighted = highlightedCards.has(card.id);
 
+    // Determine if card should be clickable
+    const isCollectPhase = !pushLuckStore.canDraw;
+    const isOtherPlayersPhase = pushLuckStore.isOtherPlayersPhase;
+    const isClickable =
+      card.card === "blueprint" ? isCollectPhase || isOtherPlayersPhase : true;
+
     return (
       <div
         key={`${card.id}-${index}`}
-        className="relative cursor-pointer"
-        onClick={() => handleCardSelection(card)}
+        className={`relative ${
+          isClickable ? "cursor-pointer" : "cursor-not-allowed"
+        }`}
+        onClick={() => isClickable && handleCardSelection(card)}
       >
         <CardComponent
           item={card}
@@ -174,14 +194,6 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         />
       </div>
     );
-  };
-
-  const handleCardSelection = (card) => {
-    if (card.card === "blueprint") {
-      setSelectedBlueprint(card);
-    } else {
-      pushLuckStore.toggleCardSelection(card.id);
-    }
   };
 
   return (
@@ -279,16 +291,17 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
       {selectedBlueprint && (
         <BlueprintPurchaseModals
-          blueprint={selectedBlueprint}
+          blueprint={{ ...selectedBlueprint }}
+          CardComponent={CardComponent}
+          rerolls={selectedBlueprint.blueprintRewards?.rerolls}
           onCancel={() => {
             setSelectedBlueprint(null);
-            pushLuckStore.toggleCardSelection(selectedBlueprint.id);
           }}
           onComplete={(building) => {
-            // Handle building purchase here
+            if (building) {
+              pushLuckStore.toggleCardSelection(selectedBlueprint.id);
+            }
             setSelectedBlueprint(null);
-            // Continue with normal card selection
-            pushLuckStore.toggleCardSelection(selectedBlueprint.id);
           }}
         />
       )}

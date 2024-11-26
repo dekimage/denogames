@@ -74,22 +74,6 @@ const SpaceMinerCard = ({
     shield: "🛡️",
   };
 
-  // Use useMemo to keep the random resources consistent
-  const [randomResources] = useState(() => {
-    const resourceTypes = Object.keys(ICONS.resourceTypes);
-    const count = Math.floor(Math.random() * 3) + 3; // 3-5 resources
-    return Array.from(
-      { length: count },
-      () => resourceTypes[Math.floor(Math.random() * resourceTypes.length)]
-    );
-  });
-
-  // Use useMemo for blueprint rewards as well
-  const [blueprintRewards] = useState(() => ({
-    coins: Math.floor(Math.random() * 3),
-    rerolls: Math.floor(Math.random() * 3),
-  }));
-
   const getResourceBonus = (rarity) => {
     switch (rarity) {
       case "rare":
@@ -162,7 +146,7 @@ const SpaceMinerCard = ({
         <span className="text-base">{getTypeIcon()}</span>
       </div>
 
-      {/* Card Body - Centered */}
+      {/* Card Body */}
       <div className="flex-1 flex items-center justify-center">
         {item.type === "boom" && (
           <div className="flex gap-1">
@@ -189,7 +173,7 @@ const SpaceMinerCard = ({
 
         {item.card === "blueprint" && (
           <div className="flex flex-wrap gap-1 sm:gap-2 justify-start mt-6 mx-2">
-            {randomResources.map((type, index) => (
+            {item.randomResources.map((type, index) => (
               <div
                 key={index}
                 className="w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
@@ -206,36 +190,65 @@ const SpaceMinerCard = ({
 
       {/* Card Footer */}
       <div className="h-10 sm:h-12 border-t border-black/10 flex items-center justify-center">
-        {item.type === "boom" && (
-          <span className="text-xs sm:text-sm px-2 sm:px-4 text-center font-strike uppercase text-black">
-            {/* {item.effect} */}
-          </span>
-        )}
-
-        {item.card === "resource" && (
-          <span className="text-base sm:text-lg font-strike uppercase text-black">
-            {getResourceBonus(item.rarity) !== "/"
-              ? getResourceBonus(item.rarity)
-              : ""}
-          </span>
-        )}
-
         {item.card === "blueprint" && (
           <div className="flex gap-2 font-strike uppercase text-black">
-            {blueprintRewards.coins > 0 &&
-              renderBonus("coin", blueprintRewards.coins)}
-            {blueprintRewards.rerolls > 0 &&
-              renderBonus("reroll", blueprintRewards.rerolls)}
+            {item.blueprintRewards.coins > 0 &&
+              renderBonus("coin", item.blueprintRewards.coins)}
+            {item.blueprintRewards.rerolls > 0 &&
+              renderBonus("reroll", item.blueprintRewards.rerolls)}
+          </div>
+        )}
+
+        {item.card === "resource" && item.rarity !== "common" && (
+          <div className="flex gap-2 font-strike uppercase text-black">
+            {renderBonus("coin", item.rarity === "ancient" ? 2 : 1)}
           </div>
         )}
       </div>
+
+      {/* Selection Indicator */}
+      {isSelected && (
+        <div
+          className="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2"
+          style={{
+            backgroundColor:
+              selectionColor === "main" ? "#4A5568" : selectionColor,
+          }}
+        />
+      )}
     </div>
   );
 };
 
+// Helper functions (at the top of the file)
+const getRandomResources = () => {
+  const resources = ["crystal", "gem", "gas", "asteroid", "dust", "orb"];
+  const shuffled = [...resources].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+};
+
+const getBlueprintRewards = () => {
+  return {
+    coins: Math.floor(Math.random() * 3), // 0-2 coins
+    rerolls: Math.floor(Math.random() * 3), // 0-2 rerolls
+  };
+};
+
+// Enhance the deck with static random values
+const enhancedDeck = spaceMinersDeck.map((card) => {
+  const enhancedCard = { ...card };
+
+  if (card.card === "blueprint") {
+    enhancedCard.randomResources = getRandomResources();
+    enhancedCard.blueprintRewards = getBlueprintRewards();
+  }
+
+  return enhancedCard;
+});
+
 // Sample game configuration
 const spaceMinerConfig = {
-  initialItems: spaceMinersDeck,
+  initialItems: enhancedDeck,
   buttons: {
     draw: (
       <span className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
 import { mockBuildings } from "./data";
@@ -7,15 +7,28 @@ export const BlueprintPurchaseModals = ({
   blueprint,
   onCancel,
   onComplete,
+  CardComponent,
+  rerolls,
 }) => {
   const [showBuildingSelect, setShowBuildingSelect] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [remainingRerolls, setRemainingRerolls] = useState(
-    blueprint?.rerolls || 0
-  );
-  const [availableBuildings, setAvailableBuildings] = useState(
+  const [remainingRerolls, setRemainingRerolls] = useState(rerolls || 0);
+  const [availableBuildings, setAvailableBuildings] = useState(() =>
     getRandomBuildings()
   );
+
+  // Initialize with the correct blueprint and rerolls
+  useEffect(() => {
+    if (rerolls !== undefined) {
+      setRemainingRerolls(rerolls);
+    }
+  }, [rerolls]);
+
+  // Reset state when blueprint changes
+  useEffect(() => {
+    setSelectedBuilding(null);
+    setAvailableBuildings(getRandomBuildings());
+  }, [blueprint]);
 
   function getRandomBuildings(count = 3) {
     const shuffled = [...mockBuildings].sort(() => 0.5 - Math.random());
@@ -30,16 +43,21 @@ export const BlueprintPurchaseModals = ({
     }
   }
 
+  function handleClose() {
+    setShowBuildingSelect(false);
+    setSelectedBuilding(null);
+    onCancel();
+  }
+
   // Initial Blueprint Purchase Modal
   if (!showBuildingSelect) {
     return (
-      <Modal>
+      <Modal onClose={handleClose}>
         <div className="p-6 text-center">
           <h2 className="text-2xl font-bold mb-4">Buy Blueprint?</h2>
           <div className="mb-6 flex justify-center">
             <div className="transform scale-110">
-              {/* Blueprint card will be rendered here */}
-              {blueprint && <div>{/* Your card component */}</div>}
+              {blueprint && CardComponent && <CardComponent item={blueprint} />}
             </div>
           </div>
           <div className="flex justify-center gap-4">
@@ -49,7 +67,7 @@ export const BlueprintPurchaseModals = ({
             >
               Buy
             </Button>
-            <Button variant="secondary" onClick={onCancel}>
+            <Button variant="secondary" onClick={handleClose}>
               Cancel
             </Button>
           </div>
@@ -60,7 +78,10 @@ export const BlueprintPurchaseModals = ({
 
   // Building Selection Modal
   return (
-    <Modal className="fixed inset-0 flex items-center justify-center">
+    <Modal
+      onClose={handleClose}
+      className="fixed inset-0 flex items-center justify-center"
+    >
       <div className="bg-background p-6 w-full h-full flex flex-col">
         <h2 className="text-2xl font-bold mb-4 text-center">
           Select a Building
@@ -81,6 +102,12 @@ export const BlueprintPurchaseModals = ({
                 }
               `}
               onClick={() => setSelectedBuilding(building)}
+              style={{
+                borderColor:
+                  selectedBuilding?.id === building.id
+                    ? "rgb(var(--primary))"
+                    : "",
+              }}
             >
               <div className="flex items-center gap-4">
                 <div className="text-4xl">{building.image}</div>
