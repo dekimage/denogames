@@ -23,83 +23,86 @@ const PickAxeIcon = () => (
   </svg>
 );
 
+// Color mappings using hex codes (pastel palette)
+export const SPACE_MINERS_COLORS = {
+  cardTypes: {
+    resource: "#FFE5CC", // soft yellow
+    blueprint: "#CCE5FF", // soft blue
+    disaster: "#FFCCD4", // soft red
+  },
+  resourceTypes: {
+    crystal: "#E6E6FA", // soft lavender
+    gem: "#FFB3B3", // soft pink
+    asteroid: "#D4D4D4", // soft gray
+    dust: "#FFE4B5", // soft orange
+    gas: "#B3E6FF", // soft cyan
+    orb: "#DDA0DD", // soft purple
+  },
+  blueprintTypes: {
+    government: "#4A5568", // slate
+    private: "#744210", // brown
+    rebel: "#742A2A", // dark red
+    alien: "#234E52", // dark teal
+  },
+};
+
+// Icon mappings (using emojis temporarily)
+export const SPACE_MINERS_ICONS = {
+  resourceTypes: {
+    crystal: "💎",
+    gem: "💍",
+    asteroid: "🌑",
+    dust: "✨",
+    gas: "💨",
+    orb: "🔮",
+  },
+  blueprintTypes: {
+    government: "👑",
+    private: "💼",
+    rebel: "⚔️",
+    alien: "👽",
+  },
+  disaster: "☠️",
+  coin: "🌕",
+  reroll: "♻",
+  shield: "🛡️",
+  star: "⭐",
+};
+
 const SpaceMinerCard = ({
   item,
   isHighlighted,
   isSelected,
   selectionColor,
 }) => {
-  // Color mappings using hex codes (pastel palette)
-  const COLORS = {
-    cardTypes: {
-      resource: "#FFE5CC", // soft yellow
-      blueprint: "#CCE5FF", // soft blue
-      disaster: "#FFCCD4", // soft red
-    },
-    resourceTypes: {
-      crystal: "#E6E6FA", // soft lavender
-      gem: "#FFB3B3", // soft pink
-      asteroid: "#D4D4D4", // soft gray
-      dust: "#FFE4B5", // soft orange
-      gas: "#B3E6FF", // soft cyan
-      orb: "#DDA0DD", // soft purple
-    },
-    blueprintTypes: {
-      government: "#4A5568", // slate
-      private: "#744210", // brown
-      rebel: "#742A2A", // dark red
-      alien: "#234E52", // dark teal
-    },
-  };
-
-  // Icon mappings (using emojis temporarily)
-  const ICONS = {
-    resourceTypes: {
-      crystal: "💎",
-      gem: "💍",
-      asteroid: "🌑",
-      dust: "✨",
-      gas: "💨",
-      orb: "🔮",
-    },
-    blueprintTypes: {
-      government: "👑",
-      private: "💼",
-      rebel: "⚔️",
-      alien: "👽",
-    },
-    disaster: "☠️",
-    coin: "🪙",
-    reroll: "🎁",
-    shield: "🛡️",
-  };
-
   const getResourceBonus = (rarity) => {
     switch (rarity) {
       case "rare":
-        return `1 ${ICONS.coin}`;
+        return `1 ${SPACE_MINERS_ICONS.coin}`;
       case "ancient":
-        return `2 ${ICONS.coin}`;
+        return `2 ${SPACE_MINERS_ICONS.coin}`;
       default:
         return "/";
     }
   };
 
   const getCardBackground = () => {
-    if (item.type === "boom") return COLORS.cardTypes.disaster;
-    return COLORS.cardTypes[item.card];
+    if (item.type === "boom") return SPACE_MINERS_COLORS.cardTypes.disaster;
+    return SPACE_MINERS_COLORS.cardTypes[item.card];
   };
 
   const getTypeColor = () => {
     if (item.type === "boom") return "#FF4D4D";
-    if (item.card === "blueprint") return COLORS.blueprintTypes[item.type];
-    return COLORS.resourceTypes[item.type.toLowerCase()];
+    if (item.card === "blueprint")
+      return SPACE_MINERS_COLORS.blueprintTypes[item.type];
+    return SPACE_MINERS_COLORS.resourceTypes[item.type.toLowerCase()];
   };
 
   const getTypeIcon = () => {
-    if (item.type === "boom") return ICONS.disaster;
-    if (item.card === "blueprint") return ICONS.blueprintTypes[item.type];
-    return ICONS.resourceTypes[item.type.toLowerCase()];
+    if (item.type === "boom") return SPACE_MINERS_ICONS.disaster;
+    if (item.card === "blueprint")
+      return SPACE_MINERS_ICONS.blueprintTypes[item.type];
+    return SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()];
   };
 
   const renderBonus = (type, value) => (
@@ -111,7 +114,9 @@ const SpaceMinerCard = ({
       `}
       >
         <span className="text-xl">
-          {type === "coin" ? ICONS.coin : ICONS.reroll}
+          {type === "coin"
+            ? SPACE_MINERS_ICONS.coin
+            : SPACE_MINERS_ICONS.reroll}
         </span>
       </div>
       <span className="text-lg">{value}</span>
@@ -152,7 +157,7 @@ const SpaceMinerCard = ({
           <div className="flex gap-1">
             {Array.from({ length: item.threat || 1 }).map((_, i) => (
               <span key={i} className="text-2xl">
-                {ICONS.shield}
+                {SPACE_MINERS_ICONS.shield}
               </span>
             ))}
           </div>
@@ -162,11 +167,12 @@ const SpaceMinerCard = ({
           <div
             className="w-14 h-14 sm:w-16 sm:h-16 rounded flex items-center justify-center border border-black"
             style={{
-              backgroundColor: COLORS.resourceTypes[item.type.toLowerCase()],
+              backgroundColor:
+                SPACE_MINERS_COLORS.resourceTypes[item.type.toLowerCase()],
             }}
           >
             <span className="text-3xl sm:text-4xl">
-              {ICONS.resourceTypes[item.type.toLowerCase()]}
+              {SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()]}
             </span>
           </div>
         )}
@@ -177,10 +183,12 @@ const SpaceMinerCard = ({
               <div
                 key={index}
                 className="w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
-                style={{ backgroundColor: COLORS.resourceTypes[type] }}
+                style={{
+                  backgroundColor: SPACE_MINERS_COLORS.resourceTypes[type],
+                }}
               >
                 <span className="text-xs sm:text-sm">
-                  {ICONS.resourceTypes[type]}
+                  {SPACE_MINERS_ICONS.resourceTypes[type]}
                 </span>
               </div>
             ))}

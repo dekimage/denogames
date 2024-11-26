@@ -57,6 +57,7 @@ import NotificationDropdown from "@/components/Notifications";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/components/ui/themeButton";
 
 const routesWithoutHeaderFooter = ["/login", "/signup", "/app", "/cart"];
 
@@ -331,6 +332,7 @@ const ReusableLayout = observer(({ children }) => {
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
+                  <ModeToggle />
                 </NavigationMenuList>
               </NavigationMenu>
             </div>

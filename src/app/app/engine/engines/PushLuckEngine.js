@@ -6,6 +6,7 @@ import pushLuckStore from "@/app/stores/pushLuckStore";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
 import { BlueprintPurchaseModals } from "../spaceminers/BlueprintModals";
+import { ModeToggle } from "@/components/ui/themeButton";
 
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
@@ -206,7 +207,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               className={`text-sm sm:text-base ${
                 isActionsAnimating
                   ? "text-green-500 scale-125"
-                  : "text-white scale-100"
+                  : "text-foreground scale-100"
               } transition-all duration-300`}
             >
               Actions: {pushLuckStore.actions}
@@ -215,11 +216,12 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           <Button
             variant="outline"
             size="sm"
-            className="sm:hidden"
+            className="sm:hidden mr-2"
             onClick={() => pushLuckStore.restartGame()}
           >
             Restart
           </Button>
+          <ModeToggle />
         </div>
       </div>
 
