@@ -250,7 +250,7 @@ const ReusableLayout = observer(({ children }) => {
         )}
         {showMvpHeader && (
           <div className="fixed top-0 left-0 right-0 z-50 bg-white print:hidden">
-            <div className="navigation">
+            <div className="navigation max-h-[50px]">
               <NavigationMenu>
                 <NavigationMenuList className="gap-4">
                   <NavigationMenuItem>

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { A4_DIMENSIONS } from "./utils";
-import { resourceTypes, buildingCards, generateDisasterTracker } from "./data";
+import { buildingCards } from "./data";
 import Image from "next/image";
 import {
   SPACE_MINERS_COLORS,
@@ -132,7 +132,7 @@ const PrintableSheet = () => {
 
       {/* Resource Trackers in one row */}
       <div className="flex justify-between">
-        {Object.keys(resourceTypes).map((type) => (
+        {Object.keys(SPACE_MINERS_COLORS.resourceTypes).map((type) => (
           <ResourceTracker key={type} type={type} />
         ))}
       </div>

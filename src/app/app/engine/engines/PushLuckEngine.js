@@ -210,7 +210,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                   : "text-foreground scale-100"
               } transition-all duration-300`}
             >
-              Actions: {pushLuckStore.actions}
+              Actions: {Math.min(pushLuckStore.actions, 5)}
             </div>
           </div>
           <Button
@@ -239,7 +239,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
       {/* Central Board */}
       <div className="border rounded-lg p-2 sm:p-6 mb-16 sm:mb-6 min-h-screen">
-        <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-12">
+        <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-14">
           {pushLuckStore.centralBoard.map((card, index) =>
             renderCard(card, index)
           )}

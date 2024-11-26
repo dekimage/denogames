@@ -1,10 +1,3 @@
-import {
-  SPACE_MINERS_COLORS,
-  SPACE_MINERS_ICONS,
-} from "@/app/app/engine/spaceminers/page";
-
-export { SPACE_MINERS_COLORS, SPACE_MINERS_ICONS };
-
 // buildingCards data...
 export const buildingCards = [
   {
