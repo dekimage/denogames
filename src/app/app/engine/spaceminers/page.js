@@ -65,7 +65,7 @@ const SpaceMinerCard = ({ item }) => {
     },
     disaster: "☠️",
     coin: "🪙",
-    reroll: "🔄",
+    reroll: "🎁",
     shield: "🛡️",
   };
 
@@ -174,7 +174,7 @@ const SpaceMinerCard = ({ item }) => {
         )}
 
         {item.card === "blueprint" && (
-          <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
+          <div className="flex flex-wrap gap-1 sm:gap-2 justify-start mt-6 mx-2">
             {randomResources.map((type, index) => (
               <div
                 key={index}
@@ -194,7 +194,7 @@ const SpaceMinerCard = ({ item }) => {
       <div className="h-10 sm:h-12 border-t border-black/10 flex items-center justify-center">
         {item.type === "boom" && (
           <span className="text-xs sm:text-sm px-2 sm:px-4 text-center font-strike uppercase text-black">
-            {item.effect}
+            {/* {item.effect} */}
           </span>
         )}
 

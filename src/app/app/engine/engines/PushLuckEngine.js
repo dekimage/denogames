@@ -1,15 +1,58 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import pushLuckStore from "@/app/stores/pushLuckStore";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
 
+// Animation duration in seconds
+const ANIMATION_DURATION = 1.5;
+
 const PushLuckEngine = observer(({ config, CardComponent }) => {
+  const [isActionsAnimating, setIsActionsAnimating] = useState(false);
+  const [highlightedCards, setHighlightedCards] = useState(new Set());
+  const previousActions = useRef(pushLuckStore.actions);
+  const actionSound = useRef(null);
+
   useEffect(() => {
     pushLuckStore.setConfig(config);
   }, [config]);
+
+  useEffect(() => {
+    // Initialize sound
+    actionSound.current = new Audio("/sounds/action-gained.mp3"); // You'll need to add this file
+  }, []);
+
+  useEffect(() => {
+    if (pushLuckStore.actions > previousActions.current) {
+      // Play sound
+      actionSound.current?.play();
+
+      // Animate actions counter
+      setIsActionsAnimating(true);
+      setTimeout(() => setIsActionsAnimating(false), ANIMATION_DURATION * 1000);
+
+      // Find matching cards and highlight them
+      const matchingCards = findMatchingCards();
+      setHighlightedCards(new Set(matchingCards));
+      setTimeout(
+        () => setHighlightedCards(new Set()),
+        ANIMATION_DURATION * 1000
+      );
+    }
+    previousActions.current = pushLuckStore.actions;
+  }, [pushLuckStore.actions]);
+
+  const findMatchingCards = () => {
+    const lastCard =
+      pushLuckStore.centralBoard[pushLuckStore.centralBoard.length - 1];
+    if (!lastCard) return [];
+
+    return pushLuckStore.centralBoard
+      .filter((card) => card.type === lastCard.type)
+      .map((card) => card.id);
+  };
 
   const renderExplosionModal = () => (
     <Modal>
@@ -108,7 +151,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         <div className="flex flex-wrap gap-2 sm:gap-4 sm:justify-center justify-center mt-12">
           {pushLuckStore.centralBoard.map((card, index) => (
             <div key={`${card.id}-${index}`} className=" first:ml-0 sm:ml-0">
-              {renderCard(card, index)}
+              <CardComponent
+                item={card}
+                isHighlighted={highlightedCards.has(card.id)}
+              />
             </div>
           ))}
         </div>
