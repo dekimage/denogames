@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import CustomerDetailsBox from "./CustomerDetailsBox";
-import CartItemsTable from "./CartItemsTable";
+import CartItemsTable from "./CartitemsTable";
 
 export default function OrderDetails({ order }) {
   // Dummy data for customer and cart items
