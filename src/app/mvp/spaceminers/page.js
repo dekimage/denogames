@@ -7,6 +7,9 @@ import {
   SPACE_MINERS_COLORS,
   SPACE_MINERS_ICONS,
 } from "@/app/app/engine/spaceminers/page";
+
+import templateImg from "../../../../public/spaceminers/test.png";
+
 const ResourceTracker = ({ type }) => {
   return (
     <div className="flex flex-col border-2 border-black rounded-lg p-1 w-[120px] relative">
@@ -38,35 +41,30 @@ const ResourceTracker = ({ type }) => {
 };
 export const BuildingCard = ({ card }) => {
   return (
-    <div className=" border border-black border-2 flex flex-col w-[194px] h-[150px]">
-      <div className="flex justify-between items-center border-b-2 border-black text-xs font-strike uppercase bg-yellow-300 px-1">
-        <div>{card.number}</div>
-        <div>{card.name}</div>
-        <div>{card.vp}vp</div>
+    <div className="relative">
+      <Image
+        src={templateImg}
+        alt={card.name}
+        height={1400}
+        width={1100}
+        className="w-[200px] h-[240px] rounded-[10px]"
+      />
+
+      {/* Overlaid text elements */}
+      <div className="absolute top-2 left-3 text-sm font-bold">
+        {card.number}
       </div>
-      <div className="h-32 bg-gray-100 relative">
-        <Image
-          src={`/spaceminers/a${card.id}.png`}
-          alt="Asteroid"
-          fill
-          className="w-24 h-24"
-        />
+
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 text-sm font-bold uppercase">
+        {card.name}
       </div>
-      <div className="text-[10px] h-12 flex items-center bg-cream">
+
+      <div className="absolute top-2 right-3 text-sm font-bold">
+        {card.vp}VP
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[180px] text-center text-xs">
         {card.effect}
-      </div>
-      <div className="flex justify-between bg-yellow-300 border-t-2 border-black p-[2px]">
-        {[0, 1, 2].map((squareIndex) => (
-          <div key={squareIndex} className="flex items-center">
-            <div className="w-3 h-3 border border-black mr-1 bg-white" />
-            {Array.from({ length: card.uses }).map((_, circleIndex) => (
-              <div
-                key={circleIndex}
-                className="w-3 h-3 rounded-full border border-dashed border-black mr-1 bg-white"
-              />
-            ))}
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -238,6 +236,14 @@ const ScoringTable = () => {
   );
 };
 const PrintableSheet = () => {
+  // Add this function to randomly shuffle and select 12 cards
+  const getRandomCards = (cards, count) => {
+    return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
+  };
+
+  // Get 12 random cards
+  const randomBuildingCards = getRandomCards(buildingCards, 12);
+
   return (
     <div
       className="bg-white"
@@ -247,9 +253,9 @@ const PrintableSheet = () => {
         padding: "12px",
       }}
     >
-      {/* Building Cards Grid */}
+      {/* Building Cards Grid - now using randomBuildingCards */}
       <div className="grid grid-cols-4 gap-1 mb-4">
-        {buildingCards.map((card, i) => (
+        {randomBuildingCards.map((card, i) => (
           <BuildingCard key={card.id} card={card} index={i} />
         ))}
       </div>
