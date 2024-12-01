@@ -70,6 +70,7 @@ const routePrefixesWithoutHeaderFooter = [
   "/mvp/farming",
   "/mvp/pdf",
   "/mvp/vampires",
+  "/mvp/spaceminers",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {

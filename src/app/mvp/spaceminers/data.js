@@ -149,7 +149,7 @@
 export const monuments = [
   {
     id: 1,
-    name: "Celestial Monument",
+    name: "Hawky",
     vp: 4,
 
     imageUrl: "/monuments/celestial-monument.png",
@@ -159,7 +159,7 @@ export const monuments = [
   },
   {
     id: 2,
-    name: "Galactic Monument",
+    name: "Gawky",
     vp: 4,
 
     imageUrl: "/monuments/galactic-obelisk.png",
@@ -169,7 +169,7 @@ export const monuments = [
   },
   {
     id: 3,
-    name: "Starforge Monument",
+    name: "Lawky",
     vp: 4,
 
     imageUrl: "/monuments/starforge-reliquary.png",
@@ -179,7 +179,7 @@ export const monuments = [
   },
   {
     id: 4,
-    name: "Lunar Monument",
+    name: "Reditons",
     vp: 4,
 
     imageUrl: "/monuments/lunar-beacon.png",
@@ -192,7 +192,7 @@ export const monuments = [
 export const battleShips = [
   {
     id: 5,
-    name: "Interceptor Class Omega",
+    name: "St. Miroal",
     vp: 4,
     imageUrl: "/ships/interceptor-omega.png",
     uses: 1,
@@ -201,7 +201,7 @@ export const battleShips = [
   },
   {
     id: 6,
-    name: "Dreadnought Sentinel",
+    name: "Deniosal",
     vp: 4,
     imageUrl: "/ships/dreadnought-sentinel.png",
     uses: 1,
@@ -221,7 +221,7 @@ export const battleShips = [
 export const miningEquipment = [
   {
     id: 8,
-    name: "Automated Mining Rig",
+    name: "Resslie El",
     vp: 2,
     imageUrl: "/equipment/mining-rig.png",
     uses: 3,
@@ -229,7 +229,7 @@ export const miningEquipment = [
   },
   {
     id: 9,
-    name: "Advanced Constructor Unit",
+    name: "Quizzaf",
     vp: 3,
     imageUrl: "/equipment/constructor-unit.png",
     uses: 2,
@@ -240,7 +240,7 @@ export const miningEquipment = [
 export const resourceManagement = [
   {
     id: 10,
-    name: "Transmuter Engine",
+    name: "Heinosa",
     vp: 4,
     imageUrl: "/equipment/transmuter-engine.png",
     uses: 3,
@@ -248,7 +248,7 @@ export const resourceManagement = [
   },
   {
     id: 11,
-    name: "Asteroid Trading Station",
+    name: "Rawrd Gnawler",
     vp: 2,
     imageUrl: "/stations/asteroid-trading.png",
     uses: 2,
@@ -267,7 +267,7 @@ export const resourceManagement = [
 export const shieldGenerators = [
   {
     id: 13,
-    name: "Photon Shield Generator",
+    name: "Mrenar",
     vp: 2,
     imageUrl: "/defense/photon-shield.png",
     uses: 2,
@@ -275,7 +275,7 @@ export const shieldGenerators = [
   },
   {
     id: 14,
-    name: "Nova Barrier System",
+    name: "Grenar",
     vp: 2,
     imageUrl: "/defense/nova-barrier.png",
     uses: 3,
@@ -286,15 +286,15 @@ export const shieldGenerators = [
 export const economicCards = [
   {
     id: 15,
-    name: "Galactic Investor",
-    vp: 3,
+    name: "Blazzar",
+    vp: "X",
     imageUrl: "/economic/galactic-investor.png",
     uses: 1,
     effect: "Pay 🌕🌕🌕 to build a blueprint for free.",
   },
   {
     id: 16,
-    name: "Corporate Sponsor",
+    name: "Vlazar",
     vp: 3,
     imageUrl: "/economic/corporate-sponsor.png",
     uses: 3,
@@ -305,7 +305,7 @@ export const economicCards = [
 export const surveillanceCards = [
   {
     id: 7,
-    name: "Orbital Scouting Drones",
+    name: "Remor",
     vp: 1,
     imageUrl: "/scouting/orbital-drones.png",
     uses: 3,
@@ -313,7 +313,7 @@ export const surveillanceCards = [
   },
   {
     id: 12,
-    name: "Deep Space Scanner Array",
+    name: "Buskio",
     vp: 1,
     imageUrl: "/scouting/deep-space-scanner.png",
     uses: 2,
