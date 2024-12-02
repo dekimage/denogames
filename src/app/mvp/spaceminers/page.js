@@ -126,7 +126,7 @@ export const BuildingCard = ({ card }) => {
       />
 
       {/* Hero artwork overlay */}
-      <div className="absolute top-[67px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150px] h-[150px]">
+      <div className="absolute top-[67px] left-[46%] -translate-x-1/2 -translate-y-1/2 w-[150px] h-[150px]">
         <Image
           src={getHeroImage(card.id)}
           alt={`${card.name} artwork`}
@@ -145,7 +145,7 @@ export const BuildingCard = ({ card }) => {
         {card.name}
       </div>
 
-      <div className="absolute top-[2%] right-[9%] text-sm font-strike uppercase">
+      <div className="absolute top-[2%] right-[10%] text-sm font-strike uppercase">
         <span className="text-xl">{card.vp}</span>
       </div>
 
@@ -177,8 +177,8 @@ const DisasterTracker = () => {
   };
 
   const disasterSequence = [
-    1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 3, 1, 2, 2, 3, 1, 2, 2, 1, 3, 2,
-    1, 2, 2, 3, 2, 2, 1, 3, 2, 1, 2, 3, 1, 2, 3,
+    1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2,
+    1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 3,
   ];
 
   return (
@@ -192,12 +192,17 @@ const DisasterTracker = () => {
                 key={col}
                 className="w-6 h-6 rounded-full border-2 border-dashed border-gray-400 flex items-center justify-center"
               >
-                {
-                  SPACE_MINERS_ICONS[
-                    disasterSymbolMap[disasterSequence[row * 20 + col]] ||
-                      "coin"
-                  ]
-                }
+                <Image
+                  src={
+                    SPACE_MINERS_ICONS[
+                      disasterSymbolMap[disasterSequence[row * 20 + col]] ||
+                        "coin"
+                    ]
+                  }
+                  alt="disaster"
+                  width={24}
+                  height={24}
+                />
               </div>
             ))}
           </div>
@@ -231,17 +236,22 @@ const CoinTracker = () => {
 const ShieldsTracker = () => {
   return (
     <TrackerComponent icon="🛡️" bgColor="#E0F2E9">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 pl-8">
         {[0].map((row) => (
           <div key={row} className="flex justify-center gap-2">
             {Array.from({ length: 3 }).map((_, col) => (
               <div
                 key={col}
                 className={`w-6 h-6 rounded-full border-2 ${
-                  col < 2 ? "border-black" : "border-dashed border-gray-400"
+                  col < 3 ? "border-black" : "border-dashed border-gray-400"
                 } flex items-center justify-center text-[12px]`}
               >
-                🛡️
+                <Image
+                  src={SPACE_MINERS_ICONS.shield}
+                  alt="shield"
+                  width={18}
+                  height={18}
+                />
               </div>
             ))}
           </div>
@@ -296,15 +306,16 @@ const Score = () => {
           alt=""
           className="w-[25px] h-[25px] border-[3px] border-black"
         />
-        ) +
+        ) + (
         <Image
           width={500}
           height={500}
           src={resourceImg}
           alt=""
           className="w-[25px] h-[25px] border-[3px] border-black"
-        />
-        =<div className="w-[25px] h-[25px] border-[3px] border-black"></div>
+        />{" "}
+        / 3) =
+        <div className="w-[25px] h-[25px] border-[3px] border-black"></div>
       </div>
     </div>
   );
@@ -392,11 +403,16 @@ const PrintableSheet = () => {
             height={1000}
             className="w-[140px]"
           />
-          <QRCodeComponent
-            url="https://www.denogames.com/app/engine/monstermixology"
-            width={100}
-            height={100}
-          />
+          <div className="flex flex-col items-center">
+            <QRCodeComponent
+              url="https://www.denogames.com/app/engine/monstermixology"
+              width={90}
+              height={90}
+            />
+            <div className="font-strike uppercase text-xs bg-black text-white px-[6px] py-[4px] rounded-[10px]">
+              Deck
+            </div>
+          </div>
         </div>
         {/* Resource Trackers row */}
         <div className="grid grid-cols-2">
