@@ -53,6 +53,17 @@ const getTrackerImg = (number) => {
   }
 };
 
+const getTemplateImg = (uses) => {
+  switch (uses) {
+    case 1:
+      return template1Img;
+    case 2:
+      return template2Img;
+    case 3:
+      return template3Img;
+  }
+};
+
 const getHeroImage = (number) => {
   switch (number) {
     case 1:
@@ -107,7 +118,7 @@ export const BuildingCard = ({ card }) => {
   return (
     <div className="relative">
       <Image
-        src={template1Img}
+        src={getTemplateImg(card.uses)}
         alt={card.name}
         height={1400}
         width={1100}

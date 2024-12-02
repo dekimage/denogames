@@ -153,7 +153,7 @@ export const monuments = [
     vp: 4,
 
     imageUrl: "/monuments/celestial-monument.png",
-    uses: "Passive",
+    uses: 1,
     effect:
       "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
   },
@@ -163,7 +163,7 @@ export const monuments = [
     vp: 4,
 
     imageUrl: "/monuments/galactic-obelisk.png",
-    uses: "Passive",
+    uses: 1,
     effect:
       "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
   },
@@ -173,7 +173,7 @@ export const monuments = [
     vp: 4,
 
     imageUrl: "/monuments/starforge-reliquary.png",
-    uses: "Passive",
+    uses: 1,
     effect:
       "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
   },
@@ -183,7 +183,7 @@ export const monuments = [
     vp: 4,
 
     imageUrl: "/monuments/lunar-beacon.png",
-    uses: "Passive",
+    uses: 1,
     effect:
       "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
   },
@@ -287,7 +287,7 @@ export const economicCards = [
   {
     id: 15,
     name: "Blazzar",
-    vp: "X",
+    vp: 4,
     imageUrl: "/economic/galactic-investor.png",
     uses: 1,
     effect: "Pay 🌕🌕🌕 to build a blueprint for free.",

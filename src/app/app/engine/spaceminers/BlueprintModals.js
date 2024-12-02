@@ -55,7 +55,7 @@ export const BlueprintPurchaseModals = ({
     return (
       <Modal onClose={handleClose}>
         <div className="p-6 text-center">
-          <h2 className="text-2xl font-bold mb-4">Buy Blueprint?</h2>
+          <h2 className="text-2xl font-bold mb-4">Make Coctail?</h2>
           <div className="mb-6 flex justify-center">
             <div className="transform scale-110">
               {blueprint && CardComponent && <CardComponent item={blueprint} />}
@@ -66,7 +66,7 @@ export const BlueprintPurchaseModals = ({
               variant="default"
               onClick={() => setShowBuildingSelect(true)}
             >
-              Buy
+              Make
             </Button>
             <Button variant="secondary" onClick={handleClose}>
               Cancel
@@ -85,7 +85,7 @@ export const BlueprintPurchaseModals = ({
     >
       <div className="bg-background p-2 w-full h-full flex flex-col">
         <h2 className="text-2xl font-bold mb-4 text-center">
-          Select a Building
+          Select a Customer
         </h2>
 
         {/* Building Cards using the BuildingCard component */}
@@ -119,7 +119,7 @@ export const BlueprintPurchaseModals = ({
             onClick={() => onComplete(selectedBuilding)}
             disabled={!selectedBuilding}
           >
-            Buy
+            Serve
           </Button>
         </div>
       </div>

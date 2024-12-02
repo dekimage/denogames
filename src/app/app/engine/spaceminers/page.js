@@ -1,27 +1,45 @@
 "use client";
-import { useState } from "react";
 import PushLuckEngine from "../engines/PushLuckEngine";
 import { spaceMinersDeck } from "./data";
 
-const PickAxeIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="lucide lucide-pickaxe"
-  >
-    <path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912" />
-    <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
-    <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z" />
-    <path d="M19.686 8.314a12.501 12.501 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.319" />
-  </svg>
-);
+import Image from "next/image";
+
+import r1Img from "../../../../../public/spaceminers/ingridients/r1.png";
+import r2Img from "../../../../../public/spaceminers/ingridients/r2.png";
+import r3Img from "../../../../../public/spaceminers/ingridients/r3.png";
+import r4Img from "../../../../../public/spaceminers/ingridients/r4.png";
+import r5Img from "../../../../../public/spaceminers/ingridients/r5.png";
+import r6Img from "../../../../../public/spaceminers/ingridients/r6.png";
+import shieldImg from "../../../../../public/spaceminers/ingridients/shield.png";
+import coinImg from "../../../../../public/spaceminers/ingridients/coin.png";
+
+import vpImg from "../../../../../public/spaceminers/vp.png";
+import shield3Img from "../../../../../public/spaceminers/ingridients/shield3.png";
+
+import c1Img from "../../../../../public/spaceminers/coctails/c1.png";
+import c2Img from "../../../../../public/spaceminers/coctails/c2.png";
+import c3Img from "../../../../../public/spaceminers/coctails/c3.png";
+import c4Img from "../../../../../public/spaceminers/coctails/c4.png";
+import c5Img from "../../../../../public/spaceminers/coctails/c5.png";
+import c6Img from "../../../../../public/spaceminers/coctails/c6.png";
+import c7Img from "../../../../../public/spaceminers/coctails/c7.png";
+import c8Img from "../../../../../public/spaceminers/coctails/c8.png";
+import c9Img from "../../../../../public/spaceminers/coctails/c9.png";
+import c10Img from "../../../../../public/spaceminers/coctails/c10.png";
+import c11Img from "../../../../../public/spaceminers/coctails/c11.png";
+import c12Img from "../../../../../public/spaceminers/coctails/c12.png";
+import c13Img from "../../../../../public/spaceminers/coctails/c13.png";
+import c14Img from "../../../../../public/spaceminers/coctails/c14.png";
+import c15Img from "../../../../../public/spaceminers/coctails/c15.png";
+import c16Img from "../../../../../public/spaceminers/coctails/c16.png";
+import c17Img from "../../../../../public/spaceminers/coctails/c17.png";
+import c18Img from "../../../../../public/spaceminers/coctails/c18.png";
+import c19Img from "../../../../../public/spaceminers/coctails/c19.png";
+import c20Img from "../../../../../public/spaceminers/coctails/c20.png";
+import c21Img from "../../../../../public/spaceminers/coctails/c21.png";
+import c22Img from "../../../../../public/spaceminers/coctails/c22.png";
+import c23Img from "../../../../../public/spaceminers/coctails/c23.png";
+import c24Img from "../../../../../public/spaceminers/coctails/c24.png";
 
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
@@ -39,34 +57,62 @@ export const SPACE_MINERS_COLORS = {
     orb: "#DDA0DD", // soft purple
   },
   blueprintTypes: {
-    government: "#4A5568", // slate
-    private: "#744210", // brown
-    rebel: "#742A2A", // dark red
-    alien: "#234E52", // dark teal
+    government: "#588157", // slate
+    private: "#073b4c", // brown
+    rebel: "#eae2b7", // dark red
+    alien: "#7400b8", // dark teal
   },
 };
 
 // Icon mappings (using emojis temporarily)
 export const SPACE_MINERS_ICONS = {
   resourceTypes: {
-    crystal: "💎",
-    gem: "💍",
-    asteroid: "🌑",
-    dust: "✨",
-    gas: "💨",
-    orb: "🔮",
+    crystal: r1Img,
+    gem: r2Img,
+    asteroid: r3Img,
+    dust: r4Img,
+    gas: r5Img,
+    orb: r6Img,
+    shield: shieldImg,
   },
   blueprintTypes: {
-    government: "👑",
-    private: "💼",
-    rebel: "⚔️",
-    alien: "👽",
+    government: c1Img,
+    private: c7Img,
+    rebel: c13Img,
+    alien: c19Img,
   },
-  disaster: "☠️",
-  coin: "🌕",
-  reroll: "♻",
-  shield: "🛡️",
-  star: "⭐",
+  disaster: vpImg,
+  coin: coinImg,
+  reroll: shield3Img,
+  shield: shieldImg,
+};
+
+// Add this near your other mappings
+const COCKTAIL_IMAGES = {
+  1: c1Img,
+  2: c2Img,
+  3: c3Img,
+  4: c4Img,
+  5: c5Img,
+  6: c6Img,
+  7: c7Img,
+  8: c8Img,
+  9: c9Img,
+  10: c10Img,
+  11: c11Img,
+  12: c12Img,
+  13: c13Img,
+  14: c14Img,
+  15: c15Img,
+  16: c16Img,
+  17: c17Img,
+  18: c18Img,
+  19: c19Img,
+  20: c20Img,
+  21: c21Img,
+  22: c22Img,
+  23: c23Img,
+  24: c24Img,
 };
 
 const SpaceMinerCard = ({
@@ -75,17 +121,6 @@ const SpaceMinerCard = ({
   isSelected,
   selectionColor,
 }) => {
-  const getResourceBonus = (rarity) => {
-    switch (rarity) {
-      case "rare":
-        return `1 ${SPACE_MINERS_ICONS.coin}`;
-      case "ancient":
-        return `2 ${SPACE_MINERS_ICONS.coin}`;
-      default:
-        return "/";
-    }
-  };
-
   const getCardBackground = () => {
     if (item.type === "boom") return SPACE_MINERS_COLORS.cardTypes.disaster;
     return SPACE_MINERS_COLORS.cardTypes[item.card];
@@ -99,28 +134,52 @@ const SpaceMinerCard = ({
   };
 
   const getTypeIcon = () => {
-    if (item.type === "boom") return SPACE_MINERS_ICONS.disaster;
-    if (item.card === "blueprint")
-      return SPACE_MINERS_ICONS.blueprintTypes[item.type];
-    return SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()];
+    if (item.type === "boom") {
+      return (
+        <Image
+          src={SPACE_MINERS_ICONS.disaster}
+          alt="disaster"
+          width={24}
+          height={24}
+        />
+      );
+    }
+    if (item.card === "blueprint") {
+      return (
+        <Image
+          src={SPACE_MINERS_ICONS.blueprintTypes[item.type]}
+          alt={item.type}
+          width={24}
+          height={24}
+        />
+      );
+    }
+    return (
+      <Image
+        src={SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()]}
+        alt={item.type}
+        width={24}
+        height={24}
+      />
+    );
   };
 
   const renderBonus = (type, value) => (
-    <div className="flex items-center gap-1">
-      <div
-        className={`
-        w-4 h-4 rounded-full flex items-center justify-center border border-black
-        ${type === "coin" ? "bg-amber-300" : "bg-emerald-400"}
-      `}
-      >
-        <span className="text-xl">
-          {type === "coin"
-            ? SPACE_MINERS_ICONS.coin
-            : SPACE_MINERS_ICONS.reroll}
-        </span>
-      </div>
-      <span className="text-lg">{value}</span>
-    </div>
+    <>
+      {Array.from({ length: value }).map((_, index) => (
+        <Image
+          key={index}
+          src={
+            type === "coin"
+              ? SPACE_MINERS_ICONS.coin
+              : SPACE_MINERS_ICONS.reroll
+          }
+          alt={type}
+          width={20}
+          height={20}
+        />
+      ))}
+    </>
   );
 
   return (
@@ -144,21 +203,25 @@ const SpaceMinerCard = ({
       }}
     >
       {/* Type Indicator */}
-      <div
+      {/* <div
         className="absolute -top-1 -left-1 w-8 h-8 rounded flex items-center justify-center border border-black"
         style={{ backgroundColor: getTypeColor() }}
       >
-        <span className="text-base">{getTypeIcon()}</span>
-      </div>
+        {getTypeIcon()}
+      </div> */}
 
       {/* Card Body */}
       <div className="flex-1 flex items-center justify-center">
         {item.type === "boom" && (
           <div className="flex gap-1">
             {Array.from({ length: item.threat || 1 }).map((_, i) => (
-              <span key={i} className="text-2xl">
-                {SPACE_MINERS_ICONS.shield}
-              </span>
+              <Image
+                key={i}
+                src={SPACE_MINERS_ICONS.resourceTypes.shield}
+                alt="shield"
+                width={24}
+                height={24}
+              />
             ))}
           </div>
         )}
@@ -171,27 +234,28 @@ const SpaceMinerCard = ({
                 SPACE_MINERS_COLORS.resourceTypes[item.type.toLowerCase()],
             }}
           >
-            <span className="text-3xl sm:text-4xl">
-              {SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()]}
-            </span>
+            <Image
+              src={SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()]}
+              alt={item.type}
+              width={32}
+              height={32}
+            />
           </div>
         )}
 
+        <div></div>
+
         {item.card === "blueprint" && (
-          <div className="flex flex-wrap gap-1 sm:gap-2 justify-start mt-6 mx-2">
-            {item.randomResources.map((type, index) => (
-              <div
-                key={index}
-                className="w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
-                style={{
-                  backgroundColor: SPACE_MINERS_COLORS.resourceTypes[type],
-                }}
-              >
-                <span className="text-xs sm:text-sm">
-                  {SPACE_MINERS_ICONS.resourceTypes[type]}
-                </span>
-              </div>
-            ))}
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-[60px] h-[60px] sm:w-24 sm:h-24">
+              <Image
+                src={COCKTAIL_IMAGES[item.cocktailId]}
+                alt="cocktail"
+                width={96}
+                height={96}
+                className="w-[60px] h-[60px] sm:w-24 sm:h-24"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -199,12 +263,32 @@ const SpaceMinerCard = ({
       {/* Card Footer */}
       <div className="h-10 sm:h-12 border-t border-black/10 flex items-center justify-center">
         {item.card === "blueprint" && (
-          <div className="flex gap-2 font-strike uppercase text-black">
-            {item.blueprintRewards.coins > 0 &&
-              renderBonus("coin", item.blueprintRewards.coins)}
-            {item.blueprintRewards.rerolls > 0 &&
-              renderBonus("reroll", item.blueprintRewards.rerolls)}
-          </div>
+          <>
+            <div className="flex gap-1">
+              {item.randomResources.map((type, index) => (
+                <div
+                  key={index}
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
+                  style={{
+                    backgroundColor: SPACE_MINERS_COLORS.resourceTypes[type],
+                  }}
+                >
+                  <Image
+                    src={SPACE_MINERS_ICONS.resourceTypes[type]}
+                    alt={type}
+                    width={24}
+                    height={24}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 flex flex-col gap-1">
+              {item.blueprintRewards.coins > 0 &&
+                renderBonus("coin", item.blueprintRewards.coins)}
+              {item.blueprintRewards.rerolls > 0 &&
+                renderBonus("reroll", item.blueprintRewards.rerolls)}
+            </div>
+          </>
         )}
 
         {item.card === "resource" && item.rarity !== "common" && (
@@ -242,13 +326,28 @@ const getBlueprintRewards = () => {
   };
 };
 
-// Enhance the deck with static random values
+// Add a helper function to get the correct cocktail ID range
+const getCocktailIdForBlueprintType = (type) => {
+  const baseIds = {
+    government: 1, // c1-c6
+    private: 7, // c7-c12
+    rebel: 13, // c13-c18
+    alien: 19, // c19-c24
+  };
+
+  const baseId = baseIds[type];
+  // Generate random number 0-5 and add to base to get one of six possible images
+  return baseId + Math.floor(Math.random() * 6);
+};
+
+// Modify the enhancedDeck creation
 const enhancedDeck = spaceMinersDeck.map((card) => {
   const enhancedCard = { ...card };
 
   if (card.card === "blueprint") {
     enhancedCard.randomResources = getRandomResources();
     enhancedCard.blueprintRewards = getBlueprintRewards();
+    enhancedCard.cocktailId = getCocktailIdForBlueprintType(card.type);
   }
 
   return enhancedCard;
@@ -258,11 +357,7 @@ const enhancedDeck = spaceMinersDeck.map((card) => {
 const spaceMinerConfig = {
   initialItems: enhancedDeck,
   buttons: {
-    draw: (
-      <span className="flex items-center gap-2">
-        Mine <PickAxeIcon />
-      </span>
-    ),
+    draw: <span className="flex items-center gap-2">Explore</span>,
     stop: "Collect",
   },
 };

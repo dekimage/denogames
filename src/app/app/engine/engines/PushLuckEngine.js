@@ -119,7 +119,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         <div className="p-6 text-center animate-wobble">
           <div className="text-4xl mb-6 animate-bounce">👁️</div>
           <h2 className="text-2xl font-bold mb-4 text-red-500">
-            Enemy Saw You!
+            Oops! a Mixing Disaster!
           </h2>
 
           {/* Disaster Card Container */}
