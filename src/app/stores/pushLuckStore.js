@@ -56,7 +56,8 @@ class PushLuckStore {
     const typeCount = this.centralBoard.filter(
       (c) => c.type === card.type
     ).length;
-    if (typeCount >= 2) {
+
+    if (typeCount === 2) {
       this.actions++;
     }
   }

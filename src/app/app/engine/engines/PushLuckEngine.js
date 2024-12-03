@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
 import { BlueprintPurchaseModals } from "../spaceminers/BlueprintModals";
 import { ModeToggle } from "@/components/ui/themeButton";
+import Image from "next/image";
+import boomImg from "../../../../../public/spaceminers/boom.png";
+import shieldImg from "../../../../../public/spaceminers/ingridients/shield.png";
 
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
@@ -101,9 +104,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
   const renderShields = (count) => {
     return Array.from({ length: count }, (_, i) => (
-      <span key={i} className="inline-block">
-        🛡️
-      </span>
+      <div key={i} className="inline-block">
+        <Image src={shieldImg} alt={"shield img"} width={20} height={20} />
+      </div>
     ));
   };
 
@@ -117,7 +120,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     return (
       <Modal>
         <div className="p-6 text-center animate-wobble">
-          <div className="text-4xl mb-6 animate-bounce">👁️</div>
+          <div className="text-4xl mb-6 animate-bounce">
+            <Image src={boomImg} alt={"boom img"} width={20} height={20} />
+          </div>
           <h2 className="text-2xl font-bold mb-4 text-red-500">
             Oops! a Mixing Disaster!
           </h2>
@@ -137,8 +142,8 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               onClick={() => pushLuckStore.diffuseBomb()}
               className="animate-pulse flex items-center gap-2"
             >
-              <span>Mine</span>
-              <span className="flex gap-1">{renderShields(threatLevel)}</span>
+              <span>Keep Exploring</span>
+              {/* <span className="flex gap-1">{renderShields(threatLevel)}</span> */}
             </Button>
             <Button
               variant="destructive"
@@ -210,7 +215,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                   : "text-foreground scale-100"
               } transition-all duration-300`}
             >
-              Actions: {Math.min(pushLuckStore.actions, 5)}
+              Actions: {Math.min(pushLuckStore.actions, 4)}
             </div>
           </div>
           <Button

@@ -1,19 +1,19 @@
 "use client";
 import React from "react";
 import { A4_DIMENSIONS } from "./utils";
-import { buildingCards } from "./data";
+import { heroesCards } from "./data";
 import Image from "next/image";
 import {
   SPACE_MINERS_COLORS,
   SPACE_MINERS_ICONS,
 } from "@/app/app/engine/spaceminers/page";
 
+import boomImg from "../../../../public/spaceminers/boom.png";
 import logoImg from "../../../../public/spaceminers/mm-logo.png";
 import vpImg from "../../../../public/spaceminers/vp.png";
 import cupImg from "../../../../public/spaceminers/cup.png";
 import resourceImg from "../../../../public/spaceminers/resource.png";
 
-import templateImg from "../../../../public/spaceminers/test.png";
 import template1Img from "../../../../public/spaceminers/template-1.png";
 import template2Img from "../../../../public/spaceminers/template-2.png";
 import template3Img from "../../../../public/spaceminers/template-3.png";
@@ -26,6 +26,10 @@ import hero5Img from "../../../../public/spaceminers/heroes/h5.png";
 import hero6Img from "../../../../public/spaceminers/heroes/h6.png";
 import hero7Img from "../../../../public/spaceminers/heroes/h7.png";
 import hero8Img from "../../../../public/spaceminers/heroes/h8.png";
+import hero9Img from "../../../../public/spaceminers/heroes/h9.png";
+import hero10Img from "../../../../public/spaceminers/heroes/h10.png";
+import hero11Img from "../../../../public/spaceminers/heroes/h11.png";
+import hero12Img from "../../../../public/spaceminers/heroes/h12.png";
 
 import tracker1Img from "../../../../public/spaceminers/trackers/t1.png";
 import tracker2Img from "../../../../public/spaceminers/trackers/t2.png";
@@ -82,6 +86,14 @@ const getHeroImage = (number) => {
       return hero7Img;
     case 8:
       return hero8Img;
+    case 9:
+      return hero9Img;
+    case 10:
+      return hero10Img;
+    case 11:
+      return hero11Img;
+    case 12:
+      return hero12Img;
   }
 };
 
@@ -116,7 +128,7 @@ const ResourceTracker = ({ type }) => {
 };
 export const BuildingCard = ({ card }) => {
   return (
-    <div className="relative">
+    <div className="relative w-fit">
       <Image
         src={getTemplateImg(card.uses)}
         alt={card.name}
@@ -126,7 +138,7 @@ export const BuildingCard = ({ card }) => {
       />
 
       {/* Hero artwork overlay */}
-      <div className="absolute top-[67px] left-[46%] -translate-x-1/2 -translate-y-1/2 w-[150px] h-[150px]">
+      <div className="absolute top-[68px] left-[46%] -translate-x-1/2 -translate-y-1/2 w-[150px] h-[150px]">
         <Image
           src={getHeroImage(card.id)}
           alt={`${card.name} artwork`}
@@ -145,25 +157,27 @@ export const BuildingCard = ({ card }) => {
         {card.name}
       </div>
 
-      <div className="absolute top-[2%] right-[10%] text-sm font-strike uppercase">
+      <div className="absolute top-[2%] right-[9%] text-sm font-strike uppercase">
         <span className="text-xl">{card.vp}</span>
       </div>
 
-      <div className="absolute bottom-[6%] left-[44%] -translate-x-1/2 w-[180px] text-center text-[10px] h-[55px] w-[140px] flex justify-center items-center pt-1 leading-[1.1]">
+      <div className="absolute bottom-[6%] left-[44%] -translate-x-1/2 w-[180px] text-center text-[10px] h-[55px] w-[130px]  flex justify-center items-center pt-1 leading-[1.1]">
         {card.effect}
       </div>
     </div>
   );
 };
-const TrackerComponent = ({ icon, bgColor, children }) => {
+const TrackerComponent = ({ icon, bgColor, hasIcon = false, children }) => {
   return (
     <div className="flex flex-col rounded-lg w-full relative">
-      {/* <div
-        className="w-8 h-8 absolute left-[10px] top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg flex items-center justify-center text-md border-2 border-black"
-        style={{ backgroundColor: bgColor }}
-      >
-        {icon}
-      </div> */}
+      {hasIcon && (
+        <div
+          className="w-[28px] h-[28px] absolute left-[16px]  top-[13px] -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center text-md"
+          style={{ backgroundColor: bgColor }}
+        >
+          <Image src={boomImg} alt={"boom img"} width={20} height={20} />
+        </div>
+      )}
 
       {children}
     </div>
@@ -182,7 +196,7 @@ const DisasterTracker = () => {
   ];
 
   return (
-    <TrackerComponent icon="☠️" bgColor="#FEE2E2">
+    <TrackerComponent icon="☠️" bgColor="#FEE2E2" hasIcon={true}>
       {/* red-200 */}
       <div className="flex flex-col gap-2 pl-6">
         {[0, 1].map((row) => (
@@ -200,8 +214,8 @@ const DisasterTracker = () => {
                     ]
                   }
                   alt="disaster"
-                  width={24}
-                  height={24}
+                  width={14}
+                  height={14}
                 />
               </div>
             ))}
@@ -224,7 +238,12 @@ const CoinTracker = () => {
                   col < 3 ? "border-black" : "border-dashed border-gray-400"
                 } flex items-center justify-center text-[12px]`}
               >
-                🌕
+                <Image
+                  src={SPACE_MINERS_ICONS["coin"]}
+                  alt="disaster"
+                  width={14}
+                  height={14}
+                />
               </div>
             ))}
           </div>
@@ -249,8 +268,8 @@ const ShieldsTracker = () => {
                 <Image
                   src={SPACE_MINERS_ICONS.shield}
                   alt="shield"
-                  width={18}
-                  height={18}
+                  width={14}
+                  height={14}
                 />
               </div>
             ))}
@@ -367,11 +386,11 @@ const PrintableSheet = () => {
     return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
   };
 
-  const randomBuildingCards = getRandomCards(buildingCards, 12);
+  // const randomBuildingCards = getRandomCards(heroesCards, 12);
 
   return (
     <div
-      className="bg-white flex gap-4"
+      className="bg-white flex gap-1"
       style={{
         width: `${A4_DIMENSIONS.height}px`,
         height: `${A4_DIMENSIONS.width}px`,
@@ -387,7 +406,7 @@ const PrintableSheet = () => {
         </div>
 
         <div className="grid grid-cols-4 gap-1">
-          {randomBuildingCards.map((card, i) => (
+          {heroesCards.map((card, i) => (
             <BuildingCard key={card.id} card={card} index={i} />
           ))}
         </div>

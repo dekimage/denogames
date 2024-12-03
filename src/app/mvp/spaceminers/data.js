@@ -146,188 +146,171 @@
 //   },
 // ];
 
-export const monuments = [
+// export const monuments = [
+//   {
+//     id: 4,
+//     name: "Dagoony",
+//     vp: 4,
+
+//     imageUrl: "/monuments/lunar-beacon.png",
+//     uses: 1,
+//     effect:
+//       "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
+//   },
+// ];
+
+// export const battleShips = [
+//   {
+//     id: 6,
+//     name: "Deniosal",
+//     vp: 4,
+//     imageUrl: "/ships/dreadnought-sentinel.png",
+//     uses: 1,
+//     effect:
+//       "Until your next turn, opponents cannot perform any actions during other players' turns.",
+//   },
+// ];
+
+// export const miningEquipment = [
+//   {
+//     id: 8,
+//     name: "Quizzaf",
+//     vp: 3,
+//     imageUrl: "/equipment/constructor-unit.png",
+//     uses: 2,
+//     effect: "+1 blueprint action during your turn.",
+//   },
+// ];
+
+// export const resourceManagement = [
+//   {
+//     id: 10,
+//     name: "Rawrd Gnawler",
+//     vp: 2,
+//     imageUrl: "/stations/asteroid-trading.png",
+//     uses: 2,
+//     effect: "Trade 1 🌑 for 2 ✨",
+//   },
+//   // {
+//   //   id: 12,
+//   //   name: "Lunar Trade Hub",
+//   //   vp: 2,
+//   //   imageUrl: "/stations/lunar-trade.png",
+//   //   uses: 3,
+//   //   effect: "Trade 1 crystal for 2 energy or 1 asteroid for 2 gems.",
+//   // },
+// ];
+
+// export const shieldGenerators = [
+//   {
+//     id: 12,
+//     name: "Grenar",
+//     vp: 2,
+//     imageUrl: "/defense/nova-barrier.png",
+//     uses: 3,
+//     effect: "Block a disaster that requires 1 🛡️ only.",
+//   },
+// ];
+
+// export const surveillanceCards = [
+//   {
+//     id: 12,
+//     name: "Buskio",
+//     vp: 1,
+//     imageUrl: "/scouting/deep-space-scanner.png",
+//     uses: 2,
+//     effect:
+//       "Draw 5 cards. Disasters cost -1 🛡️ to avoid, and gain 1 🌕 for each blueprint revealed.",
+//   },
+// ];
+
+export const heroesCards = [
   {
     id: 1,
-    name: "Hawky",
-    vp: 4,
-
-    imageUrl: "/monuments/celestial-monument.png",
+    name: "Bro Hawky",
+    vp: 3,
     uses: 1,
-    effect:
-      "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
+    effect: "+1 VP if you have  GAWKY or LAWKY. +2 VP if you have both.",
   },
   {
     id: 2,
-    name: "Gawky",
-    vp: 4,
-
-    imageUrl: "/monuments/galactic-obelisk.png",
+    name: "Bro Gawky",
+    vp: 3,
     uses: 1,
-    effect:
-      "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
+    effect: "+1 VP if you have  HAWKY or LAWKY. +2 VP if you have both.",
   },
   {
     id: 3,
-    name: "Lawky",
-    vp: 4,
-
-    imageUrl: "/monuments/starforge-reliquary.png",
+    name: "Bro Lawky",
+    vp: 3,
     uses: 1,
-    effect:
-      "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
+    effect: "+1 VP if you have  HAWKY or GAWKY. +2 VP if you have both.",
   },
   {
-    id: 4,
-    name: "Reditons",
-    vp: 4,
-
-    imageUrl: "/monuments/lunar-beacon.png",
-    uses: 1,
-    effect:
-      "Gain +1/2/4/7 VP for 1/2/3/4 different monuments and +0/2/4 VP for owning 1/2/3 of the same monument.",
+    id: 8,
+    name: "Speedo",
+    vp: 2,
+    uses: 3,
+    effect: " Pay 🌕 to gain 1 resource of your choice.",
   },
-];
 
-export const battleShips = [
   {
-    id: 5,
-    name: "St. Miroal",
-    vp: 4,
-    imageUrl: "/ships/interceptor-omega.png",
-    uses: 1,
-    effect:
-      "Until your next turn, opponents cannot perform more than 1 mining action.",
+    id: 11,
+    name: "Scytzer",
+    vp: 2,
+    uses: 3,
+    effect: "Gain 1 Action.",
   },
   {
     id: 6,
-    name: "Deniosal",
-    vp: 4,
-    imageUrl: "/ships/dreadnought-sentinel.png",
-    uses: 1,
-    effect:
-      "Until your next turn, opponents cannot perform any actions during other players' turns.",
-  },
-  // {
-  //   id: 7,
-  //   name: "Blockade Frigate",
-  //   vp: 3,
-  //   imageUrl: "/ships/blockade-frigate.png",
-  //   uses: 2,
-  //   effect: "Until your next turn, opponents cannot build blueprints.",
-  // },
-];
-
-export const miningEquipment = [
-  {
-    id: 8,
-    name: "Resslie El",
+    // name: "Denino",
+    name: "Inspector Denino",
     vp: 2,
-    imageUrl: "/equipment/mining-rig.png",
-    uses: 3,
-    effect: "+1 mining action during your turn.",
+    uses: 2,
+    effect: "Draw 3 cards. Ignore any disasters.",
+  },
+  {
+    id: 7,
+    // name: "Windsor",
+    name: "Bouncer Windz",
+    vp: 4,
+    uses: 1,
+    effect: "Until your next turn, opponents cannot serve coctails.",
+  },
+  {
+    id: 12,
+    name: "Spooky Jo",
+    vp: 3,
+    uses: 2,
+    effect:
+      "Until your next turn, opponents cannot gain more than 1 resource. ",
   },
   {
     id: 9,
-    name: "Quizzaf",
+    name: "Heiden-Ran",
     vp: 3,
-    imageUrl: "/equipment/constructor-unit.png",
-    uses: 2,
-    effect: "+1 blueprint action during your turn.",
+    uses: 3,
+    effect: " When making a coctail, treat 1 resource as any other resource.",
   },
-];
-
-export const resourceManagement = [
   {
     id: 10,
-    name: "Heinosa",
-    vp: 4,
-    imageUrl: "/equipment/transmuter-engine.png",
-    uses: 3,
-    effect: "When buying a blueprint, treat 1 resource as any other resource.",
-  },
-  {
-    id: 11,
-    name: "Rawrd Gnawler",
+    name: "Protector Nako",
     vp: 2,
-    imageUrl: "/stations/asteroid-trading.png",
-    uses: 2,
-    effect: "Trade 1 🌑 for 2 ✨",
-  },
-  // {
-  //   id: 12,
-  //   name: "Lunar Trade Hub",
-  //   vp: 2,
-  //   imageUrl: "/stations/lunar-trade.png",
-  //   uses: 3,
-  //   effect: "Trade 1 crystal for 2 energy or 1 asteroid for 2 gems.",
-  // },
-];
-
-export const shieldGenerators = [
-  {
-    id: 13,
-    name: "Mrenar",
-    vp: 2,
-    imageUrl: "/defense/photon-shield.png",
     uses: 2,
     effect: "Avoid a disaster regardless of 🛡️ cost.",
   },
   {
-    id: 14,
-    name: "Grenar",
-    vp: 2,
-    imageUrl: "/defense/nova-barrier.png",
-    uses: 3,
-    effect: "Block a disaster that requires 1 🛡️ only.",
-  },
-];
-
-export const economicCards = [
-  {
-    id: 15,
-    name: "Blazzar",
-    vp: 4,
-    imageUrl: "/economic/galactic-investor.png",
+    id: 5,
+    name: "El Padre",
+    vp: 5,
     uses: 1,
-    effect: "Pay 🌕🌕🌕 to build a blueprint for free.",
+    effect: "Gain +1/+2 VP if you serve him 2/3 coctails.",
   },
   {
-    id: 16,
-    name: "Vlazar",
-    vp: 3,
-    imageUrl: "/economic/corporate-sponsor.png",
-    uses: 3,
-    effect: "Pay 🌕 to gain 1 resource of your choice.",
+    id: 4,
+    name: "Dragoonovic",
+    vp: 4,
+    uses: 1,
+    effect: "Pay 🌕🌕🌕🌕 to serve a coctail for free.",
   },
-];
-
-export const surveillanceCards = [
-  {
-    id: 7,
-    name: "Remor",
-    vp: 1,
-    imageUrl: "/scouting/orbital-drones.png",
-    uses: 3,
-    effect: "Draw 3 cards. Ignore any disasters.",
-  },
-  {
-    id: 12,
-    name: "Buskio",
-    vp: 1,
-    imageUrl: "/scouting/deep-space-scanner.png",
-    uses: 2,
-    effect:
-      "Draw 5 cards. Disasters cost -1 🛡️ to avoid, and gain 1 🌕 for each blueprint revealed.",
-  },
-];
-
-export const buildingCards = [
-  ...monuments,
-  ...battleShips,
-  ...miningEquipment,
-  ...resourceManagement,
-  ...shieldGenerators,
-  ...economicCards,
-  ...surveillanceCards,
 ];

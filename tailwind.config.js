@@ -131,7 +131,7 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         wobble: "wobble 1s ease-in-out",
-        shake: "shake 0.5s ease-in-out infinite",
+        shake: "shake 0.5s ease-in-out 2s",
         highlight: "pulsate 1.5s ease-in-out infinite",
       },
       fontFamily: {

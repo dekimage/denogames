@@ -12,6 +12,7 @@ import r5Img from "../../../../../public/spaceminers/ingridients/r5.png";
 import r6Img from "../../../../../public/spaceminers/ingridients/r6.png";
 import shieldImg from "../../../../../public/spaceminers/ingridients/shield.png";
 import coinImg from "../../../../../public/spaceminers/ingridients/coin.png";
+import boomImg from "../../../../../public/spaceminers/boom.png";
 
 import vpImg from "../../../../../public/spaceminers/vp.png";
 import shield3Img from "../../../../../public/spaceminers/ingridients/shield3.png";
@@ -126,44 +127,6 @@ const SpaceMinerCard = ({
     return SPACE_MINERS_COLORS.cardTypes[item.card];
   };
 
-  const getTypeColor = () => {
-    if (item.type === "boom") return "#FF4D4D";
-    if (item.card === "blueprint")
-      return SPACE_MINERS_COLORS.blueprintTypes[item.type];
-    return SPACE_MINERS_COLORS.resourceTypes[item.type.toLowerCase()];
-  };
-
-  const getTypeIcon = () => {
-    if (item.type === "boom") {
-      return (
-        <Image
-          src={SPACE_MINERS_ICONS.disaster}
-          alt="disaster"
-          width={24}
-          height={24}
-        />
-      );
-    }
-    if (item.card === "blueprint") {
-      return (
-        <Image
-          src={SPACE_MINERS_ICONS.blueprintTypes[item.type]}
-          alt={item.type}
-          width={24}
-          height={24}
-        />
-      );
-    }
-    return (
-      <Image
-        src={SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()]}
-        alt={item.type}
-        width={24}
-        height={24}
-      />
-    );
-  };
-
   const renderBonus = (type, value) => (
     <>
       {Array.from({ length: value }).map((_, index) => (
@@ -214,15 +177,7 @@ const SpaceMinerCard = ({
       <div className="flex-1 flex items-center justify-center">
         {item.type === "boom" && (
           <div className="flex gap-1">
-            {Array.from({ length: item.threat || 1 }).map((_, i) => (
-              <Image
-                key={i}
-                src={SPACE_MINERS_ICONS.resourceTypes.shield}
-                alt="shield"
-                width={24}
-                height={24}
-              />
-            ))}
+            <Image src={boomImg} alt={"boom img"} width={50} height={50} />
           </div>
         )}
 
@@ -294,6 +249,20 @@ const SpaceMinerCard = ({
         {item.card === "resource" && item.rarity !== "common" && (
           <div className="flex gap-2 font-strike uppercase text-black">
             {renderBonus("coin", item.rarity === "ancient" ? 2 : 1)}
+          </div>
+        )}
+
+        {item.type === "boom" && (
+          <div className="flex gap-1">
+            {Array.from({ length: item.threat || 1 }).map((_, i) => (
+              <Image
+                key={i}
+                src={SPACE_MINERS_ICONS.resourceTypes.shield}
+                alt="shield"
+                width={24}
+                height={24}
+              />
+            ))}
           </div>
         )}
       </div>

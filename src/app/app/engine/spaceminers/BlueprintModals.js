@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
-import { buildingCards } from "@/app/mvp/spaceminers/data";
+import { heroesCards } from "@/app/mvp/spaceminers/data";
 import { BuildingCard } from "@/app/mvp/spaceminers/page";
 
 export const BlueprintPurchaseModals = ({
@@ -32,7 +32,7 @@ export const BlueprintPurchaseModals = ({
   }, [blueprint]);
 
   function getRandomBuildings(count = 3) {
-    const shuffled = [...buildingCards].sort(() => 0.5 - Math.random());
+    const shuffled = [...heroesCards].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
 
@@ -80,6 +80,7 @@ export const BlueprintPurchaseModals = ({
   // Building Selection Modal
   return (
     <Modal
+      fullscreen
       onClose={handleClose}
       className="fixed inset-0 flex items-center justify-center"
     >
@@ -89,7 +90,7 @@ export const BlueprintPurchaseModals = ({
         </h2>
 
         {/* Building Cards using the BuildingCard component */}
-        <div className="flex-1 flex flex-wrap gap-4 justify-center">
+        <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll">
           {availableBuildings.map((building) => (
             <div
               key={building.id}
