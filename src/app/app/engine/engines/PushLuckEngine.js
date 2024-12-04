@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import pushLuckStore from "@/app/stores/pushLuckStore";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
-import { BlueprintPurchaseModals } from "../spaceminers/BlueprintModals";
+import { BlueprintPurchaseModals } from "../monstermixology/BlueprintModals";
 import { ModeToggle } from "@/components/ui/themeButton";
 import Image from "next/image";
 import boomImg from "../../../../../public/spaceminers/boom.png";

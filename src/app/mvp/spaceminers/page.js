@@ -6,7 +6,7 @@ import Image from "next/image";
 import {
   SPACE_MINERS_COLORS,
   SPACE_MINERS_ICONS,
-} from "@/app/app/engine/spaceminers/page";
+} from "@/app/app/engine/monstermixology/page";
 
 import boomImg from "../../../../public/spaceminers/boom.png";
 import logoImg from "../../../../public/spaceminers/mm-logo.png";
