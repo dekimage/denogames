@@ -90,7 +90,7 @@ export const BlueprintPurchaseModals = ({
         </h2>
 
         {/* Building Cards using the BuildingCard component */}
-        <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll">
+        <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll my-8">
           {availableBuildings.map((building) => (
             <div
               key={building.id}

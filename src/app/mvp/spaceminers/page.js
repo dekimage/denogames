@@ -128,7 +128,7 @@ const ResourceTracker = ({ type }) => {
 };
 export const BuildingCard = ({ card }) => {
   return (
-    <div className="relative w-fit">
+    <div className="relative w-fit text-black">
       <Image
         src={getTemplateImg(card.uses)}
         alt={card.name}
@@ -161,7 +161,7 @@ export const BuildingCard = ({ card }) => {
         <span className="text-xl">{card.vp}</span>
       </div>
 
-      <div className="absolute bottom-[6%] left-[44%] -translate-x-1/2 w-[180px] text-center text-[10px] h-[55px] w-[130px]  flex justify-center items-center pt-1 leading-[1.1]">
+      <div className="font-default normal-case text-regular absolute bottom-[6%] left-[44%] -translate-x-1/2 w-[150px] text-center text-[10px] h-[55px] w-[130px]  flex justify-center items-center pt-1 leading-[1.1]">
         {card.effect}
       </div>
     </div>

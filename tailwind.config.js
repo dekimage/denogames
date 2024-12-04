@@ -136,6 +136,7 @@ module.exports = {
       },
       fontFamily: {
         strike: ['"Protest Strike"', "sans-serif"],
+        default: ["Inter", "sans-serif"],
       },
     },
   },

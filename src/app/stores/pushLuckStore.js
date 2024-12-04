@@ -73,19 +73,15 @@ class PushLuckStore {
   }
 
   canSelectCard(cardId) {
-    if (!this.isSelectingMode && !this.isOtherPlayersPhase) {
-      return false;
-    }
-
     if (this.selectedCards.has(cardId)) {
       return true;
     }
 
-    if (this.isSelectingMode && !this.isOtherPlayersPhase) {
-      return this.actions > 0;
+    if (this.isOtherPlayersPhase) {
+      return true;
     }
 
-    if (this.isOtherPlayersPhase) {
+    if (this.actions > 0 || this.selectedCards.size === 0) {
       return true;
     }
 
@@ -166,6 +162,11 @@ class PushLuckStore {
     this.canDraw = false;
     this.isSelectingMode = true;
   }
+
+  setCanDraw = (value) => {
+    this.canDraw = value;
+  };
 }
 
-export default new PushLuckStore();
+const pushLuckStore = new PushLuckStore();
+export default pushLuckStore;

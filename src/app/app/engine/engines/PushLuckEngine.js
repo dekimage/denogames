@@ -73,6 +73,18 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     previousActions.current = pushLuckStore.actions;
   }, [pushLuckStore.actions]);
 
+  useEffect(() => {
+    // If we have selected cards, we should disable drawing
+    if (pushLuckStore.selectedCards.size > 0) {
+      pushLuckStore.setCanDraw(false);
+    } else {
+      // Only re-enable drawing if we're not in other players phase
+      if (!pushLuckStore.isOtherPlayersPhase) {
+        pushLuckStore.setCanDraw(true);
+      }
+    }
+  }, [pushLuckStore.selectedCards.size, pushLuckStore.isOtherPlayersPhase]);
+
   const findMatchingCards = () => {
     const lastCard =
       pushLuckStore.centralBoard[pushLuckStore.centralBoard.length - 1];
@@ -162,13 +174,16 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   };
 
   const handleCardSelection = (card) => {
-    // Only allow blueprint selection during collection or other players phase
-    const isCollectPhase = !pushLuckStore.canDraw;
-    const isOtherPlayersPhase = pushLuckStore.isOtherPlayersPhase;
+    // Don't allow selecting disaster cards
+    if (card.type === "boom") {
+      return;
+    }
 
-    if (card.card === "blueprint" && (isCollectPhase || isOtherPlayersPhase)) {
+    // For blueprints, show the purchase modal
+    if (card.card === "blueprint") {
       setSelectedBlueprint(card);
-    } else if (card.card !== "blueprint") {
+    } else {
+      // For all other cards, handle normal selection
       pushLuckStore.toggleCardSelection(card.id);
     }
   };
@@ -178,18 +193,16 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     const selectionColor = pushLuckStore.selectedCards.get(card.id);
     const isHighlighted = highlightedCards.has(card.id);
 
-    // Determine if card should be clickable
-    const isCollectPhase = !pushLuckStore.canDraw;
-    const isOtherPlayersPhase = pushLuckStore.isOtherPlayersPhase;
-    const isClickable =
-      card.card === "blueprint" ? isCollectPhase || isOtherPlayersPhase : true;
+    // Only prevent clicking on disaster cards
+    const isDisaster = card.type === "boom";
+    const isClickable = !isDisaster;
 
     return (
       <div
         key={`${card.id}-${index}`}
         className={`relative ${
           isClickable ? "cursor-pointer" : "cursor-not-allowed"
-        }`}
+        } ${isSelected ? "brightness-50" : ""}`}
         onClick={() => isClickable && handleCardSelection(card)}
       >
         <CardComponent
@@ -200,6 +213,18 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         />
       </div>
     );
+  };
+
+  const handleDrawCard = () => {
+    pushLuckStore.drawCard();
+
+    // Add a small delay before scrolling
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 100); // 300ms delay should be enough for the DOM to update
   };
 
   return (
@@ -243,7 +268,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       </div>
 
       {/* Central Board */}
-      <div className="border rounded-lg p-2 sm:p-6 mb-16 sm:mb-6 min-h-screen">
+      <div className="border rounded-lg p-2 sm:p-6  mb-12 sm:mb-6 min-h-[80vh]">
         <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-14">
           {pushLuckStore.centralBoard.map((card, index) =>
             renderCard(card, index)
@@ -251,37 +276,31 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Modified Action Buttons */}
       <div className="fixed bottom-0 left-0 right-0 flex justify-center gap-2 p-2 bg-background/80 backdrop-blur-sm border-t">
-        {pushLuckStore.canDraw ? (
-          <>
-            <Button
-              size="lg"
-              onClick={() => pushLuckStore.drawCard()}
-              disabled={!pushLuckStore.canDraw}
-            >
-              {config.buttons.draw}
-            </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => pushLuckStore.stopTurn()}
-            >
-              {config.buttons.stop}
-            </Button>
-          </>
+        {pushLuckStore.selectedCards.size === 0 ? (
+          // Show Explore button when no cards are selected
+          <Button
+            size="lg"
+            onClick={handleDrawCard}
+            disabled={
+              !pushLuckStore.canDraw || pushLuckStore.isOtherPlayersPhase
+            }
+          >
+            {config.buttons.draw || "Explore"}
+          </Button>
         ) : (
+          // Show Next Turn and Other Players buttons when cards are selected
           <div className="flex gap-2">
-            {!pushLuckStore.isOtherPlayersPhase &&
-              pushLuckStore.actions === 0 && (
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  onClick={() => pushLuckStore.startOtherPlayersPhase()}
-                >
-                  Other Players
-                </Button>
-              )}
+            {!pushLuckStore.isOtherPlayersPhase && (
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => pushLuckStore.startOtherPlayersPhase()}
+              >
+                Other Players
+              </Button>
+            )}
             <Button
               size="lg"
               variant="default"
