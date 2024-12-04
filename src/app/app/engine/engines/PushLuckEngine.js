@@ -22,6 +22,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const boomSound = useRef(null);
   const [soundLoaded, setSoundLoaded] = useState(false);
   const [selectedBlueprint, setSelectedBlueprint] = useState(null);
+  const actionGainedFromDraw = useRef(false);
 
   useEffect(() => {
     pushLuckStore.setConfig(config);
@@ -58,7 +59,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   }, [config]);
 
   useEffect(() => {
-    if (pushLuckStore.actions > previousActions.current) {
+    if (
+      pushLuckStore.actions > previousActions.current &&
+      actionGainedFromDraw.current
+    ) {
       actionSound.current?.play();
       setIsActionsAnimating(true);
       setTimeout(() => setIsActionsAnimating(false), ANIMATION_DURATION * 1000);
@@ -71,6 +75,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       );
     }
     previousActions.current = pushLuckStore.actions;
+    actionGainedFromDraw.current = false;
   }, [pushLuckStore.actions]);
 
   useEffect(() => {
@@ -130,7 +135,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     playBoomSound();
 
     return (
-      <Modal>
+      <Modal showClose={false}>
         <div className="p-6 text-center animate-wobble">
           <div className="text-4xl mb-6 animate-bounce">
             <Image src={boomImg} alt={"boom img"} width={20} height={20} />
@@ -179,6 +184,18 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       return;
     }
 
+    // Always allow deselection of already selected cards
+    const isAlreadySelected = pushLuckStore.selectedCards.has(card.id);
+    if (isAlreadySelected) {
+      pushLuckStore.toggleCardSelection(card.id);
+      return;
+    }
+
+    // Don't allow selecting new cards (including blueprints) if no actions left
+    if (pushLuckStore.actions <= 0 && !pushLuckStore.isOtherPlayersPhase) {
+      return;
+    }
+
     // For blueprints, show the purchase modal
     if (card.card === "blueprint") {
       setSelectedBlueprint(card);
@@ -216,6 +233,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   };
 
   const handleDrawCard = () => {
+    actionGainedFromDraw.current = true;
     pushLuckStore.drawCard();
 
     // Add a small delay before scrolling
@@ -224,7 +242,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         top: document.documentElement.scrollHeight,
         behavior: "smooth",
       });
-    }, 100); // 300ms delay should be enough for the DOM to update
+    }, 100);
   };
 
   return (
