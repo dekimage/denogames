@@ -96,4 +96,8 @@
 //   </div>
 // );
 
-// export default PDFGenerator;
+const PDFGenerator = () => {
+  return <div>PDFGenerator</div>;
+};
+
+export default PDFGenerator;

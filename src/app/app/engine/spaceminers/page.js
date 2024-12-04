@@ -237,12 +237,12 @@ const SpaceMinerCard = ({
                 </div>
               ))}
             </div>
-            <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 flex flex-col gap-1">
+            {/* <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 flex flex-col gap-1">
               {item.blueprintRewards.coins > 0 &&
                 renderBonus("coin", item.blueprintRewards.coins)}
               {item.blueprintRewards.rerolls > 0 &&
                 renderBonus("reroll", item.blueprintRewards.rerolls)}
-            </div>
+            </div> */}
           </>
         )}
 
