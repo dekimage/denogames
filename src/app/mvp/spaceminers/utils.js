@@ -20,3 +20,14 @@ export const A4_DIMENSIONS = {
   width: 816, // 210mm
   height: 1920, // 297mm
 };
+
+export const PAPER_DIMENSIONS = {
+  A4: {
+    width: 794, // 210mm at 96 DPI
+    height: 1123, // 297mm at 96 DPI
+  },
+  LETTER: {
+    width: 816, // 8.5in at 96 DPI
+    height: 1056, // 11in at 96 DPI
+  },
+};

@@ -6,7 +6,7 @@
 //     name: "Mining Station",
 //     vp: 3,
 //     imageUrl: "/buildings/mining-station.png",
-//     effect: "Gain 2 crystal resources when activated",
+//     effect: "Gain 2 crystal ingredients when activated",
 //     uses: 2,
 //   },
 //   {
@@ -33,7 +33,7 @@
 //     name: "Alien Embassy",
 //     vp: 5,
 //     imageUrl: "/buildings/alien-embassy.png",
-//     effect: "Trade with aliens for better resources",
+//     effect: "Trade with aliens for better ingredients",
 //     uses: 2,
 //   },
 //   {
@@ -51,7 +51,7 @@
 //     name: "Storage Facility",
 //     vp: 2,
 //     imageUrl: "/buildings/storage.png",
-//     effect: "Store up to 3 extra resources",
+//     effect: "Store up to 3 extra ingredients",
 //     uses: 2,
 //   },
 //   {
@@ -60,7 +60,7 @@
 //     name: "Trading Post",
 //     vp: 3,
 //     imageUrl: "/buildings/trading-post.png",
-//     effect: "Exchange resources at better rates",
+//     effect: "Exchange ingredients at better rates",
 //     uses: 2,
 //   },
 //   {
@@ -78,7 +78,7 @@
 //     name: "Recycling Center",
 //     vp: 3,
 //     imageUrl: "/buildings/recycling.png",
-//     effect: "Convert waste into resources",
+//     effect: "Convert waste into ingredients",
 //     uses: 1,
 //   },
 //   {
@@ -96,7 +96,7 @@
 //     name: "Teleporter",
 //     vp: 5,
 //     imageUrl: "/buildings/teleporter.png",
-//     effect: "Move resources between stations",
+//     effect: "Move ingredients between stations",
 //     uses: 3,
 //   },
 //   {
@@ -120,10 +120,10 @@
 //   {
 //     id: 14,
 //     number: 14,
-//     name: "Resource Converter",
+//     name: "ingredient Converter",
 //     vp: 3,
 //     imageUrl: "/buildings/converter.png",
-//     effect: "Transform resources freely",
+//     effect: "Transform ingredients freely",
 //     uses: 1,
 //   },
 //   {
@@ -132,7 +132,7 @@
 //     name: "Scanner Array",
 //     vp: 2,
 //     imageUrl: "/buildings/scanner.png",
-//     effect: "Locate specific resources",
+//     effect: "Locate specific ingredients",
 //     uses: 1,
 //   },
 //   {
@@ -141,7 +141,7 @@
 //     name: "Quantum Lab",
 //     vp: 5,
 //     imageUrl: "/buildings/quantum-lab.png",
-//     effect: "Double resource production",
+//     effect: "Double ingredient production",
 //     uses: 3,
 //   },
 // ];
@@ -182,7 +182,7 @@
 //   },
 // ];
 
-// export const resourceManagement = [
+// export const ingredientManagement = [
 //   {
 //     id: 10,
 //     name: "Rawrd Gnawler",
@@ -230,34 +230,40 @@ export const heroesCards = [
     name: "Bro Hawky",
     vp: 3,
     uses: 1,
-    effect: "+1 VP if you have  GAWKY or LAWKY. +2 VP if you have both.",
+    // effect: "+1 VP if you have  GAWKY or LAWKY. +2 VP if you have both.",
+    effect:
+      "Hawky is worth 4VP if you served Gawky or Lawky a coctail. And 5VP if you served both.",
   },
   {
     id: 2,
     name: "Bro Gawky",
     vp: 3,
     uses: 1,
-    effect: "+1 VP if you have  HAWKY or LAWKY. +2 VP if you have both.",
+
+    effect:
+      "Gawky is worth 4VP if you served Hawky or Lawky a coctail. And 5VP if you served both.",
   },
   {
     id: 3,
     name: "Bro Lawky",
     vp: 3,
     uses: 1,
-    effect: "+1 VP if you have  HAWKY or GAWKY. +2 VP if you have both.",
+
+    effect:
+      "Lawky is worth 4VP if you served Hawky or Gawky a coctail. And 5VP if you served both.",
   },
   {
     id: 8,
     name: "Speedo",
     vp: 2,
     uses: 3,
-    effect: " Pay 🌕 to gain 1 resource of your choice.",
+    effect: " Pay 🌕 to gain 1 ingredient of your choice.",
   },
 
   {
     id: 11,
     name: "Scytzer",
-    vp: 2,
+    vp: 3,
     uses: 3,
     effect: "Gain 1 Action.",
   },
@@ -267,7 +273,7 @@ export const heroesCards = [
     name: "Inspector Denino",
     vp: 2,
     uses: 2,
-    effect: "Draw 3 cards. Ignore any disasters.",
+    effect: "Draw 4 cards. Ignore any disasters.",
   },
   {
     id: 7,
@@ -280,36 +286,39 @@ export const heroesCards = [
   {
     id: 12,
     name: "Spooky Jo",
-    vp: 3,
+    vp: 4,
     uses: 2,
     effect:
-      "Until your next turn, opponents cannot gain more than 1 resource. ",
+      "Until your next turn, opponents cannot gain more than 1 ingredient.",
   },
   {
     id: 9,
     name: "Heiden-Ran",
     vp: 3,
     uses: 3,
-    effect: " When making a coctail, treat 1 resource as any other resource.",
+    effect:
+      " When making a coctail, treat 1 ingredient as any other ingredient.",
   },
   {
     id: 10,
     name: "Protector Nako",
-    vp: 2,
+    vp: 3,
     uses: 2,
-    effect: "Avoid a disaster regardless of 🛡️ cost.",
+    effect: "Avoid a disaster.",
   },
   {
     id: 5,
     name: "El Padre",
-    vp: 5,
+    vp: 4,
     uses: 1,
-    effect: "Gain +1/+2 VP if you serve him 2/3 coctails.",
+    // effect: "Gain +1/+2 VP if you serve him 2/3 coctails.",
+    effect:
+      "El Padre is worth 5VP if you serve him 2 coctails or 6VP at 3 coctails.",
   },
   {
     id: 4,
     name: "Dragoonovic",
-    vp: 4,
+    vp: 3,
     uses: 1,
     effect: "Pay 🌕🌕🌕🌕 to serve a coctail for free.",
   },

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { A4_DIMENSIONS } from "./utils";
+import { A4_DIMENSIONS, PAPER_DIMENSIONS } from "./utils";
 import { heroesCards } from "./data";
 import Image from "next/image";
 import {
@@ -12,6 +12,7 @@ import boomImg from "../../../../public/spaceminers/boom.png";
 import logoImg from "../../../../public/spaceminers/mm-logo.png";
 import vpImg from "../../../../public/spaceminers/vp.png";
 import cupImg from "../../../../public/spaceminers/cup.png";
+
 import resourceImg from "../../../../public/spaceminers/resource.png";
 
 import template1Img from "../../../../public/spaceminers/template-1.png";
@@ -39,6 +40,8 @@ import tracker5Img from "../../../../public/spaceminers/trackers/t5.png";
 import tracker6Img from "../../../../public/spaceminers/trackers/t6.png";
 
 import QRCodeComponent from "@/utils/qr";
+
+const IS_A4 = true; // Set to false for LETTER, true for A4
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -128,7 +131,7 @@ const ResourceTracker = ({ type }) => {
 };
 export const BuildingCard = ({ card }) => {
   return (
-    <div className="relative w-fit text-black">
+    <div className="relative w-fit text-black w-[200px] h-[240px]">
       <Image
         src={getTemplateImg(card.uses)}
         alt={card.name}
@@ -144,11 +147,10 @@ export const BuildingCard = ({ card }) => {
           alt={`${card.name} artwork`}
           height={1000}
           width={1000}
-          className="w-[150px] h-[150px] "
+          className="w-[150px] h-[150px]"
         />
       </div>
 
-      {/* Overlaid text elements */}
       <div className="absolute top-2 left-3 text-sm font-bold">
         {card.number}
       </div>
@@ -161,7 +163,10 @@ export const BuildingCard = ({ card }) => {
         <span className="text-xl">{card.vp}</span>
       </div>
 
-      <div className="font-default normal-case text-regular absolute bottom-[6%] left-[44%] -translate-x-1/2 w-[150px] text-center text-[10px] h-[55px] w-[130px]  flex justify-center items-center pt-1 leading-[1.1]">
+      <div
+        className="font-default  normal-case text-regular absolute bottom-[6%] left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]"
+        style={{ width: IS_A4 ? "145px" : "140px" }}
+      >
         {card.effect}
       </div>
     </div>
@@ -381,7 +386,29 @@ const ScoringTable = () => {
     </TrackerComponent>
   );
 };
+
+const usePaperSize = () => {
+  const [paperSize, setPaperSize] = React.useState("LETTER");
+
+  React.useEffect(() => {
+    // Could add detection logic here if needed
+    const mediaQuery = window.matchMedia("(max-width: 816px)");
+    setPaperSize(mediaQuery.matches ? "LETTER" : "A4");
+  }, []);
+
+  return PAPER_DIMENSIONS[paperSize];
+};
+
 const PrintableSheet = () => {
+  const dimensions = usePaperSize();
+
+  // Base scale for Letter size
+  const baseScale = dimensions.width / PAPER_DIMENSIONS.A4.width;
+  // Additional scale reduction for Letter size
+  const contentScale = IS_A4 ? 1 : 0.94;
+  // Combine both scales for horizontal scaling
+  const scaleX = baseScale * contentScale;
+
   const getRandomCards = (cards, count) => {
     return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
   };
@@ -392,13 +419,15 @@ const PrintableSheet = () => {
     <div
       className="bg-white flex gap-1"
       style={{
-        width: `${A4_DIMENSIONS.height}px`,
-        height: `${A4_DIMENSIONS.width}px`,
+        width: `${dimensions.height}px`,
+        height: `${dimensions.width}px`,
         padding: "12px",
+        transform: `scaleX(${scaleX})`, // Scale only horizontally
+        transformOrigin: "top left",
       }}
     >
       {/* Left side: Building Cards Grid */}
-      <div className={`w-[${A4_DIMENSIONS.width * 0.7}px]`}>
+      <div className={`w-[${dimensions.width * 0.7}px]`}>
         <div className="flex gap-2 my-2 mb-1 h-[26px]">
           <BlueprintTracker />
           <ShieldsTracker />
@@ -407,13 +436,18 @@ const PrintableSheet = () => {
 
         <div className="grid grid-cols-4 gap-1">
           {heroesCards.map((card, i) => (
-            <BuildingCard key={card.id} card={card} index={i} />
+            <BuildingCard
+              key={card.id}
+              card={card}
+              index={i}
+              paperSize={dimensions.paperSize}
+            />
           ))}
         </div>
       </div>
 
       {/* Right side: Trackers Column */}
-      <div className={`w-[${A4_DIMENSIONS.width * 0.3}px] flex flex-col gap-2`}>
+      <div className={`w-[${dimensions.width * 0.3}px] flex flex-col gap-2`}>
         <div className="flex justify-center items-center gap-4">
           <Image
             src={logoImg}
