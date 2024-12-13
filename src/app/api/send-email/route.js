@@ -38,7 +38,7 @@ export async function POST(request) {
     .header-image {
       width: 100%;
       height: 250px;
-      background: url('https://via.placeholder.com/600x250') no-repeat center center;
+      background: url('https://denogames.com/landing/monster-mixology/mm-cover.png') no-repeat center center;
       background-size: cover;
     }
     .content {

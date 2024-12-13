@@ -53,18 +53,18 @@ export default function MonsterMixologyPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
       {/* Hero Section */}
-      <div className="relative h-[40vh] w-full">
-        {/* <div className="absolute top-0 left-0 z-10">
+      <div className="h-[40vh] w-full">
+        <div className="absolute top-40 left-[65%] z-10">
           <Image
-            src="/landing/monster-mixology/a4.png"
-            alt="Monster Mixology Game"
-            className="w-[300px] h-[250px]"
-            width={600}
-            height={300}
+            src="/landing/monster-mixology/app.png"
+            alt="Monster Mixology APP"
+            className="w-[300px] h-auto"
+            width={1000}
+            height={1000}
           />
-        </div> */}
+        </div>
         <div className="absolute inset-0">
           <Image
             // src="/pozadina.png"
@@ -78,37 +78,39 @@ export default function MonsterMixologyPage() {
       </div>
 
       {/* Main Content */}
-      <main className="container px-4 py-16">
+      <main className="container px-4 mt-16">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-4xl font-strike mb-8">
-            {/* Play Monster Mixology for FREE! */}
             Download Monster Mixology Files
           </h1>
 
           <div className="flex justify-center items-center mb-8">
             <ChevronDown className="w-10 h-10" />
           </div>
-          {/* <p className="text-xl mb-8">
-            Play the basic version for FREE right now!
-          </p> */}
+        </div>
+      </main>
 
-          <form onSubmit={handleDownload} className="space-y-4">
+      {/* Fixed Form at Bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
+        <div className="container max-w-2xl mx-auto ">
+          <form onSubmit={handleDownload} className="flex flex-col gap-4">
             <Input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 h-[40px]"
             />
             <Button
               type="submit"
-              className="w-full bg-green-400 text-white"
+              className="bg-green-400 text-white whitespace-nowrap"
               disabled={isLoading}
             >
               {isLoading ? "Sending..." : "Send files to my email"}
             </Button>
           </form>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
