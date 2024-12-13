@@ -53,7 +53,7 @@ export default function MonsterMixologyPage() {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-white">
       {/* Hero Section */}
       <div className="h-[40vh] w-full">
         <div className="absolute top-40 left-[65%] z-10">
@@ -78,9 +78,9 @@ export default function MonsterMixologyPage() {
       </div>
 
       {/* Main Content */}
-      <main className="container px-4 mt-16">
+      <main className="container px-4 mt-16 bg-white">
         <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-4xl font-strike mb-8">
+          <h1 className="text-4xl font-strike mb-8 text-black">
             Download Monster Mixology Files
           </h1>
 
@@ -91,7 +91,7 @@ export default function MonsterMixologyPage() {
       </main>
 
       {/* Fixed Form at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 p-4 shadow-lg">
         <div className="container max-w-2xl mx-auto ">
           <form onSubmit={handleDownload} className="flex flex-col gap-4">
             <Input
@@ -99,7 +99,7 @@ export default function MonsterMixologyPage() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 h-[40px]"
+              className="flex-1 h-[40px] bg-white text-black"
             />
             <Button
               type="submit"
