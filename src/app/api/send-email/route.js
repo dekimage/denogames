@@ -1,5 +1,6 @@
 import { firestore } from "@/firebaseAdmin";
 import { NextResponse } from "next/server";
+
 // import Mailgun from "mailgun.js";
 // import formData from "form-data";
 
@@ -19,7 +20,7 @@ export async function POST(request) {
 
     const newEmailDoc = {
       email,
-      createdAt: firestore.FieldValue.serverTimestamp(),
+      createdAt: new Date().toISOString(),
     };
 
     await firestore.collection("emails").add(newEmailDoc);
