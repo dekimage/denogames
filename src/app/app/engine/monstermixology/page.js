@@ -42,6 +42,7 @@ import c21Img from "../../../../../public/spaceminers/coctails/c21.png";
 import c22Img from "../../../../../public/spaceminers/coctails/c22.png";
 import c23Img from "../../../../../public/spaceminers/coctails/c23.png";
 import c24Img from "../../../../../public/spaceminers/coctails/c24.png";
+import pushLuckStore from "@/app/stores/pushLuckStore";
 
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
@@ -51,12 +52,12 @@ export const SPACE_MINERS_COLORS = {
     disaster: "#FFCCD4", // soft red
   },
   resourceTypes: {
-    crystal: "#E6E6FA", // soft lavender
-    gem: "#FFB3B3", // soft pink
-    asteroid: "#D4D4D4", // soft gray
-    dust: "#FFE4B5", // soft orange
-    gas: "#B3E6FF", // soft cyan
-    orb: "#DDA0DD", // soft purple
+    crystal: "#FED9A6", // Pale yellow-green / SEPA
+    gem: "#FFFDB7", // Light peach
+    asteroid: "#FADBFF", // Pale yellow MASK
+    dust: "#FFD5BE", // Very light reddish-orange
+    gas: "#D4FDFF", // Light apricot / TEARS
+    orb: "#EEF8AA", // Light lilac / SLIME
   },
   blueprintTypes: {
     government: "#588157", // slate
@@ -122,6 +123,7 @@ const SpaceMinerCard = ({
   isHighlighted,
   isSelected,
   selectionColor,
+  recipeProgress,
 }) => {
   const getCardBackground = () => {
     if (item.type === "boom") return SPACE_MINERS_COLORS.cardTypes.disaster;
@@ -212,6 +214,36 @@ const SpaceMinerCard = ({
                 className="w-[60px] h-[60px] sm:w-24 sm:h-24"
               />
             </div>
+
+            {/* Only show progress if we have ingredients */}
+            {item.ingredients && recipeProgress && (
+              <div className="absolute top-2 right-2 flex flex-col gap-1">
+                {recipeProgress.map((ingredient, i) => (
+                  <div
+                    key={i}
+                    className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                      ingredient.isSelected ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  >
+                    {ingredient.isSelected && (
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -224,7 +256,7 @@ const SpaceMinerCard = ({
               {item.randomResources.map((type, index) => (
                 <div
                   key={index}
-                  className="w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
+                  className="relative w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
                   style={{
                     backgroundColor: SPACE_MINERS_COLORS.resourceTypes[type],
                   }}
@@ -235,6 +267,25 @@ const SpaceMinerCard = ({
                     width={24}
                     height={24}
                   />
+                  {/* Add checkmark overlay if ingredient is selected */}
+
+                  {pushLuckStore.isIngredientSelected(type) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-green-500/30">
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -291,8 +342,8 @@ const getRandomResources = () => {
 
 const getBlueprintRewards = () => {
   return {
-    coins: Math.floor(Math.random() * 3), // 0-2 coins
-    rerolls: Math.floor(Math.random() * 3), // 0-2 rerolls
+    coins: Math.floor(Math.random() * 3),
+    rerolls: 1,
   };
 };
 
@@ -318,6 +369,7 @@ const enhancedDeck = spaceMinersDeck.map((card) => {
     enhancedCard.randomResources = getRandomResources();
     enhancedCard.blueprintRewards = getBlueprintRewards();
     enhancedCard.cocktailId = getCocktailIdForBlueprintType(card.type);
+    enhancedCard.ingredients = enhancedCard.randomResources;
   }
 
   return enhancedCard;

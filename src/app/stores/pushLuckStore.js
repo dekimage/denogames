@@ -14,6 +14,7 @@ class PushLuckStore {
   isOtherPlayersPhase = false;
   currentColorIndex = 0;
   isSelectingMode = false;
+  selectedIngredients = new Set();
 
   constructor() {
     makeAutoObservable(this);
@@ -57,7 +58,7 @@ class PushLuckStore {
       (c) => c.type === card.type
     ).length;
 
-    if (typeCount === 2) {
+    if (typeCount === 2 && this.actions < 4) {
       this.actions++;
     }
   }
@@ -89,12 +90,20 @@ class PushLuckStore {
   }
 
   handleMainPlayerSelection(cardId) {
+    const card = this.centralBoard.find((c) => c.id === cardId);
+
     if (this.selectedCards.has(cardId)) {
       this.selectedCards.delete(cardId);
       this.actions++;
+      if (card.card === "resource") {
+        this.selectedIngredients.delete(card.type.toLowerCase());
+      }
     } else if (this.actions > 0) {
       this.selectedCards.set(cardId, "main");
       this.actions--;
+      if (card.card === "resource") {
+        this.selectedIngredients.add(card.type.toLowerCase());
+      }
     }
   }
 
@@ -129,6 +138,7 @@ class PushLuckStore {
     this.isOtherPlayersPhase = false;
     this.isSelectingMode = false;
     this.currentColorIndex = 0;
+    this.selectedIngredients.clear();
   }
 
   diffuseBomb() {
@@ -166,6 +176,16 @@ class PushLuckStore {
   setCanDraw = (value) => {
     this.canDraw = value;
   };
+
+  addAction = () => {
+    this.actions += 1;
+  };
+
+  isIngredientSelected(type) {
+    return Array.from(this.selectedIngredients).some(
+      (ingredient) => ingredient.toLowerCase() === type.toLowerCase()
+    );
+  }
 }
 
 const pushLuckStore = new PushLuckStore();

@@ -326,6 +326,14 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
             >
               Next Turn
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => pushLuckStore.addAction()}
+              className="px-2 aspect-square"
+            >
+              +
+            </Button>
           </div>
         )}
       </div>
