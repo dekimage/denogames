@@ -109,6 +109,9 @@ export default function MonsterMixologyPage() {
               {isLoading ? "Sending..." : "Send files to my email"}
             </Button>
           </form>
+          <div className="text-xs text-gray-400 w-full justify-center flex mt-1">
+            You will get the files in less than 24 hours
+          </div>
         </div>
       </div>
     </div>
