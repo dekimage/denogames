@@ -41,7 +41,7 @@ import tracker6Img from "../../../../public/spaceminers/trackers/t6.png";
 
 import QRCodeComponent from "@/utils/qr";
 
-const IS_A4 = true; // Set to false for LETTER, true for A4
+const IS_A4 = false; // Set to false for LETTER, true for A4
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -177,7 +177,7 @@ const TrackerComponent = ({ icon, bgColor, hasIcon = false, children }) => {
     <div className="flex flex-col rounded-lg w-full relative">
       {hasIcon && (
         <div
-          className="w-[28px] h-[28px] absolute left-[16px]  top-[13px] -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center text-md"
+          className="w-[28px] h-[28px] absolute left-[16px]  top-[25px] -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center text-md"
           style={{ backgroundColor: bgColor }}
         >
           <Image src={boomImg} alt={"boom img"} width={20} height={20} />
@@ -192,55 +192,53 @@ const DisasterTracker = () => {
   const disasterSymbolMap = {
     1: "coin",
     2: "shield",
-    3: "star",
+    3: "reroll",
   };
 
-  const disasterSequence = [
-    1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2,
-    1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 3,
-  ];
+  const disasterSequence = [2, 2, 3, 2, 2, 3, 2, 2, 3, 2, 2, 3, 2, 2, 3];
 
   return (
-    <TrackerComponent icon="☠️" bgColor="#FEE2E2" hasIcon={true}>
-      {/* red-200 */}
-      <div className="flex flex-col gap-2 pl-6">
-        {[0, 1].map((row) => (
-          <div key={row} className="flex justify-center gap-2">
-            {Array.from({ length: 7 }).map((_, col) => (
-              <div
-                key={col}
-                className="w-6 h-6 rounded-full border-2 border-dashed border-gray-400 flex items-center justify-center"
-              >
-                <Image
-                  src={
-                    SPACE_MINERS_ICONS[
-                      disasterSymbolMap[disasterSequence[row * 20 + col]] ||
-                        "coin"
-                    ]
-                  }
-                  alt="disaster"
-                  width={14}
-                  height={14}
-                />
-              </div>
-            ))}
+    <div className="flex justify-center items-center gap-2 h-full">
+      <div className="flex flex-col justify-center gap-2">
+        {/* Boom icon as first element */}
+        <div
+          className="w-6 h-6 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: "#FEE2E2" }}
+        >
+          <Image src={boomImg} alt={"boom img"} width={20} height={20} />
+        </div>
+
+        {/* Rest of the disaster sequence */}
+        {disasterSequence.map((symbol, index) => (
+          <div
+            key={index}
+            className="w-6 h-6 rounded-full border-2 border-dashed border-gray-400 flex items-center justify-center"
+          >
+            <Image
+              src={SPACE_MINERS_ICONS[disasterSymbolMap[symbol] || "coin"]}
+              alt="disaster"
+              width={14}
+              height={14}
+            />
           </div>
         ))}
       </div>
-    </TrackerComponent>
+    </div>
   );
 };
-const CoinTracker = () => {
+const CoinTracker = ({ coins = 19, disableFirstThree = false }) => {
   return (
     <TrackerComponent icon="🌕" bgColor="#FEF9C3">
       <div className="flex flex-col gap-2 mb-2">
         {[0].map((row) => (
           <div key={row} className="flex justify-center gap-2">
-            {Array.from({ length: 14 }).map((_, col) => (
+            {Array.from({ length: coins }).map((_, col) => (
               <div
                 key={col}
                 className={`w-6 h-6 rounded-full border-2 ${
-                  col < 3 ? "border-black" : "border-dashed border-gray-400"
+                  !disableFirstThree && col < 3
+                    ? "border-black"
+                    : "border-dashed border-gray-400"
                 } flex items-center justify-center text-[12px]`}
               >
                 <Image
@@ -260,7 +258,7 @@ const CoinTracker = () => {
 const ShieldsTracker = () => {
   return (
     <TrackerComponent icon="🛡️" bgColor="#E0F2E9">
-      <div className="flex flex-col gap-2 pl-8">
+      <div className="flex flex-col gap-2 pr-2">
         {[0].map((row) => (
           <div key={row} className="flex justify-center gap-2">
             {Array.from({ length: 3 }).map((_, col) => (
@@ -284,10 +282,40 @@ const ShieldsTracker = () => {
     </TrackerComponent>
   );
 };
+const RerollTracker = () => {
+  return (
+    <TrackerComponent icon="🛡️" bgColor="#E0F2E9">
+      <div className="flex flex-col gap-2 pr-2">
+        {[0].map((row) => (
+          <div key={row} className="flex justify-center gap-2">
+            {Array.from({ length: 3 }).map((_, col) => (
+              <div
+                key={col}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  col < 3 ? "border-black" : "border-dashed border-gray-400"
+                } flex items-center justify-center text-[12px]`}
+              >
+                <Image
+                  src={SPACE_MINERS_ICONS["reroll"]}
+                  alt="shield"
+                  width={14}
+                  height={14}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </TrackerComponent>
+  );
+};
 const BlueprintTracker = () => {
   return (
     <TrackerComponent icon="📋" bgColor="#BFDBFE">
-      <div className="flex justify-between items-center  max-h-[25px]">
+      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-1">
+        8th Drink = Game End
+      </div>
+      <div className="flex justify-center items-center  max-h-[25px]">
         <div className="flex gap-2">
           {Array.from({ length: 8 }).map((_, index) => (
             <Image
@@ -296,7 +324,7 @@ const BlueprintTracker = () => {
               height={500}
               src={cupImg}
               alt=""
-              className="w-[25px] h-[25px] border-[3px] border-black"
+              className="w-[22px] h-[22px] border-[1px] border-black"
             />
           ))}
         </div>
@@ -312,7 +340,10 @@ const BlueprintTracker = () => {
 };
 const Score = () => {
   return (
-    <div>
+    <div className="mt-2">
+      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-1">
+        End Scoring
+      </div>
       <div className="flex items-center gap-2">
         (
         <Image
@@ -320,7 +351,7 @@ const Score = () => {
           height={500}
           src={vpImg}
           alt=""
-          className="w-[25px] h-[25px] border-[3px] border-black"
+          className="w-[25px] h-[25px] border-[1px] border-black"
         />
         x
         <Image
@@ -328,7 +359,7 @@ const Score = () => {
           height={500}
           src={cupImg}
           alt=""
-          className="w-[25px] h-[25px] border-[3px] border-black"
+          className="w-[25px] h-[25px] border-[1px] border-black"
         />
         ) + (
         <Image
@@ -336,10 +367,10 @@ const Score = () => {
           height={500}
           src={resourceImg}
           alt=""
-          className="w-[25px] h-[25px] border-[3px] border-black"
+          className="w-[25px] h-[25px] border-[1px] border-black"
         />{" "}
         / 3) =
-        <div className="w-[25px] h-[25px] border-[3px] border-black"></div>
+        <div className="w-[25px] h-[25px] border-[1px] border-black"></div>
       </div>
     </div>
   );
@@ -429,8 +460,8 @@ const PrintableSheet = () => {
       {/* Left side: Building Cards Grid */}
       <div className={`w-[${dimensions.width * 0.7}px]`}>
         <div className="flex gap-2 my-2 mb-1 h-[26px]">
-          <BlueprintTracker />
           <ShieldsTracker />
+          <RerollTracker />
           <CoinTracker />
         </div>
 
@@ -447,8 +478,8 @@ const PrintableSheet = () => {
       </div>
 
       {/* Right side: Trackers Column */}
-      <div className={`w-[${dimensions.width * 0.3}px] flex flex-col gap-2`}>
-        <div className="flex justify-center items-center gap-4">
+      <div className={`w-[${dimensions.width * 0.3}px] flex gap-4 flex-col `}>
+        <div className="flex justify-center items-center gap-4 mt-4">
           <Image
             src={logoImg}
             alt="Space Miners Logo"
@@ -457,14 +488,15 @@ const PrintableSheet = () => {
             className="w-[140px]"
           />
           <div className="flex flex-col items-center">
+            {/* <div className="w-full justify-center text-black bg-white flex font-strike uppercase  bg-black  px-[6px] py-[4px] rounded-[10px] text-md">
+              Deck
+            </div> */}
+            <div className="text-black font-strike uppercase text-md">Deck</div>
             <QRCodeComponent
               url="https://www.denogames.com/app/engine/monstermixology"
               width={90}
               height={90}
             />
-            <div className="font-strike uppercase text-xs bg-black text-white px-[6px] py-[4px] rounded-[10px]">
-              Deck
-            </div>
           </div>
         </div>
         {/* Resource Trackers row */}
@@ -476,12 +508,12 @@ const PrintableSheet = () => {
                 height={1400}
                 src={getTrackerImg(i + 1)}
                 alt={type}
-                className="w-[132px] h-[170px]"
+                className="w-[120px] h-[160px]"
               />
               {/* Overlay grid of circles */}
-              <div className="absolute top-[53px] left-[53%] -translate-x-1/2 w-[110px]">
-                <div className="grid grid-cols-3 gap-1 place-items-center px-2">
-                  {Array.from({ length: 12 }).map((_, index) => (
+              <div className="absolute top-[53px] left-[51%] -translate-x-1/2 w-[110px]">
+                <div className="grid grid-cols-3 gap-2 place-items-center px-4 mt-1">
+                  {Array.from({ length: 9 }).map((_, index) => (
                     <div
                       key={index}
                       className="w-[20px] h-[20px] rounded-full border-2 border-dashed border-gray-400 bg-white/70"
@@ -493,11 +525,14 @@ const PrintableSheet = () => {
           ))}
         </div>
 
-        <div className="flex flex-col gap-4 items-center justify-center mt-3">
-          <DisasterTracker />
-
+        <div className="flex flex-col gap-2 items-center justify-center mt-3">
+          <BlueprintTracker />
           <Score />
         </div>
+      </div>
+
+      <div>
+        <DisasterTracker isVertical />
       </div>
     </div>
   );

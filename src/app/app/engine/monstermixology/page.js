@@ -16,6 +16,7 @@ import boomImg from "../../../../../public/spaceminers/boom.png";
 
 import vpImg from "../../../../../public/spaceminers/vp.png";
 import shield3Img from "../../../../../public/spaceminers/ingridients/shield3.png";
+import rerollImg from "../../../../../public/spaceminers/ingridients/reroll.png";
 
 import c1Img from "../../../../../public/spaceminers/coctails/c1.png";
 import c2Img from "../../../../../public/spaceminers/coctails/c2.png";
@@ -84,7 +85,7 @@ export const SPACE_MINERS_ICONS = {
   },
   disaster: vpImg,
   coin: coinImg,
-  reroll: shield3Img,
+  reroll: rerollImg,
   shield: shieldImg,
 };
 

@@ -289,7 +289,7 @@ export const heroesCards = [
     vp: 4,
     uses: 2,
     effect:
-      "Until your next turn, opponents cannot gain more than 1 ingredient.",
+      "Until your next turn, opponents have 1 less Action on their turn. (Can be 0)",
   },
   {
     id: 9,
