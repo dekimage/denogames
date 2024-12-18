@@ -15,6 +15,7 @@ class PushLuckStore {
   currentColorIndex = 0;
   isSelectingMode = false;
   selectedIngredients = new Set();
+  isRedCardsDisabled = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -28,7 +29,13 @@ class PushLuckStore {
 
   initializeGame() {
     if (!this.gameConfig) return;
-    this.deck = [...this.gameConfig.initialItems];
+    let initialItems = [...this.gameConfig.initialItems];
+
+    if (this.isRedCardsDisabled) {
+      initialItems = initialItems.filter((card) => card.type !== "boom");
+    }
+
+    this.deck = initialItems;
     this.centralBoard = [];
     this.discardPile = [];
     this.currentTurn = 1;
@@ -186,6 +193,11 @@ class PushLuckStore {
       (ingredient) => ingredient.toLowerCase() === type.toLowerCase()
     );
   }
+
+  toggleRedCards = () => {
+    this.isRedCardsDisabled = !this.isRedCardsDisabled;
+    this.restartGame();
+  };
 }
 
 const pushLuckStore = new PushLuckStore();

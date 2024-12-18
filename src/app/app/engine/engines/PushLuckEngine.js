@@ -10,6 +10,16 @@ import { ModeToggle } from "@/components/ui/themeButton";
 import Image from "next/image";
 import boomImg from "../../../../../public/spaceminers/boom.png";
 import shieldImg from "../../../../../public/spaceminers/ingridients/shield.png";
+import { Settings } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
@@ -263,15 +273,35 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               Actions: {Math.min(pushLuckStore.actions, 4)}
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="sm:hidden mr-2"
-            onClick={() => pushLuckStore.restartGame()}
-          >
-            Restart
-          </Button>
-          <ModeToggle />
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuCheckboxItem
+                  checked={pushLuckStore.isRedCardsDisabled}
+                  onCheckedChange={pushLuckStore.toggleRedCards}
+                >
+                  Disable Red Cards
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Option 2</DropdownMenuItem>
+                <DropdownMenuItem>Option 3</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              className=" mr-2"
+              onClick={() => pushLuckStore.restartGame()}
+            >
+              Restart
+            </Button>
+            <ModeToggle />
+          </div>
         </div>
       </div>
 
