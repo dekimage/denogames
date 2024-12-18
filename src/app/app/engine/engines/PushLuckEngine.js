@@ -236,13 +236,15 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     actionGainedFromDraw.current = true;
     pushLuckStore.drawCard();
 
-    // Add a small delay before scrolling
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth",
-      });
-    }, 100);
+    // Only auto-scroll if we have 9 or more cards
+    if (pushLuckStore.centralBoard.length >= 9) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
+    }
   };
 
   return (
