@@ -8,8 +8,8 @@ import Modal from "@/app/components/Modal";
 import { BlueprintPurchaseModals } from "../monstermixology/BlueprintModals";
 import { ModeToggle } from "@/components/ui/themeButton";
 import Image from "next/image";
-import boomImg from "../../../../../public/spaceminers/boom.png";
-import shieldImg from "../../../../../public/spaceminers/ingridients/shield.png";
+import boomImg from "../../../../../public/monstermixology/boom.png";
+import shieldImg from "../../../../../public/monstermixology/ingridients/shield.png";
 import { Settings } from "lucide-react";
 
 import {

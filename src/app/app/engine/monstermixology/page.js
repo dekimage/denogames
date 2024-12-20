@@ -1,47 +1,47 @@
 "use client";
 import PushLuckEngine from "../engines/PushLuckEngine";
-import { spaceMinersDeck } from "./data";
+import { monstermixologyDeck } from "./data";
 
 import Image from "next/image";
 
-import r1Img from "../../../../../public/spaceminers/ingridients/r1.png";
-import r2Img from "../../../../../public/spaceminers/ingridients/r2.png";
-import r3Img from "../../../../../public/spaceminers/ingridients/r3.png";
-import r4Img from "../../../../../public/spaceminers/ingridients/r4.png";
-import r5Img from "../../../../../public/spaceminers/ingridients/r5.png";
-import r6Img from "../../../../../public/spaceminers/ingridients/r6.png";
-import shieldImg from "../../../../../public/spaceminers/ingridients/shield.png";
-import coinImg from "../../../../../public/spaceminers/ingridients/coin.png";
-import boomImg from "../../../../../public/spaceminers/boom.png";
+import r1Img from "../../../../../public/monstermixology/ingridients/r1.png";
+import r2Img from "../../../../../public/monstermixology/ingridients/r2.png";
+import r3Img from "../../../../../public/monstermixology/ingridients/r3.png";
+import r4Img from "../../../../../public/monstermixology/ingridients/r4.png";
+import r5Img from "../../../../../public/monstermixology/ingridients/r5.png";
+import r6Img from "../../../../../public/monstermixology/ingridients/r6.png";
+import shieldImg from "../../../../../public/monstermixology/ingridients/shield.png";
+import coinImg from "../../../../../public/monstermixology/ingridients/coin.png";
+import boomImg from "../../../../../public/monstermixology/boom.png";
 
-import vpImg from "../../../../../public/spaceminers/vp.png";
-import shield3Img from "../../../../../public/spaceminers/ingridients/shield3.png";
-import rerollImg from "../../../../../public/spaceminers/ingridients/reroll.png";
+import vpImg from "../../../../../public/monstermixology/vp.png";
+import shield3Img from "../../../../../public/monstermixology/ingridients/shield3.png";
+import rerollImg from "../../../../../public/monstermixology/ingridients/reroll.png";
 
-import c1Img from "../../../../../public/spaceminers/coctails/c1.png";
-import c2Img from "../../../../../public/spaceminers/coctails/c2.png";
-import c3Img from "../../../../../public/spaceminers/coctails/c3.png";
-import c4Img from "../../../../../public/spaceminers/coctails/c4.png";
-import c5Img from "../../../../../public/spaceminers/coctails/c5.png";
-import c6Img from "../../../../../public/spaceminers/coctails/c6.png";
-import c7Img from "../../../../../public/spaceminers/coctails/c7.png";
-import c8Img from "../../../../../public/spaceminers/coctails/c8.png";
-import c9Img from "../../../../../public/spaceminers/coctails/c9.png";
-import c10Img from "../../../../../public/spaceminers/coctails/c10.png";
-import c11Img from "../../../../../public/spaceminers/coctails/c11.png";
-import c12Img from "../../../../../public/spaceminers/coctails/c12.png";
-import c13Img from "../../../../../public/spaceminers/coctails/c13.png";
-import c14Img from "../../../../../public/spaceminers/coctails/c14.png";
-import c15Img from "../../../../../public/spaceminers/coctails/c15.png";
-import c16Img from "../../../../../public/spaceminers/coctails/c16.png";
-import c17Img from "../../../../../public/spaceminers/coctails/c17.png";
-import c18Img from "../../../../../public/spaceminers/coctails/c18.png";
-import c19Img from "../../../../../public/spaceminers/coctails/c19.png";
-import c20Img from "../../../../../public/spaceminers/coctails/c20.png";
-import c21Img from "../../../../../public/spaceminers/coctails/c21.png";
-import c22Img from "../../../../../public/spaceminers/coctails/c22.png";
-import c23Img from "../../../../../public/spaceminers/coctails/c23.png";
-import c24Img from "../../../../../public/spaceminers/coctails/c24.png";
+import c1Img from "../../../../../public/monstermixology/coctails/c1.png";
+import c2Img from "../../../../../public/monstermixology/coctails/c2.png";
+import c3Img from "../../../../../public/monstermixology/coctails/c3.png";
+import c4Img from "../../../../../public/monstermixology/coctails/c4.png";
+import c5Img from "../../../../../public/monstermixology/coctails/c5.png";
+import c6Img from "../../../../../public/monstermixology/coctails/c6.png";
+import c7Img from "../../../../../public/monstermixology/coctails/c7.png";
+import c8Img from "../../../../../public/monstermixology/coctails/c8.png";
+import c9Img from "../../../../../public/monstermixology/coctails/c9.png";
+import c10Img from "../../../../../public/monstermixology/coctails/c10.png";
+import c11Img from "../../../../../public/monstermixology/coctails/c11.png";
+import c12Img from "../../../../../public/monstermixology/coctails/c12.png";
+import c13Img from "../../../../../public/monstermixology/coctails/c13.png";
+import c14Img from "../../../../../public/monstermixology/coctails/c14.png";
+import c15Img from "../../../../../public/monstermixology/coctails/c15.png";
+import c16Img from "../../../../../public/monstermixology/coctails/c16.png";
+import c17Img from "../../../../../public/monstermixology/coctails/c17.png";
+import c18Img from "../../../../../public/monstermixology/coctails/c18.png";
+import c19Img from "../../../../../public/monstermixology/coctails/c19.png";
+import c20Img from "../../../../../public/monstermixology/coctails/c20.png";
+import c21Img from "../../../../../public/monstermixology/coctails/c21.png";
+import c22Img from "../../../../../public/monstermixology/coctails/c22.png";
+import c23Img from "../../../../../public/monstermixology/coctails/c23.png";
+import c24Img from "../../../../../public/monstermixology/coctails/c24.png";
 import pushLuckStore from "@/app/stores/pushLuckStore";
 
 // Color mappings using hex codes (pastel palette)
@@ -362,7 +362,7 @@ const getCocktailIdForBlueprintType = (type) => {
 };
 
 // Modify the enhancedDeck creation
-const enhancedDeck = spaceMinersDeck.map((card) => {
+const enhancedDeck = monstermixologyDeck.map((card) => {
   const enhancedCard = { ...card };
 
   if (card.card === "blueprint") {
@@ -384,7 +384,7 @@ const spaceMinerConfig = {
   },
 };
 
-const SpaceMiners = () => {
+const monstermixology = () => {
   return (
     <div>
       <PushLuckEngine
@@ -396,4 +396,4 @@ const SpaceMiners = () => {
   );
 };
 
-export default SpaceMiners;
+export default monstermixology;

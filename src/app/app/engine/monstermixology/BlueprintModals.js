@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
-import { heroesCards } from "@/app/mvp/spaceminers/data";
-import { BuildingCard } from "@/app/mvp/spaceminers/page";
+import { heroesCards } from "@/app/mvp/monstermixology/data";
+import { BuildingCard } from "@/app/mvp/monstermixology/page";
 
 export const BlueprintPurchaseModals = ({
   blueprint,

@@ -110,42 +110,10 @@ const resources = [
 // ];
 
 const blueprints = [
-  // Government Blueprints (1-6)
   { id: 25, card: "blueprint", type: "government", count: 6 },
   { id: 26, card: "blueprint", type: "private", count: 6 },
   { id: 27, card: "blueprint", type: "rebel", count: 6 },
   { id: 28, card: "blueprint", type: "alien", count: 6 },
-
-  // { id: 25, card: "blueprint", type: "government" },
-  // { id: 26, card: "blueprint", type: "government" },
-  // { id: 27, card: "blueprint", type: "government" },
-  // { id: 28, card: "blueprint", type: "government" },
-  // { id: 29, card: "blueprint", type: "government" },
-  // { id: 30, card: "blueprint", type: "government" },
-
-  // // Private Sector Blueprints (7-12)
-  // { id: 31, card: "blueprint", type: "private" },
-  // { id: 32, card: "blueprint", type: "private" },
-  // { id: 33, card: "blueprint", type: "private" },
-  // { id: 34, card: "blueprint", type: "private" },
-  // { id: 35, card: "blueprint", type: "private" },
-  // { id: 36, card: "blueprint", type: "private" },
-
-  // // Rebel Blueprints (13-18)
-  // { id: 37, card: "blueprint", type: "rebel" },
-  // { id: 38, card: "blueprint", type: "rebel" },
-  // { id: 39, card: "blueprint", type: "rebel" },
-  // { id: 40, card: "blueprint", type: "rebel" },
-  // { id: 41, card: "blueprint", type: "rebel" },
-  // { id: 42, card: "blueprint", type: "rebel" },
-
-  // // alien Blueprints (19-24)
-  // { id: 43, card: "blueprint", type: "alien" },
-  // { id: 44, card: "blueprint", type: "alien" },
-  // { id: 45, card: "blueprint", type: "alien" },
-  // { id: 46, card: "blueprint", type: "alien" },
-  // { id: 47, card: "blueprint", type: "alien" },
-  // { id: 48, card: "blueprint", type: "alien" },
 ];
 
 const disasters = [
@@ -197,7 +165,7 @@ const disasters = [
   },
 ];
 
-export const spaceMinersDeck = expandDeckWithCopies([
+export const monstermixologyDeck = expandDeckWithCopies([
   ...resources,
   // ...scraps,
   ...blueprints,

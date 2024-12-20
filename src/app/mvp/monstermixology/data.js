@@ -322,4 +322,105 @@ export const heroesCards = [
     uses: 1,
     effect: "Pay 🌕🌕🌕🌕 to serve a coctail for free.",
   },
+  {
+    id: 13,
+    name: "Hoarder Pazzie",
+    vp: 3,
+    uses: 2,
+    effect:
+      "Gain any 2 ingredients if an opponent has served 5 or more drinks this game. And you have served less than 4.",
+  },
+  {
+    id: 14,
+    name: "Assasin Stefan",
+    vp: 3,
+    uses: 3,
+    effect:
+      "You may spend 1 shield as any 1 ingredient when making a cocktail.",
+  },
+  {
+    id: 15,
+    name: "Frosty Bosko",
+    vp: 1,
+    uses: 3,
+    effect: "All actions require 2 actions to perform until your next turn.",
+  },
+  {
+    id: 16,
+    name: "Dr. Muddle",
+    vp: 4,
+    uses: 2,
+    effect: "If you performed 3 or more actions this turn, gain shield.",
+  },
+  {
+    id: 17,
+    name: "Prince Alin",
+    vp: 1,
+    uses: 2,
+    effect:
+      "Draw 6 cards. Gain 🌕 for each recipe card you reveal. Ignore any disasters.",
+  },
+  {
+    id: 18,
+    name: "Aqua Bella",
+    vp: 3,
+    uses: 3,
+    effect:
+      "When you serve a cocktail using ingredients you just gained from the board, you may gain any 1 ingredient.",
+  },
+  {
+    id: 19,
+    name: "Justice Bringer",
+    vp: 3,
+    uses: 2,
+    effect:
+      "Activate this effect when an opponent gains a 4th action. You may pay 🌕🌕 to reduce their actions to 2.",
+  },
+  {
+    id: 20,
+    name: "Royal Mistress",
+    vp: 2,
+    uses: 1,
+    effect:
+      "If you served 2 cocktails this turn, mark this ability as used. At the end of game Iron Mix is worth + 4VP for each mark.",
+  },
+  {
+    id: 21,
+    name: "VIP Peky",
+    vp: 2,
+    uses: 2,
+    effect:
+      "Spend 3 actions to serve a cocktail without paying any ingredients.",
+  },
+  {
+    id: 22,
+    name: "King Mral",
+    vp: 1,
+    uses: 1,
+    effect: "King Mral is worth 6VP if you triggered the end game.",
+  },
+  {
+    id: 23,
+    name: "Deno the Jester",
+    vp: 2,
+    uses: 2,
+    effect:
+      "Steal 1 ingredient from all players that have served more cocktails than you. Pay 🌕 to each player you stole from. ",
+  },
+
+  {
+    id: 24,
+    name: "Smiki, the Hugger",
+    vp: 4,
+    uses: 2,
+    effect:
+      "Gain any 1 ingredient. All other players also gain that ingredient.",
+  },
+  {
+    id: 25,
+    name: "Woodcracko Bird",
+    vp: 2,
+    uses: 2,
+    effect: "Steal 1 ingredient from another player.",
+  },
 ];

@@ -8,36 +8,50 @@ import {
   SPACE_MINERS_ICONS,
 } from "@/app/app/engine/monstermixology/page";
 
-import boomImg from "../../../../public/spaceminers/boom.png";
-import logoImg from "../../../../public/spaceminers/mm-logo.png";
-import vpImg from "../../../../public/spaceminers/vp.png";
-import cupImg from "../../../../public/spaceminers/cup.png";
+import boomImg from "../../../../public/monstermixology/boom.png";
+import logoImg from "../../../../public/monstermixology/mm-logo.png";
+import vpImg from "../../../../public/monstermixology/vp.png";
+import cupImg from "../../../../public/monstermixology/cup.png";
 
-import resourceImg from "../../../../public/spaceminers/resource.png";
+import resourceImg from "../../../../public/monstermixology/resource.png";
 
-import template1Img from "../../../../public/spaceminers/template-1.png";
-import template2Img from "../../../../public/spaceminers/template-2.png";
-import template3Img from "../../../../public/spaceminers/template-3.png";
+import template1Img from "../../../../public/monstermixology/template-1.png";
+import template2Img from "../../../../public/monstermixology/template-2.png";
+import template3Img from "../../../../public/monstermixology/template-3.png";
 
-import hero1Img from "../../../../public/spaceminers/heroes/h1.png";
-import hero2Img from "../../../../public/spaceminers/heroes/h2.png";
-import hero3Img from "../../../../public/spaceminers/heroes/h3.png";
-import hero4Img from "../../../../public/spaceminers/heroes/h4.png";
-import hero5Img from "../../../../public/spaceminers/heroes/h5.png";
-import hero6Img from "../../../../public/spaceminers/heroes/h6.png";
-import hero7Img from "../../../../public/spaceminers/heroes/h7.png";
-import hero8Img from "../../../../public/spaceminers/heroes/h8.png";
-import hero9Img from "../../../../public/spaceminers/heroes/h9.png";
-import hero10Img from "../../../../public/spaceminers/heroes/h10.png";
-import hero11Img from "../../../../public/spaceminers/heroes/h11.png";
-import hero12Img from "../../../../public/spaceminers/heroes/h12.png";
+// import hero1Img from "../../../../public/monstermixology/heroes/h1.png";
+// import hero2Img from "../../../../public/monstermixology/heroes/h2.png";
+// import hero3Img from "../../../../public/monstermixology/heroes/h3.png";
+// import hero4Img from "../../../../public/monstermixology/heroes/h4.png";
+// import hero5Img from "../../../../public/monstermixology/heroes/h5.png";
+// import hero6Img from "../../../../public/monstermixology/heroes/h6.png";
+// import hero7Img from "../../../../public/monstermixology/heroes/h7.png";
+// import hero8Img from "../../../../public/monstermixology/heroes/h8.png";
+// import hero9Img from "../../../../public/monstermixology/heroes/h9.png";
+// import hero10Img from "../../../../public/monstermixology/heroes/h10.png";
+// import hero11Img from "../../../../public/monstermixology/heroes/h11.png";
+// import hero12Img from "../../../../public/monstermixology/heroes/h12.png";
 
-import tracker1Img from "../../../../public/spaceminers/trackers/t1.png";
-import tracker2Img from "../../../../public/spaceminers/trackers/t2.png";
-import tracker3Img from "../../../../public/spaceminers/trackers/t3.png";
-import tracker4Img from "../../../../public/spaceminers/trackers/t4.png";
-import tracker5Img from "../../../../public/spaceminers/trackers/t5.png";
-import tracker6Img from "../../../../public/spaceminers/trackers/t6.png";
+// import hero13Img from "../../../../public/monstermixology/heroes/h13.png";
+// import hero14Img from "../../../../public/monstermixology/heroes/h14.png";
+// import hero15Img from "../../../../public/monstermixology/heroes/h15.png";
+// import hero16Img from "../../../../public/monstermixology/heroes/h16.png";
+// import hero17Img from "../../../../public/monstermixology/heroes/h17.png";
+// import hero18Img from "../../../../public/monstermixology/heroes/h18.png";
+// import hero19Img from "../../../../public/monstermixology/heroes/h19.png";
+// import hero20Img from "../../../../public/monstermixology/heroes/h20.png";
+// import hero21Img from "../../../../public/monstermixology/heroes/h21.png";
+// import hero22Img from "../../../../public/monstermixology/heroes/h22.png";
+// import hero23Img from "../../../../public/monstermixology/heroes/h23.png";
+// import hero24Img from "../../../../public/monstermixology/heroes/h24.png";
+// import hero25Img from "../../../../public/monstermixology/heroes/h25.png";
+
+import tracker1Img from "../../../../public/monstermixology/trackers/t1.png";
+import tracker2Img from "../../../../public/monstermixology/trackers/t2.png";
+import tracker3Img from "../../../../public/monstermixology/trackers/t3.png";
+import tracker4Img from "../../../../public/monstermixology/trackers/t4.png";
+import tracker5Img from "../../../../public/monstermixology/trackers/t5.png";
+import tracker6Img from "../../../../public/monstermixology/trackers/t6.png";
 
 import QRCodeComponent from "@/utils/qr";
 
@@ -71,33 +85,15 @@ const getTemplateImg = (uses) => {
   }
 };
 
+const heroImages = Object.fromEntries(
+  Array.from({ length: 25 }, (_, i) => [
+    i + 1,
+    require(`../../../../public/monstermixology/heroes/h${i + 1}.png`).default,
+  ])
+);
+
 const getHeroImage = (number) => {
-  switch (number) {
-    case 1:
-      return hero1Img;
-    case 2:
-      return hero2Img;
-    case 3:
-      return hero3Img;
-    case 4:
-      return hero4Img;
-    case 5:
-      return hero5Img;
-    case 6:
-      return hero6Img;
-    case 7:
-      return hero7Img;
-    case 8:
-      return hero8Img;
-    case 9:
-      return hero9Img;
-    case 10:
-      return hero10Img;
-    case 11:
-      return hero11Img;
-    case 12:
-      return hero12Img;
-  }
+  return heroImages[number] || heroImages[1]; // Fallback to first hero if number not found
 };
 
 const ResourceTracker = ({ type }) => {
@@ -444,7 +440,7 @@ const PrintableSheet = () => {
     return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
   };
 
-  // const randomBuildingCards = getRandomCards(heroesCards, 12);
+  const randomHeroesCards = getRandomCards(heroesCards, 12);
 
   return (
     <div
@@ -466,7 +462,7 @@ const PrintableSheet = () => {
         </div>
 
         <div className="grid grid-cols-4 gap-1">
-          {heroesCards.map((card, i) => (
+          {randomHeroesCards.map((card, i) => (
             <BuildingCard
               key={card.id}
               card={card}
