@@ -37,6 +37,8 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { useSearchParams } from "next/navigation";
+import { CustomizeCharacters } from "./CustomizeCharacters";
+import { Button } from "@/components/ui/button";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -442,9 +444,28 @@ const PrintableSheet = () => {
     return link;
   };
 
+  const [showCustomize, setShowCustomize] = useState(false);
+
+  const handleCustomPDFGeneration = (selectedIds) => {
+    // Update randomCards with the selected heroes
+    const customCards = getRandomCards(
+      heroesCards.filter((card) => selectedIds.includes(card.id)),
+      12
+    );
+    setRandomCards(customCards);
+    setShowCustomize(false);
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex gap-4 items-center">
+        <Button
+          onClick={() => setShowCustomize(!showCustomize)}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          {showCustomize ? "Hide Customize" : "Customize Characters"}
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
             {paperSize === "A4" ? "A4 Size" : "Letter Size"}
@@ -464,6 +485,10 @@ const PrintableSheet = () => {
 
         <DownloadButton componentRef={componentRef} paperSize={paperSize} />
       </div>
+
+      {showCustomize && (
+        <CustomizeCharacters onGenerateCustomPDF={handleCustomPDFGeneration} />
+      )}
 
       {/* Hide the actual content by default */}
       <div style={{ display: "none" }}>
