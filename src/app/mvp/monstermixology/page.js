@@ -439,7 +439,11 @@ const PrintableSheet = () => {
   // Create the dynamic URL with character IDs
   const generateQRUrl = () => {
     const characterIds = randomCards.map((card) => card.id).join(",");
-    const link = `http://localhost:3000/app/engine/monstermixology?chars=${characterIds}`;
+    const link = `${
+      process.env.NODE_ENV === "production"
+        ? "https://denogames.com"
+        : "http://localhost:3000"
+    }/app/engine/monstermixology?chars=${characterIds}`;
 
     return link;
   };

@@ -454,10 +454,9 @@ const HomePage = observer(() => {
     },
     // Add more game objects...
   ];
-  return <div>Under Construction</div>;
+  // return <div>Under Construction</div>;
   return (
     <div>
-      <ModeToggle />
       {/* <Mimage muhar="shopkeeper" /> */}
       <FeaturedGamesSlider games={gamesArray} />
       <div className="container mx-auto py-8">

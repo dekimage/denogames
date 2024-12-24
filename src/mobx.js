@@ -31,12 +31,6 @@ import {
   startAfter,
 } from "firebase/firestore";
 
-import Logger from "@/utils/logger";
-
-const DEFAULT_USER = {};
-
-const logger = new Logger({ debugEnabled: false }); // switch to true to see console logs from firebase
-
 class Store {
   // App Data
   app = { games: [] };
@@ -92,8 +86,8 @@ class Store {
 
   constructor() {
     makeAutoObservable(this);
-    // this.initializeAuth();
-    // this.fetchProducts();
+    this.initializeAuth();
+    this.fetchProducts();
 
     this.fetchProducts = this.fetchProducts.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);

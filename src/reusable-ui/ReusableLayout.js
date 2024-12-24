@@ -62,7 +62,6 @@ import { ModeToggle } from "@/components/ui/themeButton";
 const routesWithoutHeaderFooter = ["/login", "/signup", "/app", "/cart"];
 
 const routePrefixesWithoutHeaderFooter = [
-  "/",
   "/machines",
   "/app/engine",
   "/admin",
