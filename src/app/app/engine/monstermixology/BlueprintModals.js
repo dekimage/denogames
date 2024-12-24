@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
 import { heroesCards } from "@/app/mvp/monstermixology/data";
 import { BuildingCard } from "@/app/mvp/monstermixology/page";
+import { useSearchParams } from "next/navigation";
 
 export const BlueprintPurchaseModals = ({
   blueprint,
@@ -11,12 +12,12 @@ export const BlueprintPurchaseModals = ({
   CardComponent,
   rerolls,
 }) => {
+  const searchParams = useSearchParams();
   const [showBuildingSelect, setShowBuildingSelect] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [remainingRerolls, setRemainingRerolls] = useState(rerolls || 0);
-  const [availableBuildings, setAvailableBuildings] = useState(() =>
-    getRandomBuildings()
-  );
+  const [availableBuildings, setAvailableBuildings] = useState([]);
+  const [filteredHeroes, setFilteredHeroes] = useState(heroesCards);
 
   // Initialize with the correct blueprint and rerolls
   useEffect(() => {
@@ -28,17 +29,34 @@ export const BlueprintPurchaseModals = ({
   // Reset state when blueprint changes
   useEffect(() => {
     setSelectedBuilding(null);
-    setAvailableBuildings(getRandomBuildings());
-  }, [blueprint]);
+    // Get character IDs from URL
+    const chars = searchParams.get("chars");
+    if (chars) {
+      const characterIds = chars.split(",").map(Number);
+      console.log("Filtering for these IDs:", characterIds);
 
-  function getRandomBuildings(count = 3) {
-    const shuffled = [...heroesCards].sort(() => 0.5 - Math.random());
+      // Filter heroesCards to only include the specified IDs
+      const filtered = heroesCards.filter((card) =>
+        characterIds.includes(card.id)
+      );
+      console.log("Filtered heroes:", filtered);
+
+      setFilteredHeroes(filtered);
+      setAvailableBuildings(getRandomBuildings(filtered));
+    } else {
+      setFilteredHeroes(heroesCards);
+      setAvailableBuildings(getRandomBuildings(heroesCards));
+    }
+  }, [blueprint, searchParams]);
+
+  function getRandomBuildings(sourceCards, count = 3) {
+    const shuffled = [...sourceCards].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
 
   function handleReroll() {
     if (remainingRerolls > 0) {
-      setAvailableBuildings(getRandomBuildings());
+      setAvailableBuildings(getRandomBuildings(filteredHeroes));
       setRemainingRerolls((prev) => prev - 1);
       setSelectedBuilding(null);
     }

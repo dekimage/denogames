@@ -43,6 +43,8 @@ import c22Img from "../../../../../public/monstermixology/coctails/c22.png";
 import c23Img from "../../../../../public/monstermixology/coctails/c23.png";
 import c24Img from "../../../../../public/monstermixology/coctails/c24.png";
 import pushLuckStore from "@/app/stores/pushLuckStore";
+import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
@@ -384,16 +386,26 @@ const spaceMinerConfig = {
   },
 };
 
-const monstermixology = () => {
+const Monstermixology = () => {
+  const searchParams = useSearchParams();
+  const [availableCards] = useState(enhancedDeck);
+
+  useEffect(() => {
+    const chars = searchParams.get("chars");
+    if (chars) {
+      console.log("Characters from URL:", chars); // Debug log
+    }
+  }, [searchParams]);
+
   return (
     <div>
       <PushLuckEngine
         config={spaceMinerConfig}
         CardComponent={SpaceMinerCard}
-        className="gap-4" // Add gap between cards
+        className="gap-4"
       />
     </div>
   );
 };
 
-export default monstermixology;
+export default Monstermixology;

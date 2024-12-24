@@ -36,6 +36,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
+import { useSearchParams } from "next/navigation";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -433,6 +434,14 @@ const PrintableSheet = () => {
   // Combine both scales for horizontal scaling
   const scaleX = baseScale;
 
+  // Create the dynamic URL with character IDs
+  const generateQRUrl = () => {
+    const characterIds = randomCards.map((card) => card.id).join(",");
+    const link = `http://localhost:3000/app/engine/monstermixology?chars=${characterIds}`;
+
+    return link;
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex gap-4 items-center">
@@ -521,9 +530,9 @@ const PrintableSheet = () => {
                     Deck
                   </div>
                   <QRCodeComponent
-                    url="https://www.denogames.com/app/engine/monstermixology"
-                    width={90}
-                    height={90}
+                    url={generateQRUrl()}
+                    width={100}
+                    height={100}
                   />
                 </div>
               </div>
