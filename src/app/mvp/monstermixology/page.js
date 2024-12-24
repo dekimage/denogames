@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useRef, useState } from "react";
 import { A4_DIMENSIONS, PAPER_DIMENSIONS } from "./utils";
 import { heroesCards } from "./data";
 import Image from "next/image";
@@ -19,33 +19,6 @@ import template1Img from "../../../../public/monstermixology/template-1.png";
 import template2Img from "../../../../public/monstermixology/template-2.png";
 import template3Img from "../../../../public/monstermixology/template-3.png";
 
-// import hero1Img from "../../../../public/monstermixology/heroes/h1.png";
-// import hero2Img from "../../../../public/monstermixology/heroes/h2.png";
-// import hero3Img from "../../../../public/monstermixology/heroes/h3.png";
-// import hero4Img from "../../../../public/monstermixology/heroes/h4.png";
-// import hero5Img from "../../../../public/monstermixology/heroes/h5.png";
-// import hero6Img from "../../../../public/monstermixology/heroes/h6.png";
-// import hero7Img from "../../../../public/monstermixology/heroes/h7.png";
-// import hero8Img from "../../../../public/monstermixology/heroes/h8.png";
-// import hero9Img from "../../../../public/monstermixology/heroes/h9.png";
-// import hero10Img from "../../../../public/monstermixology/heroes/h10.png";
-// import hero11Img from "../../../../public/monstermixology/heroes/h11.png";
-// import hero12Img from "../../../../public/monstermixology/heroes/h12.png";
-
-// import hero13Img from "../../../../public/monstermixology/heroes/h13.png";
-// import hero14Img from "../../../../public/monstermixology/heroes/h14.png";
-// import hero15Img from "../../../../public/monstermixology/heroes/h15.png";
-// import hero16Img from "../../../../public/monstermixology/heroes/h16.png";
-// import hero17Img from "../../../../public/monstermixology/heroes/h17.png";
-// import hero18Img from "../../../../public/monstermixology/heroes/h18.png";
-// import hero19Img from "../../../../public/monstermixology/heroes/h19.png";
-// import hero20Img from "../../../../public/monstermixology/heroes/h20.png";
-// import hero21Img from "../../../../public/monstermixology/heroes/h21.png";
-// import hero22Img from "../../../../public/monstermixology/heroes/h22.png";
-// import hero23Img from "../../../../public/monstermixology/heroes/h23.png";
-// import hero24Img from "../../../../public/monstermixology/heroes/h24.png";
-// import hero25Img from "../../../../public/monstermixology/heroes/h25.png";
-
 import tracker1Img from "../../../../public/monstermixology/trackers/t1.png";
 import tracker2Img from "../../../../public/monstermixology/trackers/t2.png";
 import tracker3Img from "../../../../public/monstermixology/trackers/t3.png";
@@ -54,8 +27,15 @@ import tracker5Img from "../../../../public/monstermixology/trackers/t5.png";
 import tracker6Img from "../../../../public/monstermixology/trackers/t6.png";
 
 import QRCodeComponent from "@/utils/qr";
-
-const IS_A4 = false; // Set to false for LETTER, true for A4
+import { useReactToPrint } from "react-to-print";
+import html2pdf from "html2pdf.js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@/components/ui/dropdown-menu";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -125,7 +105,7 @@ const ResourceTracker = ({ type }) => {
     </div>
   );
 };
-export const BuildingCard = ({ card }) => {
+export const BuildingCard = ({ card, paperSize = "A4" }) => {
   return (
     <div className="relative w-fit text-black w-[200px] h-[240px]">
       <Image
@@ -151,17 +131,17 @@ export const BuildingCard = ({ card }) => {
         {card.number}
       </div>
 
-      <div className="absolute top-[147px] left-1/2 -translate-x-[60%] text-xs font-strike uppercase">
+      <div className="absolute top-[140px] left-1/2 -translate-x-[60%] text-xs font-strike uppercase">
         {card.name}
       </div>
 
-      <div className="absolute top-[2%] right-[9%] text-sm font-strike uppercase">
+      <div className="absolute top-[-6px] right-[9%] text-sm font-strike uppercase">
         <span className="text-xl">{card.vp}</span>
       </div>
 
       <div
-        className="font-default  normal-case text-regular absolute bottom-[6%] left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]"
-        style={{ width: IS_A4 ? "145px" : "140px" }}
+        className="font-default normal-case text-regular absolute bottom-[8%] left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]"
+        style={{ width: paperSize === "A4" ? "145px" : "140px" }}
       >
         {card.effect}
       </div>
@@ -222,13 +202,15 @@ const DisasterTracker = () => {
     </div>
   );
 };
-const CoinTracker = ({ coins = 19, disableFirstThree = false }) => {
+const CoinTracker = ({ coins = 18, paperSize, disableFirstThree = false }) => {
+  // Adjust number of coins based on paper size
+  const adjustedCoins = paperSize === "LETTER" ? 17 : coins;
   return (
     <TrackerComponent icon="🌕" bgColor="#FEF9C3">
       <div className="flex flex-col gap-2 mb-2">
         {[0].map((row) => (
           <div key={row} className="flex justify-center gap-2">
-            {Array.from({ length: coins }).map((_, col) => (
+            {Array.from({ length: adjustedCoins }).map((_, col) => (
               <div
                 key={col}
                 className={`w-6 h-6 rounded-full border-2 ${
@@ -308,7 +290,7 @@ const RerollTracker = () => {
 const BlueprintTracker = () => {
   return (
     <TrackerComponent icon="📋" bgColor="#BFDBFE">
-      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-1">
+      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-2">
         8th Drink = Game End
       </div>
       <div className="flex justify-center items-center  max-h-[25px]">
@@ -336,11 +318,11 @@ const BlueprintTracker = () => {
 };
 const Score = () => {
   return (
-    <div className="mt-2">
-      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-1">
+    <div className="mt-2 h-[70px]">
+      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-4">
         End Scoring
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 mt-2">
         (
         <Image
           width={500}
@@ -371,48 +353,6 @@ const Score = () => {
     </div>
   );
 };
-const ScoringTable = () => {
-  const categories = [
-    { label: "Customers", icon: "📋" },
-    // { label: "Monument Bonuses", icon: "🏛️" },
-    { label: "Ingridients (+1VP/3)", icon: "📦" },
-    { label: "Total", icon: "⭐" },
-  ];
-
-  return (
-    <TrackerComponent icon="🏆" bgColor="#FEF3C7">
-      <div className="flex flex-col items-center justify-between font-strike uppercase">
-        {categories.map((category, index) => (
-          <div key={index} className="flex items-center gap-2 w-full">
-            <div className="flex flex-col items-end">
-              <div className="flex items-center gap-1">
-                <span className="text-xs uppercase tracking-wider">
-                  {category.label}
-                </span>
-                {/* <span className="text-lg">{category.icon}</span> */}
-              </div>
-              {/* {index === categories.length - 1 && (
-                <div className="text-[10px] text-gray-600 italic">
-                  Final Score
-                </div>
-              )} */}
-            </div>
-            <div
-              className={`w-8 h-8 border-2 border-black bg-white flex items-center justify-center
-                ${
-                  index === categories.length - 1
-                    ? "bg-yellow-50 shadow-inner"
-                    : "shadow-inner"
-                }
-                ${index === categories.length - 1 ? "rounded-lg" : "rounded-md"}
-              `}
-            />
-          </div>
-        ))}
-      </div>
-    </TrackerComponent>
-  );
-};
 
 const usePaperSize = () => {
   const [paperSize, setPaperSize] = React.useState("LETTER");
@@ -426,109 +366,206 @@ const usePaperSize = () => {
   return PAPER_DIMENSIONS[paperSize];
 };
 
-const PrintableSheet = () => {
-  const dimensions = usePaperSize();
+// Move the helper function before the component
+const getRandomCards = (cards, count) => {
+  return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
+};
 
-  // Base scale for Letter size
-  const baseScale = dimensions.width / PAPER_DIMENSIONS.A4.width;
-  // Additional scale reduction for Letter size
-  const contentScale = IS_A4 ? 1 : 0.94;
-  // Combine both scales for horizontal scaling
-  const scaleX = baseScale * contentScale;
+const DownloadButton = ({ componentRef, paperSize }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const getRandomCards = (cards, count) => {
-    return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
+  const generatePDF = async () => {
+    setIsGenerating(true);
+
+    const element = componentRef.current;
+    const opt = {
+      filename: `monster-mixology-${Date.now()}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+      },
+      jsPDF: {
+        unit: "mm",
+        format: paperSize === "A4" ? "a4" : "letter",
+        orientation: "landscape",
+      },
+    };
+
+    try {
+      await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const randomHeroesCards = getRandomCards(heroesCards, 12);
+  return (
+    <button
+      onClick={generatePDF}
+      disabled={isGenerating}
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      {isGenerating ? "Generating PDF..." : "Download PDF"}
+    </button>
+  );
+};
+
+const PrintableSheet = () => {
+  const componentRef = useRef();
+  const [paperSize, setPaperSize] = useState("A4"); // Default to A4
+  const dimensions = PAPER_DIMENSIONS[paperSize];
+  const [randomCards, setRandomCards] = useState(() =>
+    getRandomCards(heroesCards, 12)
+  );
+
+  // Function to generate new random combination
+  const generateNewCombination = () => {
+    setRandomCards(getRandomCards(heroesCards, 12));
+  };
+
+  // Base scale for Letter size
+  const baseScale = dimensions.width / PAPER_DIMENSIONS[paperSize].width;
+  // Additional scale reduction for Letter size
+  // const contentScale = paperSize === "A4" ? 1 : 0.94;
+  // Combine both scales for horizontal scaling
+  const scaleX = baseScale;
 
   return (
-    <div
-      className="bg-white flex gap-1"
-      style={{
-        width: `${dimensions.height}px`,
-        height: `${dimensions.width}px`,
-        padding: "12px",
-        transform: `scaleX(${scaleX})`, // Scale only horizontally
-        transformOrigin: "top left",
-      }}
-    >
-      {/* Left side: Building Cards Grid */}
-      <div className={`w-[${dimensions.width * 0.7}px]`}>
-        <div className="flex gap-2 my-2 mb-1 h-[26px]">
-          <ShieldsTracker />
-          <RerollTracker />
-          <CoinTracker />
-        </div>
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex gap-4 items-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+            {paperSize === "A4" ? "A4 Size" : "Letter Size"}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuRadioGroup
+              value={paperSize}
+              onValueChange={setPaperSize}
+            >
+              <DropdownMenuRadioItem value="A4">A4 Size</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="LETTER">
+                Letter Size
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <div className="grid grid-cols-4 gap-1">
-          {randomHeroesCards.map((card, i) => (
-            <BuildingCard
-              key={card.id}
-              card={card}
-              index={i}
-              paperSize={dimensions.paperSize}
-            />
-          ))}
-        </div>
+        <DownloadButton componentRef={componentRef} paperSize={paperSize} />
       </div>
 
-      {/* Right side: Trackers Column */}
-      <div className={`w-[${dimensions.width * 0.3}px] flex gap-4 flex-col `}>
-        <div className="flex justify-center items-center gap-4 mt-4">
-          <Image
-            src={logoImg}
-            alt="Space Miners Logo"
-            width={1000}
-            height={1000}
-            className="w-[140px]"
-          />
-          <div className="flex flex-col items-center">
-            {/* <div className="w-full justify-center text-black bg-white flex font-strike uppercase  bg-black  px-[6px] py-[4px] rounded-[10px] text-md">
-              Deck
-            </div> */}
-            <div className="text-black font-strike uppercase text-md">Deck</div>
-            <QRCodeComponent
-              url="https://www.denogames.com/app/engine/monstermixology"
-              width={90}
-              height={90}
-            />
-          </div>
-        </div>
-        {/* Resource Trackers row */}
-        <div className="grid grid-cols-2">
-          {Object.keys(SPACE_MINERS_COLORS.resourceTypes).map((type, i) => (
-            <div key={i} className="relative">
-              <Image
-                width={1000}
-                height={1400}
-                src={getTrackerImg(i + 1)}
-                alt={type}
-                className="w-[120px] h-[160px]"
-              />
-              {/* Overlay grid of circles */}
-              <div className="absolute top-[53px] left-[51%] -translate-x-1/2 w-[110px]">
-                <div className="grid grid-cols-3 gap-2 place-items-center px-4 mt-1">
-                  {Array.from({ length: 9 }).map((_, index) => (
-                    <div
-                      key={index}
-                      className="w-[20px] h-[20px] rounded-full border-2 border-dashed border-gray-400 bg-white/70"
-                    />
-                  ))}
-                </div>
+      {/* Hide the actual content by default */}
+      <div style={{ display: "none" }}>
+        <div ref={componentRef}>
+          {/* Your existing PrintableSheet content */}
+          <div
+            className="bg-white flex gap-1"
+            style={{
+              width: `${dimensions.height}px`,
+              height: `${dimensions.width}px`,
+              padding: "12px",
+              transform: `scaleX(${scaleX})`,
+              transformOrigin: "top left",
+            }}
+          >
+            {/* Left side: Building Cards Grid */}
+            <div className={`w-[${dimensions.width * 0.7}px]`}>
+              <div className="flex gap-2 my-2 mb-1 h-[26px]">
+                <ShieldsTracker />
+                <RerollTracker />
+                <CoinTracker paperSize={paperSize} />
+              </div>
+
+              <div
+                className="grid grid-cols-4 gap-1"
+                style={{
+                  transform: paperSize === "LETTER" ? "scale(1, 1)" : "none",
+                  transformOrigin: "left",
+                }}
+              >
+                {randomCards.map((card, i) => (
+                  <BuildingCard
+                    key={card.id}
+                    card={card}
+                    index={i}
+                    paperSize={paperSize}
+                  />
+                ))}
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="flex flex-col gap-2 items-center justify-center mt-3">
-          <BlueprintTracker />
-          <Score />
-        </div>
-      </div>
+            {/* Right side: Trackers Column */}
+            <div
+              style={{
+                width:
+                  paperSize === "A4"
+                    ? `${dimensions.width * 0.3}px`
+                    : `${dimensions.width * 0.35}px`,
+                display: "flex",
+                gap: "4px",
+                flexDirection: "column",
+              }}
+            >
+              <div className="flex justify-center items-center gap-2 mt-2 ml-2">
+                <Image
+                  src={logoImg}
+                  alt="Space Miners Logo"
+                  width={1000}
+                  height={1000}
+                  className="w-[140px]"
+                />
+                <div className="flex flex-col items-center">
+                  <div className="text-black font-strike uppercase text-md mb-2">
+                    Deck
+                  </div>
+                  <QRCodeComponent
+                    url="https://www.denogames.com/app/engine/monstermixology"
+                    width={90}
+                    height={90}
+                  />
+                </div>
+              </div>
+              {/* Resource Trackers row */}
+              <div className="grid grid-cols-2 w-full">
+                {Object.keys(SPACE_MINERS_COLORS.resourceTypes).map(
+                  (type, i) => (
+                    <div key={i} className="relative">
+                      <Image
+                        width={1000}
+                        height={1400}
+                        src={getTrackerImg(i + 1)}
+                        alt={type}
+                        className="w-[120px] h-[160px]"
+                      />
+                      {/* Overlay grid of circles */}
+                      <div className="absolute top-[53px] left-[51%] -translate-x-1/2 w-[110px]">
+                        <div className="grid grid-cols-3 gap-2 place-items-center px-4 mt-1">
+                          {Array.from({ length: 9 }).map((_, index) => (
+                            <div
+                              key={index}
+                              className="w-[20px] h-[20px] rounded-full border-2 border-dashed border-gray-400 bg-white/70"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
 
-      <div>
-        <DisasterTracker isVertical />
+              <div className="flex flex-col gap-2 items-center justify-center mt-[-10px]">
+                <BlueprintTracker />
+                <Score />
+              </div>
+            </div>
+
+            <div>
+              <DisasterTracker isVertical />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
