@@ -48,8 +48,6 @@ const CartPage = observer(() => {
     .map((productId) => products.find((product) => product.id === productId))
     .filter((product) => product !== undefined);
 
-  console.log(cartItems);
-
   const totalPrice = cartItems.reduce(
     (total, product) => total + (product.price || 0),
     0

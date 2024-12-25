@@ -240,15 +240,6 @@ const GameList = observer(({ games }) => {
   );
 });
 const AppPage = observer(() => {
-  useEffect(() => {
-    // Fetch game summaries on component mount
-    MobxStore.fetchGamesSummaryFromFirestore();
-  }, []);
-
-  if (MobxStore.fetching) {
-    return <h1>Fetching...</h1>;
-  }
-
   return (
     <div>
       <GameList
@@ -261,9 +252,6 @@ const AppPage = observer(() => {
           },
         ]}
       />
-      {MobxStore.app?.games?.length > 0 && (
-        <GameList games={MobxStore.app.games} />
-      )}
     </div>
   );
 });

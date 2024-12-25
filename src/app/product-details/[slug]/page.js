@@ -39,7 +39,7 @@ import { Cog, BookOpen, ShoppingCart } from "lucide-react";
 // Dummy data for mechanics
 const mechanicsData = [
   {
-    id: "mech1",
+    id: "deck-builder",
     name: "Deck Builder",
     icon: <BookOpen className="w-4 h-4" />,
     description:
@@ -59,7 +59,7 @@ const mechanicsData = [
     relatedGames: ["uN2wXIY3e58v7ptkmsv0", "dLj79FaA9eoGKe9Azqf2"],
   },
   {
-    id: "mech2",
+    id: "worker-placement",
     name: "Worker Placement",
     icon: <Users className="w-4 h-4" />,
     description:
@@ -79,7 +79,7 @@ const mechanicsData = [
     relatedGames: ["uN2wXIY3e58v7ptkmsv0"],
   },
   {
-    id: "mech3",
+    id: "push-your-luck",
     name: "Open Market",
     icon: <ShoppingCart className="w-4 h-4" />,
     description:
@@ -101,14 +101,15 @@ const mechanicsData = [
 ];
 
 const MechanicsSection = ({ mechanics }) => {
-  const mechanicsToUse = mechanics || mechanicsData.map((m) => m.name);
+  const mechanicsToUse =
+    mechanics
+      ?.map((mechanicId) => mechanicsData.find((m) => m.id === mechanicId))
+      .filter(Boolean)
+      .map((m) => m.name) || mechanicsData.map((m) => m.name);
 
   return (
     <div className="my-2">
-      {/* <h2 className="text-3xl font-bold text-center mb-4 font-strike uppercase">
-        Game Mechanics
-      </h2> */}
-      <div className="flex flex-wrap  gap-4">
+      <div className="flex flex-wrap gap-4">
         {mechanicsToUse.map((mechanic) => (
           <MechanicTag key={mechanic} mechanic={mechanic} />
         ))}
@@ -238,12 +239,14 @@ const BasicFeatures = ({ productDetails }) => {
     <div className="flex items-center justify-between text-lg py-6 font-strike uppercase">
       <div className="flex items-center text-gray-700">
         <Users className="w-5 h-5 mr-2" />
-        <span>{productDetails.playersCount || "2-4"} Players</span>
+        <span>
+          {productDetails.minPlayers}-{productDetails.maxPlayers} Players
+        </span>
       </div>
       <span className="mx-4 text-gray-300">|</span>
       <div className="flex items-center text-gray-700">
         <Hourglass className="w-5 h-5 mr-2" />
-        <span>{productDetails.duration || "60"} Minutes</span>
+        <span>{productDetails.duration || "45"} Minutes</span>
       </div>
       <span className="mx-4 text-gray-300">|</span>
       <div className="flex items-center text-gray-700">

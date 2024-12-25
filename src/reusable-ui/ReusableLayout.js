@@ -59,7 +59,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/ui/themeButton";
 
-const routesWithoutHeaderFooter = ["/login", "/signup", "/app", "/cart"];
+const routesWithoutHeaderFooter = ["/login", "/signup", "/app"];
 
 const routePrefixesWithoutHeaderFooter = [
   "/machines",
@@ -169,6 +169,13 @@ const ReusableLayout = observer(({ children }) => {
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
+                    <Link href="/">
+                      <Button variant="reverse" className="text-lg">
+                        HOME
+                      </Button>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
                     <Link href="/shop" legacyBehavior passHref>
                       <Button variant="reverse" className="text-lg">
                         {/* <Store className="mr-2" /> */}
@@ -195,14 +202,14 @@ const ReusableLayout = observer(({ children }) => {
                     </Link>
                   </NavigationMenuItem>
 
-                  <NavigationMenuItem>
+                  {/* <NavigationMenuItem>
                     <Link href="/game-finder" legacyBehavior passHref>
                       <Button variant="reverse" className="text-lg">
-                        {/* <Search className="mr-2" /> */}
+                        
                         FINDER TOOL
                       </Button>
                     </Link>
-                  </NavigationMenuItem>
+                  </NavigationMenuItem> */}
                 </NavigationMenuList>
               </NavigationMenu>
               <div className="flex justify-end gap-4 items-center">
