@@ -35,6 +35,7 @@ import { ProductCard } from "@/app/page"; // Adjust the import path as needed
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Cog, BookOpen, ShoppingCart } from "lucide-react";
+import { gamesStaticData } from "../productsData";
 
 // Dummy data for mechanics
 const mechanicsData = [
@@ -261,20 +262,12 @@ const HowToPlay = ({ productDetails }) => {
   return (
     <div className="flex flex-col items-center gap-8 justify-center font-strike uppercase  bg-[#FFD045] w-full py-8 ">
       <div className="text-[32px] text-center">How to Play - Fast Version</div>
-      {/* 
-      {productDetails.howToVideos.map((video, index) => (
-          <div key={index}>
-            <a href={video} target="_blank" rel="noopener noreferrer">
-              Watch Video {index + 1}
-            </a>
-          </div>
-        ))} */}
 
       <div>
         {/* <iframe
           width="560"
           height="315"
-          src="https://www.youtube.com/embed/I1kamcPFiAM"
+          src="https://www.youtube.com/embed/NgTymmSsesw"
           title="YouTube video player"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -282,9 +275,18 @@ const HowToPlay = ({ productDetails }) => {
         ></iframe> */}
       </div>
       <div className="text-[32px] text-center">Or Slow in Details</div>
-      <Button className="bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
-        Download Rules <Download className="ml-2" />
-      </Button>
+      <Link
+        href={
+          productDetails?.rulebookUrl ||
+          "https://drive.google.com/your-default-rulebook-url"
+        }
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Button className="bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
+          Download Rules <Download className="ml-2" />
+        </Button>
+      </Link>
     </div>
   );
 };
@@ -355,7 +357,7 @@ const GameMetrics = ({ productDetails }) => {
   );
 };
 
-const benefitsData = [
+const benefitsDataDummy = [
   {
     title: "Endless Replayability",
     description:
@@ -388,7 +390,7 @@ const benefitsData = [
   },
 ];
 
-const KickstarterBenefits = () => {
+const KickstarterBenefits = ({ productDetails }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -397,7 +399,7 @@ const KickstarterBenefits = () => {
 
   return (
     <div className="my-8">
-      <h2 className="text-3xl font-bold text-center mb-4 font-strike uppercase">
+      <h2 className="text-3xl font-bold text-center  font-strike uppercase">
         Perks
       </h2>
       <div className="relative overflow-hidden transition-all duration-500">
@@ -406,7 +408,10 @@ const KickstarterBenefits = () => {
             expanded ? "max-h-full" : "max-h-[400px] overflow-hidden"
           }`}
         >
-          {benefitsData.map((benefit, index) => (
+          {(
+            gamesStaticData[productDetails.slug]?.benefitsData ||
+            benefitsDataDummy
+          ).map((benefit, index) => (
             <div className="box-inner" key={index}>
               <div className="box-broken relative flex flex-row items-center p-4 shadow-lg rounded-lg bg-white mb-4">
                 {/* Circular number */}
@@ -479,43 +484,8 @@ const Expansions = observer(({ gameId }) => {
 });
 
 // Add this new component
-const ComponentsList = () => {
+const ComponentsList = ({ productDetails }) => {
   const [expandedItems, setExpandedItems] = useState({});
-
-  const neededComponents = [
-    { name: "4x Dice (6-sided)", image: "/path/to/dice-image.jpg" },
-    {
-      name: "4x Pens/Pencils (different color for each player)",
-      image: "/path/to/pens-image.jpg",
-    },
-    {
-      name: "8 colored euro-size cubes per player (different color)- Optional (alternative its provided as print and cut tokens for each player in all colors)",
-      image: "/path/to/cubes-image.jpg",
-    },
-  ];
-
-  const providedComponents = [
-    {
-      name: "1x Map (10,000+ print variations)*",
-      image: "/path/to/map-image.jpg",
-    },
-    {
-      name: "1x Market Sheet (4000+ combinations)",
-      image: "/path/to/market-sheet-image.jpg",
-    },
-    {
-      name: "4x Characters Sheets (2 per A4 paper - cut in half)",
-      image: "/path/to/character-sheets-image.jpg",
-    },
-    {
-      name: "Optional (euro cubes as tokens)",
-      image: "/path/to/tokens-image.jpg",
-    },
-    {
-      name: "App - Digital deck of 100+ cards included*",
-      image: "/path/to/app-image.jpg",
-    },
-  ];
 
   const toggleItem = (type, index) => {
     setExpandedItems((prev) => ({
@@ -572,7 +542,7 @@ const ComponentsList = () => {
   );
 
   return (
-    <div className="box-inner">
+    <div className="box-inner mt-16">
       <div className="box-broken w-full bg-gray-100 py-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-8">
@@ -580,13 +550,21 @@ const ComponentsList = () => {
               <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
                 Needed Components
               </h3>
-              {renderComponentTable(neededComponents, "needed")}
+              {renderComponentTable(
+                gamesStaticData[productDetails.slug]?.neededComponents ||
+                  neededComponents,
+                "needed"
+              )}
             </div>
             <div className="flex-1">
               <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
                 Provided Components
               </h3>
-              {renderComponentTable(providedComponents, "provided")}
+              {renderComponentTable(
+                gamesStaticData[productDetails.slug]?.providedComponents ||
+                  providedComponents,
+                "provided"
+              )}
             </div>
           </div>
         </div>
@@ -595,39 +573,76 @@ const ComponentsList = () => {
   );
 };
 
+const VariationSystem = () => {
+  return (
+    <div className="flex-1">
+      <h4 className="text-xl uppercase mb-2">
+        <BadgeCheck className="inline-block mr-2" />
+        Variations Printing System *
+      </h4>
+      <p className="mb-4">
+        Our innovative Variations Printing System allows you to generate and
+        print unique game setups, ensuring a fresh experience every time you
+        play.
+      </p>
+
+      <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+        <Image
+          src="/gifs/variation-system-demo.gif" // Add your GIF here
+          alt="Variation System Demo"
+          fill
+          className="object-cover"
+        />
+      </div>
+
+      <Link href="/blog/variations-printing-system">
+        <Button variant="reverse">Learn More</Button>
+      </Link>
+    </div>
+  );
+};
+
+const CompanionApp = () => {
+  return (
+    <div className="flex-1">
+      <h4 className="text-xl uppercase mb-2">
+        <BadgeCheck className="inline-block mr-2" />
+        App Supplement *
+      </h4>
+      <p className="mb-4">
+        Our companion app enhances your gameplay experience by managing the
+        digital deck of cards and providing additional features to streamline
+        your game sessions.
+      </p>
+
+      <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+        <Image
+          src="/gifs/companion-app-demo.gif" // Add your GIF here
+          alt="Companion App Demo"
+          fill
+          className="object-cover"
+        />
+      </div>
+
+      <Link href="/blog/companion-app">
+        <Button variant="reverse">Learn More</Button>
+      </Link>
+    </div>
+  );
+};
+
 const SystemsFeatures = () => {
   return (
-    <div className="box-inner my-8">
-      <div className="box-broken p-8 flex flex-col md:flex-row gap-6">
-        <div className="flex-1">
-          <h4 className="text-xl uppercase mb-2">
-            {/* <Printer className="inline-block mr-2" /> */}
-            <BadgeCheck className="inline-block mr-2" /> Variations Printing
-            System *
-          </h4>
-          <p className="mb-2">
-            Our innovative Variations Printing System allows you to generate and
-            print unique game setups, ensuring a fresh experience every time you
-            play.
-          </p>
-          <Link href="/blog/variations-printing-system">
-            <Button variant="reverse">Learn More</Button>
-          </Link>
+    <div className="my-8 flex flex-col gap-6">
+      <div className="box-inner">
+        <div className="box-broken p-8">
+          <VariationSystem />
         </div>
+      </div>
 
-        <div className="flex-1">
-          <h4 className="text-xl uppercase mb-2">
-            {/* <Smartphone className="inline-block mr-2" /> */}
-            <BadgeCheck className="inline-block mr-2" /> App Supplement *
-          </h4>
-          <p className="mb-2">
-            Our companion app enhances your gameplay experience by managing the
-            digital deck of cards and providing additional features to
-            streamline your game sessions.
-          </p>
-          <Link href="/blog/companion-app">
-            <Button variant="reverse">Learn More</Button>
-          </Link>
+      <div className="box-inner">
+        <div className="box-broken p-8">
+          <CompanionApp />
         </div>
       </div>
     </div>
@@ -725,21 +740,20 @@ Buy once, play endlessly - that's our promise to you!`;
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      <div className="py-8 px-4 md:px-8 flex flex-col items-center">
+      <div className="py-4 sm:py-8 px-4 md:px-8 flex flex-col items-center">
         <div className="w-full max-w-7xl">
           <div className="flex justify-start w-full">
             <Breadcrumbs />
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center lg:justify-center gap-12 mt-6">
+          <div className="flex flex-col lg:flex-row items-center lg:justify-center gap-12">
             <ImageCarousel
               images={[
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media&",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media&",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
+                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2Fa4-mm.png?alt=media",
+                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
+                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
+                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
+                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
               ]}
             />
 
@@ -755,10 +769,21 @@ Buy once, play endlessly - that's our promise to you!`;
                 <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-4 hover:border-foreground">
                   <div className="text-yellow-400 flex">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <FaStar key={star} className="text-xl text-yellow-400" />
+                      <FaStar
+                        key={star}
+                        className={`text-xl ${
+                          star <= (productDetails.averageRating || 0)
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
                     ))}
                   </div>
-                  <div className="text-[16px]">(55 Reviews)</div>
+                  <div className="text-[16px]">
+                    (
+                    {MobxStore.reviewsByProduct[productDetails.id]?.length || 0}{" "}
+                    Reviews)
+                  </div>
                 </div>
               </Link>
 
@@ -788,9 +813,9 @@ Buy once, play endlessly - that's our promise to you!`;
             </div>
           </div>
 
-          <KickstarterBenefits />
+          <KickstarterBenefits productDetails={productDetails} />
 
-          <HowToPlay />
+          <HowToPlay productDetails={productDetails} />
 
           <div className="my-4">
             {/* <a
@@ -811,7 +836,7 @@ Buy once, play endlessly - that's our promise to you!`;
 
           {productDetails && <Expansions gameId={productDetails.id} />}
 
-          <ComponentsList />
+          <ComponentsList productDetails={productDetails} />
           <SystemsFeatures />
           {productDetails && <RelatedGames gameId={productDetails.id} />}
         </div>

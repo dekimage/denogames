@@ -184,11 +184,14 @@ const ImageCarousel = ({ images }) => {
             onClick={handleImageClick}
           >
             {images.map((image, index) => (
-              <div key={index} className="w-full flex-shrink-0">
+              <div
+                key={index}
+                className="w-full flex-shrink-0 aspect-square border mt-2"
+              >
                 <Image
                   src={image}
                   alt={`Game image ${index + 1}`}
-                  className="w-full h-auto" // Remove cursor-zoom-in from here
+                  className="w-full h-full object-contain"
                   height={400}
                   width={400}
                 />

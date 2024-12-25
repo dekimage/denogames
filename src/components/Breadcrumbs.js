@@ -22,7 +22,7 @@ const Breadcrumbs = () => {
             {index > 0 && <ChevronRight className="w-4 h-4 mx-1" />}
             <Link
               href={breadcrumb.href}
-              className="text-grayy hover:text-blue-400"
+              className="text-grayy hover:text-blue-400 text-xs sm:text-base"
             >
               {breadcrumb.name}
             </Link>
