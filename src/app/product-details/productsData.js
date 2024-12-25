@@ -34,6 +34,33 @@ const dummyProduct = {
   ],
 };
 
+const commonShopFAQs = [
+  {
+    id: "shop-1",
+    question: "How does digital delivery work?",
+    answer:
+      "After purchase, you'll receive an email with download links for all game materials. You can also access your purchases through your account dashboard.",
+  },
+  {
+    id: "shop-2",
+    question: "What payment methods do you accept?",
+    answer:
+      "We accept all major credit cards, PayPal, and various local payment methods through our secure payment processor.",
+  },
+  {
+    id: "shop-3",
+    question: "Do you offer refunds?",
+    answer:
+      "Yes, we offer a 30-day satisfaction guarantee. If you're not happy with your purchase, contact us for a full refund.",
+  },
+  {
+    id: "shop-4",
+    question: "Can I print multiple copies of the game?",
+    answer:
+      "Yes! Once you purchase the game, you can print as many copies as you need for personal use.",
+  },
+];
+
 const monstermixologyData = {
   benefitsData: [
     {
@@ -95,6 +122,41 @@ const monstermixologyData = {
       image: "/path/to/tokens-image.jpg",
     },
   ],
+  faqs: {
+    shopFAQs: commonShopFAQs,
+    gameFAQs: [
+      {
+        id: "mm-1",
+        question: "How many players can play Monster Mixology?",
+        answer:
+          "Monster Mixology supports 2-6 players, with an optimal experience at 3-4 players.",
+      },
+      {
+        id: "mm-2",
+        question: "What's the average game duration?",
+        answer:
+          "A typical game lasts 30-45 minutes, perfect for multiple rounds in one session!",
+      },
+      {
+        id: "mm-3",
+        question: "Do I need to print new sheets for each game?",
+        answer:
+          "Yes, each game requires a fresh sheet per player, but they're designed to be printer-friendly and economical.",
+      },
+      {
+        id: "mm-4",
+        question: "Can I play without the companion app?",
+        answer:
+          "While possible, we highly recommend using the companion app as it enhances the gameplay experience and handles card management automatically.",
+      },
+      {
+        id: "mm-5",
+        question: "Is the game family-friendly?",
+        answer:
+          "Absolutely! Monster Mixology is designed to be enjoyed by players of all ages (8+) and is perfect for family game nights.",
+      },
+    ],
+  },
 };
 
 export const gamesStaticData = {

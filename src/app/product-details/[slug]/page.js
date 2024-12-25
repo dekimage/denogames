@@ -29,6 +29,8 @@ import {
   BadgeCheck,
   Plus,
   Minus,
+  Mail,
+  MessageCircle,
 } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { ProductCard } from "@/app/page"; // Adjust the import path as needed
@@ -36,6 +38,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Cog, BookOpen, ShoppingCart } from "lucide-react";
 import { gamesStaticData } from "../productsData";
+import { Textarea } from "@/components/ui/textarea";
 
 // Dummy data for mechanics
 const mechanicsData = [
@@ -264,7 +267,7 @@ const HowToPlay = ({ productDetails }) => {
       <div className="text-[32px] text-center">How to Play - Fast Version</div>
 
       <div>
-        {/* <iframe
+        <iframe
           width="560"
           height="315"
           src="https://www.youtube.com/embed/NgTymmSsesw"
@@ -272,7 +275,7 @@ const HowToPlay = ({ productDetails }) => {
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
-        ></iframe> */}
+        ></iframe>
       </div>
       <div className="text-[32px] text-center">Or Slow in Details</div>
       <Link
@@ -702,6 +705,112 @@ const ProductDescription = ({ description }) => {
   );
 };
 
+const FAQ = ({ productDetails }) => {
+  const [expandedQuestions, setExpandedQuestions] = useState({});
+  const [questionText, setQuestionText] = useState("");
+  const { shopFAQs, gameFAQs } =
+    gamesStaticData[productDetails.slug]?.faqs || {};
+
+  const toggleQuestion = (id) => {
+    setExpandedQuestions((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const handleSubmitQuestion = (e) => {
+    e.preventDefault();
+    // Handle question submission logic here
+    console.log("Question submitted:", questionText);
+    setQuestionText("");
+  };
+
+  const renderFAQSection = (questions, title) => (
+    <div className="mb-8">
+      <h3 className="text-2xl font-strike uppercase mb-8 text-center">
+        {title}
+      </h3>
+      <div className="space-y-2">
+        {questions?.map((faq) => (
+          <div
+            key={faq.id}
+            className="border-b border-gray-200 last:border-none"
+          >
+            <button
+              className="w-full text-left py-4 flex justify-between items-center hover:bg-gray-50"
+              onClick={() => toggleQuestion(faq.id)}
+            >
+              <span className="text-xl">{faq.question}</span>
+              {expandedQuestions[faq.id] ? <ChevronUp /> : <ChevronDown />}
+            </button>
+            {expandedQuestions[faq.id] && (
+              <div className="pb-4 text-gray-600">{faq.answer}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="my-16">
+      <h2 className="text-3xl font-bold text-center mb-8 font-strike uppercase">
+        Frequently Asked Questions
+      </h2>
+
+      <div className="box-inner">
+        <div className="box-broken p-16">
+          {renderFAQSection(shopFAQs, "Shopping & Delivery")}
+          {renderFAQSection(gameFAQs, `About ${productDetails.name}`)}
+
+          <div className="mt-12">
+            <h3 className="text-2xl font-strike uppercase mb-6 text-center">
+              Didn&apos;t Find What You&apos;re Looking For?
+            </h3>
+
+            <form onSubmit={handleSubmitQuestion} className="mb-8">
+              <Textarea
+                placeholder="Type your question here..."
+                value={questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+                className="mb-2"
+                maxLength={1500}
+              />
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-sm text-gray-500">
+                  {questionText.length}/1500 characters
+                </span>
+                <Button type="submit" className="bg-foreground text-background">
+                  Ask Me →
+                </Button>
+              </div>
+            </form>
+
+            <div className="flex justify-center gap-4">
+              <a
+                href="mailto:denogames.official@gmail.com"
+                className="flex items-center gap-2 hover:text-blue-600"
+              >
+                <Mail className="w-5 h-5" />
+                Email Me
+              </a>
+              <a
+                href="https://m.me/denogames"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-blue-600"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Chat
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProductDetailsPage = observer(({ params }) => {
   const { slug } = params;
 
@@ -793,7 +902,32 @@ Buy once, play endlessly - that's our promise to you!`;
                 ${productDetails.price}.00 USD
               </div>
 
-              <Button className="text-xl h-[60px]">Add to cart</Button>
+              {MobxStore.user?.purchasedProducts?.includes(
+                productDetails.id
+              ) ? (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold">Download Resources</h3>
+                  <div className="flex flex-col gap-3">
+                    <Link
+                      href={productDetails.rulebookUrl}
+                      target="_blank"
+                      className="flex items-center"
+                    >
+                      <Button className="w-full bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
+                        <Download className="mr-2" /> Download Rules
+                      </Button>
+                    </Link>
+                    {/* Add any other download resources here */}
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  className="text-xl h-[48px]"
+                  onClick={() => store.addToCart(productDetails)}
+                >
+                  Add to Cart
+                </Button>
+              )}
 
               <div className="mt-6 mb-8 text-xs text-gray-500">
                 <p>
@@ -838,6 +972,7 @@ Buy once, play endlessly - that's our promise to you!`;
 
           <ComponentsList productDetails={productDetails} />
           <SystemsFeatures />
+          <FAQ productDetails={productDetails} />
           {productDetails && <RelatedGames gameId={productDetails.id} />}
         </div>
       </div>
