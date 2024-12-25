@@ -39,6 +39,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Cog, BookOpen, ShoppingCart } from "lucide-react";
 import { gamesStaticData } from "../productsData";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 // Dummy data for mechanics
 const mechanicsData = [
@@ -811,6 +813,206 @@ const FAQ = ({ productDetails }) => {
   );
 };
 
+// Add new components for download resources
+
+const ResourceOption = ({ label, value, groupName, isSelected, onSelect }) => {
+  return (
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value={value} id={`${groupName}-${value}`} />
+      <Label htmlFor={`${groupName}-${value}`} className="cursor-pointer">
+        {label}
+      </Label>
+    </div>
+  );
+};
+
+const ResourceConfig = ({ config, selectedOption, onOptionSelect }) => {
+  return (
+    <div className="mb-6 w-full px-4">
+      <h4 className="text-lg font-strike uppercase mb-3">{config.label}</h4>
+      <RadioGroup
+        value={selectedOption}
+        onValueChange={(value) => onOptionSelect(config.label, value)}
+        className="space-y-2"
+      >
+        {config.options.map((option) => (
+          <ResourceOption
+            key={option}
+            label={option}
+            value={option}
+            groupName={config.label.toLowerCase().replace(/\s+/g, "-")}
+            isSelected={selectedOption === option}
+          />
+        ))}
+      </RadioGroup>
+    </div>
+  );
+};
+
+const ResourceComponent = ({ resource }) => {
+  const [selectedConfigs, setSelectedConfigs] = useState(
+    Object.fromEntries(
+      resource.configurations.map((config) => [config.label, config.options[0]])
+    )
+  );
+
+  const handleOptionSelect = (configLabel, option) => {
+    setSelectedConfigs((prev) => ({
+      ...prev,
+      [configLabel]: option,
+    }));
+  };
+
+  const handleDownload = () => {
+    console.log("Downloading with configs:", selectedConfigs);
+    resource.onDownload?.(selectedConfigs);
+  };
+
+  return (
+    <div className="border-2 border-black rounded-lg">
+      <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
+        <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
+          <Image
+            src={resource.image}
+            alt={resource.name}
+            width={150}
+            height={150}
+            className="object-cover rounded-lg w-[150px] h-[150px] border"
+          />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-2xl font-strike uppercase mb-2">
+            {resource.name}
+          </h3>
+          {resource.description && (
+            <p className="text-gray-600 mb-2">{resource.description}</p>
+          )}
+          {resource.instructions && (
+            <p className="text-sm text-gray-500">{resource.instructions}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-center">
+        {resource.configurations.map((config) => (
+          <ResourceConfig
+            key={config.label}
+            config={config}
+            selectedOption={selectedConfigs[config.label]}
+            onOptionSelect={handleOptionSelect}
+          />
+        ))}
+      </div>
+
+      <div className="flex justify-center">
+        <Button
+          onClick={handleDownload}
+          className="w-[80%] mt-2 bg-foreground text-background  h-[48px] text-xl mb-4"
+        >
+          <Download className="mr-2" /> Download {resource.name}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// Dummy data for resources
+const downloadResourcesData = [
+  {
+    name: "Rulebook",
+    image: "/path/to/rulebook-image.jpg",
+    description: "Complete game rules and setup instructions",
+    instructions:
+      "Choose your preferred language and download the PDF rulebook.",
+    configurations: [
+      {
+        label: "Language",
+        options: ["English", "Spanish", "French", "German"],
+      },
+      {
+        label: "Version",
+        options: ["Standard", "Print Friendly", "Mobile Optimized"],
+      },
+    ],
+    onDownload: (configs) => {
+      console.log("Downloading rulebook with configs:", configs);
+    },
+  },
+  {
+    name: "Main Game Board",
+    image: "/path/to/board-image.jpg",
+    description: "The primary game board for Monster Mixology",
+    instructions:
+      "Select your preferences below. Note: A4 is standard European size, Letter is US standard.",
+    configurations: [
+      {
+        label: "Paper Size",
+        options: ["A4", "Letter"],
+      },
+      {
+        label: "Player Count",
+        options: ["2 Players", "3 Players", "4 Players", "5-6 Players"],
+      },
+      {
+        label: "Difficulty",
+        options: ["Normal", "Advanced", "Expert"],
+      },
+    ],
+    onDownload: (configs) => {
+      console.log("Downloading game board with configs:", configs);
+    },
+  },
+  {
+    name: "Market Cards Sheet",
+    image: "/path/to/market-cards-image.jpg",
+    description: "Print-and-cut sheet for all market cards",
+    instructions:
+      "Choose your preferred layout and card size. Recommended: 9 cards per page for standard playing card size.",
+    configurations: [
+      {
+        label: "Cards Per Page",
+        options: ["9 Cards (Large)", "12 Cards (Medium)", "16 Cards (Small)"],
+      },
+      {
+        label: "Paper Size",
+        options: ["A4", "Letter"],
+      },
+      {
+        label: "Card Style",
+        options: ["Standard", "Minimalist", "Deluxe"],
+      },
+    ],
+    onDownload: (configs) => {
+      console.log("Downloading market cards with configs:", configs);
+    },
+  },
+];
+
+// Update the DownloadResourcesDialog component
+const DownloadResourcesDialog = () => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="w-full bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
+          <Download className="mr-2" /> Download Resources
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] md:max-w-[80%] lg:max-w-[900px] w-full max-h-[90vh] overflow-y-auto p-4 md:p-6">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-strike uppercase mb-8 text-center">
+            Download Resources
+          </h2>
+          <div className="space-y-6">
+            {downloadResourcesData.map((resource, index) => (
+              <ResourceComponent key={index} resource={resource} />
+            ))}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const ProductDetailsPage = observer(({ params }) => {
   const { slug } = params;
 
@@ -898,35 +1100,37 @@ Buy once, play endlessly - that's our promise to you!`;
 
               <BasicFeatures productDetails={productDetails} />
 
-              <div className="text-[28px] font-strike uppercase mb-4">
-                ${productDetails.price}.00 USD
-              </div>
-
               {MobxStore.user?.purchasedProducts?.includes(
                 productDetails.id
               ) ? (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold">Download Resources</h3>
-                  <div className="flex flex-col gap-3">
-                    <Link
-                      href={productDetails.rulebookUrl}
-                      target="_blank"
-                      className="flex items-center"
-                    >
-                      <Button className="w-full bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
-                        <Download className="mr-2" /> Download Rules
-                      </Button>
-                    </Link>
-                    {/* Add any other download resources here */}
+                <>
+                  <div className="flex items-center gap-2 text-[28px] font-strike uppercase mb-4">
+                    <BadgeCheck className="w-8 h-8" />
+                    Purchased
                   </div>
-                </div>
+                  <div className="space-y-4">
+                    <DownloadResourcesDialog />
+                  </div>
+                </>
               ) : (
-                <Button
-                  className="text-xl h-[48px]"
-                  onClick={() => store.addToCart(productDetails)}
-                >
-                  Add to Cart
-                </Button>
+                <>
+                  <div className="text-[28px] font-strike uppercase mb-4">
+                    ${productDetails.price}.00 USD
+                  </div>
+                  <Button
+                    className="text-xl h-[48px]"
+                    onClick={() => MobxStore.addToCart(productDetails)}
+                  >
+                    Add to Cart
+                  </Button>
+                  <p className="mt-4 text-sm text-gray-600">
+                    When you purchase this game, you&apos;re not just getting a
+                    one-time download. You&apos;re gaining access to our
+                    innovative variants system, allowing you to craft dynamic
+                    PDFs tailored to your preferences. Choose from multiple game
+                    versions and variants, and download as many as you like!
+                  </p>
+                </>
               )}
 
               <div className="mt-6 mb-8 text-xs text-gray-500">
