@@ -851,9 +851,14 @@ const ResourceConfig = ({ config, selectedOption, onOptionSelect }) => {
 
 const ResourceComponent = ({ resource }) => {
   const [selectedConfigs, setSelectedConfigs] = useState(
-    Object.fromEntries(
-      resource.configurations.map((config) => [config.label, config.options[0]])
-    )
+    resource.configurations
+      ? Object.fromEntries(
+          resource.configurations.map((config) => [
+            config.label,
+            config.options[0],
+          ])
+        )
+      : {}
   );
 
   const handleOptionSelect = (configLabel, option) => {
@@ -893,21 +898,23 @@ const ResourceComponent = ({ resource }) => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-center">
-        {resource.configurations.map((config) => (
-          <ResourceConfig
-            key={config.label}
-            config={config}
-            selectedOption={selectedConfigs[config.label]}
-            onOptionSelect={handleOptionSelect}
-          />
-        ))}
-      </div>
+      {resource.configurations && resource.configurations.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-center">
+          {resource.configurations.map((config) => (
+            <ResourceConfig
+              key={config.label}
+              config={config}
+              selectedOption={selectedConfigs[config.label]}
+              onOptionSelect={handleOptionSelect}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="flex justify-center">
         <Button
           onClick={handleDownload}
-          className="w-[80%] mt-2 bg-foreground text-background  h-[48px] text-xl mb-4"
+          className="w-[80%] mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
         >
           <Download className="mr-2" /> Download {resource.name}
         </Button>
@@ -916,80 +923,11 @@ const ResourceComponent = ({ resource }) => {
   );
 };
 
-// Dummy data for resources
-const downloadResourcesData = [
-  {
-    name: "Rulebook",
-    image: "/path/to/rulebook-image.jpg",
-    description: "Complete game rules and setup instructions",
-    instructions:
-      "Choose your preferred language and download the PDF rulebook.",
-    configurations: [
-      {
-        label: "Language",
-        options: ["English", "Spanish", "French", "German"],
-      },
-      {
-        label: "Version",
-        options: ["Standard", "Print Friendly", "Mobile Optimized"],
-      },
-    ],
-    onDownload: (configs) => {
-      console.log("Downloading rulebook with configs:", configs);
-    },
-  },
-  {
-    name: "Main Game Board",
-    image: "/path/to/board-image.jpg",
-    description: "The primary game board for Monster Mixology",
-    instructions:
-      "Select your preferences below. Note: A4 is standard European size, Letter is US standard.",
-    configurations: [
-      {
-        label: "Paper Size",
-        options: ["A4", "Letter"],
-      },
-      {
-        label: "Player Count",
-        options: ["2 Players", "3 Players", "4 Players", "5-6 Players"],
-      },
-      {
-        label: "Difficulty",
-        options: ["Normal", "Advanced", "Expert"],
-      },
-    ],
-    onDownload: (configs) => {
-      console.log("Downloading game board with configs:", configs);
-    },
-  },
-  {
-    name: "Market Cards Sheet",
-    image: "/path/to/market-cards-image.jpg",
-    description: "Print-and-cut sheet for all market cards",
-    instructions:
-      "Choose your preferred layout and card size. Recommended: 9 cards per page for standard playing card size.",
-    configurations: [
-      {
-        label: "Cards Per Page",
-        options: ["9 Cards (Large)", "12 Cards (Medium)", "16 Cards (Small)"],
-      },
-      {
-        label: "Paper Size",
-        options: ["A4", "Letter"],
-      },
-      {
-        label: "Card Style",
-        options: ["Standard", "Minimalist", "Deluxe"],
-      },
-    ],
-    onDownload: (configs) => {
-      console.log("Downloading market cards with configs:", configs);
-    },
-  },
-];
+// Update the DownloadResourcesDialog component to use the data from productsData
+const DownloadResourcesDialog = ({ productDetails }) => {
+  const resources =
+    gamesStaticData[productDetails.slug]?.downloadResources || [];
 
-// Update the DownloadResourcesDialog component
-const DownloadResourcesDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -1003,7 +941,7 @@ const DownloadResourcesDialog = () => {
             Download Resources
           </h2>
           <div className="space-y-6">
-            {downloadResourcesData.map((resource, index) => (
+            {resources.map((resource, index) => (
               <ResourceComponent key={index} resource={resource} />
             ))}
           </div>
@@ -1109,7 +1047,7 @@ Buy once, play endlessly - that's our promise to you!`;
                     Purchased
                   </div>
                   <div className="space-y-4">
-                    <DownloadResourcesDialog />
+                    <DownloadResourcesDialog productDetails={productDetails} />
                   </div>
                 </>
               ) : (

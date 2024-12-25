@@ -61,6 +61,53 @@ const commonShopFAQs = [
   },
 ];
 
+const dummyDownloadResources = [
+  {
+    name: "Rulebook",
+    image: "/path/to/rulebook-image.jpg",
+    description: "Complete game rules and setup instructions",
+    instructions:
+      "Choose your preferred language and download the PDF rulebook.",
+    configurations: [
+      {
+        label: "Language",
+        options: ["English", "Spanish", "French", "German"],
+      },
+      {
+        label: "Version",
+        options: ["Standard", "Print Friendly", "Mobile Optimized"],
+      },
+    ],
+    onDownload: (configs) => {
+      console.log("Downloading rulebook with configs:", configs);
+    },
+  },
+  {
+    name: "Main Game Board",
+    image: "/path/to/board-image.jpg",
+    description: "The primary game board for testing purposes",
+    instructions:
+      "Select your preferences below. Note: A4 is standard European size, Letter is US standard.",
+    configurations: [
+      {
+        label: "Paper Size",
+        options: ["A4", "Letter"],
+      },
+      {
+        label: "Player Count",
+        options: ["2 Players", "3 Players", "4 Players", "5-6 Players"],
+      },
+      {
+        label: "Difficulty",
+        options: ["Normal", "Advanced", "Expert"],
+      },
+    ],
+    onDownload: (configs) => {
+      console.log("Downloading game board with configs:", configs);
+    },
+  },
+];
+
 const monstermixologyData = {
   benefitsData: [
     {
@@ -157,8 +204,50 @@ const monstermixologyData = {
       },
     ],
   },
+  downloadResources: [
+    {
+      name: "Main Game Sheet",
+      image: "/products/monster-mixology/main-sheet-preview.jpg",
+      description: "The primary game sheet where all the mixing action happens",
+      instructions:
+        "Choose your paper size and player count. Higher player counts will adjust the layout accordingly.",
+      configurations: [
+        {
+          label: "Paper Size",
+          options: ["A4", "US Letter"],
+        },
+        {
+          label: "Monster Cards",
+          options: [
+            "Random* (Over 2,000,000+ combinations)",
+            "Select Your Monsters (Opens Monster Picker Mode)",
+            "Basic Sheet (Preset 12 Monsters)",
+          ],
+        },
+      ],
+      onDownload: (configs) => {
+        console.log("Downloading MM main sheet with configs:", configs);
+      },
+    },
+    {
+      name: "Monster Mixology Rulebook",
+      image: "/products/monster-mixology/rulebook-preview.jpg",
+      description:
+        "Official Monster Mixology rulebook with complete game instructions and setup guide",
+      instructions:
+        "Select your preferred language and format. The print-friendly version uses less ink.",
+      onDownload: (configs) => {
+        console.log("Downloading MM rulebook with configs:", configs);
+      },
+    },
+  ],
 };
 
 export const gamesStaticData = {
   "monster-mixology": monstermixologyData,
+};
+
+export const dummyData = {
+  downloadResources: dummyDownloadResources,
+  // ... other dummy data
 };
