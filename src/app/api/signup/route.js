@@ -1,6 +1,28 @@
 import { admin, firestore } from "@/firebaseAdmin"; // Use your Firebase Admin instance
 import { NextResponse } from "next/server"; // Import NextResponse for app router
 
+async function checkAndClaimBacker(email) {
+  try {
+    const backerSnapshot = await firestore
+      .collection("backers")
+      .where("email", "==", email.toLowerCase())
+      .where("isClaimed", "==", false)
+      .limit(1)
+      .get();
+
+    if (backerSnapshot.empty) return null;
+
+    const backerDoc = backerSnapshot.docs[0];
+    return {
+      id: backerDoc.id,
+      ...backerDoc.data(),
+    };
+  } catch (error) {
+    console.error("Error checking backer status:", error);
+    return null;
+  }
+}
+
 export async function POST(req) {
   try {
     const { email, uid, username } = await req.json(); // Get email, userId, and username from the request body
@@ -10,6 +32,9 @@ export async function POST(req) {
 
     // Fetch the user document from Firestore
     const userDoc = await userDocRef.get();
+
+    // Check if user is a backer
+    const backer = await checkAndClaimBacker(email);
 
     let newUserProfile = {};
 
@@ -21,7 +46,8 @@ export async function POST(req) {
         username: username || "New User",
         email: email,
         uid: uid,
-        purchasedProducts: [], // Empty array for purchased products
+        purchasedProducts: backer ? [...backer.productIds] : [], // Include backer products if exists
+        tags: backer ? [`${backer.source}_backer`] : [], // Add backer tag if exists
       };
 
       // Create the new user document in Firestore
@@ -38,8 +64,9 @@ export async function POST(req) {
       .where("isPending", "==", true)
       .get();
 
+    const batch = firestore.batch();
+
     if (!pendingOrdersSnapshot.empty) {
-      const batch = firestore.batch();
       let purchasedProductIds = [];
 
       pendingOrdersSnapshot.forEach((doc) => {
@@ -49,7 +76,7 @@ export async function POST(req) {
           ...orderData.cartItems.map((item) => item.id),
         ];
 
-        // Update the order to link it to the user and mark it as not pending
+        // Update the order
         const orderRef = firestore.collection("orders").doc(doc.id);
         batch.update(orderRef, {
           userId: uid,
@@ -57,22 +84,53 @@ export async function POST(req) {
         });
       });
 
-      // Update user's purchasedProducts with the product IDs
+      // Merge purchased products with any backer products
+      const allProductIds = [
+        ...new Set([...purchasedProductIds, ...(backer?.productIds || [])]),
+      ];
+
+      // Update user's purchasedProducts
       batch.update(userDocRef, {
         purchasedProducts: admin.firestore.FieldValue.arrayUnion(
-          ...purchasedProductIds
+          ...allProductIds
         ),
+        ...(backer && {
+          tags: admin.firestore.FieldValue.arrayUnion(
+            `${backer.source}_backer`
+          ),
+        }),
       });
+    } else if (backer) {
+      // If no pending orders but user is a backer, just update with backer info
+      batch.update(userDocRef, {
+        purchasedProducts: admin.firestore.FieldValue.arrayUnion(
+          ...backer.productIds
+        ),
+        tags: admin.firestore.FieldValue.arrayUnion(`${backer.source}_backer`),
+      });
+    }
 
-      await batch.commit();
+    // If there's a backer, mark their record as claimed
+    if (backer) {
+      const backerRef = firestore.collection("backers").doc(backer.id);
+      batch.update(backerRef, {
+        isClaimed: true,
+        claimedBy: uid,
+        claimedAt: new Date(),
+      });
+    }
 
-      // Update newUserProfile with the latest purchasedProducts
+    await batch.commit();
+
+    // Update newUserProfile with the final state
+    if (backer) {
       newUserProfile.purchasedProducts = [
-        ...new Set([
-          ...newUserProfile.purchasedProducts,
-          ...purchasedProductIds,
-        ]),
+        ...new Set([...newUserProfile.purchasedProducts, ...backer.productIds]),
       ];
+      newUserProfile.tags = newUserProfile.tags || [];
+      if (!newUserProfile.tags.includes(`${backer.source}_backer`)) {
+        newUserProfile.tags.push(`${backer.source}_backer`);
+      }
     }
 
     return NextResponse.json({ success: true, user: newUserProfile }); // Return user document
