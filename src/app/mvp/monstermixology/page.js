@@ -39,6 +39,10 @@ import {
 import { useSearchParams } from "next/navigation";
 import { CustomizeCharacters } from "./CustomizeCharacters";
 import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { gamesStaticData } from "@/app/product-details/productsData";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -406,13 +410,14 @@ const DownloadButton = ({ componentRef, paperSize }) => {
   };
 
   return (
-    <button
+    <Button
       onClick={generatePDF}
       disabled={isGenerating}
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      className="w-full bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground"
     >
-      {isGenerating ? "Generating PDF..." : "Download PDF"}
-    </button>
+      <Download className="mr-2" />
+      {isGenerating ? "Generating PDF..." : "Download Game Sheet"}
+    </Button>
   );
 };
 
@@ -450,49 +455,39 @@ const PrintableSheet = () => {
 
   const [showCustomize, setShowCustomize] = useState(false);
 
-  const handleCustomPDFGeneration = (selectedIds) => {
+  const handleCustomPDFGeneration = async (selectedIds) => {
     // Update randomCards with the selected heroes
     const customCards = getRandomCards(
       heroesCards.filter((card) => selectedIds.includes(card.id)),
       12
     );
     setRandomCards(customCards);
+
     setShowCustomize(false);
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="flex gap-4 items-center">
-        <Button
-          onClick={() => setShowCustomize(!showCustomize)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          {showCustomize ? "Hide Customize" : "Customize Characters"}
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-            {paperSize === "A4" ? "A4 Size" : "Letter Size"}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuRadioGroup
-              value={paperSize}
-              onValueChange={setPaperSize}
-            >
-              <DropdownMenuRadioItem value="A4">A4 Size</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="LETTER">
-                Letter Size
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DownloadButton componentRef={componentRef} paperSize={paperSize} />
+      <div className="w-full max-w-7xl px-4">
+        <h2 className="text-2xl font-strike uppercase mb-8 text-center">
+          Download Resources
+        </h2>
+        <div className="space-y-6 mb-12">
+          {(gamesStaticData["monster-mixology"]?.downloadResources || []).map(
+            (resource, index) => (
+              <ResourceComponent
+                key={index}
+                resource={resource}
+                componentRef={componentRef}
+                setShowCustomize={setShowCustomize}
+                showCustomize={showCustomize}
+                handleCustomPDFGeneration={handleCustomPDFGeneration}
+                setPaperSize={setPaperSize}
+              />
+            )
+          )}
+        </div>
       </div>
-
-      {showCustomize && (
-        <CustomizeCharacters onGenerateCustomPDF={handleCustomPDFGeneration} />
-      )}
 
       {/* Hide the actual content by default */}
       <div style={{ display: "none" }}>
@@ -608,4 +603,148 @@ const PrintableSheet = () => {
     </div>
   );
 };
+const ResourceOption = ({ label, value, groupName, isSelected, onSelect }) => {
+  return (
+    <div className="flex items-center space-x-2" onClick={onSelect}>
+      <RadioGroupItem value={value} id={`${groupName}-${value}`} />
+      <Label htmlFor={`${groupName}-${value}`} className="cursor-pointer">
+        {label}
+      </Label>
+    </div>
+  );
+};
+
+const ResourceConfig = ({ config, selectedOption, onOptionSelect }) => {
+  return (
+    <div className="mb-6 w-full px-4">
+      <h4 className="text-lg font-strike uppercase mb-3">{config.label}</h4>
+      <RadioGroup
+        value={selectedOption}
+        onValueChange={(value) => onOptionSelect(config.label, value)}
+        className="space-y-2"
+      >
+        {config.options.map((option) => (
+          <ResourceOption
+            key={option.key}
+            label={option.label}
+            value={option.key}
+            groupName={config.label.toLowerCase().replace(/\s+/g, "-")}
+            isSelected={selectedOption === option.key}
+            onSelect={() => onOptionSelect(config.label, option.key)}
+          />
+        ))}
+      </RadioGroup>
+    </div>
+  );
+};
+
+const ResourceComponent = ({
+  resource,
+  componentRef,
+  setShowCustomize,
+  showCustomize,
+  handleCustomPDFGeneration,
+  setPaperSize,
+}) => {
+  const [selectedConfigs, setSelectedConfigs] = useState(
+    resource.configurations
+      ? Object.fromEntries(
+          resource.configurations.map((config) => [
+            config.label,
+            config.options[0],
+          ])
+        )
+      : {}
+  );
+
+  const paperSize = selectedConfigs["Paper Size"] || "A4";
+  React.useEffect(() => {
+    if (paperSize) {
+      setPaperSize(paperSize);
+    }
+  }, [paperSize, setPaperSize]);
+
+  const handleOptionSelect = (configLabel, option) => {
+    setSelectedConfigs((prev) => ({
+      ...prev,
+      [configLabel]: option,
+    }));
+    if (option === "select") {
+      setShowCustomize(true);
+    }
+    if (option !== "select") {
+      setShowCustomize(false);
+    }
+  };
+
+  const handleDownload = () => {
+    console.log("Downloading with configs:", selectedConfigs);
+    resource.onDownload?.(selectedConfigs);
+  };
+
+  return (
+    <div className="border-2 border-black rounded-lg">
+      <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
+        <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
+          <Image
+            src={resource.image}
+            alt={resource.name}
+            width={150}
+            height={150}
+            className="object-cover rounded-lg w-[150px] h-[150px] border"
+          />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-2xl font-strike uppercase mb-2">
+            {resource.name}
+          </h3>
+          {resource.description && (
+            <p className="text-gray-600 mb-2">{resource.description}</p>
+          )}
+          {resource.instructions && (
+            <p className="text-sm text-gray-500">{resource.instructions}</p>
+          )}
+        </div>
+      </div>
+
+      {resource.configurations && resource.configurations.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-center">
+          {resource.configurations.map((config) => (
+            <ResourceConfig
+              key={config.label}
+              config={config}
+              selectedOption={selectedConfigs[config.label]}
+              onOptionSelect={handleOptionSelect}
+            />
+          ))}
+        </div>
+      )}
+
+      {showCustomize && resource.type === "main-sheet" && (
+        <CustomizeCharacters onGenerateCustomPDF={handleCustomPDFGeneration} />
+      )}
+
+      <div className="flex justify-center">
+        {resource.type === "main-sheet" ? (
+          <DownloadButton componentRef={componentRef} paperSize={paperSize} />
+        ) : resource.type === "rulebook" ? (
+          <Button
+            onClick={handleDownload}
+            className="w-[80%] mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
+          >
+            <Download className="mr-2" /> Download Rulebook
+          </Button>
+        ) : (
+          <Button
+            onClick={handleDownload}
+            className="w-[80%] mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
+          >
+            <Download className="mr-2" /> Download {resource.name}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default PrintableSheet;

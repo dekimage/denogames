@@ -93,7 +93,7 @@ export const CustomizeCharacters = ({ onGenerateCustomPDF }) => {
             : "bg-gray-300"
         }`}
       >
-        Generate Custom PDF ({selectedHeroes.length}/12)
+        Save Selection({selectedHeroes.length}/12)
       </Button>
     </div>
   );

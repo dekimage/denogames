@@ -206,6 +206,7 @@ const monstermixologyData = {
   },
   downloadResources: [
     {
+      type: "main-sheet",
       name: "Main Game Sheet",
       image: "/products/monster-mixology/main-sheet-preview.jpg",
       description: "The primary game sheet where all the mixing action happens",
@@ -214,14 +215,26 @@ const monstermixologyData = {
       configurations: [
         {
           label: "Paper Size",
-          options: ["A4", "US Letter"],
+          options: [
+            { label: "A4", key: "A4" },
+            { label: "LETTER", key: "LETTER" },
+          ],
         },
         {
           label: "Monster Cards",
           options: [
-            "Random* (Over 2,000,000+ combinations)",
-            "Select Your Monsters (Opens Monster Picker Mode)",
-            "Basic Sheet (Preset 12 Monsters)",
+            {
+              label: "Random* (Over 2,000,000+ combinations)",
+              key: "random",
+            },
+            {
+              label: "Select Your Monsters (Opens Monster Picker Mode)",
+              key: "select",
+            },
+            {
+              label: "Basic Sheet (Preset 12 Monsters)",
+              key: "preset",
+            },
           ],
         },
       ],
@@ -230,6 +243,7 @@ const monstermixologyData = {
       },
     },
     {
+      type: "rulebook",
       name: "Monster Mixology Rulebook",
       image: "/products/monster-mixology/rulebook-preview.jpg",
       description:

@@ -269,7 +269,7 @@ const HowToPlay = ({ productDetails }) => {
       <div className="text-[32px] text-center">How to Play - Fast Version</div>
 
       <div>
-        <iframe
+        {/* <iframe
           width="560"
           height="315"
           src="https://www.youtube.com/embed/NgTymmSsesw"
@@ -277,7 +277,7 @@ const HowToPlay = ({ productDetails }) => {
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
-        ></iframe>
+        ></iframe> */}
       </div>
       <div className="text-[32px] text-center">Or Slow in Details</div>
       <Link
@@ -1047,7 +1047,11 @@ Buy once, play endlessly - that's our promise to you!`;
                     Purchased
                   </div>
                   <div className="space-y-4">
-                    <DownloadResourcesDialog productDetails={productDetails} />
+                    <Link href={`/mvp/monstermixology`}>
+                      <Button className="w-full bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground">
+                        <Download className="mr-2" /> Download Resources
+                      </Button>
+                    </Link>
                   </div>
                 </>
               ) : (
