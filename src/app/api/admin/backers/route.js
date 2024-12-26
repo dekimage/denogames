@@ -5,7 +5,7 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 10;
+    const limit = parseInt(searchParams.get("limit")) || 100;
     const status = searchParams.get("status");
     const productId = searchParams.get("productId");
     const email = searchParams.get("email")?.toLowerCase();

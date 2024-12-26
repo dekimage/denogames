@@ -35,7 +35,7 @@ export default function DeliveryPage() {
   const [backersLoading, setBackersLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 100;
   const [filters, setFilters] = useState({
     status: "all", // 'all', 'claimed', 'unclaimed'
     productId: "",
@@ -47,6 +47,7 @@ export default function DeliveryPage() {
     field: "email",
     direction: "asc", // or 'desc'
   });
+  const [totalBackers, setTotalBackers] = useState(0);
 
   useEffect(() => {
     fetchBackers();
@@ -69,6 +70,7 @@ export default function DeliveryPage() {
       if (!response.ok) throw new Error(data.error);
 
       setBackers(data.backers);
+      setTotalBackers(data.total);
       setTotalPages(Math.ceil(data.total / ITEMS_PER_PAGE));
     } catch (err) {
       setError("Failed to fetch backers: " + err.message);
@@ -396,7 +398,12 @@ export default function DeliveryPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">All Backers</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-xl font-semibold">All Backers</h2>
+          <span className="text-sm text-gray-500">
+            ({totalBackers} {totalBackers === 1 ? "result" : "results"})
+          </span>
+        </div>
         {backersLoading ? (
           <div className="flex justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
