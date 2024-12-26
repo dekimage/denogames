@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import MobxStore from "@/mobx";
 import { auth } from "@/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 
 export const withGameAccess = (WrappedComponent, gameId) => {
   return observer((props) => {
@@ -86,7 +87,7 @@ export const withGameAccess = (WrappedComponent, gameId) => {
     ]);
 
     if (isLoading || !authInitialized || MobxStore.loadingUser) {
-      return <div>Loading...</div>; // Or your loading component
+      return <LoadingSpinner />; // Or your loading component
     }
 
     if (error) {

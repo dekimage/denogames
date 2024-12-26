@@ -1210,17 +1210,34 @@ class Store {
       .slice(0, 4); // Limit to 4 related games
   }
 
-  getRelatedExpansions(gameId) {
-    return this.products.filter((product) => {
-      return (
+  getRelatedExpansions(gameId, { includeOwned = false } = {}) {
+    const expansions = this.products.filter((product) => {
+      const isExpansionForGame =
         product.type === "expansion" &&
         product.relatedGames &&
-        product.relatedGames.includes(gameId) &&
-        (!this.user ||
-          !this.user.purchasedProducts ||
-          !this.user.purchasedProducts.includes(product.id))
-      );
+        product.relatedGames.includes(gameId);
+
+      if (!includeOwned) {
+        // Original behavior: filter out owned expansions
+        return (
+          isExpansionForGame &&
+          !this.user?.purchasedProducts?.includes(product.id)
+        );
+      }
+
+      // Return all expansions with ownership info
+      return isExpansionForGame;
     });
+
+    if (includeOwned) {
+      // Enrich with ownership information when requested
+      return expansions.map((expansion) => ({
+        ...expansion,
+        isOwned: this.user?.purchasedProducts?.includes(expansion.id) || false,
+      }));
+    }
+
+    return expansions;
   }
 }
 

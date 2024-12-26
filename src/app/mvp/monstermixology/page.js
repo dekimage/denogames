@@ -45,6 +45,7 @@ import { Label } from "@/components/ui/label";
 import { gamesStaticData } from "@/app/product-details/productsData";
 import { withGameAccess } from "@/components/hoc/withGameAccess";
 import Link from "next/link";
+import ExpansionSelector from "@/components/ExpansionSelector";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -442,6 +443,7 @@ const PrintableSheet = () => {
   const [randomCards, setRandomCards] = useState(() =>
     getRandomCards(heroesCards, 12)
   );
+  const [selectedExpansions, setSelectedExpansions] = useState([]);
 
   // Function to handle different card selection modes
   const handleCardSelection = (mode) => {
@@ -497,10 +499,16 @@ const PrintableSheet = () => {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="w-full max-w-7xl px-4">
-        <h2 className="text-2xl font-strike uppercase mb-8 text-center">
+        <h2 className="text-2xl font-strike uppercase my-8 text-center">
           Download Resources
         </h2>
-        <div className="space-y-6 mb-12">
+        <ExpansionSelector
+          gameId="monstermixology"
+          selectedExpansions={selectedExpansions}
+          setSelectedExpansions={setSelectedExpansions}
+        />
+
+        <div className="space-y-6 mb-12 flex justify-center flex-col items-center">
           {(gamesStaticData["monster-mixology"]?.downloadResources || []).map(
             (resource, index) => (
               <ResourceComponent
@@ -720,77 +728,81 @@ const ResourceComponent = ({
   };
 
   return (
-    <div className="border-2 border-black rounded-lg">
-      <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
-        <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
-          <Image
-            src={resource.image}
-            alt={resource.name}
-            width={150}
-            height={150}
-            className="object-cover rounded-lg w-[150px] h-[150px] border"
-          />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-2xl font-strike uppercase mb-2">
-            {resource.name}
-          </h3>
-          {resource.description && (
-            <p className="text-gray-600 mb-2">{resource.description}</p>
-          )}
-          {resource.instructions && (
-            <p className="text-sm text-gray-500">{resource.instructions}</p>
-          )}
-        </div>
-      </div>
-
-      {resource.configurations && resource.configurations.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-center">
-          {resource.configurations.map((config) => (
-            <ResourceConfig
-              key={config.label}
-              config={config}
-              selectedOption={selectedConfigs[config.label]}
-              onOptionSelect={handleOptionSelect}
+    <div className="box-inner">
+      <div className=" rounded-lg w-full sm:w-[600px] md:w-[800px] box-broken p-4">
+        <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
+          <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
+            <Image
+              src={resource.image}
+              alt={resource.name}
+              width={150}
+              height={150}
+              className="object-cover rounded-lg w-[150px] h-[150px] border"
             />
-          ))}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-2xl font-strike uppercase mb-2">
+              {resource.name}
+            </h3>
+            {resource.description && (
+              <p className="text-gray-600 mb-2">{resource.description}</p>
+            )}
+            {resource.instructions && (
+              <p className="text-sm text-gray-500">{resource.instructions}</p>
+            )}
+          </div>
         </div>
-      )}
 
-      {showCustomize && resource.type === "main-sheet" && (
-        <CustomizeCharacters onGenerateCustomPDF={handleCustomPDFGeneration} />
-      )}
-
-      <div className="flex justify-center">
-        {resource.type === "main-sheet" ? (
-          <DownloadButton
-            componentRef={componentRef}
-            paperSize={paperSize}
-            selectedConfigs={selectedConfigs}
-            setRandomCards={setRandomCards}
-          />
-        ) : resource.type === "rulebook" ? (
-          <Link
-            className="w-[80%]"
-            href={
-              gamesStaticData["monster-mixology"]?.rulebookUrl ||
-              "https://drive.google.com/your-default-rulebook-url"
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4">
-              <Download className="mr-2" /> Download Rulebook
-            </Button>
-          </Link>
-        ) : (
-          <Button
-            onClick={handleDownload}
-            className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
-          >
-            <Download className="mr-2" /> Download {resource.name}
-          </Button>
+        {resource.configurations && resource.configurations.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-start">
+            {resource.configurations.map((config) => (
+              <ResourceConfig
+                key={config.label}
+                config={config}
+                selectedOption={selectedConfigs[config.label]}
+                onOptionSelect={handleOptionSelect}
+              />
+            ))}
+          </div>
         )}
+
+        {showCustomize && resource.type === "main-sheet" && (
+          <CustomizeCharacters
+            onGenerateCustomPDF={handleCustomPDFGeneration}
+          />
+        )}
+
+        <div className="flex justify-center">
+          {resource.type === "main-sheet" ? (
+            <DownloadButton
+              componentRef={componentRef}
+              paperSize={paperSize}
+              selectedConfigs={selectedConfigs}
+              setRandomCards={setRandomCards}
+            />
+          ) : resource.type === "rulebook" ? (
+            <Link
+              className="w-[80%]"
+              href={
+                gamesStaticData["monster-mixology"]?.rulebookUrl ||
+                "https://drive.google.com/your-default-rulebook-url"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4">
+                <Download className="mr-2" /> Download Rulebook
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              onClick={handleDownload}
+              className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
+            >
+              <Download className="mr-2" /> Download {resource.name}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

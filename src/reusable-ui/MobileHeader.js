@@ -7,15 +7,25 @@ import {
   MenuIcon,
   Search,
   X,
+  ShoppingCart,
+  LogIn,
+  UserPlus,
+  UserIcon,
+  Gift,
+  ShoppingBag,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 import { VerticalNavbar } from "./VerticalNavbar";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import logoImg from "../assets/logo.png";
 
 const MobileHeader = observer(() => {
-  const { isMobileOpen, setIsMobileOpen } = MobxStore;
+  const { isMobileOpen, setIsMobileOpen, user, logout, cart } = MobxStore;
+  const cartItemCount = cart.length;
 
   const toggleMenu = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -27,9 +37,8 @@ const MobileHeader = observer(() => {
   };
 
   return (
-    <div className="flex justify-between items-center border-b relative h-[52px] z-10000 p-4">
-      <div className="font-bold">Deno Games</div>
-      <Button onClick={toggleMenu} className="p-2">
+    <div className="fixed top-0 left-0 right-0 flex justify-between items-center border-b bg-white h-[52px] z-[999] px-2">
+      <Button onClick={toggleMenu} className="p-2" variant="ghost">
         {isMobileOpen ? (
           <X className="h-6 w-6" />
         ) : (
@@ -37,48 +46,191 @@ const MobileHeader = observer(() => {
         )}
       </Button>
 
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Image
+          src={logoImg}
+          alt="logo"
+          width={48}
+          height={48}
+          className="cursor-pointer"
+        />
+      </div>
+
+      <Link href="/cart">
+        <Button variant="ghost" size="icon" className="relative">
+          <ShoppingCart className="h-6 w-6" />
+          {cartItemCount > 0 && (
+            <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold">
+              {cartItemCount}
+            </span>
+          )}
+        </Button>
+      </Link>
+
       {isMobileOpen && (
-        <div className="absolute top-[52px] left-0 w-full h-screen flex flex-col items-start p-4 bg-white">
-          {/* List of menu items */}
-          <VerticalNavbar
-            links={[
-              {
-                title: "Dashboard",
-                icon: LayoutDashboard,
-                variant: isRoute("/"),
-                href: "/",
-                callBack: () => setIsMobileOpen(false),
-              },
-              {
-                title: "Today",
-                icon: CalendarCheck,
-                variant: isRoute("Today"),
-                href: "/today",
-                callBack: () => setIsMobileOpen(false),
-              },
-              {
-                title: "Explore",
-                icon: Search,
-                variant: isRoute("Explore"),
-                href: "/explore",
-                callBack: () => setIsMobileOpen(false),
-              },
-              {
-                title: "Analytics",
-                icon: GaugeCircle,
-                variant: isRoute("Analytics"),
-                href: "/analytics",
-                callBack: () => setIsMobileOpen(false),
-              },
-              {
-                title: "Gamify",
-                icon: Gamepad2,
-                variant: isRoute("Gamify"),
-                href: "/gamify",
-                callBack: () => setIsMobileOpen(false),
-              },
-            ]}
-          />
+        <div className="fixed top-[52px] left-0 w-full h-[calc(100vh-32px)] flex flex-col items-center justify-start p-4 bg-white z-[998] overflow-y-auto">
+          {!user ? (
+            <div className="w-full flex gap-2 mb-6">
+              <Link href="/login" className="flex-1">
+                <Button
+                  variant="cream"
+                  className="w-full"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
+                </Button>
+              </Link>
+              <Link href="/signup" className="flex-1">
+                <Button
+                  className="w-full"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Sign Up
+                </Button>
+              </Link>
+              <VerticalNavbar
+                links={[
+                  {
+                    title: "Home",
+                    icon: LayoutDashboard,
+                    variant: isRoute("/"),
+                    href: "/",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Shop",
+                    icon: CalendarCheck,
+                    variant: isRoute("Shop"),
+                    href: "/shop",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "App",
+                    icon: Search,
+                    variant: isRoute("App"),
+                    href: "/app",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Blog",
+                    icon: GaugeCircle,
+                    variant: isRoute("Blog"),
+                    href: "/blog",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Game Finder",
+                    icon: Gamepad2,
+                    variant: isRoute("Game Fineder"),
+                    href: "/game-finder",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                ]}
+              />
+            </div>
+          ) : (
+            <>
+              <div className="text-center font-medium mb-6">
+                Logged in as {user.email}
+              </div>
+
+              <VerticalNavbar
+                links={[
+                  {
+                    title: "Home",
+                    icon: LayoutDashboard,
+                    variant: isRoute("/"),
+                    href: "/",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Shop",
+                    icon: CalendarCheck,
+                    variant: isRoute("Shop"),
+                    href: "/shop",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "App",
+                    icon: Search,
+                    variant: isRoute("App"),
+                    href: "/app",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Blog",
+                    icon: GaugeCircle,
+                    variant: isRoute("Blog"),
+                    href: "/blog",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Game Finder",
+                    icon: Gamepad2,
+                    variant: isRoute("Game Fineder"),
+                    href: "/game-finder",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                ]}
+              />
+
+              <VerticalNavbar
+                links={[
+                  {
+                    title: "Profile",
+                    icon: UserIcon,
+                    variant: isRoute("profile"),
+                    href: "profile",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "My Games",
+                    icon: Gamepad2,
+                    variant: isRoute("my-games"),
+                    href: "my-games",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+
+                  {
+                    title: "Rewards",
+                    icon: Gift,
+                    variant: isRoute("rewards"),
+                    href: "rewards",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Orders",
+                    icon: ShoppingBag,
+                    variant: isRoute("orders"),
+                    href: "orders",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+                  {
+                    title: "Logout",
+                    icon: Gamepad2,
+                    variant: isRoute("logout"),
+                    href: "/",
+                    callBack: () => {
+                      logout();
+                      setIsMobileOpen(false);
+                    },
+                  },
+                ]}
+              />
+            </>
+          )}
+
+          {user && (
+            <div className="w-full mt-auto pt-4">
+              <Link href="/my-games" className="w-full">
+                <Button variant="outline" className="w-full">
+                  My Games
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

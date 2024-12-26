@@ -223,6 +223,13 @@ const monstermixologyData = {
           ],
         },
         {
+          label: "Color Type",
+          options: [
+            { label: "Full Color", key: "color" },
+            { label: "Low Ink", key: "black" },
+          ],
+        },
+        {
           label: "Monster Cards",
           options: [
             {
