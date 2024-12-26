@@ -82,6 +82,9 @@ class Store {
   blogDetailsLoading = new Map();
   blogsFetched = false;
 
+  // Add a new state to track when everything is fully loaded
+  userFullyLoaded = false;
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -138,34 +141,46 @@ class Store {
   initializeAuth() {
     const auth = getAuth();
     onAuthStateChanged(auth, async (user) => {
-      if (this.loadingUser) return;
-      runInAction(() => {
-        this.loadingUser = true;
-        this.loading = true; // Set global loading state
-      });
+      if (!this.loadingUser) {
+        runInAction(() => {
+          this.loadingUser = true;
+          this.loading = true;
+          this.userFullyLoaded = false; // Reset this when we start loading
+        });
+      }
 
       try {
         if (user) {
           const userDocRef = doc(db, "users", user.uid);
           const userDoc = await getDoc(userDocRef);
+
           runInAction(() => {
-            this.user = { uid: user.uid, ...userDoc.data() };
+            this.user = {
+              uid: user.uid,
+              ...userDoc.data(),
+            };
+            this.userFullyLoaded = true; // Set this when we have everything
           });
+
           await this.fetchProducts();
           await this.fetchCart();
           await this.fetchNotifications();
         } else {
           runInAction(() => {
             this.user = null;
+            this.userFullyLoaded = true; // Also set this when we know there's no user
           });
           await this.fetchCart();
         }
       } catch (error) {
         console.error("Error in auth state change:", error);
+        runInAction(() => {
+          this.userFullyLoaded = true; // Set this even on error
+        });
       } finally {
         runInAction(() => {
           this.loadingUser = false;
-          this.loading = false; // Reset global loading state
+          this.loading = false;
         });
       }
     });
@@ -611,12 +626,18 @@ class Store {
     if (this.loadingCart) return;
     this.loadingCart = true;
 
-    if (this.user) {
-      await this.fetchCartFromFirestore();
-    } else {
-      this.fetchCartFromLocalStorage();
+    try {
+      if (this.user?.uid) {
+        // Check if user and uid exist
+        await this.fetchCartFromFirestore();
+      } else {
+        this.fetchCartFromLocalStorage();
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    } finally {
+      this.loadingCart = false;
     }
-    this.loadingCart = false;
   }
   clearCart() {
     runInAction(() => {
@@ -631,6 +652,8 @@ class Store {
   }
 
   async fetchCartFromFirestore() {
+    if (!this.user?.uid) return; // Guard clause
+
     try {
       const cartDocRef = doc(db, "carts", this.user.uid);
       const cartDoc = await getDoc(cartDocRef);
@@ -638,9 +661,12 @@ class Store {
       runInAction(() => {
         this.cart = cartDoc.exists() ? cartDoc.data().items : [];
       });
-      this.loadingCart = false;
     } catch (error) {
-      console.log("Error fetching cart from Firestore:", error);
+      console.error("Error fetching cart from Firestore:", error);
+      // Set empty cart on error
+      runInAction(() => {
+        this.cart = [];
+      });
     }
   }
 
@@ -689,6 +715,8 @@ class Store {
 
   // Sync Cart with Firestore
   async syncCartWithFirestore() {
+    if (!this.user?.uid) return; // Guard clause
+
     try {
       const cartDocRef = doc(db, "carts", this.user.uid);
       await setDoc(cartDocRef, { items: this.cart });
@@ -1238,6 +1266,19 @@ class Store {
     }
 
     return expansions;
+  }
+
+  updateUserProfile(userData) {
+    runInAction(() => {
+      // Merge the new user data with existing user data
+      this.user = {
+        ...this.user,
+        ...userData,
+        // Ensure we keep these critical fields
+        uid: this.user.uid,
+        email: this.user.email,
+      };
+    });
   }
 }
 

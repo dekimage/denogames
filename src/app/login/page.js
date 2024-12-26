@@ -27,7 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
@@ -181,11 +181,37 @@ const LoginCard = observer(() => {
   );
 });
 
-const LoginPage = () => {
+const LoginPage = observer(() => {
+  const router = useRouter();
+
+  useEffect(() => {
+    // If user is fully loaded and authenticated
+    if (MobxStore.userFullyLoaded && MobxStore.user) {
+      // Check for redirect URL
+      const redirectUrl = localStorage.getItem("redirectAfterLogin");
+      if (redirectUrl) {
+        localStorage.removeItem("redirectAfterLogin"); // Clean up
+        router.push(redirectUrl);
+      }
+    }
+  }, [MobxStore.user, MobxStore.userFullyLoaded]);
+
+  // Handle successful login
+  const handleLoginSuccess = () => {
+    const redirectUrl = localStorage.getItem("redirectAfterLogin");
+    if (redirectUrl) {
+      localStorage.removeItem("redirectAfterLogin");
+      router.push(redirectUrl);
+    } else {
+      router.push("/");
+    }
+  };
+
   return (
     <div className="flex justify-center items-center mt-8">
       <LoginCard />
     </div>
   );
-};
+});
+
 export default LoginPage;
