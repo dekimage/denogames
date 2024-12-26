@@ -43,6 +43,8 @@ import { Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { gamesStaticData } from "@/app/product-details/productsData";
+import { withGameAccess } from "@/components/hoc/withGameAccess";
+import Link from "next/link";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -378,11 +380,23 @@ const getRandomCards = (cards, count) => {
   return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
 };
 
-const DownloadButton = ({ componentRef, paperSize }) => {
+const DownloadButton = ({
+  componentRef,
+  paperSize,
+  selectedConfigs,
+  setRandomCards,
+}) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generatePDF = async () => {
     setIsGenerating(true);
+
+    // Always generate new random cards if in random mode
+    if (selectedConfigs["Monster Cards"] === "random") {
+      setRandomCards(getRandomCards(heroesCards, 12));
+      // Wait for state update to reflect in the DOM
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
 
     const element = componentRef.current;
     const opt = {
@@ -413,7 +427,7 @@ const DownloadButton = ({ componentRef, paperSize }) => {
     <Button
       onClick={generatePDF}
       disabled={isGenerating}
-      className="w-full bg-foreground h-[48px] text-xl text-background hover:bg-background hover:text-foreground"
+      className="w-[80%] bg-foreground h-[48px] text-xl text-background mb-4"
     >
       <Download className="mr-2" />
       {isGenerating ? "Generating PDF..." : "Download Game Sheet"}
@@ -423,15 +437,29 @@ const DownloadButton = ({ componentRef, paperSize }) => {
 
 const PrintableSheet = () => {
   const componentRef = useRef();
-  const [paperSize, setPaperSize] = useState("A4"); // Default to A4
+  const [paperSize, setPaperSize] = useState("A4");
   const dimensions = PAPER_DIMENSIONS[paperSize];
   const [randomCards, setRandomCards] = useState(() =>
     getRandomCards(heroesCards, 12)
   );
 
-  // Function to generate new random combination
-  const generateNewCombination = () => {
-    setRandomCards(getRandomCards(heroesCards, 12));
+  // Function to handle different card selection modes
+  const handleCardSelection = (mode) => {
+    switch (mode) {
+      case "random":
+        setRandomCards(getRandomCards(heroesCards, 12));
+        break;
+      case "preset":
+        // Use the first 12 cards in order
+        setRandomCards(heroesCards.slice(0, 12));
+        break;
+      case "select":
+        // This is handled by CustomizeCharacters component
+        setShowCustomize(true);
+        break;
+      default:
+        setRandomCards(heroesCards.slice(0, 12)); // Default to preset
+    }
   };
 
   // Base scale for Letter size
@@ -483,6 +511,8 @@ const PrintableSheet = () => {
                 showCustomize={showCustomize}
                 handleCustomPDFGeneration={handleCustomPDFGeneration}
                 setPaperSize={setPaperSize}
+                handleCardSelection={handleCardSelection}
+                setRandomCards={setRandomCards}
               />
             )
           )}
@@ -645,13 +675,15 @@ const ResourceComponent = ({
   showCustomize,
   handleCustomPDFGeneration,
   setPaperSize,
+  handleCardSelection,
+  setRandomCards,
 }) => {
   const [selectedConfigs, setSelectedConfigs] = useState(
     resource.configurations
       ? Object.fromEntries(
           resource.configurations.map((config) => [
             config.label,
-            config.options[0],
+            config.options[0].key,
           ])
         )
       : {}
@@ -675,10 +707,15 @@ const ResourceComponent = ({
     if (option !== "select") {
       setShowCustomize(false);
     }
+    console.log(configLabel, option);
+    if (configLabel === "Monster Cards") {
+      handleCardSelection(option);
+    }
   };
 
   const handleDownload = () => {
     console.log("Downloading with configs:", selectedConfigs);
+
     resource.onDownload?.(selectedConfigs);
   };
 
@@ -726,18 +763,30 @@ const ResourceComponent = ({
 
       <div className="flex justify-center">
         {resource.type === "main-sheet" ? (
-          <DownloadButton componentRef={componentRef} paperSize={paperSize} />
+          <DownloadButton
+            componentRef={componentRef}
+            paperSize={paperSize}
+            selectedConfigs={selectedConfigs}
+            setRandomCards={setRandomCards}
+          />
         ) : resource.type === "rulebook" ? (
-          <Button
-            onClick={handleDownload}
-            className="w-[80%] mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
+          <Link
+            className="w-[80%]"
+            href={
+              gamesStaticData["monster-mixology"]?.rulebookUrl ||
+              "https://drive.google.com/your-default-rulebook-url"
+            }
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <Download className="mr-2" /> Download Rulebook
-          </Button>
+            <Button className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4">
+              <Download className="mr-2" /> Download Rulebook
+            </Button>
+          </Link>
         ) : (
           <Button
             onClick={handleDownload}
-            className="w-[80%] mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
+            className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
           >
             <Download className="mr-2" /> Download {resource.name}
           </Button>
@@ -747,4 +796,5 @@ const ResourceComponent = ({
   );
 };
 
-export default PrintableSheet;
+// Wrap the component with the HOC
+export default withGameAccess(PrintableSheet, "monstermixology");

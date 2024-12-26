@@ -282,7 +282,7 @@ const HowToPlay = ({ productDetails }) => {
       <div className="text-[32px] text-center">Or Slow in Details</div>
       <Link
         href={
-          productDetails?.rulebookUrl ||
+          gamesStaticData[productDetails.slug]?.rulebookUrl ||
           "https://drive.google.com/your-default-rulebook-url"
         }
         target="_blank"
@@ -837,11 +837,11 @@ const ResourceConfig = ({ config, selectedOption, onOptionSelect }) => {
       >
         {config.options.map((option) => (
           <ResourceOption
-            key={option}
-            label={option}
-            value={option}
+            key={option.key || option}
+            label={option.label || option}
+            value={option.key || option}
             groupName={config.label.toLowerCase().replace(/\s+/g, "-")}
-            isSelected={selectedOption === option}
+            isSelected={selectedOption === (option.key || option)}
           />
         ))}
       </RadioGroup>
@@ -855,7 +855,7 @@ const ResourceComponent = ({ resource }) => {
       ? Object.fromEntries(
           resource.configurations.map((config) => [
             config.label,
-            config.options[0],
+            config.options[0].key || config.options[0],
           ])
         )
       : {}
@@ -864,7 +864,7 @@ const ResourceComponent = ({ resource }) => {
   const handleOptionSelect = (configLabel, option) => {
     setSelectedConfigs((prev) => ({
       ...prev,
-      [configLabel]: option,
+      [configLabel]: option.key || option,
     }));
   };
 

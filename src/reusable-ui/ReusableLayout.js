@@ -145,7 +145,9 @@ const ReusableLayout = observer(({ children }) => {
 
   const showHeaderFooter = shouldShowHeaderFooter(pathname);
   const showMvpHeader =
-    pathname.startsWith("/mvp") && !pathname.startsWith("/mvp/vampires");
+    pathname.startsWith("/mvp") &&
+    !pathname.startsWith("/mvp/vampires") &&
+    !pathname.startsWith("/mvp/monstermixology");
 
   const cartItemCount = cart.length;
 
