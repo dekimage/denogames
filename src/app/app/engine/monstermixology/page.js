@@ -387,11 +387,12 @@ const spaceMinerConfig = {
 };
 
 const Monstermixology = () => {
-  const searchParams = typeof window !== "undefined" ? useSearchParams() : null;
+  const searchParams = useSearchParams();
   const [availableCards] = useState(enhancedDeck);
 
   useEffect(() => {
-    if (searchParams) {
+    // Ensure this only runs in the client environment
+    if (typeof window !== "undefined") {
       const chars = searchParams.get("chars");
       if (chars) {
         console.log("Characters from URL:", chars);
