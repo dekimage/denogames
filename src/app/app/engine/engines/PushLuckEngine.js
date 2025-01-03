@@ -35,37 +35,31 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const actionGainedFromDraw = useRef(false);
 
   useEffect(() => {
-    pushLuckStore.setConfig(config);
-    actionSound.current = new Audio("/sounds/action-gained.mp3");
-
-    // Initialize sounds with error handling
-    try {
-      boomSound.current = new Audio();
-      boomSound.current.src = "/sounds/boom.mp3";
-
-      // Add event listeners to handle loading
-      boomSound.current.addEventListener("canplaythrough", () => {
-        setSoundLoaded(true);
-      });
-
-      boomSound.current.addEventListener("error", (e) => {
-        console.error("Error loading sound:", e);
-      });
-
-      // Preload the sound
-      boomSound.current.load();
-    } catch (error) {
-      console.error("Error initializing sound:", error);
-    }
-
-    // Cleanup
-    return () => {
-      if (boomSound.current) {
-        boomSound.current.removeEventListener("canplaythrough", () => {
-          setSoundLoaded(false);
+    if (typeof window !== "undefined") {
+      pushLuckStore.setConfig(config);
+      actionSound.current = new Audio("/sounds/action-gained.mp3");
+  
+      try {
+        boomSound.current = new Audio();
+        boomSound.current.src = "/sounds/boom.mp3";
+  
+        boomSound.current.addEventListener("canplaythrough", () => {
+          setSoundLoaded(true);
         });
+  
+        boomSound.current.load();
+      } catch (error) {
+        console.error("Error initializing sound:", error);
       }
-    };
+  
+      return () => {
+        if (boomSound.current) {
+          boomSound.current.removeEventListener("canplaythrough", () => {
+            setSoundLoaded(false);
+          });
+        }
+      };
+    }
   }, [config]);
 
   useEffect(() => {
@@ -249,10 +243,12 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     // Only auto-scroll if we have 9 or more cards
     if (pushLuckStore.centralBoard.length >= 9) {
       setTimeout(() => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: "smooth",
-        });
+        if (typeof window !== "undefined") {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth",
+          });
+        }
       }, 100);
     }
   };

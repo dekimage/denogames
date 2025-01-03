@@ -387,13 +387,15 @@ const spaceMinerConfig = {
 };
 
 const Monstermixology = () => {
-  const searchParams = useSearchParams();
+  const searchParams = typeof window !== "undefined" ? useSearchParams() : null;
   const [availableCards] = useState(enhancedDeck);
 
   useEffect(() => {
-    const chars = searchParams.get("chars");
-    if (chars) {
-      console.log("Characters from URL:", chars); // Debug log
+    if (searchParams) {
+      const chars = searchParams.get("chars");
+      if (chars) {
+        console.log("Characters from URL:", chars);
+      }
     }
   }, [searchParams]);
 
@@ -407,5 +409,6 @@ const Monstermixology = () => {
     </div>
   );
 };
+
 
 export default Monstermixology;

@@ -390,6 +390,7 @@ const DownloadButton = ({
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generatePDF = async () => {
+    if (typeof window === "undefined") return;
     setIsGenerating(true);
 
     // Always generate new random cards if in random mode
