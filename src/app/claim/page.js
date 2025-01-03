@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { observer } from "mobx-react";
 import { withAuth } from "@/components/hoc/withAuth";
 import MobxStore from "@/mobx";
@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 
-const ClaimPageContent = observer(() => {
-  const router = useRouter();
+// Create a separate component for the search params logic
+const ClaimContent = observer(() => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { user } = MobxStore;
 
-  // State management
+  // Move all the state and logic here
   const [code, setCode] = useState(searchParams.get("code") || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -151,6 +153,17 @@ const ClaimPageContent = observer(() => {
         </div>
       </div>
     </div>
+  );
+});
+
+// Main component with Suspense boundary
+const ClaimPageContent = observer(() => {
+  return (
+    <Suspense fallback={
+     <LoadingSpinner />
+    }>
+      <ClaimContent />
+    </Suspense>
   );
 });
 
