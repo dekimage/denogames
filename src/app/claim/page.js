@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { observer } from "mobx-react";
 import { withAuth } from "@/components/hoc/withAuth";
 import MobxStore from "@/mobx";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
-const ClaimPage = observer(() => {
+const ClaimPageContent = observer(() => {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -150,5 +150,13 @@ const ClaimPage = observer(() => {
     </div>
   );
 });
+
+const ClaimPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ClaimPageContent />
+    </Suspense>
+  );
+};
 
 export default withAuth(ClaimPage);
