@@ -24,9 +24,11 @@ const ClaimPageContent = observer(() => {
 
   // Effect to handle search params on mount
   useEffect(() => {
-    const urlCode = searchParams.get("code");
-    if (urlCode && !code) {
-      setCode(urlCode);
+    if (typeof window !== "undefined") {
+      const urlCode = searchParams.get("code");
+      if (urlCode && !code) {
+        setCode(urlCode);
+      }
     }
   }, [searchParams, code]);
 
