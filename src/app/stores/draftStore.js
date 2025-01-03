@@ -297,4 +297,5 @@ class DraftStore {
   }
 }
 
-export default new DraftStore();
+const draftStore = new DraftStore();
+export default draftStore;

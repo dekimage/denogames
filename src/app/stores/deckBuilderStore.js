@@ -343,4 +343,5 @@ class DeckBuilderStore {
   }
 }
 
-export default new DeckBuilderStore();
+const deckBuilderStore = new DeckBuilderStore();
+export default deckBuilderStore;

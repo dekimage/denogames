@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { iconMapping, resourceColorMapping } from "../test/page";
 
 const TrackerSheet = () => {
@@ -14,9 +15,11 @@ const TrackerSheet = () => {
           <div
             className={`w-10 h-10 rounded-full ${resourceColorMapping[resource]} flex items-center justify-center m-auto`}
           >
-            <img
+            <Image
               src={`/${iconMapping[resource]}`}
               alt={label}
+              width={32}
+              height={32}
               className="w-8 h-8 object-contain"
             />
           </div>
@@ -40,9 +43,11 @@ const TrackerSheet = () => {
             className={`w-10 h-10 rounded-full  flex items-center justify-center m-auto`}
             // bg-${faction}-500
           >
-            <img
+            <Image  
               src={`/builders-town/${faction}.jpeg`}
               alt={`${faction} faction`}
+              width={32}
+              height={32}
               className="w-8 h-8 object-contain rounded-full"
             />
           </div>
@@ -141,11 +146,7 @@ const TrackerSheet = () => {
               {rowIndex === 0 ? (
                 <td className="p-1 w-16 h-16">
                   <div className="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center m-auto">
-                    {/* <img
-                      src={`/${iconMapping.vp}`}
-                      alt="VP"
-                      className="w-8 h-8 object-contain"
-                    /> */}
+                 
                     VP
                   </div>
                 </td>

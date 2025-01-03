@@ -80,19 +80,15 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     }
     previousActions.current = pushLuckStore.actions;
     actionGainedFromDraw.current = false;
-  }, [pushLuckStore.actions]);
+  });
 
   useEffect(() => {
-    // If we have selected cards, we should disable drawing
     if (pushLuckStore.selectedCards.size > 0) {
       pushLuckStore.setCanDraw(false);
-    } else {
-      // Only re-enable drawing if we're not in other players phase
-      if (!pushLuckStore.isOtherPlayersPhase) {
-        pushLuckStore.setCanDraw(true);
-      }
+    } else if (!pushLuckStore.isOtherPlayersPhase) {
+      pushLuckStore.setCanDraw(true);
     }
-  }, [pushLuckStore.selectedCards.size, pushLuckStore.isOtherPlayersPhase]);
+  });
 
   const findMatchingCards = () => {
     const lastCard =
@@ -244,7 +240,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     if (pushLuckStore.centralBoard.length >= 9) {
       setTimeout(() => {
         if (typeof window !== "undefined") {
-          window.scrollTo({
+        window.scrollTo({
             top: document.documentElement.scrollHeight,
             behavior: "smooth",
           });

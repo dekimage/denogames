@@ -45,6 +45,7 @@ import c24Img from "../../../../../public/monstermixology/coctails/c24.png";
 import pushLuckStore from "@/app/stores/pushLuckStore";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
@@ -411,5 +412,10 @@ const Monstermixology = () => {
   );
 };
 
+// Wrap the main component with dynamic import
+const ClientMonstermixologyEngine = dynamic(() => 
+  Promise.resolve(Monstermixology), 
+  { ssr: false }
+);
 
-export default Monstermixology;
+export default ClientMonstermixologyEngine;

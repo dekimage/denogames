@@ -22,14 +22,18 @@ const DraftEngine = observer(({ config, CardComponent }) => {
   }, [config]);
 
   useEffect(() => {
-    const isLastPlayer = draftStore.activePlayerIndex === -1;
-    const isDraftComplete =
-      draftStore.draftingRound >= draftStore.maxDraftingRounds;
+    const checkDraftComplete = () => {
+      const isLastPlayer = draftStore.activePlayerIndex === -1;
+      const isDraftComplete =
+        draftStore.draftingRound >= draftStore.maxDraftingRounds;
 
-    if (isLastPlayer && isDraftComplete) {
-      setShowDraftResults(true);
-    }
-  }, [draftStore.activePlayerIndex, draftStore.draftingRound]);
+      if (isLastPlayer && isDraftComplete) {
+        setShowDraftResults(true);
+      }
+    };
+
+    checkDraftComplete();
+  }, []);
 
   const activePlayer = draftStore.players[draftStore.activePlayerIndex] || null;
 

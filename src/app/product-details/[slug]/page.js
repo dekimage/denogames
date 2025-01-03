@@ -971,7 +971,7 @@ const ProductDetailsPage = observer(({ params }) => {
         setProductDetails(details);
       });
     }
-  }, [slug]);
+  }, [slug, fetchProductDetails]);
 
   const [showFullDescription, setShowFullDescription] = useState(false);
 

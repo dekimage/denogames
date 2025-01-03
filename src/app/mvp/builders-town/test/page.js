@@ -9,6 +9,7 @@ import {
   mediumBuildCards,
   largeBuildCards,
 } from "@/data/builders-town";
+import Image from "next/image";
 import React, { useState } from "react";
 
 // Icon mapping for resources and card types
@@ -82,9 +83,11 @@ const PrintCards = () => {
     <div
       className={`w-7 h-7 rounded-full ${resourceColorMapping[resource]} flex items-center justify-center p-0.5`}
     >
-      <img
+      <Image
         src={`/${iconMapping[resource]}`}
         alt={resource}
+        width={20}
+        height={20}
         className="w-5 h-5 object-contain"
       />
     </div>
@@ -105,9 +108,11 @@ const PrintCards = () => {
         cardTypeColorConfig[type] || "bg-gray-200"
       } flex items-center justify-center`}
     >
-      <img
+        <Image
         src={`/${iconMapping[type]}`}
         alt={type}
+        width={20}
+        height={20}
         className="w-6 h-6 object-contain"
       />
     </div>
@@ -160,16 +165,14 @@ const PrintCards = () => {
               }}
             >
               <div className="flex justify-center items-center mb-1">
-                <img
+                <Image
                   src={`/${iconMapping[card.faction]}`}
                   alt={card.faction}
+                  width={20}
+                  height={20}
                   className="w-6 h-6"
                 />
-                {/* <img
-                src={`/builders-town/goods.png`}
-                alt="goods"
-                className="w-6 h-6"
-              /> */}
+           
               </div>
               <div className="mt-1 border bg-red-100 h-[40px] flex items-center justify-center rounded-[20px] mx-2">
                 <div className="flex justify-center flex-wrap">
@@ -279,9 +282,11 @@ const PrintCards = () => {
                         return (
                           <div key={index} className="mx-0.5 mb-0.5">
                             {resource === "=>" ? (
-                              <img
+                              <Image
                                 src={`/${iconMapping[resource]}`}
                                 alt={resource}
+                                width={20}
+                                height={20}
                                 className="w-5 h-5"
                               />
                             ) : (

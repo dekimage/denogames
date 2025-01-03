@@ -8,6 +8,7 @@ import { useState } from "react";
 import { drawRandomItems } from "../utils";
 
 import vampireImage from "../../../../../public/vampires/vampires/vampire-art.png";
+import Image from "next/image";
 
 // VampireCard Component
 const VampireCard = ({ image, name, startingBonuses, passive, uses }) => {
@@ -15,7 +16,13 @@ const VampireCard = ({ image, name, startingBonuses, passive, uses }) => {
     <div className="border border-gray-300 rounded-lg w-[150px] h-[270px] flex flex-col items-center bg-white">
       {/* Image Section */}
       <div className="w-[150px] h-[150px]">
-        <img src={image} alt={name} className="w-full h-full object-cover" />
+        <Image
+          src={image}
+          alt={name}
+          width={150}
+          height={150}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Name Section */}

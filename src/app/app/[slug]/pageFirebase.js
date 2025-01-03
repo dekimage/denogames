@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import MobxStore from "@/mobx";
 import Image from "next/image";
-import { useEffect } from "react";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const filterCardsByMethod = (
   game,
@@ -90,9 +89,12 @@ const GameDetails = observer(({ params }) => {
   const [sessionOpen, setSessionOpen] = useState(true); // State to control session behavior
   const [lastCardMessage, setLastCardMessage] = useState(""); // State to store messages
   const [showHistory, setShowHistory] = useState(false);
-  // Ensure MobxStore.app.games is defined and is an array
-  const games = MobxStore.app.games || [];
-  const game = games.length > 0 ? games.find((g) => g.slug === slug) : null;
+  // Move games declaration into useMemo
+  const games = useMemo(() => MobxStore.app.games || [], []);
+  const game = useMemo(() => 
+    games.length > 0 ? games.find((g) => g.slug === slug) : null,
+    [games, slug]
+  );
 
   useEffect(() => {
     // Fetch the game summaries if not already fetched

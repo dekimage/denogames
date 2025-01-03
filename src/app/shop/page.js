@@ -1,7 +1,7 @@
 "use client";
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import { CheckSquare, Square, ChevronDown, ChevronUp } from "lucide-react";
@@ -117,13 +117,7 @@ const ShopPage = observer(() => {
     { value: "product-type", label: "Product Type" },
   ];
 
-  useEffect(() => {
-    if (products.length > 0) {
-      applyFilters();
-    }
-  }, [products, filters, sortOption]);
-
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = products.filter((product) => {
       const typeMatch =
         filters.types.length === 0 ||
@@ -164,7 +158,13 @@ const ShopPage = observer(() => {
     });
 
     setFilteredProducts(filtered);
-  };
+  }, [filters, products, sortOption]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      applyFilters();
+    }
+  }, [products, filters, sortOption, applyFilters]);
 
   const toggleFilter = (filterType, value) => {
     setFilters((prevFilters) => ({

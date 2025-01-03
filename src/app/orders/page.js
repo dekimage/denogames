@@ -108,7 +108,7 @@ const OrdersPage = observer(() => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, fetchOrders]);
 
   if (!user) {
     return <div>Please log in to view your orders.</div>;

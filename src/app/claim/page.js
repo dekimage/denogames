@@ -10,32 +10,37 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+import dynamic from "next/dynamic";
 
-// Create a separate component for the search params logic
-const ClaimContent = observer(() => {
+// Create the smallest possible component that uses useSearchParams
+const SearchParamsReader = observer(() => {
   const searchParams = useSearchParams();
+  const code = searchParams.get("code") || "";
+  return code;
+});
+
+// Wrapper that provides Suspense boundary
+const SearchParamsComponent = observer(() => {
+  return (
+    <Suspense fallback={null}>
+      <SearchParamsReader />
+    </Suspense>
+  );
+});
+
+const ClaimContent = observer(() => {
   const router = useRouter();
   const { user } = MobxStore;
-
-  // Move all the state and logic here
-  const [code, setCode] = useState(searchParams.get("code") || "");
+  const code = <SearchParamsComponent />;
+  
+  const [inputCode, setInputCode] = useState(code);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [claimedProducts, setClaimedProducts] = useState([]);
 
-  // Effect to handle search params on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlCode = searchParams.get("code");
-      if (urlCode && !code) {
-        setCode(urlCode);
-      }
-    }
-  }, [searchParams, code]);
-
   // Validation function
-  const validateCode = async (codeToValidate = code) => {
+  const validateCode = async (codeToValidate = inputCode) => {
     setLoading(true);
     setError("");
     setSuccess("");
@@ -104,15 +109,15 @@ const ClaimContent = observer(() => {
             </label>
             <div className="flex gap-3">
               <Input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                value={inputCode}
+                onChange={(e) => setInputCode(e.target.value)}
                 placeholder="Enter your code"
                 className="flex-1 text-lg h-12"
                 disabled={loading}
               />
               <Button
                 onClick={() => validateCode()}
-                disabled={!code || loading}
+                disabled={!inputCode || loading}
                 className="h-12 px-6 text-lg"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
@@ -156,15 +161,26 @@ const ClaimContent = observer(() => {
   );
 });
 
-// Main component with Suspense boundary
+// Root component
 const ClaimPageContent = observer(() => {
   return (
-    <Suspense fallback={
-     <LoadingSpinner />
-    }>
+    <Suspense 
+      fallback={
+        <div className="box-inner mt-16">
+          <div className="container box-broken mx-auto px-4 py-8 max-w-2xl">
+            <LoadingSpinner />
+          </div>
+        </div>
+      }
+    >
       <ClaimContent />
     </Suspense>
   );
 });
 
-export default withAuth(ClaimPageContent);
+const ClientClaimPage = dynamic(() => 
+  Promise.resolve(withAuth(ClaimPageContent)), 
+  { ssr: false }
+);
+
+export default ClientClaimPage;

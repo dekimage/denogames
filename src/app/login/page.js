@@ -194,7 +194,7 @@ const LoginPage = observer(() => {
         router.push(redirectUrl);
       }
     }
-  }, [MobxStore.user, MobxStore.userFullyLoaded]);
+  }, [router]);
 
   // Handle successful login
   const handleLoginSuccess = () => {

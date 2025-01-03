@@ -19,8 +19,8 @@ const ImageCarousel = ({ images }) => {
   const isMobile = useIsMobile();
   const maxVisibleThumbnails = isMobile ? 3 : 5;
 
-  const handleArrowClick = (direction) => {
-    if (isTransitioning) return; // Prevent multiple transitions at once
+  const handleArrowClick = useCallback((direction) => {
+    if (isTransitioning) return;
     setIsTransitioning(true);
 
     setCurrentImageIndex((prevIndex) => {
@@ -56,8 +56,8 @@ const ImageCarousel = ({ images }) => {
     // Reset the transition state after the animation completes
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 300); // Duration of the transition (300ms)
-  };
+    }, 300);
+  }, [carouselStartIndex, images.length, isTransitioning, maxVisibleThumbnails]);
 
   // Handler for clicking a thumbnail
   const handleThumbnailClick = (index) => {
@@ -112,12 +112,9 @@ const ImageCarousel = ({ images }) => {
     // ... existing code ...
   };
 
-  const handleSwipe = useCallback(
-    (direction) => {
-      handleArrowClick(direction);
-    },
-    [handleArrowClick]
-  );
+  const handleSwipe = useCallback((direction) => {
+    handleArrowClick(direction);
+  }, [handleArrowClick]);
 
   const [startX, setStartX] = useState(0);
   const swipeThreshold = 50; // Minimum swipe distance to trigger a swipe

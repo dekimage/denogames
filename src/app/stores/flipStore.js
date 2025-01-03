@@ -120,4 +120,5 @@ class FlipStore {
   }
 }
 
-export default new FlipStore();
+const flipStore = new FlipStore();
+export default flipStore;

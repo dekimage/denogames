@@ -27,15 +27,13 @@ import tracker5Img from "../../../../public/monstermixology/trackers/t5.png";
 import tracker6Img from "../../../../public/monstermixology/trackers/t6.png";
 
 import QRCodeComponent from "@/utils/qr";
-import { useReactToPrint } from "react-to-print";
-import html2pdf from "html2pdf.js";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-} from "@/components/ui/dropdown-menu";
+// import { useReactToPrint } from "react-to-print";
+import dynamic from "next/dynamic";
+
+const html2pdf = dynamic(() => import("html2pdf.js"), {
+  ssr: false,
+});
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { CustomizeCharacters } from "./CustomizeCharacters";
 import { Button } from "@/components/ui/button";
@@ -392,6 +390,10 @@ const DownloadButton = ({
   const generatePDF = async () => {
     if (typeof window === "undefined") return;
     setIsGenerating(true);
+
+    // Import html2pdf dynamically only when needed
+    const html2pdfModule = await import("html2pdf.js");
+    const html2pdf = html2pdfModule.default;
 
     // Always generate new random cards if in random mode
     if (selectedConfigs["Monster Cards"] === "random") {
@@ -817,4 +819,9 @@ const ResourceComponent = ({
 };
 
 // Wrap the component with the HOC
-export default withGameAccess(PrintableSheet, "monstermixology");
+const ClientMonstermixologyPage = dynamic(() => 
+  Promise.resolve(withGameAccess(PrintableSheet, "monstermixology")), 
+  { ssr: false }
+);
+
+export default ClientMonstermixologyPage;

@@ -81,9 +81,6 @@ export const withGameAccess = (WrappedComponent, gameId) => {
     }, [
       router,
       authInitialized,
-      MobxStore.loadingUser,
-      MobxStore.user,
-      gameId,
     ]);
 
     if (isLoading || !authInitialized || MobxStore.loadingUser) {

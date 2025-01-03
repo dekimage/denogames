@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -49,11 +49,7 @@ export default function DeliveryPage() {
   });
   const [totalBackers, setTotalBackers] = useState(0);
 
-  useEffect(() => {
-    fetchBackers();
-  }, [currentPage, filters, sorting]);
-
-  const fetchBackers = async () => {
+  const fetchBackers = useCallback(async () => {
     setBackersLoading(true);
     try {
       const queryParams = new URLSearchParams({
@@ -77,7 +73,11 @@ export default function DeliveryPage() {
     } finally {
       setBackersLoading(false);
     }
-  };
+  }, [currentPage, filters, sorting]);
+
+  useEffect(() => {
+    fetchBackers();
+  }, [fetchBackers]);
 
   const handleFileUpload = (event) => {
     setError(null);

@@ -88,10 +88,12 @@ export const CheckoutPage = observer(() => {
         <div className="space-y-4 mb-4">
           {cartItems.map((item) => (
             <div key={item.id} className="flex justify-between items-center">
-              <img
+              <Image
                 src={item.thumbnail}
                 alt={item.name}
-                className="w-16 h-16 object-cover rounded"
+                width={64}
+                height={64}
+                className="object-cover rounded"
               />
               <div className="ml-4">
                 <div className="text-sm font-bold">{item.name}</div>

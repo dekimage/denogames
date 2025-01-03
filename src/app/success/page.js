@@ -15,7 +15,7 @@ const SuccessPage = observer(() => {
   // Clear cart from localStorage on load
   useEffect(() => {
     clearCart();
-  }, []);
+  }, [clearCart]);
 
   return (
     <div className="success-page">
