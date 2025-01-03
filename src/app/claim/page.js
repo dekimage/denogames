@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react";
 import { withAuth } from "@/components/hoc/withAuth";
 import MobxStore from "@/mobx";
@@ -11,21 +12,25 @@ import { Loader2 } from "lucide-react";
 
 const ClaimPageContent = observer(() => {
   const router = useRouter();
-  const [code, setCode] = useState("");
+  const searchParams = useSearchParams();
+  const { user } = MobxStore;
+
+  // State management
+  const [code, setCode] = useState(searchParams.get("code") || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [claimedProducts, setClaimedProducts] = useState([]);
-  const searchParams = useSearchParams();
-  const { user } = MobxStore;
 
+  // Effect to handle search params on mount
   useEffect(() => {
     const urlCode = searchParams.get("code");
-    if (urlCode) {
+    if (urlCode && !code) {
       setCode(urlCode);
     }
-  }, [searchParams]);
+  }, [searchParams, code]);
 
+  // Validation function
   const validateCode = async (codeToValidate = code) => {
     setLoading(true);
     setError("");
@@ -47,12 +52,15 @@ const ClaimPageContent = observer(() => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle specific error cases
         switch (response.status) {
           case 403:
-            throw new Error("This code belongs to a different user. Please check your email and try again.");
+            throw new Error(
+              "This code belongs to a different user. Please check your email and try again."
+            );
           case 404:
-            throw new Error("User not found. Please try logging out and back in.");
+            throw new Error(
+              "User not found. Please try logging out and back in."
+            );
           case 400:
             throw new Error(data.error || "Invalid code. Please check and try again.");
           case 500:
@@ -67,7 +75,6 @@ const ClaimPageContent = observer(() => {
 
       if (data.user) {
         MobxStore.updateUserProfile(data.user);
-        // Redirect after a short delay to show success message
         setTimeout(() => {
           router.push("/my-games");
         }, 2000);
@@ -104,9 +111,7 @@ const ClaimPageContent = observer(() => {
                 disabled={!code || loading}
                 className="h-12 px-6 text-lg"
               >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : null}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                 Validate
               </Button>
             </div>
@@ -121,16 +126,12 @@ const ClaimPageContent = observer(() => {
           {success && (
             <div className="space-y-6">
               <Alert className="bg-green-50 text-green-800 border-green-200">
-                <AlertDescription className="text-base">
-                  {success}
-                </AlertDescription>
+                <AlertDescription className="text-base">{success}</AlertDescription>
               </Alert>
 
               {claimedProducts.length > 0 && (
                 <div className="mt-6 bg-gray-50 p-6 rounded-lg">
-                  <h3 className="font-semibold text-lg mb-4">
-                    Claimed Products:
-                  </h3>
+                  <h3 className="font-semibold text-lg mb-4">Claimed Products:</h3>
                   <ul className="list-disc pl-6 space-y-3">
                     {claimedProducts.map((product, index) => (
                       <li key={index} className="text-gray-700 text-lg">
@@ -151,12 +152,4 @@ const ClaimPageContent = observer(() => {
   );
 });
 
-const ClaimPage = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ClaimPageContent />
-    </Suspense>
-  );
-};
-
-export default withAuth(ClaimPage);
+export default withAuth(ClaimPageContent);
