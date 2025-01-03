@@ -37,7 +37,7 @@ import { ProductCard } from "@/app/page"; // Adjust the import path as needed
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Cog, BookOpen, ShoppingCart } from "lucide-react";
-import { gamesStaticData } from "../productsData";
+import { gamesStaticData, placeholderBenefitsImg } from "../productsData";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -362,36 +362,38 @@ const GameMetrics = ({ productDetails }) => {
   );
 };
 
+
+
 const benefitsDataDummy = [
   {
     title: "Endless Replayability",
     description:
       "Use our innovative system to craft over 200,000 unique variants of the game. Each playthrough offers a fresh experience, ensuring you'll never have the same game twice!",
-    image: "/placeholder-image-1.jpg",
+    image: placeholderBenefitsImg,
   },
   {
     title: "Pick Your Hero",
     description:
       "Choose among 12 diverse heroes, from mystical monks to cunning warlocks. Each class offers a unique playstyle and abilities, allowing you to tailor your strategy to your preferences.",
-    image: "/placeholder-image-2.jpg",
+      image: placeholderBenefitsImg,
   },
   {
     title: "Roll 4 Dice on Your Turn",
     description:
       "Roll dice to activate powerful abilities and unleash devastating combos. Outsmart your opponents with tactical decision-making and a bit of luck!",
-    image: "/placeholder-image-3.jpg",
+    image: placeholderBenefitsImg,
   },
   {
     title: "Dynamic Battlefield",
     description:
       "Engage in combat on an ever-changing battlefield. Adapt your strategy as the terrain shifts, offering new challenges and opportunities with each round.",
-    image: "/placeholder-image-4.jpg",
+      image: placeholderBenefitsImg,
   },
   {
     title: "Cooperative & Competitive Modes",
     description:
       "Play solo, team up with friends, or compete against each other. With multiple game modes, you can enjoy the game however you like, making it perfect for game nights of all kinds!",
-    image: "/placeholder-image-5.jpg",
+    image: placeholderBenefitsImg,
   },
 ];
 
@@ -417,6 +419,7 @@ const KickstarterBenefits = ({ productDetails }) => {
             gamesStaticData[productDetails.slug]?.benefitsData ||
             benefitsDataDummy
           ).map((benefit, index) => (
+            
             <div className="box-inner" key={index}>
               <div className="box-broken relative flex flex-row items-center p-4 shadow-lg rounded-lg bg-white mb-4">
                 {/* Circular number */}
@@ -425,13 +428,15 @@ const KickstarterBenefits = ({ productDetails }) => {
                 </div>
                 {/* Benefit content */}
                 <div className="flex flex-row items-center w-full">
-                  <Image
-                    src={benefit.image}
-                    alt={benefit.title}
-                    width={300}
-                    height={200}
-                    className="mr-4 rounded-lg object-cover"
-                  />
+                  {benefit.image && (
+                    <Image
+                      src={benefit.image}
+                      alt={benefit.title}
+                      width={300}
+                      height={200}
+                      className="mr-4 rounded-lg object-cover"
+                    />
+                  )}
                   <div>
                     <h3 className="text-xl mb-2">{benefit.title}</h3>
                     <p className="text-gray-600">{benefit.description}</p>
@@ -530,12 +535,14 @@ const ComponentsList = ({ productDetails }) => {
               <TableRow>
                 <TableCell colSpan={2} className="p-0">
                   <div className="h-48 relative overflow-hidden">
-                    <Image
-                      src={item.image || "/placeholder-image.jpg"}
-                      alt={item.name}
-                      layout="fill"
-                      objectFit="cover"
-                    />
+                    {item.image && (
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

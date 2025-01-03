@@ -28,6 +28,8 @@ const navItems = [
   { icon: Users, label: "Customers", href: "/admin/customers" },
   { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
   { icon: GamepadIcon, label: "Games", href: "/admin/games" },
+  { icon: GamepadIcon, label: "Delivery", href: "/admin/delivery" },
+
 ];
 
 export default function Layout({ children }) {

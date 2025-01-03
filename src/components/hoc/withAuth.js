@@ -3,6 +3,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function withAuth(WrappedComponent) {
   return observer(function WithAuthComponent(props) {
@@ -10,6 +11,16 @@ export function withAuth(WrappedComponent) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { user, loadingUser, userFullyLoaded } = MobxStore;
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    // Don't render anything until client-side hydration is complete
+    if (!mounted) {
+      return null;
+    }
 
     // Wait for EVERYTHING to be loaded
     if (loadingUser || !userFullyLoaded) {
@@ -22,12 +33,14 @@ export function withAuth(WrappedComponent) {
 
     // Now we're 100% sure about the auth state
     if (!user) {
-      // Store the current URL before redirecting
       const redirectPath =
         pathname +
         (searchParams.toString() ? `?${searchParams.toString()}` : "");
-      localStorage.setItem("redirectAfterLogin", redirectPath);
-      router.push("/login");
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("redirectAfterLogin", redirectPath);
+        router.push("/login");
+      }
       return null;
     }
 

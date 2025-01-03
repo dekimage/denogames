@@ -47,7 +47,19 @@ const ClaimPage = observer(() => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to validate code");
+        // Handle specific error cases
+        switch (response.status) {
+          case 403:
+            throw new Error("This code belongs to a different user. Please check your email and try again.");
+          case 404:
+            throw new Error("User not found. Please try logging out and back in.");
+          case 400:
+            throw new Error(data.error || "Invalid code. Please check and try again.");
+          case 500:
+            throw new Error("Server error. Please try again later.");
+          default:
+            throw new Error(data.error || "Failed to validate code");
+        }
       }
 
       setSuccess("Successfully claimed your rewards!");

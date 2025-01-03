@@ -37,6 +37,14 @@ export async function POST(req) {
       );
     }
 
+    // Check if the code belongs to the user trying to claim it
+    if (backer.email && backer.email.toLowerCase() !== email.toLowerCase()) {
+      return NextResponse.json(
+        { error: "This code belongs to a different user. Please check your email and try again." },
+        { status: 403 }
+      );
+    }
+
     // Get user document
     const userSnapshot = await firestore
       .collection("users")

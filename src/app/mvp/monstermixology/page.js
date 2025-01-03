@@ -36,10 +36,10 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CustomizeCharacters } from "./CustomizeCharacters";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { gamesStaticData } from "@/app/product-details/productsData";
@@ -484,7 +484,6 @@ const PrintableSheet = () => {
   };
 
   const [showCustomize, setShowCustomize] = useState(false);
-
   const handleCustomPDFGeneration = async (selectedIds) => {
     // Update randomCards with the selected heroes
     const customCards = getRandomCards(
@@ -496,12 +495,20 @@ const PrintableSheet = () => {
     setShowCustomize(false);
   };
 
+  const router = useRouter();
+
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="w-full max-w-7xl px-4">
-        <h2 className="text-2xl font-strike uppercase my-8 text-center">
-          Download Resources
-        </h2>
+      <div className="w-full max-w-7xl px-4 flex justify-center flex-col items-center">
+        <div className="flex justify-center items-center w-full max-w-[600px]">
+          <Button variant="outline" className="mr-4" onClick={() => router.back()}>
+            <ChevronLeft className="mr-2" /> Back
+          </Button>
+          <h2 className="text-2xl font-strike uppercase my-8 text-center">
+            Download Resources
+          </h2>
+        </div>
+       
         <ExpansionSelector
           gameId="monstermixology"
           selectedExpansions={selectedExpansions}
