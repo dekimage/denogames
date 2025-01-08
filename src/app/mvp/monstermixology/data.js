@@ -232,7 +232,7 @@ export const heroesCards = [
     uses: 1,
     // effect: "+1 VP if you have  GAWKY or LAWKY. +2 VP if you have both.",
     effect:
-      "Hawky is worth 4VP if you served Gawky or Lawky a coctail. And 5VP if you served both.",
+      "🎁 Hawky is worth 4VP if you served Gawky or Lawky a coctail. And 5VP if you served both.",
   },
   {
     id: 2,
@@ -241,7 +241,7 @@ export const heroesCards = [
     uses: 1,
 
     effect:
-      "Gawky is worth 4VP if you served Hawky or Lawky a coctail. And 5VP if you served both.",
+      "🎁 Gawky is worth 4VP if you served Hawky or Lawky a coctail. And 5VP if you served both.",
   },
   {
     id: 3,
@@ -250,14 +250,14 @@ export const heroesCards = [
     uses: 1,
 
     effect:
-      "Lawky is worth 4VP if you served Hawky or Gawky a coctail. And 5VP if you served both.",
+      "🎁 Lawky is worth 4VP if you served Hawky or Gawky a coctail. And 5VP if you served both.",
   },
   {
     id: 8,
     name: "Speedo",
     vp: 2,
     uses: 3,
-    effect: " Pay 🌕 to gain 1 ingredient of your choice.",
+    effect: "🧭 Pay 🌕 to gain 1 ingredient of your choice.",
   },
 
   {
@@ -265,7 +265,7 @@ export const heroesCards = [
     name: "Scytzer",
     vp: 3,
     uses: 3,
-    effect: "Gain 1 Action.",
+    effect: "🧭 Gain 1 Action.",
   },
   {
     id: 6,
@@ -273,7 +273,7 @@ export const heroesCards = [
     name: "Inspector Denino",
     vp: 2,
     uses: 2,
-    effect: "Draw 4 cards. Ignore any disasters.",
+    effect: "🎯 Draw 4 cards. Ignore any disasters.",
   },
   {
     id: 7,
@@ -281,7 +281,7 @@ export const heroesCards = [
     name: "Bouncer Windz",
     vp: 4,
     uses: 1,
-    effect: "Until your next turn, opponents cannot serve coctails.",
+    effect: "🎯 Until your next turn, opponents cannot serve coctails.",
   },
   {
     id: 12,
@@ -289,7 +289,7 @@ export const heroesCards = [
     vp: 4,
     uses: 2,
     effect:
-      "Until your next turn, opponents have 1 less Action on their turn. (Can be 0)",
+      "🎯 Until your next turn, opponents have 1 less Action on their turn. (Can be 0)",
   },
   {
     id: 9,
@@ -297,14 +297,14 @@ export const heroesCards = [
     vp: 3,
     uses: 3,
     effect:
-      " When making a coctail, treat 1 ingredient as any other ingredient.",
+      "🧭 When making a coctail, treat 1 ingredient as any other ingredient.",
   },
   {
     id: 10,
     name: "Protector Nako",
     vp: 3,
     uses: 2,
-    effect: "Avoid a disaster.",
+    effect: "🎯 Avoid a disaster.",
   },
   {
     id: 5,
@@ -313,14 +313,14 @@ export const heroesCards = [
     uses: 1,
     // effect: "Gain +1/+2 VP if you serve him 2/3 coctails.",
     effect:
-      "El Padre is worth 5VP if you serve him 2 coctails or 6VP at 3 coctails.",
+      "🎁 El Padre is worth 5VP if you serve him 2 coctails or 6VP at 3 coctails.",
   },
   {
     id: 4,
     name: "Dragoonovic",
     vp: 3,
     uses: 1,
-    effect: "Pay 🌕🌕🌕🌕 to serve a coctail for free.",
+    effect: "🧭 Pay 🌕🌕🌕🌕 instead of ingredients when you serve a cocktail. (You still must spend 1 Action to serve)",
   },
   {
     id: 13,
@@ -328,7 +328,7 @@ export const heroesCards = [
     vp: 3,
     uses: 2,
     effect:
-      "Gain any 2 ingredients if an opponent has served 5 or more drinks this game. And you have served less than 4.",
+      "🧭 Gain any 2 ingredients if an opponent has served 5 or more drinks this game. And you have served less than 4.",
   },
   {
     id: 14,
@@ -336,21 +336,21 @@ export const heroesCards = [
     vp: 3,
     uses: 3,
     effect:
-      "You may spend 1 shield as any 1 ingredient when making a cocktail.",
+      "🧭 You may spend 1 shield as any 1 ingredient when making a cocktail.",
   },
   {
     id: 15,
     name: "Frosty Bosko",
     vp: 1,
     uses: 3,
-    effect: "All actions require 2 actions to perform until your next turn.",
+    effect: "🎯 All actions require 2 actions to perform until your next turn.",
   },
   {
     id: 16,
     name: "Dr. Muddle",
     vp: 4,
     uses: 2,
-    effect: "If you performed 3 or more actions this turn, gain shield.",
+    effect: "🎯 If you performed 3 or more actions this turn, gain shield.",
   },
   {
     id: 17,
@@ -358,7 +358,7 @@ export const heroesCards = [
     vp: 1,
     uses: 2,
     effect:
-      "Draw 6 cards. Gain 🌕 for each recipe card you reveal. Ignore any disasters.",
+      "🎯 Draw 6 cards. Gain 🌕 for each recipe card you reveal. Ignore any disasters.",
   },
   {
     id: 18,
@@ -366,7 +366,7 @@ export const heroesCards = [
     vp: 3,
     uses: 3,
     effect:
-      "When you serve a cocktail using ingredients you just gained from the board, you may gain any 1 ingredient.",
+      "🎯 When you serve a cocktail using ingredients you just gained from the board, you may gain any 1 ingredient.",
   },
   {
     id: 19,
@@ -374,7 +374,7 @@ export const heroesCards = [
     vp: 3,
     uses: 2,
     effect:
-      "Activate this effect when an opponent gains a 4th action. You may pay 🌕🌕 to reduce their actions to 2.",
+      "🎫 Activate this effect when an opponent gains the 4th action. You may pay 🌕🌕 to reduce their actions to 2.",
   },
   {
     id: 20,
@@ -382,7 +382,7 @@ export const heroesCards = [
     vp: 2,
     uses: 1,
     effect:
-      "If you served 2 cocktails this turn, mark this ability as used. At the end of game Iron Mix is worth + 4VP for each mark.",
+      "🎯 If you served 2 cocktails this turn, you may use this ability to gain 4 ingredients of your choice.",
   },
   {
     id: 21,
@@ -390,14 +390,14 @@ export const heroesCards = [
     vp: 2,
     uses: 2,
     effect:
-      "Spend 3 actions to serve a cocktail without paying any ingredients.",
+      "🎯 Spend 3 actions to serve a cocktail without paying any ingredients.",
   },
   {
     id: 22,
     name: "King Mral",
     vp: 1,
     uses: 1,
-    effect: "King Mral is worth 6VP if you triggered the end game.",
+    effect: "🎁 King Mral is worth 6VP if you triggered the end game.",
   },
   {
     id: 23,
@@ -405,7 +405,7 @@ export const heroesCards = [
     vp: 2,
     uses: 2,
     effect:
-      "Steal 1 ingredient from all players that have served more cocktails than you. Pay 🌕 to each player you stole from. ",
+      "🎯 Steal 1 ingredient from all players that have served more cocktails than you. Pay 🌕 to each player you stole from. ",
   },
 
   {
@@ -414,13 +414,13 @@ export const heroesCards = [
     vp: 4,
     uses: 2,
     effect:
-      "Gain any 1 ingredient. All other players also gain that ingredient.",
+      "🧭 Gain any 1 ingredient. All other players also gain that ingredient.",
   },
   {
     id: 25,
     name: "Woodcracko Bird",
     vp: 2,
     uses: 2,
-    effect: "Steal 1 ingredient from another player.",
+    effect: "🎯 Steal 1 ingredient from another player.",
   },
 ];

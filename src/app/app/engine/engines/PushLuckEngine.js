@@ -80,7 +80,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     }
     previousActions.current = pushLuckStore.actions;
     actionGainedFromDraw.current = false;
-  });
+  }, []);
 
   useEffect(() => {
     if (pushLuckStore.selectedCards.size > 0) {
@@ -310,7 +310,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       </div>
 
       {/* Central Board */}
-      <div className="border rounded-lg p-2 sm:p-6  mb-12 sm:mb-6 min-h-[80vh]">
+      <div className="border rounded-lg p-2 sm:p-6  mb-12 sm:mb-6 min-h-[90vh]">
         <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-14">
           {pushLuckStore.centralBoard.map((card, index) =>
             renderCard(card, index)

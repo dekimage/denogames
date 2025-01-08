@@ -103,12 +103,12 @@ export const BlueprintPurchaseModals = ({
       className="fixed inset-0 flex items-center justify-center"
     >
       <div className="bg-background p-2 w-full h-full flex flex-col">
-        <h2 className="text-2xl font-bold mb-4 text-center">
+        <h2 className="text-2xl font-bold  text-center border-b border-gray-200 pb-2">
           Select a Customer
         </h2>
 
         {/* Building Cards using the BuildingCard component */}
-        <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll my-8">
+        <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll ">
           {availableBuildings.map((building) => (
             <div
               key={building.id}
@@ -119,13 +119,13 @@ export const BlueprintPurchaseModals = ({
               }`}
               onClick={() => setSelectedBuilding(building)}
             >
-              <BuildingCard card={building} />
+              <BuildingCard card={building} fromApp={true} />
             </div>
           ))}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-center gap-4 mt-4">
+        <div className="flex justify-center gap-4  border-t border-gray-200">
           <Button
             variant="secondary"
             onClick={handleReroll}

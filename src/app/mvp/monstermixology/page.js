@@ -37,7 +37,7 @@ const html2pdf = dynamic(() => import("html2pdf.js"), {
 import { useRouter, useSearchParams } from "next/navigation";
 import { CustomizeCharacters } from "./CustomizeCharacters";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Download } from "lucide-react";
+import { ChevronLeft, Download, Eye, EyeOff } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { gamesStaticData } from "@/app/product-details/productsData";
@@ -113,7 +113,7 @@ const ResourceTracker = ({ type }) => {
     </div>
   );
 };
-export const BuildingCard = ({ card, paperSize = "A4" }) => {
+export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
   return (
     <div className="relative w-fit text-black w-[200px] h-[240px]">
       <Image
@@ -135,20 +135,20 @@ export const BuildingCard = ({ card, paperSize = "A4" }) => {
         />
       </div>
 
-      <div className="absolute top-2 left-3 text-sm font-bold">
+      <div className={`absolute ${fromApp ? "top-[20px]" : "top-2"} left-3 text-sm font-bold`}>
         {card.number}
       </div>
 
-      <div className="absolute top-[140px] left-1/2 -translate-x-[60%] text-xs font-strike uppercase">
+      <div className={`absolute ${fromApp ? "top-[146px]" : "top-[140px]"} left-1/2 -translate-x-[60%] text-xs font-strike uppercase`}>
         {card.name}
       </div>
 
-      <div className="absolute top-[-6px] right-[9%] text-sm font-strike uppercase">
+      <div className={`absolute ${fromApp ? "top-[4px]" : "top-[-6px]"} right-[9%] text-sm font-strike uppercase`}>
         <span className="text-xl">{card.vp}</span>
       </div>
 
       <div
-        className="font-default normal-case text-regular absolute bottom-[8%] left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]"
+        className={`font-default normal-case text-regular absolute ${fromApp ? "bottom-[6%]" : "bottom-[8%]"} left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]`}
         style={{ width: paperSize === "A4" ? "145px" : "140px" }}
       >
         {card.effect}
@@ -439,6 +439,50 @@ const DownloadButton = ({
   );
 };
 
+const CardPreview = () => {
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // Only show in development
+  if (process.env.NODE_ENV === 'production') return null;
+
+  return (
+    <div className="w-full max-w-7xl flex flex-col items-center gap-4 mt-8">
+      <Button 
+        variant="outline" 
+        className="gap-2"
+        onClick={() => setIsPreviewOpen(!isPreviewOpen)}
+      >
+        {isPreviewOpen ? (
+          <>
+            <EyeOff className="w-4 h-4" />
+            Hide Preview
+          </>
+        ) : (
+          <>
+            <Eye className="w-4 h-4" />
+            Show All Cards
+          </>
+        )}
+      </Button>
+
+      {isPreviewOpen && (
+        <div className="w-full bg-white p-4 rounded-lg border-2 border-dashed">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {heroesCards.map((card) => (
+              <BuildingCard 
+                key={card.id} 
+                card={card} 
+                paperSize="A4"
+                fromApp={true}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PrintableSheet = () => {
   const componentRef = useRef();
   const [paperSize, setPaperSize] = useState("A4");
@@ -477,11 +521,12 @@ const PrintableSheet = () => {
   // Create the dynamic URL with character IDs
   const generateQRUrl = () => {
     const characterIds = randomCards.map((card) => card.id).join(",");
-    const link = `${
-      process.env.NODE_ENV === "production"
-        ? "https://denogames.com"
-        : "http://localhost:3000"
-    }/app/engine/monstermixology?chars=${characterIds}`;
+    // const link = `${
+    //   process.env.NODE_ENV === "production"
+    //     ? "https://denogames.com"
+    //     : "http://localhost:3000"
+    // }/app/engine/monstermixology?chars=${characterIds}`;
+    const link = `https://denogames.com/app/engine/monstermixology?chars=${characterIds}`;
 
     return link;
   };
@@ -535,6 +580,8 @@ const PrintableSheet = () => {
             )
           )}
         </div>
+
+        <CardPreview />
       </div>
 
       {/* Hide the actual content by default */}
