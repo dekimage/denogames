@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Modal from "@/app/components/Modal";
 import { heroesCards } from "@/app/mvp/monstermixology/data";
@@ -10,21 +10,14 @@ export const BlueprintPurchaseModals = ({
   onCancel,
   onComplete,
   CardComponent,
-  rerolls,
+  isAsymmetricMode,
 }) => {
   const searchParams = useSearchParams();
   const [showBuildingSelect, setShowBuildingSelect] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [remainingRerolls, setRemainingRerolls] = useState(rerolls || 0);
   const [availableBuildings, setAvailableBuildings] = useState([]);
   const [filteredHeroes, setFilteredHeroes] = useState(heroesCards);
-
-  // Initialize with the correct blueprint and rerolls
-  useEffect(() => {
-    if (rerolls !== undefined) {
-      setRemainingRerolls(rerolls);
-    }
-  }, [rerolls]);
+  const [activeCardNumbers, setActiveCardNumbers] = useState([]);
 
   // Reset state when blueprint changes
   useEffect(() => {
@@ -54,12 +47,21 @@ export const BlueprintPurchaseModals = ({
     return shuffled.slice(0, count);
   }
 
+  // Function to generate random active cards
+  const generateRandomActiveCards = () => {
+    const numbers = Array.from({length: 12}, (_, i) => i + 1);
+    const shuffled = numbers.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+
+  // Update active cards when rerolling
   function handleReroll() {
-    if (remainingRerolls > 0) {
+    if (isAsymmetricMode) {
+      setActiveCardNumbers(generateRandomActiveCards());
+    } else {
       setAvailableBuildings(getRandomBuildings(filteredHeroes));
-      setRemainingRerolls((prev) => prev - 1);
-      setSelectedBuilding(null);
     }
+    setSelectedBuilding(null);
   }
 
   function handleClose() {
@@ -67,6 +69,13 @@ export const BlueprintPurchaseModals = ({
     setSelectedBuilding(null);
     onCancel();
   }
+
+  // Initialize active cards
+  useEffect(() => {
+    if (isAsymmetricMode) {
+      setActiveCardNumbers(generateRandomActiveCards());
+    }
+  }, [isAsymmetricMode]);
 
   // Initial Blueprint Purchase Modal
   if (!showBuildingSelect) {
@@ -103,35 +112,56 @@ export const BlueprintPurchaseModals = ({
       className="fixed inset-0 flex items-center justify-center"
     >
       <div className="bg-background p-2 w-full h-full flex flex-col">
-        <h2 className="text-2xl font-bold  text-center border-b border-gray-200 pb-2">
+        <h2 className="text-2xl font-bold text-center border-b border-gray-200 pb-2">
           Select a Customer
         </h2>
 
-        {/* Building Cards using the BuildingCard component */}
-        <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll ">
-          {availableBuildings.map((building) => (
-            <div
-              key={building.id}
-              className={`cursor-pointer transition-all duration-200 ${
-                selectedBuilding?.id === building.id
-                  ? "scale-105 ring-4 ring-primary"
-                  : "hover:scale-105"
-              }`}
-              onClick={() => setSelectedBuilding(building)}
-            >
-              <BuildingCard card={building} fromApp={true} />
-            </div>
-          ))}
-        </div>
+        {isAsymmetricMode ? (
+          // Render 3x4 grid for asymmetric mode
+          <div className="flex-1 grid grid-cols-4 gap-2 p-4 max-w-3xl mx-auto">
+            {Array.from({length: 12}, (_, i) => i + 1).map((number) => (
+              <div
+                key={number}
+                className={`border rounded-lg flex items-center justify-center cursor-pointer
+                  aspect-[2/3]
+                  ${activeCardNumbers.includes(number) 
+                    ? 'bg-primary/20 border-primary font-bold text-2xl'
+                    : 'border-gray-300'
+                  }
+                  ${selectedBuilding === number ? 'ring-2 ring-primary' : ''}
+                `}
+                onClick={() => activeCardNumbers.includes(number) && setSelectedBuilding(number)}
+              >
+                {activeCardNumbers.includes(number) && number}
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Original building cards display
+          <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll">
+            {availableBuildings.map((building) => (
+              <div
+                key={building.id}
+                className={`cursor-pointer transition-all duration-200 ${
+                  selectedBuilding?.id === building.id
+                    ? "scale-105 ring-4 ring-primary"
+                    : "hover:scale-105"
+                }`}
+                onClick={() => setSelectedBuilding(building)}
+              >
+                <BuildingCard card={building} fromApp={true} />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Action Buttons */}
-        <div className="flex justify-center gap-4  border-t border-gray-200">
+        <div className="flex justify-center gap-4 border-t border-gray-200">
           <Button
             variant="secondary"
             onClick={handleReroll}
-            disabled={remainingRerolls === 0}
           >
-            Reroll ({remainingRerolls})
+            Reroll
           </Button>
           <Button
             variant="default"

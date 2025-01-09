@@ -33,6 +33,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const [soundLoaded, setSoundLoaded] = useState(false);
   const [selectedBlueprint, setSelectedBlueprint] = useState(null);
   const actionGainedFromDraw = useRef(false);
+  const [isAsymmetricMode, setIsAsymmetricMode] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -280,7 +281,12 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                   Disable Red Cards
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Option 2</DropdownMenuItem>
+                <DropdownMenuCheckboxItem
+                  checked={isAsymmetricMode}
+                  onCheckedChange={setIsAsymmetricMode}
+                >
+                  Asymmetric Mode
+                </DropdownMenuCheckboxItem>
                 <DropdownMenuItem>Option 3</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -370,6 +376,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           blueprint={{ ...selectedBlueprint }}
           CardComponent={CardComponent}
           rerolls={selectedBlueprint.blueprintRewards?.rerolls}
+          isAsymmetricMode={isAsymmetricMode}
           onCancel={() => {
             setSelectedBlueprint(null);
           }}
