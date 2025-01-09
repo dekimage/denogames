@@ -12,6 +12,9 @@ import boomImg from "../../../../../public/monstermixology/boom.png";
 import shieldImg from "../../../../../public/monstermixology/ingridients/shield.png";
 import { Settings } from "lucide-react";
 
+
+import { Progress } from "@/components/ui/progress";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,11 +23,17 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
+import emptyDrinkImg from "../../../../../public/monstermixology/emptydrink.png";
+import fullDrinkImg from "../../../../../public/monstermixology/fulldrink.png";
 
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
 
 const PushLuckEngine = observer(({ config, CardComponent }) => {
+  const { toast } = useToast();
+
+
   const [isActionsAnimating, setIsActionsAnimating] = useState(false);
   const [highlightedCards, setHighlightedCards] = useState(new Set());
   const previousActions = useRef(pushLuckStore.actions);
@@ -34,6 +43,14 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const [selectedBlueprint, setSelectedBlueprint] = useState(null);
   const actionGainedFromDraw = useRef(false);
   const [isAsymmetricMode, setIsAsymmetricMode] = useState(false);
+  const [isSoloMode, setIsSoloMode] = useState(false);
+  const [mixoloBot, setMixoloBot] = useState({
+    progressPoints: 0,
+    cocktails: 0,
+    victoryPoints: 0
+  });
+  const [showDifficultyModal, setShowDifficultyModal] = useState(false);
+  const [botDifficulty, setBotDifficulty] = useState('medium');
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -81,7 +98,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     }
     previousActions.current = pushLuckStore.actions;
     actionGainedFromDraw.current = false;
-  }, []);
+  }, [pushLuckStore.actions]);
 
   useEffect(() => {
     if (pushLuckStore.selectedCards.size > 0) {
@@ -161,13 +178,13 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               className="animate-pulse flex items-center gap-2"
             >
               <span>Keep Exploring</span>
-              {/* <span className="flex gap-1">{renderShields(threatLevel)}</span> */}
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
                 pushLuckStore.diffuseBomb();
                 pushLuckStore.nextTurn();
+                updateMixoloBot();
               }}
               className="animate-pulse"
             >
@@ -250,22 +267,251 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     }
   };
 
+  // Add helper function for dice rolls
+  const rollD6 = () => Math.floor(Math.random() * 6) + 1;
+
+  const adjustRollForDifficulty = (roll) => {
+    switch (botDifficulty) {
+      case 'easy':
+        return roll === 6 ? 1 : roll; // Treat 6 as 1
+      case 'hard':
+        return roll === 5 ? 6 : roll; // Treat 5 as 6
+      default:
+        return roll; // Medium difficulty - no changes
+    }
+  };
+
+  const updateMixoloBot = () => {
+    if (!isSoloMode) return;
+
+    setMixoloBot(prev => {
+      // Roll for progress with difficulty adjustment
+      const progressRoll = adjustRollForDifficulty(rollD6());
+      let progressGained = 0;
+      
+      // Calculate progress based on adjusted roll
+      if (progressRoll === 1 || progressRoll === 2) {
+        progressGained = 0;
+      } else if (progressRoll === 3) {
+        progressGained = 1;
+      } else if (progressRoll === 4 || progressRoll === 5) {
+        progressGained = 2;
+      } else if (progressRoll === 6) {
+        progressGained = 3;
+      }
+
+      const newProgressPoints = prev.progressPoints + progressGained;
+
+      toast({title: `Mixolo-bot rolled ${progressRoll} and gained ${progressGained} progress! 🎲`});
+      
+      if (newProgressPoints >= 3) {
+        const vpRoll = adjustRollForDifficulty(rollD6());
+        let vpGained = 0;
+
+        if (vpRoll === 1) {
+          vpGained = 2;
+        } else if (vpRoll === 2 || vpRoll === 3) {
+          vpGained = 3;
+        } else if (vpRoll === 4 || vpRoll === 5) {
+          vpGained = 4;
+        } else if (vpRoll === 6) {
+          vpGained = 5;
+        }
+
+        const newCocktails = prev.cocktails + 1;
+        const newVP = prev.victoryPoints + vpGained;
+        
+        toast({title: `Mixolo-bot made a drink! Rolled ${vpRoll} for ${vpGained} VP! 🍹`});
+        
+        if (newCocktails >= 8) {
+          setTimeout(() => {
+            setShowGameEndModal(true);
+          }, 500);
+        }
+        
+        return {
+          progressPoints: newProgressPoints - 3, // Keep excess progress
+          cocktails: newCocktails,
+          victoryPoints: newVP
+        };
+      }
+      
+      return {
+        ...prev,
+        progressPoints: newProgressPoints
+      };
+    });
+  };
+
+  const handleTurnEnd = () => {
+    pushLuckStore.nextTurn();
+    updateMixoloBot();
+  };
+
+  const [showGameEndModal, setShowGameEndModal] = useState(false);
+
+  const GameEndModal = () => (
+    <Modal onClose={() => setShowGameEndModal(false)}>
+      <div className="p-6 text-center">
+        <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+        <p className="mb-4">Mixolo-bot has completed 8 cocktails!</p>
+        <p className="text-xl font-bold mb-6">
+          Final Score: {mixoloBot.victoryPoints} Victory Points
+        </p>
+        <Button onClick={() => {
+          setShowGameEndModal(false);
+          pushLuckStore.restartGame();
+          setMixoloBot({
+            progressPoints: 0,
+            cocktails: 0,
+            victoryPoints: 0
+          });
+        }}>
+          New Game
+        </Button>
+      </div>
+    </Modal>
+  );
+
+  const BotStatus = () => (
+    <div className="fixed bottom-20 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-2">
+      <div className="max-w-md mx-auto">
+        <div className="flex justify-between items-center mb-2">
+          <span>Mixolo-bot Progress</span>
+          <span>{mixoloBot.progressPoints}/3</span>
+        </div>
+        <Progress 
+          value={(mixoloBot.progressPoints / 3) * 100} 
+          className="h-2 mb-2"
+        />
+        <div className="flex justify-between text-sm mb-2">
+          <span>Cocktails: {mixoloBot.cocktails}/8</span>
+          <span>Victory Points: {mixoloBot.victoryPoints}</span>
+        </div>
+        
+        {/* Drinks visualization */}
+        <div className="flex justify-center gap-1 mt-2">
+          {Array.from({ length: 8 }, (_, index) => (
+            <div key={index} className="w-6 h-6 relative">
+              <Image
+                src={index < mixoloBot.cocktails ? fullDrinkImg : emptyDrinkImg}
+                alt={`drink ${index + 1}`}
+                width={24}
+                height={24}
+                className="object-contain"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const DifficultyModal = () => {
+    const [selectedDifficulty, setSelectedDifficulty] = useState(botDifficulty);
+    const hasProgress = mixoloBot.cocktails > 0 || mixoloBot.progressPoints > 0;
+
+    return (
+      <Modal onClose={() => setShowDifficultyModal(false)}>
+        <div className="p-6 text-center">
+          <Image
+            src={emptyDrinkImg}
+            alt="Mixolo-bot"
+            width={48}
+            height={48}
+            className="mx-auto mb-4"
+          />
+          <h2 className="text-2xl font-bold mb-6">Select Mixolo-bot's Difficulty</h2>
+          
+          <div className="flex flex-col gap-3 mb-6">
+            {['easy', 'medium', 'hard'].map((difficulty) => (
+              <Button
+                key={difficulty}
+                variant={selectedDifficulty === difficulty ? "default" : "outline"}
+                className="relative"
+                onClick={() => setSelectedDifficulty(difficulty)}
+              >
+                <span className="capitalize">{difficulty}</span>
+                {selectedDifficulty === difficulty && (
+                  <span className="absolute right-3 text-primary-foreground">✓</span>
+                )}
+              </Button>
+            ))}
+          </div>
+
+          {hasProgress && (
+            <p className="text-sm text-muted-foreground mb-4">
+              Changing difficulty will restart the game
+            </p>
+          )}
+
+          <Button
+            onClick={() => {
+              setBotDifficulty(selectedDifficulty);
+              if (hasProgress) {
+                pushLuckStore.restartGame();
+                setMixoloBot({
+                  progressPoints: 0,
+                  cocktails: 0,
+                  victoryPoints: 0
+                });
+              }
+              setShowDifficultyModal(false);
+            }}
+          >
+            Save
+          </Button>
+        </div>
+      </Modal>
+    );
+  };
+
   return (
     <div className="sm:container sm:mx-auto font-strike uppercase">
       {/* Header Section - Minimized for mobile */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b sm:relative sm:bg-transparent sm:border-none">
         <div className="flex justify-between items-center p-2 sm:my-6 sm:p-0">
-          <div className="flex items-center gap-2 sm:gap-4 justify-center w-full">
-            <div
-              className={`text-sm sm:text-base ${
-                isActionsAnimating
-                  ? "text-green-500 scale-125"
-                  : "text-foreground scale-100"
-              } transition-all duration-300`}
-            >
-              Actions: {Math.min(pushLuckStore.actions, 4)}
-            </div>
+          {/* Left side - ModeToggle */}
+          <div className="flex items-center">
+            <ModeToggle />
           </div>
+
+          {/* Center - Main content */}
+          {isSoloMode ? (
+            <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
+              <Image
+                src={emptyDrinkImg}
+                alt="Mixolo-bot"
+                width={24}
+                height={24}
+                className="object-contain"
+              />
+              <span className="font-bold text-lg">Mixolo-Bot</span>
+              <div
+                className={`text-sm sm:text-base ml-4 ${
+                  isActionsAnimating
+                    ? "text-green-500 scale-125"
+                    : "text-foreground scale-100"
+                } transition-all duration-300`}
+              >
+                Actions: {Math.min(pushLuckStore.actions, 4)}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
+              <div
+                className={`text-sm sm:text-base ${
+                  isActionsAnimating
+                    ? "text-green-500 scale-125"
+                    : "text-foreground scale-100"
+                } transition-all duration-300`}
+              >
+                Actions: {Math.min(pushLuckStore.actions, 4)}
+              </div>
+            </div>
+          )}
+
+          {/* Right side - Settings */}
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -287,18 +533,34 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                 >
                   Asymmetric Mode
                 </DropdownMenuCheckboxItem>
-                <DropdownMenuItem>Option 3</DropdownMenuItem>
+                <DropdownMenuCheckboxItem
+                  checked={isSoloMode}
+                  onCheckedChange={(checked) => {
+                    setIsSoloMode(checked);
+                    if (checked) {
+                      setShowDifficultyModal(true);
+                    }
+                  }}
+                >
+                  <div>
+                    <div>Solo Mode</div>
+                    {isSoloMode && (
+                      <div className="text-xs text-muted-foreground">
+                        Difficulty: <span className="capitalize">{botDifficulty}</span>
+                      </div>
+                    )}
+                  </div>
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => pushLuckStore.restartGame()}>
+                  Restart Game
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <ModeToggle />
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button
-              variant="outline"
-              size="sm"
-              className=" mr-2"
-              onClick={() => pushLuckStore.restartGame()}
-            >
-              Restart
-            </Button>
-            <ModeToggle />
           </div>
         </div>
       </div>
@@ -340,7 +602,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         ) : (
           // Show Next Turn and Other Players buttons when cards are selected
           <div className="flex gap-2">
-            {!pushLuckStore.isOtherPlayersPhase && (
+            {!pushLuckStore.isOtherPlayersPhase && !isSoloMode && (
               <Button
                 size="lg"
                 variant="secondary"
@@ -352,7 +614,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
             <Button
               size="lg"
               variant="default"
-              onClick={() => pushLuckStore.nextTurn()}
+              onClick={handleTurnEnd}
             >
               Next Turn
             </Button>
@@ -388,6 +650,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           }}
         />
       )}
+
+      {isSoloMode && <BotStatus />}
+      {showGameEndModal && <GameEndModal />}
+      {showDifficultyModal && <DifficultyModal />}
     </div>
   );
 });

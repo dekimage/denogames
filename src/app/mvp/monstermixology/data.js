@@ -230,7 +230,7 @@ export const heroesCards = [
     name: "Bro Hawky",
     vp: 3,
     uses: 1,
-    // effect: "+1 VP if you have  GAWKY or LAWKY. +2 VP if you have both.",
+    uniqueNumber: 3,
     effect:
       "🎁 Hawky is worth 4VP if you served Gawky or Lawky a coctail. And 5VP if you served both.",
   },
@@ -239,7 +239,7 @@ export const heroesCards = [
     name: "Bro Gawky",
     vp: 3,
     uses: 1,
-
+    uniqueNumber: 3,
     effect:
       "🎁 Gawky is worth 4VP if you served Hawky or Lawky a coctail. And 5VP if you served both.",
   },
@@ -248,7 +248,7 @@ export const heroesCards = [
     name: "Bro Lawky",
     vp: 3,
     uses: 1,
-
+    uniqueNumber: 3,
     effect:
       "🎁 Lawky is worth 4VP if you served Hawky or Gawky a coctail. And 5VP if you served both.",
   },

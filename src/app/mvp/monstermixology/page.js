@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { A4_DIMENSIONS, PAPER_DIMENSIONS } from "./utils";
 import { heroesCards } from "./data";
 import Image from "next/image";
@@ -42,8 +42,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { gamesStaticData } from "@/app/product-details/productsData";
 import { withGameAccess } from "@/components/hoc/withGameAccess";
+import { observer } from "mobx-react";
+import MobxStore from "@/mobx";
 import Link from "next/link";
 import ExpansionSelector from "@/components/ExpansionSelector";
+import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -376,7 +379,35 @@ const usePaperSize = () => {
 
 // Move the helper function before the component
 const getRandomCards = (cards, count) => {
-  return [...cards].sort(() => Math.random() - 0.5).slice(0, count);
+  // Helper function to shuffle array
+  const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
+  
+  // Function to get cards by uniqueNumber
+  const getCardsByUniqueNumber = (number) => 
+    cards.filter(card => card.uniqueNumber === number);
+    
+  // Function to get cards excluding uniqueNumber
+  const getCardsExcludingUniqueNumber = (number) => 
+    cards.filter(card => card.uniqueNumber !== number);
+
+  // 25% chance to include Bros (uniqueNumber 3)
+  const includeBros = Math.random() < 0.25;
+  
+  if (includeBros) {
+    // Get all Bros cards and keep them in order
+    const brosCards = getCardsByUniqueNumber(3);
+    // Get remaining cards excluding Bros
+    const remainingCards = getCardsExcludingUniqueNumber(3);
+    // Shuffle and get enough cards to complete the set
+    const otherCards = shuffle(remainingCards).slice(0, count - brosCards.length);
+    
+    // Return Bros cards first, followed by shuffled remaining cards
+    return [...brosCards, ...otherCards];
+  } else {
+    // Get cards excluding Bros and shuffle them
+    const availableCards = getCardsExcludingUniqueNumber(3);
+    return shuffle(availableCards).slice(0, count);
+  }
 };
 
 const DownloadButton = ({
@@ -866,9 +897,35 @@ const ResourceComponent = ({
 };
 
 // Wrap the component with the HOC
-const ClientMonstermixologyPage = dynamic(() => 
-  Promise.resolve(withGameAccess(PrintableSheet, "monstermixology")), 
-  { ssr: false }
+const ProtectedPrintableSheet = withGameAccess(
+  observer((props) => {
+    return <PrintableSheet {...props} />;
+  }), 
+  "monstermixology"
+);
+
+// Create a wrapper component to handle the loading state
+const MonstermixologyWrapper = observer(() => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || MobxStore.loadingUser) {
+    return <LoadingSpinner />;
+  }
+
+  return <ProtectedPrintableSheet />;
+});
+
+// Modify the dynamic import to use the wrapper
+const ClientMonstermixologyPage = dynamic(
+  () => Promise.resolve(MonstermixologyWrapper),
+  { 
+    ssr: false,
+    loading: () => <LoadingSpinner />
+  }
 );
 
 export default ClientMonstermixologyPage;
