@@ -270,7 +270,7 @@ export const heroesCards = [
   {
     id: 6,
     // name: "Denino",
-    name: "Inspector Denino",
+    name: "Inspector Deni",
     vp: 2,
     uses: 2,
     effect: "🎯 Draw 4 cards. Ignore any disasters.",
@@ -410,7 +410,7 @@ export const heroesCards = [
 
   {
     id: 24,
-    name: "Smiki, the Hugger",
+    name: "Hugger Smiki",
     vp: 4,
     uses: 2,
     effect:
@@ -418,7 +418,7 @@ export const heroesCards = [
   },
   {
     id: 25,
-    name: "Woodcracko Bird",
+    name: "Woodcracko",
     vp: 2,
     uses: 2,
     effect: "🎯 Steal 1 ingredient from another player.",

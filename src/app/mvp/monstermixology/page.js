@@ -142,7 +142,7 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
         {card.number}
       </div>
 
-      <div className={`absolute ${fromApp ? "top-[146px]" : "top-[140px]"} left-1/2 -translate-x-[60%] text-xs font-strike uppercase`}>
+      <div className={`absolute ${fromApp ? "top-[146px]" : "top-[140px]"} left-1/2 -translate-x-[60%] text-xs font-strike uppercase w-fit`}>
         {card.name}
       </div>
 
@@ -152,7 +152,7 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
 
       <div
         className={`font-default normal-case text-regular absolute ${fromApp ? "bottom-[6%]" : "bottom-[8%]"} left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]`}
-        style={{ width: paperSize === "A4" ? "145px" : "140px" }}
+        style={{ width: paperSize === "A4" ? "145px" : "135px" }}
       >
         {card.effect}
       </div>
@@ -224,11 +224,10 @@ const CoinTracker = ({ coins = 18, paperSize, disableFirstThree = false }) => {
             {Array.from({ length: adjustedCoins }).map((_, col) => (
               <div
                 key={col}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  !disableFirstThree && col < 3
-                    ? "border-black"
-                    : "border-dashed border-gray-400"
-                } flex items-center justify-center text-[12px]`}
+                className={`w-6 h-6 rounded-full border-2 ${!disableFirstThree && col < 3
+                  ? "border-black"
+                  : "border-dashed border-gray-400"
+                  } flex items-center justify-center text-[12px]`}
               >
                 <Image
                   src={SPACE_MINERS_ICONS["coin"]}
@@ -253,9 +252,8 @@ const ShieldsTracker = () => {
             {Array.from({ length: 3 }).map((_, col) => (
               <div
                 key={col}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  col < 3 ? "border-black" : "border-dashed border-gray-400"
-                } flex items-center justify-center text-[12px]`}
+                className={`w-6 h-6 rounded-full border-2 ${col < 3 ? "border-black" : "border-dashed border-gray-400"
+                  } flex items-center justify-center text-[12px]`}
               >
                 <Image
                   src={SPACE_MINERS_ICONS.shield}
@@ -280,9 +278,8 @@ const RerollTracker = () => {
             {Array.from({ length: 3 }).map((_, col) => (
               <div
                 key={col}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  col < 3 ? "border-black" : "border-dashed border-gray-400"
-                } flex items-center justify-center text-[12px]`}
+                className={`w-6 h-6 rounded-full border-2 ${col < 3 ? "border-black" : "border-dashed border-gray-400"
+                  } flex items-center justify-center text-[12px]`}
               >
                 <Image
                   src={SPACE_MINERS_ICONS["reroll"]}
@@ -381,18 +378,18 @@ const usePaperSize = () => {
 const getRandomCards = (cards, count) => {
   // Helper function to shuffle array
   const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
-  
+
   // Function to get cards by uniqueNumber
-  const getCardsByUniqueNumber = (number) => 
+  const getCardsByUniqueNumber = (number) =>
     cards.filter(card => card.uniqueNumber === number);
-    
+
   // Function to get cards excluding uniqueNumber
-  const getCardsExcludingUniqueNumber = (number) => 
+  const getCardsExcludingUniqueNumber = (number) =>
     cards.filter(card => card.uniqueNumber !== number);
 
   // 25% chance to include Bros (uniqueNumber 3)
   const includeBros = Math.random() < 0.25;
-  
+
   if (includeBros) {
     // Get all Bros cards and keep them in order
     const brosCards = getCardsByUniqueNumber(3);
@@ -400,7 +397,7 @@ const getRandomCards = (cards, count) => {
     const remainingCards = getCardsExcludingUniqueNumber(3);
     // Shuffle and get enough cards to complete the set
     const otherCards = shuffle(remainingCards).slice(0, count - brosCards.length);
-    
+
     // Return Bros cards first, followed by shuffled remaining cards
     return [...brosCards, ...otherCards];
   } else {
@@ -435,7 +432,7 @@ const DownloadButton = ({
 
     const element = componentRef.current;
     const opt = {
-      filename: `monster-mixology-${Date.now()}.pdf`,
+      filename: `${paperSize === "A4" ? "A4" : "Letter"}-Monster-Mixology-${selectedConfigs["generationMode"]}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 2,
@@ -478,8 +475,8 @@ const CardPreview = () => {
 
   return (
     <div className="w-full max-w-7xl flex flex-col items-center gap-4 mt-8">
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         className="gap-2"
         onClick={() => setIsPreviewOpen(!isPreviewOpen)}
       >
@@ -500,9 +497,9 @@ const CardPreview = () => {
         <div className="w-full bg-white p-4 rounded-lg border-2 border-dashed">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {heroesCards.map((card) => (
-              <BuildingCard 
-                key={card.id} 
-                card={card} 
+              <BuildingCard
+                key={card.id}
+                card={card}
                 paperSize="A4"
                 fromApp={true}
               />
@@ -587,7 +584,7 @@ const PrintableSheet = () => {
             Download Resources
           </h2>
         </div>
-       
+
         <ExpansionSelector
           gameId="monstermixology"
           selectedExpansions={selectedExpansions}
@@ -777,11 +774,11 @@ const ResourceComponent = ({
   const [selectedConfigs, setSelectedConfigs] = useState(
     resource.configurations
       ? Object.fromEntries(
-          resource.configurations.map((config) => [
-            config.label,
-            config.options[0].key,
-          ])
-        )
+        resource.configurations.map((config) => [
+          config.label,
+          config.options[0].key,
+        ])
+      )
       : {}
   );
 
@@ -900,7 +897,7 @@ const ResourceComponent = ({
 const ProtectedPrintableSheet = withGameAccess(
   observer((props) => {
     return <PrintableSheet {...props} />;
-  }), 
+  }),
   "monstermixology"
 );
 
@@ -922,7 +919,7 @@ const MonstermixologyWrapper = observer(() => {
 // Modify the dynamic import to use the wrapper
 const ClientMonstermixologyPage = dynamic(
   () => Promise.resolve(MonstermixologyWrapper),
-  { 
+  {
     ssr: false,
     loading: () => <LoadingSpinner />
   }
