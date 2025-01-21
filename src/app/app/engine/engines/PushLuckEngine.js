@@ -423,7 +423,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
             height={48}
             className="mx-auto mb-4"
           />
-          <h2 className="text-2xl font-bold mb-6">Select Mixolo-bot's Difficulty</h2>
+          <h2 className="text-2xl font-bold mb-6">Select Mixolo-bot&apos;s Difficulty</h2>
 
           <div className="flex flex-col gap-3 mb-6">
             {['easy', 'medium', 'hard'].map((difficulty) => (
