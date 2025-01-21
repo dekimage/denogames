@@ -26,6 +26,11 @@ import tracker4Img from "../../../../public/monstermixology/trackers/t4.png";
 import tracker5Img from "../../../../public/monstermixology/trackers/t5.png";
 import tracker6Img from "../../../../public/monstermixology/trackers/t6.png";
 
+import selfTriggerImg from "../../../../public/monstermixology/self.png";
+import otherTriggerImg from "../../../../public/monstermixology/unique.png";
+import uniqueTriggerImg from "../../../../public/monstermixology/other.png";
+import endTriggerImg from "../../../../public/monstermixology/end.png";
+
 import QRCodeComponent from "@/utils/qr";
 // import { useReactToPrint } from "react-to-print";
 import dynamic from "next/dynamic";
@@ -47,6 +52,7 @@ import MobxStore from "@/mobx";
 import Link from "next/link";
 import ExpansionSelector from "@/components/ExpansionSelector";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+
 
 const getTrackerImg = (number) => {
   switch (number) {
@@ -85,6 +91,14 @@ const heroImages = Object.fromEntries(
 
 const getHeroImage = (number) => {
   return heroImages[number] || heroImages[1]; // Fallback to first hero if number not found
+};
+
+// Add this mapping object before the BuildingCard component
+const TRIGGER_IMAGES = {
+  self: selfTriggerImg,
+  other: otherTriggerImg,
+  unique: uniqueTriggerImg,
+  end: endTriggerImg,
 };
 
 const ResourceTracker = ({ type }) => {
@@ -148,6 +162,17 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
 
       <div className={`absolute ${fromApp ? "top-[4px]" : "top-[-6px]"} right-[9%] text-sm font-strike uppercase`}>
         <span className="text-xl">{card.vp}</span>
+      </div>
+
+      {/* Add the trigger icon */}
+      <div className="absolute bottom-[0px] left-[0px]">
+        <Image
+          src={TRIGGER_IMAGES[card.trigger]}
+          alt={`${card.trigger} trigger`}
+          width={75}
+          height={75}
+          className="w-[25px] h-[25px]"
+        />
       </div>
 
       <div
@@ -432,7 +457,7 @@ const DownloadButton = ({
 
     const element = componentRef.current;
     const opt = {
-      filename: `${paperSize === "A4" ? "A4" : "Letter"}-Monster-Mixology-${selectedConfigs["generationMode"]}.pdf`,
+      filename: `${paperSize === "A4" ? "A4" : "Letter"}-Monster-Mixology-${selectedConfigs["Monster Cards"]}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 2,
