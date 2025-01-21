@@ -30,6 +30,9 @@ import fullDrinkImg from "../../../../../public/monstermixology/fulldrink.png";
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
 
+// Add this near the top of the file, after imports
+const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
+
 const PushLuckEngine = observer(({ config, CardComponent }) => {
   const { toast } = useToast();
 
@@ -56,20 +59,20 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     if (typeof window !== "undefined") {
       pushLuckStore.setConfig(config);
       actionSound.current = new Audio("/sounds/action-gained.mp3");
-  
+
       try {
         boomSound.current = new Audio();
         boomSound.current.src = "/sounds/boom.mp3";
-  
+
         boomSound.current.addEventListener("canplaythrough", () => {
           setSoundLoaded(true);
         });
-  
+
         boomSound.current.load();
       } catch (error) {
         console.error("Error initializing sound:", error);
       }
-  
+
       return () => {
         if (boomSound.current) {
           boomSound.current.removeEventListener("canplaythrough", () => {
@@ -235,9 +238,8 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     return (
       <div
         key={`${card.id}-${index}`}
-        className={`relative ${
-          isClickable ? "cursor-pointer" : "cursor-not-allowed"
-        } ${isSelected ? "brightness-50" : ""}`}
+        className={`relative ${isClickable ? "cursor-pointer" : "cursor-not-allowed"
+          } ${isSelected ? "brightness-50" : ""}`}
         onClick={() => isClickable && handleCardSelection(card)}
       >
         <CardComponent
@@ -258,7 +260,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     if (pushLuckStore.centralBoard.length >= 9) {
       setTimeout(() => {
         if (typeof window !== "undefined") {
-        window.scrollTo({
+          window.scrollTo({
             top: document.documentElement.scrollHeight,
             behavior: "smooth",
           });
@@ -288,7 +290,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       // Roll for progress with difficulty adjustment
       const progressRoll = adjustRollForDifficulty(rollD6());
       let progressGained = 0;
-      
+
       // Calculate progress based on adjusted roll
       if (progressRoll === 1 || progressRoll === 2) {
         progressGained = 0;
@@ -302,8 +304,8 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
       const newProgressPoints = prev.progressPoints + progressGained;
 
-      toast({title: `Mixolo-bot rolled ${progressRoll} and gained ${progressGained} progress! 🎲`});
-      
+      toast({ title: `Mixolo-bot rolled ${progressRoll} and gained ${progressGained} progress! 🎲` });
+
       if (newProgressPoints >= 3) {
         const vpRoll = adjustRollForDifficulty(rollD6());
         let vpGained = 0;
@@ -320,22 +322,22 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
         const newCocktails = prev.cocktails + 1;
         const newVP = prev.victoryPoints + vpGained;
-        
-        toast({title: `Mixolo-bot made a drink! Rolled ${vpRoll} for ${vpGained} VP! 🍹`});
-        
+
+        toast({ title: `Mixolo-bot made a drink! Rolled ${vpRoll} for ${vpGained} VP! 🍹` });
+
         if (newCocktails >= 8) {
           setTimeout(() => {
             setShowGameEndModal(true);
           }, 500);
         }
-        
+
         return {
           progressPoints: newProgressPoints - 3, // Keep excess progress
           cocktails: newCocktails,
           victoryPoints: newVP
         };
       }
-      
+
       return {
         ...prev,
         progressPoints: newProgressPoints
@@ -380,15 +382,15 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           <span>Mixolo-bot Progress</span>
           <span>{mixoloBot.progressPoints}/3</span>
         </div>
-        <Progress 
-          value={(mixoloBot.progressPoints / 3) * 100} 
+        <Progress
+          value={(mixoloBot.progressPoints / 3) * 100}
           className="h-2 mb-2"
         />
         <div className="flex justify-between text-sm mb-2">
           <span>Cocktails: {mixoloBot.cocktails}/8</span>
           <span>Victory Points: {mixoloBot.victoryPoints}</span>
         </div>
-        
+
         {/* Drinks visualization */}
         <div className="flex justify-center gap-1 mt-2">
           {Array.from({ length: 8 }, (_, index) => (
@@ -422,7 +424,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
             className="mx-auto mb-4"
           />
           <h2 className="text-2xl font-bold mb-6">Select Mixolo-bot's Difficulty</h2>
-          
+
           <div className="flex flex-col gap-3 mb-6">
             {['easy', 'medium', 'hard'].map((difficulty) => (
               <Button
@@ -488,11 +490,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               />
               <span className="font-bold text-lg">Mixolo-Bot</span>
               <div
-                className={`text-sm sm:text-base ml-4 ${
-                  isActionsAnimating
-                    ? "text-green-500 scale-125"
-                    : "text-foreground scale-100"
-                } transition-all duration-300`}
+                className={`text-sm sm:text-base ml-4 ${isActionsAnimating
+                  ? "text-green-500 scale-125"
+                  : "text-foreground scale-100"
+                  } transition-all duration-300`}
               >
                 Actions: {Math.min(pushLuckStore.actions, 4)}
               </div>
@@ -500,11 +501,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           ) : (
             <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
               <div
-                className={`text-sm sm:text-base ${
-                  isActionsAnimating
-                    ? "text-green-500 scale-125"
-                    : "text-foreground scale-100"
-                } transition-all duration-300`}
+                className={`text-sm sm:text-base ${isActionsAnimating
+                  ? "text-green-500 scale-125"
+                  : "text-foreground scale-100"
+                  } transition-all duration-300`}
               >
                 Actions: {Math.min(pushLuckStore.actions, 4)}
               </div>
@@ -520,13 +520,17 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuCheckboxItem
-                  checked={pushLuckStore.isRedCardsDisabled}
-                  onCheckedChange={pushLuckStore.toggleRedCards}
-                >
-                  Disable Red Cards
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuSeparator />
+                {IS_DEVELOPMENT && (
+                  <>
+                    <DropdownMenuCheckboxItem
+                      checked={pushLuckStore.isRedCardsDisabled}
+                      onCheckedChange={pushLuckStore.toggleRedCards}
+                    >
+                      Disable Red Cards
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuCheckboxItem
                   checked={isAsymmetricMode}
                   onCheckedChange={setIsAsymmetricMode}
@@ -555,10 +559,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                 <DropdownMenuItem onClick={() => pushLuckStore.restartGame()}>
                   Restart Game
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
+
+                {/* <DropdownMenuItem>
                   <ModeToggle />
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
