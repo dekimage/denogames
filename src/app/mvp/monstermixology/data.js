@@ -233,7 +233,7 @@ export const heroesCards = [
     uniqueNumber: 3,
     trigger: "end",
     effect:
-      "Hawky is worth 4VP if you served Gawky or Lawky a coctail. And 5VP if you served both.",
+      "Hawky is worth 4VP if you served Gawky or Lawky a cocktail. And 5VP if you served both.",
   },
   {
     id: 2,
@@ -243,7 +243,7 @@ export const heroesCards = [
     uniqueNumber: 3,
     trigger: "end",
     effect:
-      "Gawky is worth 4VP if you served Hawky or Lawky a coctail. And 5VP if you served both.",
+      "Gawky is worth 4VP if you served Hawky or Lawky a cocktail. And 5VP if you served both.",
   },
   {
     id: 3,
@@ -253,7 +253,7 @@ export const heroesCards = [
     uniqueNumber: 3,
     trigger: "end",
     effect:
-      "Lawky is worth 4VP if you served Hawky or Gawky a coctail. And 5VP if you served both.",
+      "Lawky is worth 4VP if you served Hawky or Gawky a cocktail. And 5VP if you served both.",
   },
   {
     id: 8,
@@ -286,7 +286,7 @@ export const heroesCards = [
     vp: 4,
     uses: 1,
     trigger: "self",
-    effect: "Until your next turn, opponents cannot serve coctails.",
+    effect: "Until your next turn, opponents cannot serve cocktails.",
   },
   {
     id: 12,
@@ -304,7 +304,7 @@ export const heroesCards = [
     uses: 3,
     trigger: "other",
     effect:
-      "When making a coctail, treat 1 ingredient as any other ingredient.",
+      "When making a cocktail, treat 1 ingredient as any other ingredient.",
   },
   {
     id: 10,
@@ -319,10 +319,10 @@ export const heroesCards = [
     name: "El Padre",
     vp: 4,
     uses: 1,
-    // effect: "Gain +1/+2 VP if you serve him 2/3 coctails.",
+    // effect: "Gain +1/+2 VP if you serve him 2/3 cocktails.",
     trigger: "end",
     effect:
-      "El Padre is worth 5VP if you serve him 2 coctails or 6VP at 3 coctails.",
+      "El Padre is worth 5VP if you serve him 2 cocktails or 6VP at 3 cocktails.",
   },
   {
     id: 4,

@@ -49,7 +49,7 @@ export const BlueprintPurchaseModals = ({
 
   // Function to generate random active cards
   const generateRandomActiveCards = () => {
-    const numbers = Array.from({length: 12}, (_, i) => i + 1);
+    const numbers = Array.from({ length: 12 }, (_, i) => i + 1);
     const shuffled = numbers.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 3);
   };
@@ -82,7 +82,7 @@ export const BlueprintPurchaseModals = ({
     return (
       <Modal onClose={handleClose}>
         <div className="p-6 text-center">
-          <h2 className="text-2xl font-bold mb-4">Make Coctail?</h2>
+          <h2 className="text-2xl font-bold mb-4">Make Cocktail?</h2>
           <div className="mb-6 flex justify-center">
             <div className="transform scale-110">
               {blueprint && CardComponent && <CardComponent item={blueprint} />}
@@ -119,12 +119,12 @@ export const BlueprintPurchaseModals = ({
         {isAsymmetricMode ? (
           // Render 3x4 grid for asymmetric mode
           <div className="flex-1 grid grid-cols-4 gap-2 p-4 max-w-3xl mx-auto">
-            {Array.from({length: 12}, (_, i) => i + 1).map((number) => (
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((number) => (
               <div
                 key={number}
                 className={`border rounded-lg flex items-center justify-center cursor-pointer
                   aspect-[2/3]
-                  ${activeCardNumbers.includes(number) 
+                  ${activeCardNumbers.includes(number)
                     ? 'bg-primary/20 border-primary font-bold text-2xl'
                     : 'border-gray-300'
                   }
@@ -142,11 +142,10 @@ export const BlueprintPurchaseModals = ({
             {availableBuildings.map((building) => (
               <div
                 key={building.id}
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedBuilding?.id === building.id
+                className={`cursor-pointer transition-all duration-200 ${selectedBuilding?.id === building.id
                     ? "scale-105 ring-4 ring-primary"
                     : "hover:scale-105"
-                }`}
+                  }`}
                 onClick={() => setSelectedBuilding(building)}
               >
                 <BuildingCard card={building} fromApp={true} />
