@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <meta name="p:domain_verify" content="ca5417736ce461cb01f048d0a01b4935" />
+
         <link
           href="https://fonts.googleapis.com/css2?family=Protest+Strike&display=swap"
           rel="stylesheet"
