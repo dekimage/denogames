@@ -471,7 +471,7 @@ const DownloadButton = ({
       filename: `${paperSize === "A4" ? "A4" : "Letter"}-Monster-Mixology-${selectedConfigs["Monster Cards"]}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
-        scale: 1,
+        scale: 4,
         useCORS: true,
         letterRendering: true,
       },
