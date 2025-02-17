@@ -139,6 +139,7 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
         height={1400}
         width={1100}
         className="w-[200px] h-[240px] rounded-[10px]"
+        unoptimized
       />
 
       {/* Hero artwork overlay */}
@@ -149,6 +150,7 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
           height={1000}
           width={1000}
           className="w-[150px] h-[150px]"
+          unoptimized
         />
       </div>
 
@@ -172,6 +174,7 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
           width={75}
           height={75}
           className="w-[25px] h-[25px]"
+          unoptimized
         />
       </div>
 
@@ -217,7 +220,7 @@ const DisasterTracker = () => {
           className="w-6 h-6 rounded-full flex items-center justify-center"
           style={{ backgroundColor: "#FEE2E2" }}
         >
-          <Image src={boomImg} alt={"boom img"} width={20} height={20} />
+          <Image src={boomImg} alt={"boom img"} width={20} height={20} unoptimized />
         </div>
 
         {/* Rest of the disaster sequence */}
@@ -231,6 +234,7 @@ const DisasterTracker = () => {
               alt="disaster"
               width={14}
               height={14}
+              unoptimized
             />
           </div>
         ))}
@@ -259,6 +263,7 @@ const CoinTracker = ({ coins = 18, paperSize, disableFirstThree = false }) => {
                   alt="disaster"
                   width={14}
                   height={14}
+                  unoptimized
                 />
               </div>
             ))}
@@ -285,6 +290,7 @@ const ShieldsTracker = () => {
                   alt="shield"
                   width={14}
                   height={14}
+                  unoptimized
                 />
               </div>
             ))}
@@ -311,6 +317,7 @@ const RerollTracker = () => {
                   alt="shield"
                   width={14}
                   height={14}
+                  unoptimized
                 />
               </div>
             ))}
@@ -336,6 +343,7 @@ const BlueprintTracker = () => {
               src={cupImg}
               alt=""
               className="w-[22px] h-[22px] border-[1px] border-black"
+              unoptimized
             />
           ))}
         </div>
@@ -363,6 +371,7 @@ const Score = () => {
           src={vpImg}
           alt=""
           className="w-[25px] h-[25px] border-[1px] border-black"
+          unoptimized
         />
         x
         <Image
@@ -371,6 +380,7 @@ const Score = () => {
           src={cupImg}
           alt=""
           className="w-[25px] h-[25px] border-[1px] border-black"
+          unoptimized
         />
         ) + (
         <Image
@@ -379,6 +389,7 @@ const Score = () => {
           src={resourceImg}
           alt=""
           className="w-[25px] h-[25px] border-[1px] border-black"
+          unoptimized
         />{" "}
         / 3) =
         <div className="w-[25px] h-[25px] border-[1px] border-black"></div>
@@ -461,7 +472,6 @@ const DownloadButton = ({
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 1,
-        dpi: 72,
         useCORS: true,
         letterRendering: true,
       },
@@ -469,7 +479,6 @@ const DownloadButton = ({
         unit: "mm",
         format: paperSize === "A4" ? "a4" : "letter",
         orientation: "landscape",
-        precision: 12,
       },
     };
 
@@ -699,6 +708,7 @@ const PrintableSheet = () => {
                   width={1000}
                   height={1000}
                   className="w-[140px]"
+
                 />
                 <div className="flex flex-col items-center">
                   <div className="text-black font-strike uppercase text-md mb-2">
@@ -716,12 +726,13 @@ const PrintableSheet = () => {
                 {Object.keys(SPACE_MINERS_COLORS.resourceTypes).map(
                   (type, i) => (
                     <div key={i} className="relative">
-                      <img
-                        // width={1000}
-                        // height={1400}
+                      <Image
+                        width={1000}
+                        height={1400}
                         src={getTrackerImg(i + 1)}
                         alt={type}
                         className="w-[120px] h-[160px]"
+                        unoptimized
                       />
                       {/* Overlay grid of circles */}
                       <div className="absolute top-[53px] left-[51%] -translate-x-1/2 w-[110px]">
@@ -846,6 +857,7 @@ const ResourceComponent = ({
         <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
           <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
             <Image
+              unoptimized
               src={resource.image}
               alt={resource.name}
               width={150}
