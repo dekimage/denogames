@@ -87,8 +87,8 @@ class Store {
 
   constructor() {
     makeAutoObservable(this);
-    // this.initializeAuth();
-    // this.fetchProducts();
+    this.initializeAuth();
+    this.fetchProducts();
 
     this.fetchProducts = this.fetchProducts.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
