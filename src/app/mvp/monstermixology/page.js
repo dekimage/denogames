@@ -461,6 +461,7 @@ const DownloadButton = ({
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 1,
+        dpi: 72,
         useCORS: true,
         letterRendering: true,
       },
@@ -468,6 +469,7 @@ const DownloadButton = ({
         unit: "mm",
         format: paperSize === "A4" ? "a4" : "letter",
         orientation: "landscape",
+        precision: 12,
       },
     };
 
@@ -714,9 +716,9 @@ const PrintableSheet = () => {
                 {Object.keys(SPACE_MINERS_COLORS.resourceTypes).map(
                   (type, i) => (
                     <div key={i} className="relative">
-                      <Image
-                        width={1000}
-                        height={1400}
+                      <img
+                        // width={1000}
+                        // height={1400}
                         src={getTrackerImg(i + 1)}
                         alt={type}
                         className="w-[120px] h-[160px]"
