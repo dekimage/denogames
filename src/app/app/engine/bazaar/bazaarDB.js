@@ -527,10 +527,10 @@ const marketEncounters = [
   {
     id: 2,
     type: "market",
-    name: "Duplicate Merchant",
-    description: "This merchant specializes in selling duplicate items.",
+    name: "Special Merchant",
+    description: "(not done)This merchant specializes in selling specials.",
     img: "market2",
-    variant: "duplicate"
+    variant: "special"
   },
   {
     id: 3,
@@ -651,6 +651,30 @@ const marketEncounters = [
     description: "This vendor specializes in non-military items.",
     img: "market17",
     variant: "nomilitary"
+  },
+  {
+    id: 18,
+    type: "market",
+    variant: "current_tier",
+    name: "Tier Specialist",
+    description: "Offers items only from your current tier.",
+    img: "market18"
+  },
+  {
+    id: 19,
+    type: "market",
+    variant: "duplicates",
+    name: "Duplicate Dealer",
+    description: "Specializes in items you already own.",
+    img: "market19"
+  },
+  {
+    id: 20,
+    type: "market",
+    variant: "triples",
+    name: "Triple Trader",
+    description: "Offers items you can triple up.",
+    img: "market20"
   },
 ]
 
@@ -957,18 +981,31 @@ const monsterEncounters = [
 ];
 
 const eventEncounters = [
+  // Age 1 Events
   {
     id: 1,
     type: "event",
     age: 1,
     name: "Lost Traveler",
     description: "Help a lost traveler find their way",
-    img: "explore1Img",
+    img: "event1",
     rarity: "common",
     choices: [
-      { text: "Guide them (+Income)", reward: "+1 income" },
-      { text: "Share knowledge (+XP)", reward: "+1 xp" },
-      { text: "Accept reward (+Gold)", reward: "+3 gold" }
+      {
+        text: "Guide them (+Income)",
+        reward: { type: "income", amount: 1 },
+        displayText: "+1 income"
+      },
+      {
+        text: "Share knowledge (+XP)",
+        reward: { type: "xp", amount: 1 },
+        displayText: "+1 xp"
+      },
+      {
+        text: "Accept reward (+Gold)",
+        reward: { type: "gold", amount: 3 },
+        displayText: "+3 gold"
+      }
     ]
   },
   {
@@ -977,12 +1014,24 @@ const eventEncounters = [
     age: 1,
     name: "Hidden Cave",
     description: "Venture into a dark cave system",
-    img: "explore2Img",
+    img: "event2",
     rarity: "common",
     choices: [
-      { text: "Explore deeply (+XP)", reward: "+1 xp" },
-      { text: "Search for water (+Influence)", reward: "+water influence" },
-      { text: "Map the cave (+Rerolls)", reward: "3 rerolls" }
+      {
+        text: "Explore deeply (+XP)",
+        reward: { type: "xp", amount: 1 },
+        displayText: "+1 xp"
+      },
+      {
+        text: "Search for water (+Influence)",
+        reward: { type: "influence", element: "water" },
+        displayText: "+water influence"
+      },
+      {
+        text: "Map the cave (+Rerolls)",
+        reward: { type: "rerolls", amount: 3 },
+        displayText: "3 rerolls"
+      }
     ]
   },
   {
@@ -991,12 +1040,24 @@ const eventEncounters = [
     age: 1,
     name: "Ancient Shrine",
     description: "Discover a mysterious shrine",
-    img: "event1Img",
+    img: "event3",
     rarity: "common",
     choices: [
-      { text: "Make offering (+Gold)", reward: "+3 gold" },
-      { text: "Study inscriptions (+Fire)", reward: "+fire influence" },
-      { text: "Restore shrine (+Symbols)", reward: "+2 symbol A" }
+      {
+        text: "Make offering (+Gold)",
+        reward: { type: "gold", amount: 3 },
+        displayText: "+3 gold"
+      },
+      {
+        text: "Study inscriptions (+Fire)",
+        reward: { type: "influence", element: "fire" },
+        displayText: "+fire influence"
+      },
+      {
+        text: "Restore shrine (+Symbols)",
+        reward: { type: "symbol", amount: 2, symbolType: "A" },
+        displayText: "+2 symbol A"
+      }
     ]
   },
   {
@@ -1005,28 +1066,52 @@ const eventEncounters = [
     age: 1,
     name: "Merchant Caravan",
     description: "A trading caravan seeks assistance",
-    img: "event2Img",
+    img: "event4",
     rarity: "common",
     choices: [
-      { text: "Guard them (+Income)", reward: "+1 income" },
-      { text: "Trade goods (+Earth)", reward: "+earth influence" },
-      { text: "Share routes (+Symbols)", reward: "+2 symbol B" }
+      {
+        text: "Guard them (+Income)",
+        reward: { type: "income", amount: 1 },
+        displayText: "+1 income"
+      },
+      {
+        text: "Trade goods (+Earth)",
+        reward: { type: "influence", element: "earth" },
+        displayText: "+earth influence"
+      },
+      {
+        text: "Share routes (+Symbols)",
+        reward: { type: "symbol", amount: 2, symbolType: "B" },
+        displayText: "+2 symbol B"
+      }
     ]
   },
 
-  // Age 2 (Slightly better rewards)
+  // Age 2 Events
   {
     id: 5,
     type: "event",
     age: 2,
     name: "Storm Warning",
     description: "A powerful storm approaches",
-    img: "event3Img",
+    img: "event5",
     rarity: "common",
     choices: [
-      { text: "Study patterns (+XP)", reward: "+1 xp" },
-      { text: "Harness power (+Air)", reward: "+air influence" },
-      { text: "Prepare defenses (+Symbols)", reward: "+2 symbol C" }
+      {
+        text: "Study patterns (+XP)",
+        reward: { type: "xp", amount: 1 },
+        displayText: "+1 xp"
+      },
+      {
+        text: "Harness power (+Air)",
+        reward: { type: "influence", element: "air" },
+        displayText: "+air influence"
+      },
+      {
+        text: "Prepare defenses (+Symbols)",
+        reward: { type: "symbol", amount: 2, symbolType: "C" },
+        displayText: "+2 symbol C"
+      }
     ]
   },
   {
@@ -1035,12 +1120,24 @@ const eventEncounters = [
     age: 2,
     name: "Forest Mystery",
     description: "Strange lights in the ancient forest",
-    img: "event4Img",
+    img: "event6",
     rarity: "common",
     choices: [
-      { text: "Investigate (+Gold)", reward: "+3 gold" },
-      { text: "Commune with nature (+Earth)", reward: "+earth influence" },
-      { text: "Document findings (+Tier)", reward: "discover tier one up" }
+      {
+        text: "Investigate (+Gold)",
+        reward: { type: "gold", amount: 3 },
+        displayText: "+3 gold"
+      },
+      {
+        text: "Commune with nature (+Earth)",
+        reward: { type: "influence", element: "earth" },
+        displayText: "+earth influence"
+      },
+      {
+        text: "Document findings (+Tier)",
+        reward: { type: "tier", amount: 1 },
+        displayText: "discover tier one up"
+      }
     ]
   },
   {
@@ -1049,12 +1146,24 @@ const eventEncounters = [
     age: 2,
     name: "Market Festival",
     description: "A festive gathering of merchants",
-    img: "event5Img",
+    img: "event7",
     rarity: "common",
     choices: [
-      { text: "Network (+Income)", reward: "+1 income" },
-      { text: "Participate (+Symbols)", reward: "+1 symbol D" },
-      { text: "Learn techniques (+XP)", reward: "+1 xp" }
+      {
+        text: "Network (+Income)",
+        reward: { type: "income", amount: 1 },
+        displayText: "+1 income"
+      },
+      {
+        text: "Participate (+Symbols)",
+        reward: { type: "symbol", amount: 1, symbolType: "D" },
+        displayText: "+1 symbol D"
+      },
+      {
+        text: "Learn techniques (+XP)",
+        reward: { type: "xp", amount: 1 },
+        displayText: "+1 xp"
+      }
     ]
   },
   {
@@ -1063,28 +1172,52 @@ const eventEncounters = [
     age: 2,
     name: "Tomb of Ancestors",
     description: "Explore an ancient burial ground",
-    img: "event11Img",
+    img: "event8",
     rarity: "common",
     choices: [
-      { text: "Pray (+Gold)", reward: "+3 gold" },
-      { text: "Excavate relics (+Symbols)", reward: "+2 symbol A" },
-      { text: "Translate runes (+XP)", reward: "+1 xp" }
+      {
+        text: "Pray (+Gold)",
+        reward: { type: "gold", amount: 3 },
+        displayText: "+3 gold"
+      },
+      {
+        text: "Excavate relics (+Symbols)",
+        reward: { type: "symbol", amount: 2, symbolType: "A" },
+        displayText: "+2 symbol A"
+      },
+      {
+        text: "Translate runes (+XP)",
+        reward: { type: "xp", amount: 1 },
+        displayText: "+1 xp"
+      }
     ]
   },
 
-  // Age 3 (Stronger rewards)
+  // Age 3 Events
   {
     id: 9,
     type: "event",
     age: 3,
     name: "Volcanic Activity",
     description: "A dormant volcano shows signs of life",
-    img: "event6Img",
+    img: "event9",
     rarity: "rare",
     choices: [
-      { text: "Study magma (+Fire)", reward: "+fire influence" },
-      { text: "Mine resources (+Gold)", reward: "+5 gold" },
-      { text: "Map vents (+Rerolls)", reward: "4 rerolls" }
+      {
+        text: "Study magma (+Fire)",
+        reward: { type: "influence", element: "fire" },
+        displayText: "+fire influence"
+      },
+      {
+        text: "Mine resources (+Gold)",
+        reward: { type: "gold", amount: 5 },
+        displayText: "+5 gold"
+      },
+      {
+        text: "Map vents (+Rerolls)",
+        reward: { type: "rerolls", amount: 4 },
+        displayText: "4 rerolls"
+      }
     ]
   },
   {
@@ -1093,12 +1226,24 @@ const eventEncounters = [
     age: 3,
     name: "Ocean Discovery",
     description: "Strange findings in the deep sea",
-    img: "event7Img",
+    img: "event10",
     rarity: "rare",
     choices: [
-      { text: "Explore depths (+Water)", reward: "+water influence" },
-      { text: "Salvage treasures (+Gold)", reward: "+5 gold" },
-      { text: "Study creatures (+Symbols)", reward: "+3 symbol E" }
+      {
+        text: "Explore depths (+Water)",
+        reward: { type: "influence", element: "water" },
+        displayText: "+water influence"
+      },
+      {
+        text: "Salvage treasures (+Gold)",
+        reward: { type: "gold", amount: 5 },
+        displayText: "+5 gold"
+      },
+      {
+        text: "Study creatures (+Symbols)",
+        reward: { type: "symbol", amount: 3, symbolType: "E" },
+        displayText: "+3 symbol E"
+      }
     ]
   },
   {
@@ -1107,12 +1252,24 @@ const eventEncounters = [
     age: 3,
     name: "Sky Phenomenon",
     description: "Unusual patterns in the sky",
-    img: "event8Img",
+    img: "event11",
     rarity: "rare",
     choices: [
-      { text: "Research (+XP)", reward: "+2 xp" },
-      { text: "Channel energy (+Air)", reward: "+air influence" },
-      { text: "Record data (+Tier)", reward: "discover tier one up" }
+      {
+        text: "Research (+XP)",
+        reward: { type: "xp", amount: 2 },
+        displayText: "+2 xp"
+      },
+      {
+        text: "Channel energy (+Air)",
+        reward: { type: "influence", element: "air" },
+        displayText: "+air influence"
+      },
+      {
+        text: "Record data (+Tier)",
+        reward: { type: "tier", amount: 1 },
+        displayText: "discover tier one up"
+      }
     ]
   },
   {
@@ -1121,12 +1278,24 @@ const eventEncounters = [
     age: 3,
     name: "Ancient Library",
     description: "A forgotten repository of knowledge",
-    img: "event9Img",
+    img: "event12",
     rarity: "rare",
     choices: [
-      { text: "Study texts (+XP)", reward: "+2 xp" },
-      { text: "Sell findings (+Gold)", reward: "+5 gold" },
-      { text: "Learn symbols (+Symbols)", reward: "+3 symbol A" }
+      {
+        text: "Study texts (+XP)",
+        reward: { type: "xp", amount: 2 },
+        displayText: "+2 xp"
+      },
+      {
+        text: "Sell findings (+Gold)",
+        reward: { type: "gold", amount: 5 },
+        displayText: "+5 gold"
+      },
+      {
+        text: "Learn symbols (+Symbols)",
+        reward: { type: "symbol", amount: 3, symbolType: "A" },
+        displayText: "+3 symbol A"
+      }
     ]
   },
   {
@@ -1135,12 +1304,24 @@ const eventEncounters = [
     age: 4,
     name: "Celestial Alignment",
     description: "The stars align in a powerful cosmic event.",
-    img: "event12Img",
+    img: "event13",
     rarity: "rare",
     choices: [
-      { text: "Harness power (+Air)", reward: "+air influence" },
-      { text: "Study the alignment (+XP)", reward: "+2 xp" },
-      { text: "Record findings (+Symbols)", reward: "+3 symbol F" }
+      {
+        text: "Harness power (+Air)",
+        reward: { type: "influence", element: "air" },
+        displayText: "+air influence"
+      },
+      {
+        text: "Study the alignment (+XP)",
+        reward: { type: "xp", amount: 2 },
+        displayText: "+2 xp"
+      },
+      {
+        text: "Record findings (+Symbols)",
+        reward: { type: "symbol", amount: 3, symbolType: "F" },
+        displayText: "+3 symbol F"
+      }
     ]
   },
   {
@@ -1149,12 +1330,24 @@ const eventEncounters = [
     age: 4,
     name: "Royal Tournament",
     description: "A grand competition of warriors and scholars.",
-    img: "event13Img",
+    img: "event1",
     rarity: "rare",
     choices: [
-      { text: "Compete (+Gold)", reward: "+6 gold" },
-      { text: "Learn techniques (+XP)", reward: "+2 xp" },
-      { text: "Forge alliances (+Income)", reward: "+3 income" }
+      {
+        text: "Compete (+Gold)",
+        reward: { type: "gold", amount: 6 },
+        displayText: "+6 gold"
+      },
+      {
+        text: "Learn techniques (+XP)",
+        reward: { type: "xp", amount: 2 },
+        displayText: "+2 xp"
+      },
+      {
+        text: "Forge alliances (+Income)",
+        reward: { type: "income", amount: 3 },
+        displayText: "+3 income"
+      }
     ]
   },
   {
@@ -1163,12 +1356,24 @@ const eventEncounters = [
     age: 4,
     name: "Elders' Prophecy",
     description: "The ancient seers reveal visions of the future.",
-    img: "event14Img",
+    img: "event2",
     rarity: "rare",
     choices: [
-      { text: "Embrace fate (+Tier)", reward: "discover tier one up" },
-      { text: "Seek guidance (+XP)", reward: "+2 xp" },
-      { text: "Offer tribute (+Gold)", reward: "+6 gold" }
+      {
+        text: "Embrace fate (+Tier)",
+        reward: { type: "tier", amount: 1 },
+        displayText: "discover tier one up"
+      },
+      {
+        text: "Seek guidance (+XP)",
+        reward: { type: "xp", amount: 2 },
+        displayText: "+2 xp"
+      },
+      {
+        text: "Offer tribute (+Gold)",
+        reward: { type: "gold", amount: 6 },
+        displayText: "+6 gold"
+      }
     ]
   },
   {
@@ -1177,28 +1382,52 @@ const eventEncounters = [
     age: 4,
     name: "Sunken Ruins",
     description: "A lost civilization lies beneath the waves.",
-    img: "event15Img",
+    img: "event3",
     rarity: "rare",
     choices: [
-      { text: "Recover artifacts (+Gold)", reward: "+6 gold" },
-      { text: "Decipher engravings (+Symbols)", reward: "+3 symbol G" },
-      { text: "Chart ruins (+Rerolls)", reward: "4 rerolls" }
+      {
+        text: "Recover artifacts (+Gold)",
+        reward: { type: "gold", amount: 6 },
+        displayText: "+6 gold"
+      },
+      {
+        text: "Decipher engravings (+Symbols)",
+        reward: { type: "symbol", amount: 3, symbolType: "G" },
+        displayText: "+3 symbol G"
+      },
+      {
+        text: "Chart ruins (+Rerolls)",
+        reward: { type: "rerolls", amount: 4 },
+        displayText: "4 rerolls"
+      }
     ]
   },
 
-  // Age 5 (Even stronger rewards: 8 gold, 3 XP, 4 symbols, 3 income)
+  // Age 5 Events
   {
     id: 17,
     type: "event",
     age: 5,
     name: "Astral Convergence",
     description: "A mystical fusion of cosmic energies.",
-    img: "event16Img",
+    img: "event4",
     rarity: "epic",
     choices: [
-      { text: "Absorb power (+XP)", reward: "+3 xp" },
-      { text: "Harness energy (+Air)", reward: "+air influence" },
-      { text: "Study constellations (+Symbols)", reward: "+4 symbol H" }
+      {
+        text: "Absorb power (+XP)",
+        reward: { type: "xp", amount: 3 },
+        displayText: "+3 xp"
+      },
+      {
+        text: "Harness energy (+Air)",
+        reward: { type: "influence", element: "air" },
+        displayText: "+air influence"
+      },
+      {
+        text: "Study constellations (+Symbols)",
+        reward: { type: "symbol", amount: 4, symbolType: "H" },
+        displayText: "+4 symbol H"
+      }
     ]
   },
   {
@@ -1207,12 +1436,24 @@ const eventEncounters = [
     age: 5,
     name: "Forbidden Ritual",
     description: "A secretive cult performs a powerful ritual.",
-    img: "event17Img",
+    img: "event5",
     rarity: "epic",
     choices: [
-      { text: "Learn secrets (+XP)", reward: "+3 xp" },
-      { text: "Steal offerings (+Gold)", reward: "+8 gold" },
-      { text: "Break the spell (+Symbols)", reward: "+4 symbol I" }
+      {
+        text: "Learn secrets (+XP)",
+        reward: { type: "xp", amount: 3 },
+        displayText: "+3 xp"
+      },
+      {
+        text: "Steal offerings (+Gold)",
+        reward: { type: "gold", amount: 8 },
+        displayText: "+8 gold"
+      },
+      {
+        text: "Break the spell (+Symbols)",
+        reward: { type: "symbol", amount: 4, symbolType: "I" },
+        displayText: "+4 symbol I"
+      }
     ]
   },
   {
@@ -1221,12 +1462,24 @@ const eventEncounters = [
     age: 5,
     name: "Meteor Impact",
     description: "A meteor crashes, leaving behind rare materials.",
-    img: "event18Img",
+    img: "event6",
     rarity: "epic",
     choices: [
-      { text: "Mine the fragments (+Gold)", reward: "+8 gold" },
-      { text: "Study the residue (+XP)", reward: "+3 xp" },
-      { text: "Extract cosmic energy (+Symbols)", reward: "+4 symbol J" }
+      {
+        text: "Mine the fragments (+Gold)",
+        reward: { type: "gold", amount: 8 },
+        displayText: "+8 gold"
+      },
+      {
+        text: "Study the residue (+XP)",
+        reward: { type: "xp", amount: 3 },
+        displayText: "+3 xp"
+      },
+      {
+        text: "Extract cosmic energy (+Symbols)",
+        reward: { type: "symbol", amount: 4, symbolType: "J" },
+        displayText: "+4 symbol J"
+      }
     ]
   },
   {
@@ -1235,28 +1488,52 @@ const eventEncounters = [
     age: 5,
     name: "Temporal Rift",
     description: "A tear in time allows glimpses into the past and future.",
-    img: "event19Img",
+    img: "event7",
     rarity: "epic",
     choices: [
-      { text: "Gain lost knowledge (+XP)", reward: "+3 xp" },
-      { text: "Stabilize the rift (+Tier)", reward: "discover tier one up" },
-      { text: "Collect rare elements (+Gold)", reward: "+8 gold" }
+      {
+        text: "Gain lost knowledge (+XP)",
+        reward: { type: "xp", amount: 3 },
+        displayText: "+3 xp"
+      },
+      {
+        text: "Stabilize the rift (+Tier)",
+        reward: { type: "tier", amount: 1 },
+        displayText: "discover tier one up"
+      },
+      {
+        text: "Collect rare elements (+Gold)",
+        reward: { type: "gold", amount: 8 },
+        displayText: "+8 gold"
+      }
     ]
   },
 
-  // Age 6 (The strongest rewards: 10 gold, 4 XP, 5 symbols, 4 income)
+  // Age 6 Events
   {
     id: 21,
     type: "event",
     age: 6,
     name: "Gods' Blessing",
     description: "The divine bestow great gifts upon the worthy.",
-    img: "event20Img",
+    img: "event8",
     rarity: "legendary",
     choices: [
-      { text: "Accept their wisdom (+XP)", reward: "+4 xp" },
-      { text: "Receive fortune (+Gold)", reward: "+10 gold" },
-      { text: "Gain divine favor (+Symbols)", reward: "+5 symbol K" }
+      {
+        text: "Accept their wisdom (+XP)",
+        reward: { type: "xp", amount: 4 },
+        displayText: "+4 xp"
+      },
+      {
+        text: "Receive fortune (+Gold)",
+        reward: { type: "gold", amount: 10 },
+        displayText: "+10 gold"
+      },
+      {
+        text: "Gain divine favor (+Symbols)",
+        reward: { type: "symbol", amount: 5, symbolType: "K" },
+        displayText: "+5 symbol K"
+      }
     ]
   },
   {
@@ -1265,12 +1542,24 @@ const eventEncounters = [
     age: 6,
     name: "Apocalyptic Storm",
     description: "A storm of unimaginable power reshapes the land.",
-    img: "event21Img",
+    img: "event9",
     rarity: "legendary",
     choices: [
-      { text: "Control the elements (+Air)", reward: "+air influence" },
-      { text: "Harvest lightning (+Gold)", reward: "+10 gold" },
-      { text: "Empower rituals (+XP)", reward: "+4 xp" }
+      {
+        text: "Control the elements (+Air)",
+        reward: { type: "influence", element: "air" },
+        displayText: "+air influence"
+      },
+      {
+        text: "Harvest lightning (+Gold)",
+        reward: { type: "gold", amount: 10 },
+        displayText: "+10 gold"
+      },
+      {
+        text: "Empower rituals (+XP)",
+        reward: { type: "xp", amount: 4 },
+        displayText: "+4 xp"
+      }
     ]
   },
   {
@@ -1279,12 +1568,24 @@ const eventEncounters = [
     age: 6,
     name: "Ethereal Gateway",
     description: "A portal to an unknown realm appears before you.",
-    img: "event22Img",
+    img: "event10",
     rarity: "legendary",
     choices: [
-      { text: "Step through (+XP)", reward: "+4 xp" },
-      { text: "Learn from the ancients (+Symbols)", reward: "+5 symbol L" },
-      { text: "Collect rare energy (+Gold)", reward: "+10 gold" }
+      {
+        text: "Step through (+XP)",
+        reward: { type: "xp", amount: 4 },
+        displayText: "+4 xp"
+      },
+      {
+        text: "Learn from the ancients (+Symbols)",
+        reward: { type: "symbol", amount: 5, symbolType: "L" },
+        displayText: "+5 symbol L"
+      },
+      {
+        text: "Collect rare energy (+Gold)",
+        reward: { type: "gold", amount: 10 },
+        displayText: "+10 gold"
+      }
     ]
   },
   {
@@ -1293,7 +1594,7 @@ const eventEncounters = [
     age: 6,
     name: "Final Reckoning",
     description: "The ultimate test of power and wisdom.",
-    img: "event23Img",
+    img: "event11",
     rarity: "legendary",
     choices: [
       { text: "Challenge fate (+XP)", reward: "+4 xp" },

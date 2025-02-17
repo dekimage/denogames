@@ -40,6 +40,22 @@ import monster17Img from "../../../../assets/bazaar/monsters/monster17.png";
 import monster18Img from "../../../../assets/bazaar/monsters/monster18.png";
 
 
+import event1Img from "../../../../assets/bazaar/events/event1.png";
+import event2Img from "../../../../assets/bazaar/events/event2.png";
+import event3Img from "../../../../assets/bazaar/events/event3.png";
+import event4Img from "../../../../assets/bazaar/events/event4.png";
+import event5Img from "../../../../assets/bazaar/events/event5.png";
+import event6Img from "../../../../assets/bazaar/events/event6.png";
+import event7Img from "../../../../assets/bazaar/events/event7.png";
+import event8Img from "../../../../assets/bazaar/events/event8.png";
+import event9Img from "../../../../assets/bazaar/events/event9.png";
+import event10Img from "../../../../assets/bazaar/events/event10.png";
+import event11Img from "../../../../assets/bazaar/events/event11.png";
+import event12Img from "../../../../assets/bazaar/events/event12.png";
+import event13Img from "../../../../assets/bazaar/events/event13.png";
+
+
+
 import { observer } from "mobx-react-lite";
 import { useState, useEffect } from "react";
 import { bazaarStore, PLAYER_COLORS } from "./bazaarStore";
@@ -109,83 +125,76 @@ const PlayerSetupDialog = () => {
 };
 
 const PlayerStats = observer(() => {
-  const { activePlayer } = bazaarStore;
-  if (!activePlayer) return null;
-
-  const handleIncrement = (stat) => {
-    if (!activePlayer) return;
-
-    switch (stat) {
-      case 'gold':
-        activePlayer.gold += 1;
-        break;
-      case 'income':
-        activePlayer.income += 1;
-        break;
-      case 'xp':
-        activePlayer.xp += 1;
-        break;
-      case 'level':
-        activePlayer.level += 1;
-        break;
-      case 'tier':
-        activePlayer.tier = Math.min(5, activePlayer.tier + 1);
-        break;
-    }
-  };
+  const player = bazaarStore.activePlayer;
+  if (!player) return null;
 
   return (
-    <div
-      className="p-4 border rounded-lg"
-      style={{ borderColor: activePlayer.color }}
-    >
-      <h2 className="text-xl font-bold">{activePlayer.name}</h2>
-      <div className="grid grid-cols-2 gap-2 mt-2">
-        <div className="flex items-center gap-2">
-          <span>Gold: {activePlayer.gold}</span>
-          <button
-            onClick={() => handleIncrement('gold')}
-            className="px-2 py-1 bg-green-500 text-white rounded-md text-sm"
-          >
-            +
-          </button>
+    <div className="bg-card p-4 rounded-lg shadow-md">
+      <div className="flex justify-between items-center">
+        <div className="space-y-2">
+          <div className="flex gap-4">
+            <div>
+              Gold: {player.gold} 🪙
+              <button
+                onClick={() => bazaarStore.incrementStat("gold")}
+                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+              >
+                +
+              </button>
+            </div>
+            <div>
+              Income: {player.income} 💰
+              <button
+                onClick={() => bazaarStore.incrementStat("income")}
+                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+              >
+                +
+              </button>
+            </div>
+            <div>
+              Rerolls: {player.rerolls} 🎲
+              <button
+                onClick={() => bazaarStore.incrementStat("rerolls")}
+                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <div>
+              Level: {player.level} ⭐
+              <button
+                onClick={() => bazaarStore.incrementStat("level")}
+                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+              >
+                +
+              </button>
+            </div>
+            <div>
+              XP: {player.xp}/{player.level * 10} 📊
+              <button
+                onClick={() => bazaarStore.incrementStat("xp")}
+                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+              >
+                +
+              </button>
+            </div>
+            <div>
+              Tier: {player.tier} 📈
+              <button
+                onClick={() => bazaarStore.incrementStat("tier")}
+                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+              >
+                +
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span>Income: {activePlayer.income}</span>
-          <button
-            onClick={() => handleIncrement('income')}
-            className="px-2 py-1 bg-green-500 text-white rounded-md text-sm"
-          >
-            +
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>XP: {activePlayer.xp}</span>
-          <button
-            onClick={() => handleIncrement('xp')}
-            className="px-2 py-1 bg-green-500 text-white rounded-md text-sm"
-          >
-            +
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>Level: {activePlayer.level}</span>
-          <button
-            onClick={() => handleIncrement('level')}
-            className="px-2 py-1 bg-green-500 text-white rounded-md text-sm"
-          >
-            +
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>Tier: {activePlayer.tier}</span>
-          <button
-            onClick={() => handleIncrement('tier')}
-            className="px-2 py-1 bg-green-500 text-white rounded-md text-sm"
-          >
-            +
-          </button>
-        </div>
+        <div
+          className="w-6 h-6 rounded-full"
+          style={{ backgroundColor: player.color }}
+        />
       </div>
     </div>
   );
@@ -283,6 +292,21 @@ const IMAGE_MAP = {
   monster16: monster16Img,
   monster17: monster17Img,
   monster18: monster18Img,
+
+  event1: event1Img,
+  event2: event2Img,
+  event3: event3Img,
+  event4: event4Img,
+  event5: event5Img,
+  event6: event6Img,
+  event7: event7Img,
+  event8: event8Img,
+  event9: event9Img,
+  event10: event10Img,
+  event11: event11Img,
+  event12: event12Img,
+  event13: event13Img,
+
 };
 
 const MarketCard = ({ encounter, onClick }) => (
@@ -325,8 +349,15 @@ const EventCard = ({ encounter, onClick }) => (
         />
       </div>
       <div className="space-y-2">
-        <h3 className="font-bold text-lg">{encounter.name}</h3>
-        <p className="text-sm text-muted-foreground">{encounter.description}</p>
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-lg">{encounter.name}</h3>
+          <span className="text-xs px-2 py-1 bg-accent rounded-full">
+            {encounter.rarity}
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {encounter.description}
+        </p>
       </div>
     </div>
   </div>
@@ -554,6 +585,24 @@ const MarketView = observer(({ marketVariant }) => {
   );
 });
 
+const EventChoiceCard = ({ choice, onClick }) => (
+  <div
+    onClick={() => onClick?.(choice)}
+    className="border rounded-lg p-4 hover:bg-accent/50 transition-colors cursor-pointer bg-blue-200"
+  >
+    <div className="flex flex-col p-4">
+      <div className="space-y-2">
+        <h3 className="font-bold text-lg">{choice.text}</h3>
+        <div className="mt-2">
+          <div className="bg-green-100 px-2 py-1 rounded-md text-sm">
+            {choice.displayText}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const GameContent = observer(() => {
   const handleEncounterClick = (encounter) => {
     bazaarStore.selectEncounter(encounter);
@@ -627,10 +676,14 @@ const GameContent = observer(() => {
 
       {bazaarStore.currentPhase === "events" && (
         <div>
-          <h2 className="text-xl font-bold mb-4">Available Events</h2>
+          <h2 className="text-xl font-bold mb-4">Choose Your Path</h2>
           <div className="grid grid-cols-3 gap-4">
-            {bazaarStore.currentOptions.map((event) => (
-              <EventCard key={event.id} event={event} />
+            {bazaarStore.currentOptions.map((choice) => (
+              <EventChoiceCard
+                key={choice.id}
+                choice={choice}
+                onClick={(choice) => bazaarStore.selectEventChoice(choice)}
+              />
             ))}
           </div>
         </div>

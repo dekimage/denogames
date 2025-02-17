@@ -17,6 +17,7 @@ const DEFAULT_PLAYER_STATE = {
   xp: 0,
   level: 1,
   tier: 1, // Added tier property
+  rerolls: 0, // Add this line
   relics: [],
   upgrades: [],
   inventory: [], // Added inventory for purchased items
@@ -292,21 +293,22 @@ class BazaarStore {
   }
 
   selectEncounter(encounter) {
-    this.currentEncounters = [];
-
-    switch (encounter.type) {
-      case "market":
-        this.selectMarketEncounter(encounter);
-        break;
-      case "monster":
-        this.currentOptions = getRandomMonsters();
-        this.currentPhase = "monsters";
-        break;
-      case "event":
-        this.currentOptions = getRandomEvents();
-        this.currentPhase = "events";
-        break;
-    }
+    runInAction(() => {
+      switch (encounter.type) {
+        case "market":
+          this.selectMarketEncounter(encounter);
+          break;
+        case "event":
+          // Set the choices as current options
+          this.currentOptions = encounter.choices;
+          this.currentPhase = "events";
+          break;
+        case "monster":
+          this.currentOptions = getRandomMonsters();
+          this.currentPhase = "monsters";
+          break;
+      }
+    });
   }
 
   buyItem(item) {
@@ -414,6 +416,41 @@ class BazaarStore {
       case "tier_5":
         availableItems = availableItems.filter(item => item.tier === 5);
         break;
+      case "current_tier":
+        availableItems = items.filter(item => item.tier === player.tier);
+        break;
+      case "duplicates":
+        // Get items that player has at least one copy of
+        const itemCounts = player.inventory.reduce((acc, id) => {
+          acc[id] = (acc[id] || 0) + 1;
+          return acc;
+        }, {});
+
+        availableItems = items.filter(item =>
+          itemCounts[item.id] && itemCounts[item.id] < 3
+        );
+
+        // If we have less than 3 items, return all we have
+        return availableItems.length <= 3
+          ? availableItems
+          : getRandomElements(availableItems, 3);
+      case "triples":
+        // Get items that player has exactly 2 copies of
+        const itemCountsForTriples = player.inventory.reduce((acc, id) => {
+          acc[id] = (acc[id] || 0) + 1;
+          return acc;
+        }, {});
+
+        availableItems = items.filter(item =>
+          itemCountsForTriples[item.id] === 2
+        );
+
+        // If we have less than 3 items eligible for triples, return all we have
+        return availableItems.length <= 3
+          ? availableItems
+          : getRandomElements(availableItems, 3);
+      default:
+        break;
     }
 
     return getRandomElements(availableItems, 3);
@@ -446,10 +483,22 @@ class BazaarStore {
   rerollMarketItems() {
     runInAction(() => {
       const player = this.activePlayer;
-      if (!player || player.gold < 1) return false;
+      if (!player) return false;
+
+      // Check if player has rerolls first
+      if (player.rerolls > 0) {
+        player.rerolls -= 1;
+        this.currentOptions = this.getMarketItems();
+        this.showToast(`Used 1 reroll! ${player.rerolls} remaining 🎲`, 'info');
+        return true;
+      }
+
+      // If no rerolls, use gold as before
+      if (player.gold < 1) return false;
 
       player.gold -= 1;
       this.currentOptions = this.getMarketItems();
+      this.showToast(`Spent 1 gold to reroll! 🪙`, 'info');
       return true;
     });
   }
@@ -460,10 +509,140 @@ class BazaarStore {
     if (!player) return;
 
     player.level += 1;
+    player.xp -= (player.level - 1) * 10; // Subtract the XP needed for this level
+
     // Update tier based on level
     if (player.level % 2 === 0) { // Every 2 levels, increase tier
       player.tier = Math.min(5, player.tier + 1); // Max tier is 5
     }
+  }
+
+  selectEventChoice(choice) {
+    runInAction(() => {
+      const player = this.activePlayer;
+      if (!player || !choice.reward) return;
+
+      const reward = choice.reward;
+      let rewardMessage = '';
+
+      switch (reward.type) {
+        case 'gold':
+          player.gold += reward.amount;
+          rewardMessage = `Gained ${reward.amount} gold! 🪙`;
+          break;
+
+        case 'xp':
+          player.xp += reward.amount;
+          rewardMessage = `Gained ${reward.amount} XP! ⭐`;
+          // Check for level ups
+          while (player.xp >= (player.level * 10)) {
+            this.levelUp();
+            rewardMessage += ' LEVEL UP! 🎉';
+          }
+          break;
+
+        case 'income':
+          player.income += reward.amount;
+          rewardMessage = `Income increased by ${reward.amount}! 💰`;
+          break;
+
+        case 'tier':
+          if (player.tier < 5) { // Max tier is 5
+            player.tier += reward.amount;
+            rewardMessage = `Tier increased to ${player.tier}! 📈`;
+          } else {
+            rewardMessage = `Already at max tier! 🔝`;
+          }
+          break;
+
+        case 'rerolls':
+          player.rerolls += reward.amount;
+          rewardMessage = `Gained ${reward.amount} rerolls! 🎲`;
+          break;
+
+        case 'influence':
+          // These are handled outside the app
+          rewardMessage = `Gained ${reward.element} influence! 🌟`;
+          break;
+
+        case 'symbol':
+          // These are handled outside the app
+          rewardMessage = `Gained ${reward.amount} symbol ${reward.symbolType}! 📜`;
+          break;
+
+        default:
+          console.warn('Unknown reward type:', reward.type);
+          break;
+      }
+
+      // Show toast notification
+      if (rewardMessage) {
+        this.showToast(rewardMessage, 'success');
+      }
+
+      // Clear the event and move to next turn
+      this.currentOptions = [];
+      this.currentPhase = "encounters";
+      this.nextTurn();
+    });
+  }
+
+  showToast(message, type = 'success') {
+    runInAction(() => {
+      this.toastMessage = message;
+      this.toastType = type;
+      // Auto-clear toast after 3 seconds
+      setTimeout(() => {
+        runInAction(() => {
+          this.toastMessage = null;
+          this.toastType = null;
+        });
+      }, 3000);
+    });
+  }
+
+  incrementStat(stat) {
+    runInAction(() => {
+      const player = this.activePlayer;
+      if (!player) return;
+
+      switch (stat) {
+        case "gold":
+          player.gold += 1;
+          this.showToast("Gold +1 🪙");
+          break;
+        case "income":
+          player.income += 1;
+          this.showToast("Income +1 💰");
+          break;
+        case "rerolls":
+          player.rerolls += 1;
+          this.showToast("Rerolls +1 🎲");
+          break;
+        case "level":
+          player.level += 1;
+          this.showToast("Level up! ⭐");
+          break;
+        case "xp":
+          player.xp += 1;
+          // Check for level up
+          while (player.xp >= (player.level * 10)) {
+            this.levelUp();
+          }
+          this.showToast("XP +1 📊");
+          break;
+        case "tier":
+          if (player.tier < 5) {
+            player.tier += 1;
+            this.showToast("Tier up! 📈");
+          } else {
+            this.showToast("Max tier reached! 🔝", "warning");
+          }
+          break;
+        default:
+          console.warn('Unknown stat:', stat);
+      }
+    });
   }
 }
 
