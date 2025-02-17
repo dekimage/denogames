@@ -692,6 +692,7 @@ const PrintableSheet = () => {
               <div className="flex justify-center items-center gap-2 mt-2 ml-2">
                 <Image
                   src={logoImg}
+                  unoptimized
                   alt="Space Miners Logo"
                   width={1000}
                   height={1000}
