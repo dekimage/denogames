@@ -68,6 +68,7 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { IoReload } from "react-icons/io5";
+import { items } from "./bazaarDB";
 
 
 const TEST_MODE = true;
@@ -124,84 +125,146 @@ const PlayerSetupDialog = () => {
   );
 };
 
+const InventoryModal = observer(({ isOpen, onClose }) => {
+  const player = bazaarStore.activePlayer;
+  if (!isOpen || !player) return null;
+
+  // Get unique items only
+  const uniqueInventoryItems = [...new Set(player.inventory)]
+    .map(itemId => items.find(item => item.id === itemId))
+    .filter(Boolean);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Inventory 🎒</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            ✖️
+          </button>
+        </div>
+
+        {uniqueInventoryItems.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            No items in inventory yet
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {uniqueInventoryItems.map(item => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                isLevelUpReward={true}
+                isInInventory={true}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
 const PlayerStats = observer(() => {
   const player = bazaarStore.activePlayer;
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   if (!player) return null;
 
   const requiredXP = bazaarStore.getRequiredXPForLevel(player.level);
 
   return (
-    <div className="bg-card p-4 rounded-lg shadow-md">
-      <div className="flex justify-between items-center">
-        <div className="space-y-2">
-          <div className="flex gap-4">
-            <div>
-              Gold: {player.gold} 🪙
-              <button
-                onClick={() => bazaarStore.incrementStat("gold")}
-                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
-              >
-                +
-              </button>
+    <>
+      <div className="bg-card p-4 rounded-lg shadow-md">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <div className="flex gap-4">
+              <div>
+                Gold: {player.gold} 🪙
+                <button
+                  onClick={() => bazaarStore.incrementStat("gold")}
+                  className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+                >
+                  +
+                </button>
+              </div>
+              <div>
+                Income: {player.income} 💰
+                <button
+                  onClick={() => bazaarStore.incrementStat("income")}
+                  className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+                >
+                  +
+                </button>
+              </div>
+              <div>
+                Rerolls: {player.rerolls} 🎲
+                <button
+                  onClick={() => bazaarStore.incrementStat("rerolls")}
+                  className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div>
-              Income: {player.income} 💰
-              <button
-                onClick={() => bazaarStore.incrementStat("income")}
-                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
-              >
-                +
-              </button>
-            </div>
-            <div>
-              Rerolls: {player.rerolls} 🎲
-              <button
-                onClick={() => bazaarStore.incrementStat("rerolls")}
-                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
-              >
-                +
-              </button>
+            <div className="flex gap-4">
+              <div>
+                Level: {player.level} ⭐
+                <button
+                  onClick={() => bazaarStore.incrementStat("level")}
+                  className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+                >
+                  +
+                </button>
+              </div>
+              <div>
+                XP: {player.xp}/{requiredXP} 📊
+                <button
+                  onClick={() => bazaarStore.incrementStat("xp")}
+                  className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+                >
+                  +
+                </button>
+              </div>
+              <div>
+                Tier: {player.tier} 📈
+                <button
+                  onClick={() => bazaarStore.incrementStat("tier")}
+                  className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
-          <div className="flex gap-4">
-            <div>
-              Level: {player.level} ⭐
-              <button
-                onClick={() => bazaarStore.incrementStat("level")}
-                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
-              >
-                +
-              </button>
-            </div>
-            <div>
-              XP: {player.xp}/{requiredXP} 📊
-              <button
-                onClick={() => bazaarStore.incrementStat("xp")}
-                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
-              >
-                +
-              </button>
-            </div>
-            <div>
-              Tier: {player.tier} 📈
-              <button
-                onClick={() => bazaarStore.incrementStat("tier")}
-                className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
-              >
-                +
-              </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsInventoryOpen(true)}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center gap-2"
+            >
+              <span>Inventory</span>
+              <span>🎒</span>
+              <span className="bg-blue-400 px-2 py-0.5 rounded-full text-sm">
+                {player.inventory.length}
+              </span>
+            </button>
+            <div className="flex items-center gap-2">
+              <span>{player.name}</span>
+              <div
+                className="w-6 h-6 rounded-full"
+                style={{ backgroundColor: player.color }}
+              />
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>{player.name}</span>
-          <div
-            className="w-6 h-6 rounded-full"
-            style={{ backgroundColor: player.color }}
-          />
         </div>
       </div>
-    </div>
+      <InventoryModal
+        isOpen={isInventoryOpen}
+        onClose={() => setIsInventoryOpen(false)}
+      />
+    </>
   );
 });
 
@@ -460,12 +523,12 @@ const FloatingArrows = ({ isTriplicate = false }) => (
   </div>
 );
 
-const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false }) => {
+const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false, isInInventory = false }) => {
   const player = bazaarStore.activePlayer;
   const itemCount = player?.inventory.filter(id => id === item.id).length || 0;
-  const hasItem = itemCount > 0;
-  const isTriplicate = itemCount >= 2;
-  const isOutOfStock = itemCount >= 3;
+  const hasItem = !isInInventory && itemCount > 0;
+  const isTriplicate = !isInInventory && itemCount >= 2;
+  const isOutOfStock = !isInInventory && itemCount >= 3;
 
   return (
     <div className="flex flex-col gap-2">
@@ -474,11 +537,11 @@ const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false }) =
         ${isOutOfStock ? 'bg-gray-200 opacity-60' : 'bg-card hover:bg-accent/50'} 
         transition-colors relative
       `}>
-        {hasItem && (
+        {(hasItem || (isInInventory && itemCount > 1)) && (
           <>
-            {!isOutOfStock && <FloatingArrows isTriplicate={isTriplicate} />}
-            <DuplicateCounter count={itemCount + 1} />
-            {isOutOfStock && (
+            {!isOutOfStock && !isInInventory && <FloatingArrows isTriplicate={isTriplicate} />}
+            <DuplicateCounter count={isInInventory ? itemCount : itemCount + 1} />
+            {isOutOfStock && !isInInventory && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="bg-red-500 text-white px-4 py-2 rounded-md font-bold transform -rotate-12">
                   OUT OF STOCK
@@ -487,7 +550,7 @@ const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false }) =
             )}
           </>
         )}
-        <div className={`aspect-square flex flex-col ${isOutOfStock ? 'pointer-events-none' : ''}`}>
+        <div className={`aspect-square flex flex-col ${isOutOfStock && !isInInventory ? 'pointer-events-none' : ''}`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex flex-col items-center gap-1">
               <div className="w-12 h-12 border-2 rounded-lg flex items-center justify-center text-2xl bg-background">
@@ -529,7 +592,8 @@ const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false }) =
               {[1, 2, 3].map((i) => (
                 <div
                   key={`circle-${i}`}
-                  className="w-4 h-4 border-2 rounded-full"
+                  className={`w-4 h-4 border-2 rounded-full 
+                    ${i <= itemCount ? 'bg-black border-black' : ''}`}
                 />
               ))}
             </div>
@@ -728,10 +792,7 @@ const LevelUpModal = observer(() => {
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold mb-4">Tier {store.newlyUnlockedTier} Item</h2>
             <div className="mb-4">
-              <ItemCard
-                item={selectedItem.item}
-                isLevelUpReward={true} // New prop to hide buy button
-              />
+              <ItemCard item={selectedItem.item} onBuy={() => { }} />
             </div>
             <div className="flex gap-4 justify-center">
               <button
