@@ -128,6 +128,8 @@ const PlayerStats = observer(() => {
   const player = bazaarStore.activePlayer;
   if (!player) return null;
 
+  const requiredXP = bazaarStore.getRequiredXPForLevel(player.level);
+
   return (
     <div className="bg-card p-4 rounded-lg shadow-md">
       <div className="flex justify-between items-center">
@@ -172,7 +174,7 @@ const PlayerStats = observer(() => {
               </button>
             </div>
             <div>
-              XP: {player.xp}/{player.level * 10} 📊
+              XP: {player.xp}/{requiredXP} 📊
               <button
                 onClick={() => bazaarStore.incrementStat("xp")}
                 className="ml-2 px-2 py-1 bg-primary text-primary-foreground rounded-md"
@@ -191,10 +193,13 @@ const PlayerStats = observer(() => {
             </div>
           </div>
         </div>
-        <div
-          className="w-6 h-6 rounded-full"
-          style={{ backgroundColor: player.color }}
-        />
+        <div className="flex items-center gap-2">
+          <span>{player.name}</span>
+          <div
+            className="w-6 h-6 rounded-full"
+            style={{ backgroundColor: player.color }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -455,7 +460,7 @@ const FloatingArrows = ({ isTriplicate = false }) => (
   </div>
 );
 
-const ItemCard = observer(({ item, onBuy, disabled }) => {
+const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false }) => {
   const player = bazaarStore.activePlayer;
   const itemCount = player?.inventory.filter(id => id === item.id).length || 0;
   const hasItem = itemCount > 0;
@@ -532,16 +537,18 @@ const ItemCard = observer(({ item, onBuy, disabled }) => {
         </div>
       </div>
 
-      <button
-        onClick={() => onBuy(item)}
-        disabled={disabled || isOutOfStock}
-        className={`w-full px-3 py-1 bg-primary text-primary-foreground rounded-md 
-          flex items-center justify-center gap-2
-          ${(disabled || isOutOfStock) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-      >
-        <span>3</span>
-        <span>🪙</span>
-      </button>
+      {!isLevelUpReward && (
+        <button
+          onClick={() => bazaarStore.purchaseItem(item.id)}
+          disabled={disabled || isOutOfStock}
+          className={`w-full px-3 py-1 bg-primary text-primary-foreground rounded-md 
+            flex items-center justify-center gap-2
+            ${(disabled || isOutOfStock) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+        >
+          <span>3</span>
+          <span>🪙</span>
+        </button>
+      )}
     </div>
   );
 });
@@ -564,7 +571,7 @@ const MarketView = observer(({ marketVariant }) => {
         <button
           onClick={handleReroll}
           disabled={!player || player.gold < 1}
-          className={`p-2 rounded-full hover:bg-accent/50 transition-colors
+          className={`p-2 rounded-full hover:bg-accent/50 transition-colors bg-blue-500
             ${(!player || player.gold < 1) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           title="Reroll (1 Gold)"
         >
@@ -699,42 +706,125 @@ const setupTestMode = () => {
   }
 };
 
+const LevelUpModal = observer(() => {
+  const store = bazaarStore;
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  if (!store.isLevelUpModalOpen || !store.activePlayer) return null;
+
+  const handleRewardSelect = (reward) => {
+    if (reward.type === 'item') {
+      setSelectedItem(reward);
+    } else {
+      store.selectLevelUpReward(reward.id);
+    }
+  };
+
+  // Show item details if an item is selected
+  if (selectedItem) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold mb-4">Tier {store.newlyUnlockedTier} Item</h2>
+            <div className="mb-4">
+              <ItemCard
+                item={selectedItem.item}
+                isLevelUpReward={true} // New prop to hide buy button
+              />
+            </div>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setSelectedItem(null)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+              >
+                Choose Different Reward
+              </button>
+              <button
+                onClick={() => store.selectLevelUpReward(selectedItem.id)}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+              >
+                Accept Item
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main level up modal
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold mb-2">Level Up! 🎉</h2>
+          <p className="text-xl text-gray-600">
+            Tavern Tier {store.newlyUnlockedTier} Unlocked! 🏰
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {store.levelUpRewards.map((reward) => (
+            <button
+              key={reward.id}
+              onClick={() => handleRewardSelect(reward)}
+              className="bg-blue-100 hover:bg-blue-200 transition-colors p-4 rounded-lg text-center"
+            >
+              <div className="text-2xl mb-2">{reward.emoji}</div>
+              <div className="font-bold">{reward.displayText}</div>
+              {reward.type === 'item' && reward.item && (
+                <div className="text-sm text-gray-600 mt-1">
+                  Click to view item details
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const BazaarGame = observer(() => {
   useEffect(() => {
     setupTestMode();
   }, []);
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      {!bazaarStore.gameStarted ? (
-        <SetupScreen />
-      ) : (
-        <div className="space-y-4">
-          <PlayerStats />
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4">
-              <div>Age: {bazaarStore.currentAge}</div>
-              <div>Round: {bazaarStore.currentRound}</div>
+    <div className="bg-black h-screen">
+      <div className="container mx-auto p-4 max-w-2xl">
+        {!bazaarStore.gameStarted ? (
+          <SetupScreen />
+        ) : (
+          <div className="space-y-4">
+            <PlayerStats />
+            <div className="flex justify-between items-center">
+              <div className="flex gap-4 bg-yellow-200 p-4 font-strike font-bold text-2xl">
+                <div>Age: {bazaarStore.currentAge}</div>
+                <div>Round: {bazaarStore.currentRound}</div>
+              </div>
+              <button
+                onClick={() => bazaarStore.nextTurn()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+              >
+                End Turn
+              </button>
             </div>
+            <GameContent />
             <button
-              onClick={() => bazaarStore.nextTurn()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+              onClick={() => {
+                bazaarStore.resetGame();
+                setupTestMode();
+              }}
+              className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md"
             >
-              End Turn
+              Reset Game
             </button>
+            <LevelUpModal />
           </div>
-          <GameContent />
-          <button
-            onClick={() => {
-              bazaarStore.resetGame();
-              setupTestMode();
-            }}
-            className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md"
-          >
-            Reset Game
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 });

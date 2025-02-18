@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, runInAction, computed } from "mobx";
 import {
   getRandomEncounters,
   getRandomItems,
@@ -175,9 +175,14 @@ class BazaarStore {
   currentOptions = [];
   currentPhase = "encounters";
   currentMarketVariant = null;
+  isLevelUpModalOpen = false;
+  levelUpRewards = [];
+  newlyUnlockedTier = null;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+      activePlayer: computed,
+    });
     // Commenting out localStorage load on construction
     // this.loadFromLocalStorage();
   }
@@ -216,6 +221,18 @@ class BazaarStore {
 
   nextTurn() {
     runInAction(() => {
+      const player = this.activePlayer;
+      if (player) {
+        player.xp += 1;
+        this.showToast("Gained 1 XP for exploring! 📊");
+
+        // Check for level up with new XP requirement
+        if (player.xp >= this.getRequiredXPForLevel(player.level)) {
+          this.triggerLevelUp();
+          return;
+        }
+      }
+
       // Clear ALL state
       this.currentEncounters = [];
       this.currentOptions = [];
@@ -343,6 +360,9 @@ class BazaarStore {
 
   // Getter for active player
   get activePlayer() {
+    if (!this.players || this.activePlayerIndex >= this.players.length) {
+      return null;
+    }
     return this.players[this.activePlayerIndex];
   }
 
@@ -643,6 +663,117 @@ class BazaarStore {
           console.warn('Unknown stat:', stat);
       }
     });
+  }
+
+  // New method to handle level up
+  triggerLevelUp() {
+    runInAction(() => {
+      const player = this.activePlayer;
+      if (!player) return;
+
+      // Calculate new tier
+      const newTier = Math.min(5, player.tier + 1);
+      this.newlyUnlockedTier = newTier;
+
+      // Generate level up rewards
+      this.levelUpRewards = this.generateLevelUpRewards(newTier);
+
+      // Open the modal
+      this.isLevelUpModalOpen = true;
+    });
+  }
+
+  generateLevelUpRewards(newTier) {
+    const tierItem = this.getRandomItemOfTier(newTier);
+
+    return [
+      {
+        id: 'tier_item',
+        type: 'item',
+        item: tierItem,
+        displayText: tierItem ? `${tierItem.name} (Tier ${newTier})` : 'Random Tier Item',
+        emoji: '🎁'
+      },
+      {
+        id: 'xp_boost',
+        type: 'xp',
+        amount: 1,
+        displayText: '+1 XP',
+        emoji: '⭐'
+      },
+      {
+        id: 'gold_boost',
+        type: 'gold',
+        amount: 4,
+        displayText: '+4 Gold',
+        emoji: '🪙'
+      }
+    ];
+  }
+
+  getRandomItemOfTier(tier) {
+    const tierItems = items.filter(item => item.tier === tier);
+    if (tierItems.length === 0) {
+      console.warn(`No items found for tier ${tier}`);
+      return null;
+    }
+    return tierItems[Math.floor(Math.random() * tierItems.length)];
+  }
+
+  selectLevelUpReward = (rewardId) => {
+    runInAction(() => {
+      const player = this.activePlayer;
+      if (!player) {
+        console.warn('No active player found');
+        return;
+      }
+
+      const reward = this.levelUpRewards.find(r => r.id === rewardId);
+      if (!reward) {
+        console.warn('Invalid reward ID:', rewardId);
+        return;
+      }
+
+      // Apply the reward
+      switch (reward.type) {
+        case 'item':
+          if (reward.item) {
+            player.inventory.push(reward.item.id);
+            this.showToast(`Gained ${reward.item.name}! 🎁`);
+          }
+          break;
+        case 'xp':
+          player.xp += reward.amount;
+          this.showToast(`Gained ${reward.amount} XP! ⭐`);
+          break;
+        case 'gold':
+          player.gold += reward.amount;
+          this.showToast(`Gained ${reward.amount} gold! 🪙`);
+          break;
+        default:
+          console.warn('Unknown reward type:', reward.type);
+          return;
+      }
+
+      // Complete the level up process
+      const usedXP = this.getRequiredXPForLevel(player.level);
+      player.level += 1;
+      player.xp -= usedXP; // Subtract the XP needed for this level
+      player.tier = this.newlyUnlockedTier;
+
+      // Reset level up state
+      this.isLevelUpModalOpen = false;
+      this.levelUpRewards = [];
+      this.newlyUnlockedTier = null;
+
+      // Continue with next turn
+      this.nextTurn();
+    });
+  }
+
+  getRequiredXPForLevel(level) {
+    // Starting at 5 XP, increasing by 2 each level
+    return 3 + (level * 2);
   }
 }
 
