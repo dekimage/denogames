@@ -621,11 +621,11 @@ const PrintableSheet = () => {
           </h2>
         </div>
 
-        <ExpansionSelector
+        {/* <ExpansionSelector
           gameId="monstermixology"
           selectedExpansions={selectedExpansions}
           setSelectedExpansions={setSelectedExpansions}
-        />
+        /> */}
 
         <div className="space-y-6 mb-12 flex justify-center flex-col items-center">
           {(gamesStaticData["monster-mixology"]?.downloadResources || []).map(
@@ -853,11 +853,10 @@ const ResourceComponent = ({
 
   return (
     <div className="box-inner">
-      <div className=" rounded-lg w-full sm:w-[600px] md:w-[800px] box-broken p-4">
+      <div className=" rounded-lg w-full sm:w-[600px] md:w-[800px] box-broken p-4 py-12">
         <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
           <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
             <Image
-              unoptimized
               src={resource.image}
               alt={resource.name}
               width={150}

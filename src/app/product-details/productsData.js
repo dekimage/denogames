@@ -1,5 +1,6 @@
 export const placeholderBenefitsImg = "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FbenefitsImages%2Fplaceholder-1.png?alt=media";
-
+const monsterMixologyCoverImg = "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2Fmm-cover-download.jpg?alt=media";
+const monsterMixologyLogoImg = "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2Fmm-logo.png?alt=media";
 const dummyProduct = {
   neededComponents: [
     { name: "4x Dice (6-sided)", image: "/path/to/dice-image.jpg" },
@@ -124,25 +125,25 @@ const monstermixologyData = {
       title: "Push Your Luck",
       description:
         "Every turn is filled with thrilling decisions and unexpected surprises. Test your bravery, make bold choices, and embrace the excitement of the unknown!",
-        image: placeholderBenefitsImg
+      image: placeholderBenefitsImg
     },
     {
       title: "Dynamic A4 Sheets",
       description:
         "Experience gameplay on uniquely generated A4 sheets each time you play. With this dynamic system, every session brings a new set of challenges and opportunities.",
-        image: placeholderBenefitsImg
+      image: placeholderBenefitsImg
     },
     {
       title: "App Support for Easy Printing",
       description:
         "Simplify your setup with our companion app. All you need is one A4 sheet and access to the app—no more cutting hundreds of cards or tedious preparations!",
-        image: placeholderBenefitsImg
+      image: placeholderBenefitsImg
     },
     {
       title: "Exciting Competitive Play",
       description:
         "Gather your friends or family for a fun-filled, competitive experience. Perfect for game nights, it’s designed to be exciting and family-friendly for players of all ages!",
-        image: placeholderBenefitsImg
+      image: placeholderBenefitsImg
     },
   ],
   neededComponents: [
@@ -212,7 +213,7 @@ const monstermixologyData = {
     {
       type: "main-sheet",
       name: "Main Game Sheet",
-      image: placeholderBenefitsImg,
+      image: monsterMixologyCoverImg || placeholderBenefitsImg,
       description: "The primary game sheet where all the mixing action happens",
       instructions:
         "Choose your paper size and player count. Higher player counts will adjust the layout accordingly.",
@@ -256,7 +257,7 @@ const monstermixologyData = {
     {
       type: "rulebook",
       name: "Monster Mixology Rulebook",
-      image: placeholderBenefitsImg,
+      image: monsterMixologyLogoImg || placeholderBenefitsImg,
       description:
         "Official Monster Mixology rulebook with complete game instructions and setup guide",
       instructions:
