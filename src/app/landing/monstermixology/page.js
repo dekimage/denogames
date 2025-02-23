@@ -91,7 +91,7 @@ export default function MonsterMixologyPage() {
       </main>
 
       {/* Fixed Form at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 p-4 shadow-lg bg-white">
         <div className="container max-w-2xl mx-auto ">
           <form onSubmit={handleDownload} className="flex flex-col gap-4">
             <Input

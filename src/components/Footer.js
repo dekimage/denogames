@@ -51,14 +51,14 @@ const Footer = () => {
 
   return (
     <footer className="text-white mt-auto">
-      <div className="relative h-[400px] w-full">
+      {/* <div className="relative h-[400px] w-full">
         <Image
           src={footerImg}
           alt="Footer background"
           fill
           style={{ objectFit: "cover" }}
         />
-      </div>
+      </div> */}
 
       <div className="w-full bg-darky flex flex-col justify-between items-center">
         <div className="flex flex-col gap-16 md:flex-row justify-between mb-8 max-w-[1000px] px-4">
