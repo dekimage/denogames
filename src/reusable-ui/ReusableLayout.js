@@ -71,6 +71,7 @@ const routePrefixesWithoutHeaderFooter = [
   "/mvp/pdf",
   "/mvp/vampires",
   "/mvp/monstermixology",
+  "/mvp/bazaar",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {
@@ -349,9 +350,8 @@ const ReusableLayout = observer(({ children }) => {
           </div>
         )}
         <div
-          className={`${
-            showHeaderFooter || showMvpHeader ? "pt-[53px] print:pt-0" : ""
-          }`}
+          className={`${showHeaderFooter || showMvpHeader ? "pt-[53px] print:pt-0" : ""
+            }`}
         >
           <ResizablePanelGroup
             direction="horizontal"

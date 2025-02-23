@@ -523,7 +523,7 @@ const FloatingArrows = ({ isTriplicate = false }) => (
   </div>
 );
 
-const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false, isInInventory = false }) => {
+export const ItemCard = observer(({ item, onBuy, disabled, isLevelUpReward = false, isInInventory = false }) => {
   const player = bazaarStore.activePlayer;
   const itemCount = player?.inventory.filter(id => id === item.id).length || 0;
   const hasItem = !isInInventory && itemCount > 0;
@@ -861,7 +861,7 @@ const BazaarGame = observer(() => {
           <div className="space-y-4">
             <PlayerStats />
             <div className="flex justify-between items-center">
-              <div className="flex gap-4 bg-yellow-200 p-4 font-strike font-bold text-2xl">
+              <div className="flex gap-4 bg-yellow-200 p-4 font-strike font-bold text-2xl text-black">
                 <div>Age: {bazaarStore.currentAge}</div>
                 <div>Round: {bazaarStore.currentRound}</div>
               </div>

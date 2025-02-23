@@ -5,6 +5,7 @@ export const routesWithoutHeaderFooter = [
   "/cart",
   "/app/the-last-faire",
   "/mvp/builders-town/test",
+  "/mvp/bazaar",
 ];
 
 export const shouldShowHeaderFooter = (pathname) => {
