@@ -85,6 +85,11 @@ class Store {
   // Add a new state to track when everything is fully loaded
   userFullyLoaded = false;
 
+  // Add to existing properties
+  achievements = [];
+  specialRewards = [];
+  achievementsLoading = false;
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -136,6 +141,9 @@ class Store {
     this.isBlogDetailsLoading = this.isBlogDetailsLoading.bind(this);
     this.getRelatedExpansions = this.getRelatedExpansions.bind(this);
     this.getRelatedGames = this.getRelatedGames.bind(this);
+
+    this.fetchAchievementsAndRewards =
+      this.fetchAchievementsAndRewards.bind(this);
   }
 
   initializeAuth() {
@@ -1279,6 +1287,37 @@ class Store {
         email: this.user.email,
       };
     });
+  }
+
+  async fetchAchievementsAndRewards() {
+    if (this.achievements.length && this.specialRewards.length) return; // Don't refetch if we have data
+
+    try {
+      runInAction(() => {
+        this.achievementsLoading = true;
+      });
+
+      const response = await fetch("/api/achievements", {
+        headers: {
+          Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch achievements");
+
+      const { achievements, specialRewards } = await response.json();
+
+      runInAction(() => {
+        this.achievements = achievements;
+        this.specialRewards = specialRewards;
+        this.achievementsLoading = false;
+      });
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+      runInAction(() => {
+        this.achievementsLoading = false;
+      });
+    }
   }
 }
 
