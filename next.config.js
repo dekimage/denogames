@@ -13,6 +13,8 @@ const nextConfig = {
       "www.denogames.com",
       "denogames5.wordpress.com",
       "via.placeholder.com",
+      "storage.googleapis.com",
+      "denogames-7c4dc.appspot.com",
     ],
   },
 };

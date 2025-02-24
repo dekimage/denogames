@@ -7,6 +7,8 @@ import {
   Users,
   ShoppingCart,
   GamepadIcon,
+  Trophy,
+  Gift,
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,7 +31,11 @@ const navItems = [
   { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
   { icon: GamepadIcon, label: "Games", href: "/admin/games" },
   { icon: GamepadIcon, label: "Delivery", href: "/admin/delivery" },
+];
 
+const cmsItems = [
+  { icon: Trophy, label: "Achievements", href: "/admin/achievements" },
+  { icon: Gift, label: "Special Rewards", href: "/admin/special-rewards" },
 ];
 
 export default function Layout({ children }) {
@@ -68,6 +74,29 @@ export default function Layout({ children }) {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <Link href={item.href} passHref>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === item.href}
+                        >
+                          <a className="flex items-center gap-2">
+                            <item.icon className="h-4 w-4" />
+                            {item.label}
+                          </a>
+                        </SidebarMenuButton>
+                      </Link>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>CMS</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {cmsItems.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <Link href={item.href} passHref>
                         <SidebarMenuButton

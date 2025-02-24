@@ -8,13 +8,12 @@ const Breadcrumbs = ({ startFromAccount = false }) => {
 
   const breadcrumbs = [
     ...(startFromAccount
-      ? []  // Skip Homepage if starting from account
-      : [{ name: "Homepage", href: "/" }]
-    ),
+      ? [] // Skip Homepage if starting from account
+      : [{ name: "Homepage", href: "/" }]),
     ...pathSegments.map((segment, index) => ({
       name: segment.charAt(0).toUpperCase() + segment.slice(1),
       href: `/${pathSegments.slice(0, index + 1).join("/")}`,
-      isCurrent: index === pathSegments.length - 1
+      isCurrent: index === pathSegments.length - 1,
     })),
   ];
 
