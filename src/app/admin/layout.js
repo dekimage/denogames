@@ -9,6 +9,7 @@ import {
   GamepadIcon,
   Trophy,
   Gift,
+  Package,
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +37,7 @@ const navItems = [
 const cmsItems = [
   { icon: Trophy, label: "Achievements", href: "/admin/achievements" },
   { icon: Gift, label: "Special Rewards", href: "/admin/special-rewards" },
+  { icon: Package, label: "Products", href: "/admin/products" },
 ];
 
 export default function Layout({ children }) {

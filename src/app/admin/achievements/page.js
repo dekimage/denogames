@@ -36,6 +36,7 @@ import Image from "next/image";
 import { Loader2, Plus, Trash, Upload } from "lucide-react";
 import { achievements as dummyAchievements } from "@/data/achievements";
 import { useToast } from "@/components/ui/use-toast";
+import AdminStore from "@/mobx/AdminStore";
 
 const AchievementForm = ({ achievement, onSave, onCancel }) => {
   const { toast } = useToast();
@@ -248,8 +249,6 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
 const AchievementsPage = observer(() => {
   const { toast } = useToast();
   const router = useRouter();
-  const [achievements, setAchievements] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -258,7 +257,7 @@ const AchievementsPage = observer(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       if (user) {
-        fetchAchievements();
+        fetchData();
       } else {
         router.push("/login");
       }
@@ -267,71 +266,39 @@ const AchievementsPage = observer(() => {
     return () => unsubscribe();
   }, []);
 
-  const fetchAchievements = async () => {
+  const fetchData = async () => {
     try {
-      const token = await auth.currentUser?.getIdToken(/* forceRefresh */ true);
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await fetch("/api/admin/achievements", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch achievements");
-      }
-
-      const data = await response.json();
-      setAchievements(data.achievements || []);
+      await AdminStore.fetchAchievements();
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to fetch achievements",
         variant: "destructive",
       });
-      console.error(error);
-      if (
-        error.message.includes("Unauthorized") ||
-        error.message.includes("token")
-      ) {
+      if (error.message.includes("Unauthorized")) {
         router.push("/login");
       }
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const getAuthHeaders = async () => {
-    const token = await auth.currentUser?.getIdToken(true);
-    return {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
   };
 
   const handleSave = async (formData) => {
     try {
-      const headers = await getAuthHeaders();
-      const response = await fetch("/api/admin/achievements", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error("Failed to save");
-
+      if (formData.id) {
+        await AdminStore.updateAchievement(formData.id, formData);
+      } else {
+        await AdminStore.createAchievement(formData);
+      }
       setIsDialogOpen(false);
-      fetchAchievements();
+      toast({
+        title: "Success",
+        description: "Achievement saved successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to save achievement",
         variant: "destructive",
       });
-      console.error(error);
     }
   };
 
@@ -339,19 +306,11 @@ const AchievementsPage = observer(() => {
     if (!confirm("Are you sure you want to delete this achievement?")) return;
 
     try {
-      const headers = await getAuthHeaders();
-      const response = await fetch(`/api/admin/achievements?id=${id}`, {
-        method: "DELETE",
-        headers,
-      });
-
-      if (!response.ok) throw new Error("Failed to delete");
-
+      await AdminStore.deleteAchievement(id);
       toast({
         title: "Success",
         description: "Achievement deleted successfully",
       });
-      fetchAchievements();
     } catch (error) {
       toast({
         title: "Error",
@@ -364,24 +323,11 @@ const AchievementsPage = observer(() => {
 
   const handleBulkUpload = async () => {
     try {
-      setLoading(true);
-      const headers = await getAuthHeaders();
-
-      for (const achievement of dummyAchievements) {
-        const response = await fetch("/api/admin/achievements", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(achievement),
-        });
-
-        if (!response.ok) throw new Error("Failed to upload achievement");
-      }
-
+      await AdminStore.bulkUploadAchievements(dummyAchievements);
       toast({
         title: "Success",
         description: "Achievements uploaded successfully",
       });
-      fetchAchievements();
     } catch (error) {
       toast({
         title: "Error",
@@ -389,8 +335,6 @@ const AchievementsPage = observer(() => {
         variant: "destructive",
       });
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -398,20 +342,11 @@ const AchievementsPage = observer(() => {
     if (!confirm("Are you sure you want to delete all achievements?")) return;
 
     try {
-      setLoading(true);
-      const headers = await getAuthHeaders();
-      const response = await fetch("/api/admin/achievements", {
-        method: "DELETE",
-        headers,
-      });
-
-      if (!response.ok) throw new Error("Failed to delete all");
-
+      await AdminStore.deleteAllAchievements();
       toast({
         title: "Success",
         description: "All achievements deleted successfully",
       });
-      fetchAchievements();
     } catch (error) {
       toast({
         title: "Error",
@@ -419,12 +354,10 @@ const AchievementsPage = observer(() => {
         variant: "destructive",
       });
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (!isAuthenticated || loading) {
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -437,14 +370,17 @@ const AchievementsPage = observer(() => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Achievements</h1>
         <div className="flex gap-2">
-          <Button onClick={handleBulkUpload} disabled={loading}>
+          <Button
+            onClick={handleBulkUpload}
+            disabled={AdminStore.loading.achievements}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Bulk Upload
           </Button>
           <Button
             variant="destructive"
             onClick={handleDeleteAll}
-            disabled={loading}
+            disabled={AdminStore.loading.achievements}
           >
             <Trash className="mr-2 h-4 w-4" />
             Delete All
@@ -473,7 +409,7 @@ const AchievementsPage = observer(() => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {achievements.map((achievement) => (
+        {AdminStore.achievements.map((achievement) => (
           <Card key={achievement.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
