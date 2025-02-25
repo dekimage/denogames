@@ -4,6 +4,7 @@ import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/firebase"; // Import regular Firebase auth
 import {
   Table,
@@ -15,15 +16,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
-import { Star, Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Star, Plus, ChevronRight } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const StarRating = ({ rating }) => {
   return (
@@ -40,65 +34,36 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const AddReviewDialog = observer(({ products }) => {
-  const nonReviewedProducts = products.filter(
-    (product) => !product.hasUserReview
-  );
-
+const GameToReview = ({ product }) => {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Review
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Write a Review</DialogTitle>
-          <DialogDescription className="space-y-2">
-            <p>Earn +2 XP for each review you write!</p>
-            {nonReviewedProducts.length > 0 && (
-              <p className="text-sm text-muted-foreground">
-                You have {nonReviewedProducts.length} game
-                {nonReviewedProducts.length !== 1 ? "s" : ""} available to
-                review
-              </p>
-            )}
-          </DialogDescription>
-        </DialogHeader>
-        {nonReviewedProducts.length > 0 ? (
-          <div className="grid gap-4">
-            {nonReviewedProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/product-details/${product.slug}#reviews`}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted transition-colors"
-              >
-                <div>
-                  <div className="font-medium">{product.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {product.type === "expansion" ? "Expansion" : "Base Game"}
-                  </div>
-                </div>
-                <Button variant="ghost">Review</Button>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6">
-            <p className="text-muted-foreground">
-              It seems you don't have any purchased games that you haven't
-              reviewed yet.
-            </p>
-            <p className="text-sm mt-2">
-              Note: You must own a game or expansion to leave a review.
-            </p>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <Link
+      href={`/product-details/${product.slug}#reviews`}
+      className="flex items-center justify-between p-4 bg-white rounded-lg border hover:border-primary transition-colors group"
+    >
+      <div className="flex items-center gap-4">
+        <div className="relative w-16 h-16 rounded-md overflow-hidden">
+          <Image
+            src={product.thumbnail}
+            alt={product.name}
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div>
+          <h3 className="font-medium group-hover:text-primary transition-colors">
+            {product.name}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {product.type === "expansion" ? "Expansion" : "Base Game"}
+          </p>
+        </div>
+      </div>
+      <Button variant="ghost" size="sm" className="gap-2">
+        Write Review <ChevronRight className="w-4 h-4" />
+      </Button>
+    </Link>
   );
-});
+};
 
 const ReviewsPage = observer(() => {
   const { user, products } = MobxStore;
@@ -160,17 +125,17 @@ const ReviewsPage = observer(() => {
   );
 
   const reviewedProductIds = new Set(reviews.map((review) => review.productId));
-  const productsForReview = purchasedProducts.map((product) => ({
-    ...product,
-    hasUserReview: reviewedProductIds.has(product.id),
-  }));
+  const productsForReview = purchasedProducts.filter(
+    (product) => !reviewedProductIds.has(product.id)
+  );
 
   return (
     <div className="py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Your Reviews</h2>
-        <AddReviewDialog products={productsForReview} />
       </div>
+
+      <Separator className="my-6" />
 
       {reviews.length === 0 ? (
         <div className="text-center py-12">
@@ -182,51 +147,75 @@ const ReviewsPage = observer(() => {
           </p>
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Game</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead className="hidden md:table-cell">Comment</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>XP</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {reviews.map((review) => (
-              <TableRow
-                key={review.id}
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() =>
-                  (window.location.href = `/product-details/${review.product?.slug}#reviews`)
-                }
-              >
-                <TableCell>
-                  <div>
-                    <div className="font-medium">{review.product?.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {review.product?.type === "expansion"
-                        ? "Expansion"
-                        : "Base Game"}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <StarRating rating={review.rating} />
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <div className="max-w-[300px] truncate">{review.comment}</div>
-                </TableCell>
-                <TableCell>
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <span className="text-green-600">+2 XP</span>
-                </TableCell>
+        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Game</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Rating</TableHead>
+                <TableHead className="hidden md:table-cell">Comment</TableHead>
+                <TableHead>Date</TableHead>
               </TableRow>
+            </TableHeader>
+            <TableBody>
+              {reviews.map((review) => (
+                <TableRow
+                  key={review.id}
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() =>
+                    (window.location.href = `/product-details/${review.product?.slug}#reviews`)
+                  }
+                >
+                  <TableCell>
+                    <div className="relative w-12 h-12 rounded-md overflow-hidden">
+                      <Image
+                        src={review.product?.thumbnail}
+                        alt={review.product?.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{review.product?.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {review.product?.type === "expansion"
+                          ? "Expansion"
+                          : "Base Game"}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <StarRating rating={review.rating} />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <div className="max-w-[300px] truncate">
+                      {review.comment}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {productsForReview.length > 0 && (
+        <div className="mt-8 space-y-4">
+          <h2 className="text-lg font-medium">
+            Games Available for Review ({productsForReview.length})
+          </h2>
+          <div className="grid gap-4">
+            {productsForReview.map((product) => (
+              <GameToReview key={product.id} product={product} />
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </div>
       )}
     </div>
   );

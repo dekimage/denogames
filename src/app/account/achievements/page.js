@@ -14,52 +14,62 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle, Lock } from "lucide-react";
 
-const AchievementCard = ({ achievement, isUnlocked, relatedRewards }) => {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div
-          className={`relative cursor-pointer rounded-lg border p-4 transition-all hover:shadow-lg ${
-            isUnlocked ? "bg-white" : "bg-gray-100 grayscale"
+export const AchievementCard = ({
+  achievement,
+  isUnlocked,
+  relatedRewards,
+  fromReward,
+}) => {
+  const cardContent = (
+    <div
+      className={`relative cursor-pointer rounded-lg border p-4 transition-all hover:shadow-lg ${
+        isUnlocked ? "bg-white" : "bg-gray-100 grayscale"
+      }`}
+    >
+      <div className="absolute top-2 right-2">
+        {isUnlocked ? (
+          <CheckCircle className="w-5 h-5 text-primary" />
+        ) : (
+          <Lock className="w-5 h-5 text-gray-500" />
+        )}
+      </div>
+
+      <div className="absolute top-2 left-2">
+        <span
+          className={`text-xs px-2 py-1 rounded-full ${
+            achievement.type === "achievement"
+              ? "bg-primary/10 text-primary"
+              : "bg-purple-100 text-purple-600"
           }`}
         >
-          <div className="absolute top-2 right-2">
-            {isUnlocked ? (
-              <CheckCircle className="w-5 h-5 text-primary" />
-            ) : (
-              <Lock className="w-5 h-5 text-gray-500" />
-            )}
-          </div>
+          {achievement.type === "achievement" ? "Achievement" : "Collectible"}
+        </span>
+      </div>
 
-          <div className="absolute top-2 left-2">
-            <span
-              className={`text-xs px-2 py-1 rounded-full ${
-                achievement.type === "achievement"
-                  ? "bg-primary/10 text-primary"
-                  : "bg-purple-100 text-purple-600"
-              }`}
-            >
-              {achievement.type === "achievement"
-                ? "Achievement"
-                : "Collectible"}
-            </span>
-          </div>
+      <div className="relative h-24 w-24 mx-auto mb-3 mt-6">
+        <Image
+          src={achievement.image}
+          alt={achievement.name}
+          fill
+          className="object-contain"
+        />
+      </div>
+      <h3 className="text-center font-semibold">{achievement.name}</h3>
+      <p className="text-sm text-center text-muted-foreground mt-1">
+        {achievement.description}
+      </p>
+    </div>
+  );
 
-          <div className="relative h-24 w-24 mx-auto mb-3 mt-6">
-            <Image
-              src={achievement.image}
-              alt={achievement.name}
-              fill
-              className="object-contain"
-            />
-          </div>
-          <h3 className="text-center font-semibold">{achievement.name}</h3>
-          <p className="text-sm text-center text-muted-foreground mt-1">
-            {achievement.description}
-          </p>
-        </div>
-      </DialogTrigger>
+  // If fromReward is true, return just the card content without Dialog
+  if (fromReward) {
+    return cardContent;
+  }
 
+  // Otherwise, wrap it in Dialog
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{cardContent}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
@@ -222,6 +232,7 @@ const AchievementsPage = observer(() => {
             achievement={achievement}
             isUnlocked={user?.achievements?.includes(achievement.key)}
             relatedRewards={getRelatedRewards(achievement.key)}
+            fromReward={false}
           />
         ))}
       </div>

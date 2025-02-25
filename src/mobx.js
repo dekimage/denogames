@@ -90,6 +90,9 @@ class Store {
   specialRewards = [];
   achievementsLoading = false;
 
+  // Add new properties
+  claimingReward = false;
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -144,6 +147,8 @@ class Store {
 
     this.fetchAchievementsAndRewards =
       this.fetchAchievementsAndRewards.bind(this);
+
+    this.claimSpecialReward = this.claimSpecialReward.bind(this);
   }
 
   initializeAuth() {
@@ -1316,6 +1321,44 @@ class Store {
       console.error("Error fetching achievements:", error);
       runInAction(() => {
         this.achievementsLoading = false;
+      });
+    }
+  }
+
+  async claimSpecialReward(rewardId) {
+    try {
+      runInAction(() => {
+        this.claimingReward = true;
+      });
+
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch("/api/special-rewards/claim", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rewardId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to claim reward");
+      }
+
+      const { unlockedRewards } = await response.json();
+
+      runInAction(() => {
+        this.user.unlockedRewards = unlockedRewards;
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.claimingReward = false;
       });
     }
   }

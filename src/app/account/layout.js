@@ -116,7 +116,7 @@ const AccountLayout = observer(({ children }) => {
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
-        <main className="w-full p-6 bg-gray-100">{children}</main>
+        <main className="w-full bg-gray-100">{children}</main>
       </div>
     </SidebarProvider>
   );
