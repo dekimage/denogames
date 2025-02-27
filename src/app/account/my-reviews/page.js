@@ -140,10 +140,10 @@ const ReviewsPage = observer(() => {
       {reviews.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-muted-foreground">
-            You haven't written any reviews yet.
+            You haven&apos;t written any reviews yet.
           </p>
           <p className="text-sm mt-2">
-            Share your thoughts about the games you've played!
+            Share your thoughts about the games you&apos;ve played!
           </p>
         </div>
       ) : (

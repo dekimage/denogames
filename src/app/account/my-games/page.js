@@ -14,7 +14,6 @@ const GameCard = ({ game }) => {
   const allExpansions = getRelatedExpansions(game.id, { includeOwned: true });
   const ownedExpansions = allExpansions.filter((exp) => exp.isOwned);
 
-  // Determine acquisition method (you'll need to add this data to your user's purchasedProducts)
   const acquisitionMethod = game.acquisitionMethod || "Shop"; // Default to Shop
 
   return (
@@ -67,7 +66,7 @@ const MyGamesPage = observer(() => {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <h1 className="text-3xl font-bold mb-4">
-          You don't have any games yet
+          You don&apos;t have any games yet
         </h1>
         <p className="text-muted-foreground text-lg mb-8">
           Start your collection by exploring our game shop!
