@@ -1,4 +1,3 @@
-
 export const heroesCards = [
   {
     id: 1,
@@ -105,7 +104,8 @@ export const heroesCards = [
     vp: 3,
     uses: 1,
     trigger: "other",
-    effect: "Pay 🌕🌕🌕🌕 instead of ingredients when you serve a cocktail. (You still must spend 1 Action to serve)",
+    effect:
+      "Pay 🌕🌕🌕🌕 instead of ingredients when you serve a cocktail. (You still must spend 1 Action to serve)",
   },
   {
     id: 13,
@@ -114,7 +114,7 @@ export const heroesCards = [
     uses: 2,
     trigger: "other",
     effect:
-      "Gain any 2 ingredients if an opponent has served 5 or more drinks this game. And you have served less than 4.",
+      "Gain any 2 ingredients if an opponent has served 5 or more drinks this game and you have served less than 4.",
   },
   {
     id: 14,

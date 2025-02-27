@@ -158,6 +158,12 @@ const HomePage = observer(() => {
 
   // return <AddMultipleProductsButton />;
 
+  return (
+    <div className="flex w-full h-full justify-center items-center">
+      <div className="text-2xl font-strike uppercase">Under Construction</div>
+    </div>
+  );
+
   if (loading) {
     return <div>Loading...</div>;
   }

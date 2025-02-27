@@ -1,0 +1,11 @@
+---
+description: general rules for the project
+globs: *.js
+---
+
+# Your rule content
+
+Please use best practices, always try to add proper loading states and error handlers, don't use console.error -> instead use console.log for errors
+use tailwind and shadcn for components and always try to make it look best as possible in line with the main theme - and primary colors, 
+for any server side logic syncing with firebase use mobx state to locally store data, and create api routes to call firebase admin sdk for server stuff and then update mobx locally,
+never refetch api/firebase more than once if we already have that data in our mobx state.

@@ -93,6 +93,8 @@ class Store {
   // Add new properties
   claimingReward = false;
 
+  ordersFetched = false; // New flag to track if orders were fetched
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -809,27 +811,43 @@ class Store {
   }
 
   async fetchOrders() {
-    if (!this.user) return;
+    // Return early if we already have the orders
+    if (this.ordersFetched || !this.user) return;
 
     try {
-      const ordersCollectionRef = collection(db, "orders");
-      const q = query(
-        ordersCollectionRef,
-        where("userId", "==", this.user.uid)
-      );
-      const querySnapshot = await getDocs(q);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("No auth token available");
 
-      const fetchedOrders = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const response = await fetch("/api/orders", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch orders");
+      }
+
+      const data = await response.json();
 
       runInAction(() => {
-        this.orders = fetchedOrders;
+        this.orders = data.orders;
+        this.ordersFetched = true; // Mark as fetched
       });
     } catch (error) {
       console.error("Error fetching orders:", error);
+      runInAction(() => {
+        this.ordersFetched = false; // Reset flag on error
+      });
     }
+  }
+
+  // Add a method to reset orders (useful for logout)
+  resetOrders() {
+    runInAction(() => {
+      this.orders = [];
+      this.ordersFetched = false;
+    });
   }
 
   claimXP(action, code) {
@@ -1053,13 +1071,13 @@ class Store {
 
   async logout() {
     try {
-      await signOut(auth); // Sign out from Firebase Authentication
+      await signOut(auth);
       runInAction(() => {
-        this.user = null; // Reset the user in the store
+        this.user = null;
+        this.resetOrders(); // Reset orders on logout
       });
     } catch (error) {
       console.log("Error during logout:", error);
-      // Handle any errors that occur during logout
     }
   }
 
