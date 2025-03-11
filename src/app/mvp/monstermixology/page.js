@@ -53,7 +53,6 @@ import Link from "next/link";
 import ExpansionSelector from "@/components/ExpansionSelector";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 
-
 const getTrackerImg = (number) => {
   switch (number) {
     case 1:
@@ -82,8 +81,11 @@ const getTemplateImg = (uses) => {
   }
 };
 
+export const MONSTER_COUNT = 29; // UPDATE WHEN PUT MONSTER
+
+// Use the same image import logic
 const heroImages = Object.fromEntries(
-  Array.from({ length: 25 }, (_, i) => [
+  Array.from({ length: MONSTER_COUNT }, (_, i) => [
     i + 1,
     require(`../../../../public/monstermixology/heroes/h${i + 1}.png`).default,
   ])
@@ -154,15 +156,27 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
         />
       </div>
 
-      <div className={`absolute ${fromApp ? "top-[20px]" : "top-2"} left-3 text-sm font-bold`}>
+      <div
+        className={`absolute ${
+          fromApp ? "top-[20px]" : "top-2"
+        } left-3 text-sm font-bold`}
+      >
         {card.number}
       </div>
 
-      <div className={`absolute ${fromApp ? "top-[146px]" : "top-[140px]"} left-1/2 -translate-x-[60%] text-xs font-strike uppercase w-fit`}>
+      <div
+        className={`absolute ${
+          fromApp ? "top-[146px]" : "top-[140px]"
+        } left-1/2 -translate-x-[60%] text-xs font-strike uppercase w-fit`}
+      >
         {card.name}
       </div>
 
-      <div className={`absolute ${fromApp ? "top-[4px]" : "top-[-6px]"} right-[9%] text-sm font-strike uppercase`}>
+      <div
+        className={`absolute ${
+          fromApp ? "top-[4px]" : "top-[-6px]"
+        } right-[9%] text-sm font-strike uppercase`}
+      >
         <span className="text-xl">{card.vp}</span>
       </div>
 
@@ -179,7 +193,9 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
       </div>
 
       <div
-        className={`font-default normal-case text-regular absolute ${fromApp ? "bottom-[6%]" : "bottom-[8%]"} left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]`}
+        className={`font-default normal-case text-regular absolute ${
+          fromApp ? "bottom-[6%]" : "bottom-[8%]"
+        } left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]`}
         style={{ width: paperSize === "A4" ? "145px" : "135px" }}
       >
         {card.effect}
@@ -220,7 +236,13 @@ const DisasterTracker = () => {
           className="w-6 h-6 rounded-full flex items-center justify-center"
           style={{ backgroundColor: "#FEE2E2" }}
         >
-          <Image src={boomImg} alt={"boom img"} width={20} height={20} unoptimized />
+          <Image
+            src={boomImg}
+            alt={"boom img"}
+            width={20}
+            height={20}
+            unoptimized
+          />
         </div>
 
         {/* Rest of the disaster sequence */}
@@ -253,10 +275,11 @@ const CoinTracker = ({ coins = 18, paperSize, disableFirstThree = false }) => {
             {Array.from({ length: adjustedCoins }).map((_, col) => (
               <div
                 key={col}
-                className={`w-6 h-6 rounded-full border-2 ${!disableFirstThree && col < 3
-                  ? "border-black"
-                  : "border-dashed border-gray-400"
-                  } flex items-center justify-center text-[12px]`}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  !disableFirstThree && col < 3
+                    ? "border-black"
+                    : "border-dashed border-gray-400"
+                } flex items-center justify-center text-[12px]`}
               >
                 <Image
                   src={SPACE_MINERS_ICONS["coin"]}
@@ -282,8 +305,9 @@ const ShieldsTracker = () => {
             {Array.from({ length: 3 }).map((_, col) => (
               <div
                 key={col}
-                className={`w-6 h-6 rounded-full border-2 ${col < 3 ? "border-black" : "border-dashed border-gray-400"
-                  } flex items-center justify-center text-[12px]`}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  col < 3 ? "border-black" : "border-dashed border-gray-400"
+                } flex items-center justify-center text-[12px]`}
               >
                 <Image
                   src={SPACE_MINERS_ICONS.shield}
@@ -309,8 +333,9 @@ const RerollTracker = () => {
             {Array.from({ length: 3 }).map((_, col) => (
               <div
                 key={col}
-                className={`w-6 h-6 rounded-full border-2 ${col < 3 ? "border-black" : "border-dashed border-gray-400"
-                  } flex items-center justify-center text-[12px]`}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  col < 3 ? "border-black" : "border-dashed border-gray-400"
+                } flex items-center justify-center text-[12px]`}
               >
                 <Image
                   src={SPACE_MINERS_ICONS["reroll"]}
@@ -417,11 +442,11 @@ const getRandomCards = (cards, count) => {
 
   // Function to get cards by uniqueNumber
   const getCardsByUniqueNumber = (number) =>
-    cards.filter(card => card.uniqueNumber === number);
+    cards.filter((card) => card.uniqueNumber === number);
 
   // Function to get cards excluding uniqueNumber
   const getCardsExcludingUniqueNumber = (number) =>
-    cards.filter(card => card.uniqueNumber !== number);
+    cards.filter((card) => card.uniqueNumber !== number);
 
   // 25% chance to include Bros (uniqueNumber 3)
   const includeBros = Math.random() < 0.25;
@@ -432,7 +457,10 @@ const getRandomCards = (cards, count) => {
     // Get remaining cards excluding Bros
     const remainingCards = getCardsExcludingUniqueNumber(3);
     // Shuffle and get enough cards to complete the set
-    const otherCards = shuffle(remainingCards).slice(0, count - brosCards.length);
+    const otherCards = shuffle(remainingCards).slice(
+      0,
+      count - brosCards.length
+    );
 
     // Return Bros cards first, followed by shuffled remaining cards
     return [...brosCards, ...otherCards];
@@ -468,7 +496,9 @@ const DownloadButton = ({
 
     const element = componentRef.current;
     const opt = {
-      filename: `${paperSize === "A4" ? "A4" : "Letter"}-Monster-Mixology-${selectedConfigs["Monster Cards"]}.pdf`,
+      filename: `${paperSize === "A4" ? "A4" : "Letter"}-Monster-Mixology-${
+        selectedConfigs["Monster Cards"]
+      }.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 4,
@@ -507,7 +537,7 @@ const CardPreview = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Only show in development
-  if (process.env.NODE_ENV === 'production') return null;
+  if (process.env.NODE_ENV === "production") return null;
 
   return (
     <div className="w-full max-w-7xl flex flex-col items-center gap-4 mt-8">
@@ -613,7 +643,11 @@ const PrintableSheet = () => {
     <div className="flex flex-col items-center gap-4">
       <div className="w-full max-w-7xl px-4 flex justify-center flex-col items-center">
         <div className="flex justify-center items-center w-full max-w-[600px]">
-          <Button variant="outline" className="mr-4" onClick={() => router.back()}>
+          <Button
+            variant="outline"
+            className="mr-4"
+            onClick={() => router.back()}
+          >
             <ChevronLeft className="mr-2" /> Back
           </Button>
           <h2 className="text-2xl font-strike uppercase my-8 text-center">
@@ -708,7 +742,6 @@ const PrintableSheet = () => {
                   width={1000}
                   height={1000}
                   className="w-[140px]"
-
                 />
                 <div className="flex flex-col items-center">
                   <div className="text-black font-strike uppercase text-md mb-2">
@@ -813,11 +846,11 @@ const ResourceComponent = ({
   const [selectedConfigs, setSelectedConfigs] = useState(
     resource.configurations
       ? Object.fromEntries(
-        resource.configurations.map((config) => [
-          config.label,
-          config.options[0].key,
-        ])
-      )
+          resource.configurations.map((config) => [
+            config.label,
+            config.options[0].key,
+          ])
+        )
       : {}
   );
 
@@ -960,7 +993,7 @@ const ClientMonstermixologyPage = dynamic(
   () => Promise.resolve(MonstermixologyWrapper),
   {
     ssr: false,
-    loading: () => <LoadingSpinner />
+    loading: () => <LoadingSpinner />,
   }
 );
 

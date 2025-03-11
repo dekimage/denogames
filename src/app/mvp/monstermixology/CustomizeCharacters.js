@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { heroesCards } from "./data";
 import Image from "next/image";
 
+const MONSTER_COUNT = 29; // UPDATE WHEN PUT MONSTER
 // Use the same image import logic
 const heroImages = Object.fromEntries(
-  Array.from({ length: 25 }, (_, i) => [
+  Array.from({ length: MONSTER_COUNT }, (_, i) => [
     i + 1,
     require(`../../../../public/monstermixology/heroes/h${i + 1}.png`).default,
   ])
@@ -32,10 +33,11 @@ export const CustomizeCharacters = ({ onGenerateCustomPDF }) => {
           <div
             key={hero.id}
             onClick={() => toggleHeroSelection(hero)}
-            className={`relative cursor-pointer transition-all duration-200 transform ${selectedHeroes.find((h) => h.id === hero.id)
-              ? "ring-4 ring-blue-500 scale-105"
-              : "hover:scale-105"
-              }`}
+            className={`relative cursor-pointer transition-all duration-200 transform ${
+              selectedHeroes.find((h) => h.id === hero.id)
+                ? "ring-4 ring-blue-500 scale-105"
+                : "hover:scale-105"
+            }`}
           >
             <Image
               src={heroImages[hero.id]}
@@ -63,10 +65,11 @@ export const CustomizeCharacters = ({ onGenerateCustomPDF }) => {
         {Array.from({ length: 12 }).map((_, index) => (
           <div
             key={index}
-            className={`relative ${selectedHeroes[index]
-              ? ""
-              : "border-2 border-dashed border-gray-300 w-[125px] h-[125px] rounded-lg"
-              }`}
+            className={`relative ${
+              selectedHeroes[index]
+                ? ""
+                : "border-2 border-dashed border-gray-300 w-[125px] h-[125px] rounded-lg"
+            }`}
           >
             {selectedHeroes[index] && (
               <Image
@@ -85,10 +88,11 @@ export const CustomizeCharacters = ({ onGenerateCustomPDF }) => {
       <Button
         onClick={() => onGenerateCustomPDF(selectedHeroes.map((h) => h.id))}
         disabled={selectedHeroes.length !== 12}
-        className={`px-8 py-2 text-lg ${selectedHeroes.length === 12
-          ? "bg-green-500 hover:bg-green-600"
-          : "bg-gray-300"
-          }`}
+        className={`px-8 py-2 text-lg ${
+          selectedHeroes.length === 12
+            ? "bg-green-500 hover:bg-green-600"
+            : "bg-gray-300"
+        }`}
       >
         Save Selection({selectedHeroes.length}/12)
       </Button>

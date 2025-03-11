@@ -221,4 +221,39 @@ export const heroesCards = [
     trigger: "self",
     effect: "Steal 1 ingredient from another player.",
   },
+  {
+    id: 26,
+    name: "Witch Doctor",
+    vp: 3,
+    uses: 3,
+    trigger: "self",
+    effect: "Transform 🌕🌕 into 1 shield and 1 ingredient of your choice.",
+  },
+  {
+    id: 27,
+    name: "Inzektor",
+    vp: 4,
+    uses: 2,
+    trigger: "self",
+    effect:
+      "Until your next turn, opponents can't use abilities of their monsters.",
+  },
+
+  {
+    id: 28,
+    name: "Chakra Bouncer",
+    vp: 2,
+    uses: 3,
+    trigger: "unique",
+    effect: "When you avoid a disaster, gain any 2 same ingredients.",
+  },
+  {
+    id: 29,
+    name: "The Hypnotist",
+    vp: 3,
+    uses: 2,
+    trigger: "self",
+    effect:
+      "Until the end of your next turn, your opponents can't avoid any disasters (even with monsters' abilities).",
+  },
 ];
