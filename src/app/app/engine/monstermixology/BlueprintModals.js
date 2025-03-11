@@ -27,13 +27,13 @@ export const BlueprintPurchaseModals = ({
     const chars = searchParams.get("chars");
     if (chars) {
       const characterIds = chars.split(",").map(Number);
-      console.log("Filtering for these IDs:", characterIds);
+      // console.log("Filtering for these IDs:", characterIds);
 
       // Filter heroesCards to only include the specified IDs
       const filtered = heroesCards.filter((card) =>
         characterIds.includes(card.id)
       );
-      console.log("Filtered heroes:", filtered);
+      // console.log("Filtered heroes:", filtered);
 
       setFilteredHeroes(filtered);
       setAvailableBuildings(getRandomBuildings(filtered));
@@ -151,8 +151,9 @@ export const BlueprintPurchaseModals = ({
       onClose={handleClose}
       className="fixed inset-0 flex items-center justify-center"
     >
-      <div className="bg-background p-2 w-full h-full flex flex-col">
-        <div className="border-b border-gray-200 pb-2">
+      <div className="bg-background w-full h-full flex flex-col">
+        {/* Fixed Header */}
+        <div className="border-b border-gray-200 pb-2 px-2 flex-shrink-0">
           <h2 className="text-2xl font-bold text-center">Select a Customer</h2>
 
           {/* Resource icons display */}
@@ -161,51 +162,54 @@ export const BlueprintPurchaseModals = ({
           </div>
         </div>
 
-        {isAsymmetricMode ? (
-          // Render 3x4 grid for asymmetric mode
-          <div className="flex-1 grid grid-cols-4 gap-2 p-4 max-w-3xl mx-auto">
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((number) => (
-              <div
-                key={number}
-                className={`border rounded-lg flex items-center justify-center cursor-pointer
-                  aspect-[2/3]
-                  ${
-                    activeCardNumbers.includes(number)
-                      ? "bg-primary/20 border-primary font-bold text-2xl"
-                      : "border-gray-300"
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          {isAsymmetricMode ? (
+            // Render 3x4 grid for asymmetric mode
+            <div className="grid grid-cols-4 gap-2 p-4 max-w-3xl mx-auto">
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((number) => (
+                <div
+                  key={number}
+                  className={`border rounded-lg flex items-center justify-center cursor-pointer
+                    aspect-[2/3]
+                    ${
+                      activeCardNumbers.includes(number)
+                        ? "bg-primary/20 border-primary font-bold text-2xl"
+                        : "border-gray-300"
+                    }
+                    ${selectedBuilding === number ? "ring-2 ring-primary" : ""}
+                  `}
+                  onClick={() =>
+                    activeCardNumbers.includes(number) &&
+                    setSelectedBuilding(number)
                   }
-                  ${selectedBuilding === number ? "ring-2 ring-primary" : ""}
-                `}
-                onClick={() =>
-                  activeCardNumbers.includes(number) &&
-                  setSelectedBuilding(number)
-                }
-              >
-                {activeCardNumbers.includes(number) && number}
-              </div>
-            ))}
-          </div>
-        ) : (
-          // Original building cards display
-          <div className="flex-1 flex flex-wrap gap-4 justify-center overflow-y-scroll">
-            {availableBuildings.map((building) => (
-              <div
-                key={building.id}
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedBuilding?.id === building.id
-                    ? "scale-105 ring-4 ring-primary"
-                    : "hover:scale-105"
-                }`}
-                onClick={() => setSelectedBuilding(building)}
-              >
-                <BuildingCard card={building} fromApp={true} />
-              </div>
-            ))}
-          </div>
-        )}
+                >
+                  {activeCardNumbers.includes(number) && number}
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Original building cards display
+            <div className="flex flex-wrap gap-4 justify-center p-4">
+              {availableBuildings.map((building) => (
+                <div
+                  key={building.id}
+                  className={`cursor-pointer transition-all duration-200 ${
+                    selectedBuilding?.id === building.id
+                      ? "scale-105 ring-4 ring-primary"
+                      : "hover:scale-105"
+                  }`}
+                  onClick={() => setSelectedBuilding(building)}
+                >
+                  <BuildingCard card={building} fromApp={true} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-center gap-4 border-t border-gray-200">
+        {/* Fixed Footer */}
+        <div className="border-t border-gray-200 p-4 flex justify-center gap-4 bg-background flex-shrink-0">
           <Button variant="secondary" onClick={handleReroll}>
             Reroll
           </Button>
