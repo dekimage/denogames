@@ -4,6 +4,7 @@ import Modal from "@/app/components/Modal";
 import { heroesCards } from "@/app/mvp/monstermixology/data";
 import { BuildingCard } from "@/app/mvp/monstermixology/page";
 import { useSearchParams } from "next/navigation";
+import { SPACE_MINERS_ICONS } from "@/app/app/engine/monstermixology/page";
 
 export const BlueprintPurchaseModals = ({
   blueprint,
@@ -77,6 +78,30 @@ export const BlueprintPurchaseModals = ({
     }
   }, [isAsymmetricMode]);
 
+  const renderResourceIcons = (resources) => {
+    if (!resources) return null;
+
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <span className="text-sm font-medium">Required:</span>
+        {resources.map((resource, index) => (
+          <div
+            key={index}
+            className="w-8 h-8 flex items-center justify-center bg-secondary/20 rounded-lg p-1"
+          >
+            <img
+              src={
+                SPACE_MINERS_ICONS.resourceTypes[resource.toLowerCase()]?.src
+              }
+              alt={resource}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Initial Blueprint Purchase Modal
   if (!showBuildingSelect) {
     return (
@@ -88,6 +113,21 @@ export const BlueprintPurchaseModals = ({
               {blueprint && CardComponent && <CardComponent item={blueprint} />}
             </div>
           </div>
+          {blueprint?.cost && (
+            <div className="mb-4 p-3 bg-secondary/20 rounded-lg">
+              <p className="text-sm font-medium mb-2">Required Ingredients:</p>
+              <div className="flex gap-2 justify-center">
+                {blueprint.cost.map((ingredient, index) => (
+                  <div
+                    key={index}
+                    className="px-3 py-1 bg-primary/10 rounded-md"
+                  >
+                    {ingredient}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex justify-center gap-4">
             <Button
               variant="default"
@@ -112,9 +152,14 @@ export const BlueprintPurchaseModals = ({
       className="fixed inset-0 flex items-center justify-center"
     >
       <div className="bg-background p-2 w-full h-full flex flex-col">
-        <h2 className="text-2xl font-bold text-center border-b border-gray-200 pb-2">
-          Select a Customer
-        </h2>
+        <div className="border-b border-gray-200 pb-2">
+          <h2 className="text-2xl font-bold text-center">Select a Customer</h2>
+
+          {/* Resource icons display */}
+          <div className="mt-2 mb-2 p-2">
+            {renderResourceIcons(blueprint?.ingredients)}
+          </div>
+        </div>
 
         {isAsymmetricMode ? (
           // Render 3x4 grid for asymmetric mode
@@ -124,13 +169,17 @@ export const BlueprintPurchaseModals = ({
                 key={number}
                 className={`border rounded-lg flex items-center justify-center cursor-pointer
                   aspect-[2/3]
-                  ${activeCardNumbers.includes(number)
-                    ? 'bg-primary/20 border-primary font-bold text-2xl'
-                    : 'border-gray-300'
+                  ${
+                    activeCardNumbers.includes(number)
+                      ? "bg-primary/20 border-primary font-bold text-2xl"
+                      : "border-gray-300"
                   }
-                  ${selectedBuilding === number ? 'ring-2 ring-primary' : ''}
+                  ${selectedBuilding === number ? "ring-2 ring-primary" : ""}
                 `}
-                onClick={() => activeCardNumbers.includes(number) && setSelectedBuilding(number)}
+                onClick={() =>
+                  activeCardNumbers.includes(number) &&
+                  setSelectedBuilding(number)
+                }
               >
                 {activeCardNumbers.includes(number) && number}
               </div>
@@ -142,10 +191,11 @@ export const BlueprintPurchaseModals = ({
             {availableBuildings.map((building) => (
               <div
                 key={building.id}
-                className={`cursor-pointer transition-all duration-200 ${selectedBuilding?.id === building.id
+                className={`cursor-pointer transition-all duration-200 ${
+                  selectedBuilding?.id === building.id
                     ? "scale-105 ring-4 ring-primary"
                     : "hover:scale-105"
-                  }`}
+                }`}
                 onClick={() => setSelectedBuilding(building)}
               >
                 <BuildingCard card={building} fromApp={true} />
@@ -156,10 +206,7 @@ export const BlueprintPurchaseModals = ({
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-4 border-t border-gray-200">
-          <Button
-            variant="secondary"
-            onClick={handleReroll}
-          >
+          <Button variant="secondary" onClick={handleReroll}>
             Reroll
           </Button>
           <Button

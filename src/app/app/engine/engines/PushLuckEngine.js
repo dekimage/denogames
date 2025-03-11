@@ -12,7 +12,6 @@ import boomImg from "../../../../../public/monstermixology/boom.png";
 import shieldImg from "../../../../../public/monstermixology/ingridients/shield.png";
 import { Settings } from "lucide-react";
 
-
 import { Progress } from "@/components/ui/progress";
 
 import {
@@ -31,11 +30,10 @@ import fullDrinkImg from "../../../../../public/monstermixology/fulldrink.png";
 const ANIMATION_DURATION = 1.5;
 
 // Add this near the top of the file, after imports
-const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
+const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
 
 const PushLuckEngine = observer(({ config, CardComponent }) => {
   const { toast } = useToast();
-
 
   const [isActionsAnimating, setIsActionsAnimating] = useState(false);
   const [highlightedCards, setHighlightedCards] = useState(new Set());
@@ -50,10 +48,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const [mixoloBot, setMixoloBot] = useState({
     progressPoints: 0,
     cocktails: 0,
-    victoryPoints: 0
+    victoryPoints: 0,
   });
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
-  const [botDifficulty, setBotDifficulty] = useState('medium');
+  const [botDifficulty, setBotDifficulty] = useState("medium");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -238,8 +236,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     return (
       <div
         key={`${card.id}-${index}`}
-        className={`relative ${isClickable ? "cursor-pointer" : "cursor-not-allowed"
-          } ${isSelected ? "brightness-50" : ""}`}
+        className={`relative ${
+          isClickable ? "cursor-pointer" : "cursor-not-allowed"
+        } ${isSelected ? "brightness-50" : ""}`}
         onClick={() => isClickable && handleCardSelection(card)}
       >
         <CardComponent
@@ -274,9 +273,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
   const adjustRollForDifficulty = (roll) => {
     switch (botDifficulty) {
-      case 'easy':
+      case "easy":
         return roll === 6 ? 1 : roll; // Treat 6 as 1
-      case 'hard':
+      case "hard":
         return roll === 5 ? 6 : roll; // Treat 5 as 6
       default:
         return roll; // Medium difficulty - no changes
@@ -286,7 +285,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const updateMixoloBot = () => {
     if (!isSoloMode) return;
 
-    setMixoloBot(prev => {
+    setMixoloBot((prev) => {
       // Roll for progress with difficulty adjustment
       const progressRoll = adjustRollForDifficulty(rollD6());
       let progressGained = 0;
@@ -304,7 +303,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
       const newProgressPoints = prev.progressPoints + progressGained;
 
-      toast({ title: `Mixolo-bot rolled ${progressRoll} and gained ${progressGained} progress! 🎲` });
+      toast({
+        title: `Mixolo-bot rolled ${progressRoll} and gained ${progressGained} progress! 🎲`,
+      });
 
       if (newProgressPoints >= 3) {
         const vpRoll = adjustRollForDifficulty(rollD6());
@@ -323,7 +324,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         const newCocktails = prev.cocktails + 1;
         const newVP = prev.victoryPoints + vpGained;
 
-        toast({ title: `Mixolo-bot made a drink! Rolled ${vpRoll} for ${vpGained} VP! 🍹` });
+        toast({
+          title: `Mixolo-bot made a drink! Rolled ${vpRoll} for ${vpGained} VP! 🍹`,
+        });
 
         if (newCocktails >= 8) {
           setTimeout(() => {
@@ -334,13 +337,13 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         return {
           progressPoints: newProgressPoints - 3, // Keep excess progress
           cocktails: newCocktails,
-          victoryPoints: newVP
+          victoryPoints: newVP,
         };
       }
 
       return {
         ...prev,
-        progressPoints: newProgressPoints
+        progressPoints: newProgressPoints,
       };
     });
   };
@@ -360,15 +363,17 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         <p className="text-xl font-bold mb-6">
           Final Score: {mixoloBot.victoryPoints} Victory Points
         </p>
-        <Button onClick={() => {
-          setShowGameEndModal(false);
-          pushLuckStore.restartGame();
-          setMixoloBot({
-            progressPoints: 0,
-            cocktails: 0,
-            victoryPoints: 0
-          });
-        }}>
+        <Button
+          onClick={() => {
+            setShowGameEndModal(false);
+            pushLuckStore.restartGame();
+            setMixoloBot({
+              progressPoints: 0,
+              cocktails: 0,
+              victoryPoints: 0,
+            });
+          }}
+        >
           New Game
         </Button>
       </div>
@@ -423,19 +428,25 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
             height={48}
             className="mx-auto mb-4"
           />
-          <h2 className="text-2xl font-bold mb-6">Select Mixolo-bot&apos;s Difficulty</h2>
+          <h2 className="text-2xl font-bold mb-6">
+            Select Mixolo-bot&apos;s Difficulty
+          </h2>
 
           <div className="flex flex-col gap-3 mb-6">
-            {['easy', 'medium', 'hard'].map((difficulty) => (
+            {["easy", "medium", "hard"].map((difficulty) => (
               <Button
                 key={difficulty}
-                variant={selectedDifficulty === difficulty ? "default" : "outline"}
+                variant={
+                  selectedDifficulty === difficulty ? "default" : "outline"
+                }
                 className="relative"
                 onClick={() => setSelectedDifficulty(difficulty)}
               >
                 <span className="capitalize">{difficulty}</span>
                 {selectedDifficulty === difficulty && (
-                  <span className="absolute right-3 text-primary-foreground">✓</span>
+                  <span className="absolute right-3 text-primary-foreground">
+                    ✓
+                  </span>
                 )}
               </Button>
             ))}
@@ -455,7 +466,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                 setMixoloBot({
                   progressPoints: 0,
                   cocktails: 0,
-                  victoryPoints: 0
+                  victoryPoints: 0,
                 });
               }
               setShowDifficultyModal(false);
@@ -490,10 +501,11 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               />
               <span className="font-bold text-lg">Mixolo-Bot</span>
               <div
-                className={`text-sm sm:text-base ml-4 ${isActionsAnimating
-                  ? "text-green-500 scale-125"
-                  : "text-foreground scale-100"
-                  } transition-all duration-300`}
+                className={`text-sm sm:text-base ml-4 ${
+                  isActionsAnimating
+                    ? "text-green-500 scale-125"
+                    : "text-foreground scale-100"
+                } transition-all duration-300`}
               >
                 Actions: {Math.min(pushLuckStore.actions, 4)}
               </div>
@@ -501,10 +513,11 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           ) : (
             <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
               <div
-                className={`text-sm sm:text-base ${isActionsAnimating
-                  ? "text-green-500 scale-125"
-                  : "text-foreground scale-100"
-                  } transition-all duration-300`}
+                className={`text-sm sm:text-base ${
+                  isActionsAnimating
+                    ? "text-green-500 scale-125"
+                    : "text-foreground scale-100"
+                } transition-all duration-300`}
               >
                 Actions: {Math.min(pushLuckStore.actions, 4)}
               </div>
@@ -550,7 +563,8 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                     <div>Solo Mode</div>
                     {isSoloMode && (
                       <div className="text-xs text-muted-foreground">
-                        Difficulty: <span className="capitalize">{botDifficulty}</span>
+                        Difficulty:{" "}
+                        <span className="capitalize">{botDifficulty}</span>
                       </div>
                     )}
                   </div>
@@ -615,11 +629,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                 Other Players
               </Button>
             )}
-            <Button
-              size="lg"
-              variant="default"
-              onClick={handleTurnEnd}
-            >
+            <Button size="lg" variant="default" onClick={handleTurnEnd}>
               Next Turn
             </Button>
             <Button
@@ -639,7 +649,10 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
       {selectedBlueprint && (
         <BlueprintPurchaseModals
-          blueprint={{ ...selectedBlueprint }}
+          blueprint={{
+            ...selectedBlueprint,
+            cost: selectedBlueprint.cost,
+          }}
           CardComponent={CardComponent}
           rerolls={selectedBlueprint.blueprintRewards?.rerolls}
           isAsymmetricMode={isAsymmetricMode}
