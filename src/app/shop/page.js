@@ -20,6 +20,7 @@ import {
   Puzzle,
   Box,
 } from "lucide-react";
+import { MAIN_CONFIG } from "@/config/main";
 
 const typeOptions = [
   { name: "Competitive", icon: Swords },
@@ -205,11 +206,13 @@ const ShopPage = observer(() => {
     );
   };
 
-  return (
-    <div className="flex w-full h-full justify-center items-center min-h-[80vh]">
-      <div className="text-2xl font-strike uppercase">Under Construction</div>
-    </div>
-  );
+  if (MAIN_CONFIG.isUnderConstruction) {
+    return (
+      <div className="flex w-full h-full justify-center items-center min-h-[80vh]">
+        <div className="text-2xl font-strike uppercase">Under Construction</div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div>Loading...</div>;

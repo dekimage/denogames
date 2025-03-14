@@ -228,6 +228,7 @@ const ReusableLayout = observer(({ children }) => {
                     <Home />
                   </Button>
                 </Link> */}
+                <ModeToggle />
                 <Link href="/cart">
                   <div className="relative inline-block">
                     <Button variant="reverse">
@@ -352,8 +353,9 @@ const ReusableLayout = observer(({ children }) => {
           </div>
         )}
         <div
-          className={`${showHeaderFooter || showMvpHeader ? "pt-[53px] print:pt-0" : ""
-            }`}
+          className={`${
+            showHeaderFooter || showMvpHeader ? "pt-[53px] print:pt-0" : ""
+          }`}
         >
           <ResizablePanelGroup
             direction="horizontal"

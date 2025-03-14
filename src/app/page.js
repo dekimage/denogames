@@ -16,6 +16,8 @@ import Image from "next/image";
 import { Mimage } from "@/components/Mimage";
 import { ModeToggle } from "@/components/ui/themeButton";
 import FeaturedGamesSlider from "@/components/FeaturedGameSlider";
+import { MAIN_CONFIG } from "@/config/main";
+import { toJS } from "mobx";
 
 const ProductSection = ({ title, products }) => {
   return (
@@ -156,13 +158,15 @@ const ProductList = ({ label, products }) => {
 const HomePage = observer(() => {
   const { products, loading, cart, user } = MobxStore;
 
-  // return <AddMultipleProductsButton />;
+  console.log({ user: toJS(user), products: toJS(products), cart: toJS(cart) });
 
-  return (
-    <div className="flex w-full h-full justify-center items-center min-h-[80vh]">
-      <div className="text-2xl font-strike uppercase">Under Construction</div>
-    </div>
-  );
+  if (MAIN_CONFIG.isUnderConstruction) {
+    return (
+      <div className="flex w-full h-full justify-center items-center min-h-[80vh]">
+        <div className="text-2xl font-strike uppercase">Under Construction</div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div>Loading...</div>;
