@@ -38,14 +38,25 @@ export function UserNav({ user, logout }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => router.push("/profile")}>
-            Profile
+          <DropdownMenuItem onClick={() => router.push("/account")}>
+            Account
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/rewards")}>
+          <DropdownMenuItem onClick={() => router.push("/account/my-games")}>
+            My Games
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/account/rewards")}>
             Rewards
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/orders")}>
-            Orders
+          <DropdownMenuItem
+            onClick={() => router.push("/account/achievements")}
+          >
+            Achievements
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/account/my-orders")}>
+            My Orders
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/account/my-reviews")}>
+            My Reviews
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

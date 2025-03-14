@@ -32,6 +32,7 @@ import { useState, useEffect } from "react";
 
 // Reusable Product Card component
 export const ProductCard = observer(({ product, isSmall = false }) => {
+  console.log({ product });
   const { addToCart, cart, user } = MobxStore;
 
   const isInCart = cart.includes(product.id);

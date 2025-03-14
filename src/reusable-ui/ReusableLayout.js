@@ -73,7 +73,7 @@ const routePrefixesWithoutHeaderFooter = [
   "/mvp/monstermixology",
   "/mvp/bazaar",
   "/landing/monstermixology",
-  "/account",
+  // "/account",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {
@@ -154,6 +154,8 @@ const ReusableLayout = observer(({ children }) => {
 
   const cartItemCount = cart.length;
 
+  const hideFooter = pathname.startsWith("/account");
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="hidden sm:block flex-grow">
@@ -185,15 +187,6 @@ const ReusableLayout = observer(({ children }) => {
                       <Button variant="reverse" className="text-lg">
                         {/* <Store className="mr-2" /> */}
                         SHOP
-                      </Button>
-                    </Link>
-                  </NavigationMenuItem>
-
-                  <NavigationMenuItem>
-                    <Link href="/app" legacyBehavior passHref>
-                      <Button variant="reverse" className="text-lg">
-                        {/* <Smartphone className="mr-2" /> */}
-                        APP
                       </Button>
                     </Link>
                   </NavigationMenuItem>
@@ -381,7 +374,7 @@ const ReusableLayout = observer(({ children }) => {
         )}
         {children}
       </div>
-      {showHeaderFooter && <Footer />}
+      {!hideFooter && <Footer />}
     </div>
   );
 });

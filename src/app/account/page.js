@@ -69,13 +69,6 @@ const StatCard = ({
 const AccountOverview = observer(() => {
   const { user, products } = MobxStore;
 
-  function calculateLevel(xp, xpPerLevel = 10) {
-    if (xp < 0) return 1; // Ensure level 1 for any negative XP input
-    return Math.floor(xp / xpPerLevel) + 1;
-  }
-
-  const lvl = calculateLevel(user.xp);
-
   // Calculate statistics
   const totalGames = products.filter((p) => p.type === "game").length;
   const totalExpansions = products.filter((p) => p.type === "expansion").length;
@@ -107,7 +100,7 @@ const AccountOverview = observer(() => {
     : "N/A";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 container mx-auto py-8 mt-6">
       <h1 className="text-3xl font-bold">Welcome back, {user.username}!</h1>
 
       {/* User Info */}
@@ -123,7 +116,6 @@ const AccountOverview = observer(() => {
             />
             <div className="text-xl font-bold capitalize">{user.username}</div>
             <p>{user.email}</p>
-            <div>Level {lvl}</div>
 
             <Button variant="reverse">Edit Profile</Button>
           </div>
@@ -270,27 +262,6 @@ const AccountOverview = observer(() => {
           ctaTarget="_blank"
         />
       </div>
-
-      {/* Account Details */}
-      <Card className="mt-6">
-        <CardHeader>
-          <h3 className="text-xl font-semibold">Account Details</h3>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm text-gray-500">Email</label>
-            <p className="font-medium">{user.email}</p>
-          </div>
-          <div>
-            <label className="text-sm text-gray-500">Username</label>
-            <p className="font-medium">{user.username}</p>
-          </div>
-          <div>
-            <label className="text-sm text-gray-500">Member Since</label>
-            <p className="font-medium">{memberSince}</p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 });

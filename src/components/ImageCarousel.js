@@ -19,45 +19,48 @@ const ImageCarousel = ({ images }) => {
   const isMobile = useIsMobile();
   const maxVisibleThumbnails = isMobile ? 3 : 5;
 
-  const handleArrowClick = useCallback((direction) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
+  const handleArrowClick = useCallback(
+    (direction) => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
 
-    setCurrentImageIndex((prevIndex) => {
-      let newIndex;
-      if (direction === "left") {
-        newIndex = prevIndex === 0 ? images.length - 1 : prevIndex - 1;
-      } else if (direction === "right") {
-        newIndex = prevIndex === images.length - 1 ? 0 : prevIndex + 1;
-      }
+      setCurrentImageIndex((prevIndex) => {
+        let newIndex;
+        if (direction === "left") {
+          newIndex = prevIndex === 0 ? images.length - 1 : prevIndex - 1;
+        } else if (direction === "right") {
+          newIndex = prevIndex === images.length - 1 ? 0 : prevIndex + 1;
+        }
 
-      setTranslateX(newIndex * -100); // Slide in the appropriate direction
+        setTranslateX(newIndex * -100); // Slide in the appropriate direction
 
-      // Update thumbnail carousel start index if needed
-      if (newIndex < carouselStartIndex) {
-        setCarouselStartIndex((prevStartIndex) =>
-          Math.max(0, prevStartIndex - 1)
-        );
-      } else if (newIndex >= carouselStartIndex + maxVisibleThumbnails) {
-        setCarouselStartIndex((prevStartIndex) =>
-          Math.min(images.length - maxVisibleThumbnails, prevStartIndex + 1)
-        );
-      } else if (newIndex === 0) {
-        // If looping back to first image, reset thumbnails to start
-        setCarouselStartIndex(0);
-      } else if (newIndex === images.length - 1) {
-        // If looping to last image, update thumbnails to show the last set
-        setCarouselStartIndex(images.length - maxVisibleThumbnails);
-      }
+        // Update thumbnail carousel start index if needed
+        if (newIndex < carouselStartIndex) {
+          setCarouselStartIndex((prevStartIndex) =>
+            Math.max(0, prevStartIndex - 1)
+          );
+        } else if (newIndex >= carouselStartIndex + maxVisibleThumbnails) {
+          setCarouselStartIndex((prevStartIndex) =>
+            Math.min(images.length - maxVisibleThumbnails, prevStartIndex + 1)
+          );
+        } else if (newIndex === 0) {
+          // If looping back to first image, reset thumbnails to start
+          setCarouselStartIndex(0);
+        } else if (newIndex === images.length - 1) {
+          // If looping to last image, update thumbnails to show the last set
+          setCarouselStartIndex(images.length - maxVisibleThumbnails);
+        }
 
-      return newIndex;
-    });
+        return newIndex;
+      });
 
-    // Reset the transition state after the animation completes
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 300);
-  }, [carouselStartIndex, images.length, isTransitioning, maxVisibleThumbnails]);
+      // Reset the transition state after the animation completes
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 300);
+    },
+    [carouselStartIndex, images.length, isTransitioning, maxVisibleThumbnails]
+  );
 
   // Handler for clicking a thumbnail
   const handleThumbnailClick = (index) => {
@@ -112,9 +115,12 @@ const ImageCarousel = ({ images }) => {
     // ... existing code ...
   };
 
-  const handleSwipe = useCallback((direction) => {
-    handleArrowClick(direction);
-  }, [handleArrowClick]);
+  const handleSwipe = useCallback(
+    (direction) => {
+      handleArrowClick(direction);
+    },
+    [handleArrowClick]
+  );
 
   const [startX, setStartX] = useState(0);
   const swipeThreshold = 50; // Minimum swipe distance to trigger a swipe
@@ -158,7 +164,7 @@ const ImageCarousel = ({ images }) => {
   };
 
   return (
-    <div className="relative w-full sm:w-[600px] h-auto">
+    <div className="relative w-full sm:w-[600px] h-auto border">
       <div
         className="relative flex flex-col justify-center w-full max-w-[full] sm:max-w-[600px]"
         style={{ position: "relative", zIndex: 1 }}
@@ -183,7 +189,7 @@ const ImageCarousel = ({ images }) => {
             {images.map((image, index) => (
               <div
                 key={index}
-                className="w-full flex-shrink-0 aspect-square border mt-2"
+                className="w-full flex-shrink-0 aspect-square  mt-2"
               >
                 <Image
                   src={image}

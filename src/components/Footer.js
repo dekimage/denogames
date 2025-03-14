@@ -61,7 +61,7 @@ const Footer = () => {
       </div> */}
 
       <div className="w-full bg-darky flex flex-col justify-between items-center">
-        <div className="flex flex-col gap-16 md:flex-row justify-between mb-8 max-w-[1000px] px-4">
+        <div className="flex flex-col gap-16 md:flex-row justify-between my-8 max-w-[1000px] px-4">
           <FooterSection
             icon={Printer}
             title="print and play"

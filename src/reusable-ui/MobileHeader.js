@@ -13,6 +13,8 @@ import {
   UserIcon,
   Gift,
   ShoppingBag,
+  Trophy,
+  Star,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import MobxStore from "@/mobx";
@@ -68,7 +70,7 @@ const MobileHeader = observer(() => {
       </Link>
 
       {isMobileOpen && (
-        <div className="fixed top-[52px] left-0 w-full h-[calc(100vh-32px)] flex flex-col items-center justify-start p-4 bg-white z-[998] overflow-y-auto">
+        <div className="fixed top-[52px] left-0 w-full h-full flex flex-col items-center justify-start p-4 bg-white z-[998] overflow-y-auto">
           {!user ? (
             <div className="w-full flex gap-2 mb-6">
               <Link href="/login" className="flex-1">
@@ -106,13 +108,7 @@ const MobileHeader = observer(() => {
                     href: "/shop",
                     callBack: () => setIsMobileOpen(false),
                   },
-                  {
-                    title: "App",
-                    icon: Search,
-                    variant: isRoute("App"),
-                    href: "/app",
-                    callBack: () => setIsMobileOpen(false),
-                  },
+
                   {
                     title: "Blog",
                     icon: GaugeCircle,
@@ -120,20 +116,13 @@ const MobileHeader = observer(() => {
                     href: "/blog",
                     callBack: () => setIsMobileOpen(false),
                   },
-                  {
-                    title: "Game Finder",
-                    icon: Gamepad2,
-                    variant: isRoute("Game Fineder"),
-                    href: "/game-finder",
-                    callBack: () => setIsMobileOpen(false),
-                  },
                 ]}
               />
             </div>
           ) : (
             <>
-              <div className="text-center font-medium mb-6">
-                Logged in as {user.email}
+              <div className="text-center font-medium">
+                Logged in as {user.username}
               </div>
 
               <VerticalNavbar
@@ -152,25 +141,12 @@ const MobileHeader = observer(() => {
                     href: "/shop",
                     callBack: () => setIsMobileOpen(false),
                   },
-                  {
-                    title: "App",
-                    icon: Search,
-                    variant: isRoute("App"),
-                    href: "/app",
-                    callBack: () => setIsMobileOpen(false),
-                  },
+
                   {
                     title: "Blog",
                     icon: GaugeCircle,
                     variant: isRoute("Blog"),
                     href: "/blog",
-                    callBack: () => setIsMobileOpen(false),
-                  },
-                  {
-                    title: "Game Finder",
-                    icon: Gamepad2,
-                    variant: isRoute("Game Fineder"),
-                    href: "/game-finder",
                     callBack: () => setIsMobileOpen(false),
                   },
                 ]}
@@ -179,34 +155,52 @@ const MobileHeader = observer(() => {
               <VerticalNavbar
                 links={[
                   {
-                    title: "Profile",
+                    title: "Account",
                     icon: UserIcon,
-                    variant: isRoute("profile"),
-                    href: "profile",
+                    variant: isRoute("account"),
+                    href: "account",
                     callBack: () => setIsMobileOpen(false),
                   },
                   {
                     title: "My Games",
                     icon: Gamepad2,
-                    variant: isRoute("my-games"),
-                    href: "my-games",
+                    variant: isRoute("account/my-games"),
+                    href: "account/my-games",
                     callBack: () => setIsMobileOpen(false),
                   },
 
                   {
                     title: "Rewards",
                     icon: Gift,
-                    variant: isRoute("rewards"),
-                    href: "rewards",
+                    variant: isRoute("account/rewards"),
+                    href: "account/rewards",
                     callBack: () => setIsMobileOpen(false),
                   },
+
                   {
-                    title: "Orders",
-                    icon: ShoppingBag,
-                    variant: isRoute("orders"),
-                    href: "orders",
+                    title: "Achievements",
+                    icon: Trophy,
+                    variant: isRoute("account/achievements"),
+                    href: "account/achievements",
                     callBack: () => setIsMobileOpen(false),
                   },
+
+                  {
+                    title: "My  Orders",
+                    icon: ShoppingBag,
+                    variant: isRoute("account/my-orders"),
+                    href: "account/my-orders",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+
+                  {
+                    title: "My Reviews",
+                    icon: Star,
+                    variant: isRoute("account/my-reviews"),
+                    href: "account/my-reviews",
+                    callBack: () => setIsMobileOpen(false),
+                  },
+
                   {
                     title: "Logout",
                     icon: Gamepad2,

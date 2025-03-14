@@ -72,8 +72,8 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
   const averageRating = productDetails.averageRating;
 
   return (
-    <div className="mt-8 w-full px-2 sm:px-8 flex flex-col" id="ratings">
-      <div className="text-4xl font-strike uppercase my-4">Reviews</div>
+    <div className="my-8 w-full px-2 sm:px-8 flex flex-col" id="ratings">
+      <div className="text-2xl font-strike uppercase my-4">Reviews</div>
       <div className="flex items-center text-lg mb-2">
         <div className="flex items-center gap-2">
           <div className="text-yellow-400 flex">
