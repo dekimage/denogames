@@ -362,8 +362,6 @@ const GameMetrics = ({ productDetails }) => {
   );
 };
 
-
-
 const benefitsDataDummy = [
   {
     title: "Endless Replayability",
@@ -375,7 +373,7 @@ const benefitsDataDummy = [
     title: "Pick Your Hero",
     description:
       "Choose among 12 diverse heroes, from mystical monks to cunning warlocks. Each class offers a unique playstyle and abilities, allowing you to tailor your strategy to your preferences.",
-      image: placeholderBenefitsImg,
+    image: placeholderBenefitsImg,
   },
   {
     title: "Roll 4 Dice on Your Turn",
@@ -387,7 +385,7 @@ const benefitsDataDummy = [
     title: "Dynamic Battlefield",
     description:
       "Engage in combat on an ever-changing battlefield. Adapt your strategy as the terrain shifts, offering new challenges and opportunities with each round.",
-      image: placeholderBenefitsImg,
+    image: placeholderBenefitsImg,
   },
   {
     title: "Cooperative & Competitive Modes",
@@ -419,7 +417,6 @@ const KickstarterBenefits = ({ productDetails }) => {
             gamesStaticData[productDetails.slug]?.benefitsData ||
             benefitsDataDummy
           ).map((benefit, index) => (
-            
             <div className="box-inner" key={index}>
               <div className="box-broken relative flex flex-row items-center p-4 shadow-lg rounded-lg bg-white mb-4">
                 {/* Circular number */}
@@ -585,81 +582,81 @@ const ComponentsList = ({ productDetails }) => {
   );
 };
 
-const VariationSystem = () => {
-  return (
-    <div className="flex-1">
-      <h4 className="text-xl uppercase mb-2">
-        <BadgeCheck className="inline-block mr-2" />
-        Variations Printing System *
-      </h4>
-      <p className="mb-4">
-        Our innovative Variations Printing System allows you to generate and
-        print unique game setups, ensuring a fresh experience every time you
-        play.
-      </p>
+// const VariationSystem = () => {
+//   return (
+//     <div className="flex-1">
+//       <h4 className="text-xl uppercase mb-2">
+//         <BadgeCheck className="inline-block mr-2" />
+//         Variations Printing System *
+//       </h4>
+//       <p className="mb-4">
+//         Our innovative Variations Printing System allows you to generate and
+//         print unique game setups, ensuring a fresh experience every time you
+//         play.
+//       </p>
 
-      <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-        <Image
-          src="/gifs/variation-system-demo.gif" // Add your GIF here
-          alt="Variation System Demo"
-          fill
-          className="object-cover"
-        />
-      </div>
+//       <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+//         <Image
+//           src="/gifs/variation-system-demo.gif" // Add your GIF here
+//           alt="Variation System Demo"
+//           fill
+//           className="object-cover"
+//         />
+//       </div>
 
-      <Link href="/blog/variations-printing-system">
-        <Button variant="reverse">Learn More</Button>
-      </Link>
-    </div>
-  );
-};
+//       <Link href="/blog/variations-printing-system">
+//         <Button variant="reverse">Learn More</Button>
+//       </Link>
+//     </div>
+//   );
+// };
 
-const CompanionApp = () => {
-  return (
-    <div className="flex-1">
-      <h4 className="text-xl uppercase mb-2">
-        <BadgeCheck className="inline-block mr-2" />
-        App Supplement *
-      </h4>
-      <p className="mb-4">
-        Our companion app enhances your gameplay experience by managing the
-        digital deck of cards and providing additional features to streamline
-        your game sessions.
-      </p>
+// const CompanionApp = () => {
+//   return (
+//     <div className="flex-1">
+//       <h4 className="text-xl uppercase mb-2">
+//         <BadgeCheck className="inline-block mr-2" />
+//         App Supplement *
+//       </h4>
+//       <p className="mb-4">
+//         Our companion app enhances your gameplay experience by managing the
+//         digital deck of cards and providing additional features to streamline
+//         your game sessions.
+//       </p>
 
-      <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-        <Image
-          src="/gifs/companion-app-demo.gif" // Add your GIF here
-          alt="Companion App Demo"
-          fill
-          className="object-cover"
-        />
-      </div>
+//       <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+//         <Image
+//           src="/gifs/companion-app-demo.gif" // Add your GIF here
+//           alt="Companion App Demo"
+//           fill
+//           className="object-cover"
+//         />
+//       </div>
 
-      <Link href="/blog/companion-app">
-        <Button variant="reverse">Learn More</Button>
-      </Link>
-    </div>
-  );
-};
+//       <Link href="/blog/companion-app">
+//         <Button variant="reverse">Learn More</Button>
+//       </Link>
+//     </div>
+//   );
+// };
 
-const SystemsFeatures = () => {
-  return (
-    <div className="my-8 flex flex-col gap-6">
-      <div className="box-inner">
-        <div className="box-broken p-8">
-          <VariationSystem />
-        </div>
-      </div>
+// const SystemsFeatures = () => {
+//   return (
+//     <div className="my-8 flex flex-col gap-6">
+//       <div className="box-inner">
+//         <div className="box-broken p-8">
+//           <VariationSystem />
+//         </div>
+//       </div>
 
-      <div className="box-inner">
-        <div className="box-broken p-8">
-          <CompanionApp />
-        </div>
-      </div>
-    </div>
-  );
-};
+//       <div className="box-inner">
+//         <div className="box-broken p-8">
+//           <CompanionApp />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 const RelatedGames = observer(({ gameId }) => {
   const { getRelatedGames, addToCart } = MobxStore;
@@ -683,144 +680,142 @@ const RelatedGames = observer(({ gameId }) => {
   );
 });
 
-const ProductDescription = ({ description }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const isLongDescription = description?.length > 150;
-  const shortDescription = description?.slice(0, 150);
+// const ProductDescription = ({ description }) => {
+//   const [isExpanded, setIsExpanded] = useState(false);
+//   const isLongDescription = description?.length > 150;
+//   const shortDescription = description?.slice(0, 150);
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+//   const toggleExpand = () => {
+//     setIsExpanded(!isExpanded);
+//   };
 
-  return (
-    <div className="text-sm my-4">
-      <span>
-        {/* Show truncated description or full text depending on isExpanded */}
-        {isExpanded || !isLongDescription
-          ? description
-          : `${shortDescription}...`}
+//   return (
+//     <div className="text-sm my-4">
+//       <span>
+//         {/* Show truncated description or full text depending on isExpanded */}
+//         {isExpanded || !isLongDescription
+//           ? description
+//           : `${shortDescription}...`}
 
-        {/* Add the "Read more" or "Show less" button in-line */}
-        {isLongDescription && (
-          <button
-            onClick={toggleExpand}
-            className="text-blue-500 hover:underline ml-1 inline-block"
-          >
-            {isExpanded ? "Show less" : "Read more"}
-          </button>
-        )}
-      </span>
-    </div>
-  );
-};
+//         {/* Add the "Read more" or "Show less" button in-line */}
+//         {isLongDescription && (
+//           <button
+//             onClick={toggleExpand}
+//             className="text-blue-500 hover:underline ml-1 inline-block"
+//           >
+//             {isExpanded ? "Show less" : "Read more"}
+//           </button>
+//         )}
+//       </span>
+//     </div>
+//   );
+// };
 
-const FAQ = ({ productDetails }) => {
-  const [expandedQuestions, setExpandedQuestions] = useState({});
-  const [questionText, setQuestionText] = useState("");
-  const { shopFAQs, gameFAQs } =
-    gamesStaticData[productDetails.slug]?.faqs || {};
+// const FAQ = ({ productDetails }) => {
+//   const [expandedQuestions, setExpandedQuestions] = useState({});
+//   const [questionText, setQuestionText] = useState("");
+//   const { shopFAQs, gameFAQs } =
+//     gamesStaticData[productDetails.slug]?.faqs || {};
 
-  const toggleQuestion = (id) => {
-    setExpandedQuestions((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+//   const toggleQuestion = (id) => {
+//     setExpandedQuestions((prev) => ({
+//       ...prev,
+//       [id]: !prev[id],
+//     }));
+//   };
 
-  const handleSubmitQuestion = (e) => {
-    e.preventDefault();
-    // Handle question submission logic here
-    console.log("Question submitted:", questionText);
-    setQuestionText("");
-  };
+//   const handleSubmitQuestion = (e) => {
+//     e.preventDefault();
+//     // Handle question submission logic here
+//     console.log("Question submitted:", questionText);
+//     setQuestionText("");
+//   };
 
-  const renderFAQSection = (questions, title) => (
-    <div className="mb-8">
-      <h3 className="text-2xl font-strike uppercase mb-8 text-center">
-        {title}
-      </h3>
-      <div className="space-y-2">
-        {questions?.map((faq) => (
-          <div
-            key={faq.id}
-            className="border-b border-gray-200 last:border-none"
-          >
-            <button
-              className="w-full text-left py-4 flex justify-between items-center hover:bg-gray-50"
-              onClick={() => toggleQuestion(faq.id)}
-            >
-              <span className="text-xl">{faq.question}</span>
-              {expandedQuestions[faq.id] ? <ChevronUp /> : <ChevronDown />}
-            </button>
-            {expandedQuestions[faq.id] && (
-              <div className="pb-4 text-gray-600">{faq.answer}</div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+//   const renderFAQSection = (questions, title) => (
+//     <div className="mb-8">
+//       <h3 className="text-2xl font-strike uppercase mb-8 text-center">
+//         {title}
+//       </h3>
+//       <div className="space-y-2">
+//         {questions?.map((faq) => (
+//           <div
+//             key={faq.id}
+//             className="border-b border-gray-200 last:border-none"
+//           >
+//             <button
+//               className="w-full text-left py-4 flex justify-between items-center hover:bg-gray-50"
+//               onClick={() => toggleQuestion(faq.id)}
+//             >
+//               <span className="text-xl">{faq.question}</span>
+//               {expandedQuestions[faq.id] ? <ChevronUp /> : <ChevronDown />}
+//             </button>
+//             {expandedQuestions[faq.id] && (
+//               <div className="pb-4 text-gray-600">{faq.answer}</div>
+//             )}
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
 
-  return (
-    <div className="my-16">
-      <h2 className="text-3xl font-bold text-center mb-8 font-strike uppercase">
-        Frequently Asked Questions
-      </h2>
+//   return (
+//     <div className="my-16">
+//       <h2 className="text-3xl font-bold text-center mb-8 font-strike uppercase">
+//         Frequently Asked Questions
+//       </h2>
 
-      <div className="box-inner">
-        <div className="box-broken p-16">
-          {renderFAQSection(shopFAQs, "Shopping & Delivery")}
-          {renderFAQSection(gameFAQs, `About ${productDetails.name}`)}
+//       <div className="box-inner">
+//         <div className="box-broken p-16">
+//           {renderFAQSection(shopFAQs, "Shopping & Delivery")}
+//           {renderFAQSection(gameFAQs, `About ${productDetails.name}`)}
 
-          <div className="mt-12">
-            <h3 className="text-2xl font-strike uppercase mb-6 text-center">
-              Didn&apos;t Find What You&apos;re Looking For?
-            </h3>
+//           <div className="mt-12">
+//             <h3 className="text-2xl font-strike uppercase mb-6 text-center">
+//               Didn&apos;t Find What You&apos;re Looking For?
+//             </h3>
 
-            <form onSubmit={handleSubmitQuestion} className="mb-8">
-              <Textarea
-                placeholder="Type your question here..."
-                value={questionText}
-                onChange={(e) => setQuestionText(e.target.value)}
-                className="mb-2"
-                maxLength={1500}
-              />
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-sm text-gray-500">
-                  {questionText.length}/1500 characters
-                </span>
-                <Button type="submit" className="bg-foreground text-background">
-                  Ask Me →
-                </Button>
-              </div>
-            </form>
+//             <form onSubmit={handleSubmitQuestion} className="mb-8">
+//               <Textarea
+//                 placeholder="Type your question here..."
+//                 value={questionText}
+//                 onChange={(e) => setQuestionText(e.target.value)}
+//                 className="mb-2"
+//                 maxLength={1500}
+//               />
+//               <div className="flex justify-between items-center mb-4">
+//                 <span className="text-sm text-gray-500">
+//                   {questionText.length}/1500 characters
+//                 </span>
+//                 <Button type="submit" className="bg-foreground text-background">
+//                   Ask Me →
+//                 </Button>
+//               </div>
+//             </form>
 
-            <div className="flex justify-center gap-4">
-              <a
-                href="mailto:denogames.official@gmail.com"
-                className="flex items-center gap-2 hover:text-blue-600"
-              >
-                <Mail className="w-5 h-5" />
-                Email Me
-              </a>
-              <a
-                href="https://m.me/denogames"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-blue-600"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Chat
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Add new components for download resources
+//             <div className="flex justify-center gap-4">
+//               <a
+//                 href="mailto:denogames.official@gmail.com"
+//                 className="flex items-center gap-2 hover:text-blue-600"
+//               >
+//                 <Mail className="w-5 h-5" />
+//                 Email Me
+//               </a>
+//               <a
+//                 href="https://m.me/denogames"
+//                 target="_blank"
+//                 rel="noopener noreferrer"
+//                 className="flex items-center gap-2 hover:text-blue-600"
+//               >
+//                 <MessageCircle className="w-5 h-5" />
+//                 Chat
+//               </a>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 const ResourceOption = ({ label, value, groupName, isSelected, onSelect }) => {
   return (
@@ -1017,9 +1012,9 @@ Buy once, play endlessly - that's our promise to you!`;
               <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike">
                 {productDetails.name}
               </div>
-              <ProductDescription
+              {/* <ProductDescription
                 description={productDetails.description || "No Description"}
-              />
+              /> */}
               <MechanicsSection mechanics={productDetails.mechanics} />
               <Link href="#ratings" className="w-fit">
                 <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-4 hover:border-foreground">
@@ -1124,8 +1119,8 @@ Buy once, play endlessly - that's our promise to you!`;
           {productDetails && <Expansions gameId={productDetails.id} />}
 
           <ComponentsList productDetails={productDetails} />
-          <SystemsFeatures />
-          <FAQ productDetails={productDetails} />
+          {/* <SystemsFeatures /> */}
+          {/* <FAQ productDetails={productDetails} /> */}
           {productDetails && <RelatedGames gameId={productDetails.id} />}
         </div>
       </div>

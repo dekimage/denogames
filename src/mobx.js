@@ -1203,15 +1203,44 @@ class Store {
     });
   }
 
-  async fetchBlogs() {
-    if (this.blogsLoading || this.blogsFetched) return;
+  async fetchBlogs(limit = null) {
+    if (this.blogsLoading) return;
+
+    // If we already have blogs and no limit is specified, or we've already fetched all blogs
+    if (
+      this.blogs.length > 0 &&
+      (limit === null || this.blogs.length >= limit) &&
+      this.blogsFetched
+    ) {
+      // If we need just a subset and we already have more, return early
+      return;
+    }
+
     this.blogsLoading = true;
     try {
-      const response = await fetch("/api/wordpress");
+      // Add limit parameter to the API call if specified
+      const url = limit ? `/api/wordpress?limit=${limit}` : "/api/wordpress";
+      const response = await fetch(url);
+
       if (!response.ok) throw new Error("Failed to fetch blogs");
+
       const data = await response.json();
+
+      // Ensure all blog objects have the required fields
+      const processedBlogs = data.map((blog) => ({
+        ...blog,
+        // Ensure thumbnail exists
+        thumbnail: blog.thumbnail || null,
+        // Ensure date is properly formatted
+        date: blog.date || new Date().toISOString(),
+        // Ensure categories is an array
+        categories: Array.isArray(blog.categories) ? blog.categories : [],
+        // Ensure excerpt exists
+        excerpt: blog.excerpt || "",
+      }));
+
       runInAction(() => {
-        this.blogs = data;
+        this.blogs = processedBlogs;
         this.blogsFetched = true;
         this.blogsLoading = false;
       });
@@ -1220,6 +1249,7 @@ class Store {
       runInAction(() => {
         this.blogsLoading = false;
       });
+      throw error; // Re-throw to allow component to handle the error
     }
   }
 

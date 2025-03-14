@@ -18,12 +18,17 @@ import {
   Mail,
   Dice6,
   Package,
+  UserPlus,
+  Trophy,
+  GameController,
+  BarChart3,
 } from "lucide-react";
 import placeholderImg from "@/assets/placeholder.png";
 import FeaturedGamesSlider from "@/components/FeaturedGameSlider";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import patreonImg from "@/assets/patreon-logo.png"; // You'll need to add these images
 import substackImg from "@/assets/substack-logo.png"; // You'll need to add these images
+import { useState, useEffect } from "react";
 
 // Reusable Product Card component
 export const ProductCard = observer(({ product, isSmall = false }) => {
@@ -51,11 +56,6 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
         isSmall ? "w-[220px]" : ""
       } overflow-hidden`}
     >
-      {isPurchased && (
-        <div className="absolute top-2 right-2 z-10 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
-          <CheckCircle size={12} className="mr-1" /> Owned
-        </div>
-      )}
       <div>
         <Link
           href={`/product-details/${product.slug}`}
@@ -77,20 +77,38 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
                   isSmall ? "mt-2 text-lg" : "mt-4 text-xl"
                 } font-strike`}
               >
-                {product.name}
+                {product.name.length > 30
+                  ? `${product.name.slice(0, 30)}...`
+                  : product.name}
               </div>
               <div className="flex items-center mt-1">
                 <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
                   {getTypeLabel(product.type)}
                 </span>
               </div>
-              <p
-                className={`${
-                  isSmall ? "mt-2 text-sm" : "mt-4 text-xl"
-                } font-bold text-foreground`}
-              >
-                ${product.price}
-              </p>
+              <div className="flex items-center justify-between mt-4">
+                <p
+                  className={`${
+                    isSmall ? "mt-2 text-sm" : "text-xl"
+                  } font-bold text-foreground`}
+                >
+                  ${product.price}
+                </p>
+                {isPurchased && (
+                  <div className=" bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
+                    <CheckCircle size={12} className="mr-1" /> Owned
+                  </div>
+                )}
+                {isInCart && (
+                  <div className=" text-orange-500 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 text-xs px-2 py-1 rounded-full flex items-center">
+                    <CheckCheck
+                      className="text-orange-500 dark:text-orange-400 mr-2"
+                      size={20}
+                    />
+                    In Cart
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </Link>
@@ -107,28 +125,16 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
           ) : isInCart ? (
             <div className="flex items-center">
               <Link href="/cart" className="w-full">
-                <Button variant="secondary" className="w-full">
+                <Button
+                  variant="secondary"
+                  className="w-full bg-orange-400 hover:bg-orange-300"
+                >
                   <ShoppingBag size={16} className="mr-1" /> CHECKOUT
                 </Button>
               </Link>
-              {isInCart && (
-                <div
-                  className={`flex justify-center items-center w-[120px] ${
-                    isSmall ? "ml-2" : "ml-4"
-                  }`}
-                >
-                  <CheckCheck
-                    className="text-orange-500 dark:text-orange-400 mr-2"
-                    size={20}
-                  />
-                  <span className="text-orange-500 dark:text-orange-400">
-                    IN CART
-                  </span>
-                </div>
-              )}
             </div>
           ) : (
-            <Button onClick={() => addToCart(product.id)} className="w-full">
+            <Button onClick={() => addToCart(product)} className="w-full">
               <ShoppingCart size={16} className="mr-1" /> ADD TO CART
             </Button>
           )}
@@ -152,31 +158,52 @@ const SectionHeader = ({ title, viewAllLink, viewAllText = "View All" }) => (
   </div>
 );
 
-// Blog Card Component
-const BlogCard = ({ blog }) => (
-  <div className="border rounded-lg shadow-sm overflow-hidden bg-card text-card-foreground hover:shadow-md transition-shadow">
-    <Link href={`/blog/${blog.slug}`}>
-      <div className="relative h-40 w-full">
-        <Image
-          src={blog.thumbnail || placeholderImg}
-          alt={blog.title}
-          fill
-          className="object-cover"
-        />
-      </div>
-      <div className="p-4">
-        <div className="flex items-center text-xs text-muted-foreground mb-2">
-          <Calendar size={14} className="mr-1" />
-          {new Date(blog.date).toLocaleDateString()}
+// Update the BlogCard component to handle WordPress API data correctly
+const BlogCard = ({ blog }) => {
+  // Clean up the title by removing HTML entities like &nbsp;
+  const cleanTitle =
+    blog.title
+      ?.replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"') || "";
+
+  return (
+    <div className="border rounded-lg shadow-sm overflow-hidden bg-card text-card-foreground hover:shadow-md transition-shadow">
+      <Link href={`/blog/${blog.slug}`}>
+        <div className="relative h-40 w-full">
+          <Image
+            src={blog.thumbnail || placeholderImg}
+            alt={cleanTitle}
+            fill
+            className="object-cover"
+          />
         </div>
-        <h3 className="font-strike text-lg mb-2 line-clamp-2">{blog.title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-3">
-          {blog.excerpt}
-        </p>
-      </div>
-    </Link>
-  </div>
-);
+        <div className="p-4">
+          <div className="flex items-center text-xs text-muted-foreground mb-2">
+            <Calendar size={14} className="mr-1" />
+            {new Date(blog.date).toLocaleDateString()}
+
+            {/* Display categories if available */}
+            {blog.categories && blog.categories.length > 0 && (
+              <div className="flex items-center ml-3">
+                <BookOpen size={14} className="mr-1" />
+                <span>{blog.categories.slice(0, 2).join(", ")}</span>
+              </div>
+            )}
+          </div>
+          <h3 className="font-strike text-lg mb-2 line-clamp-2">
+            {cleanTitle}
+          </h3>
+          <p className="text-sm text-muted-foreground line-clamp-3">
+            {blog.excerpt?.replace(/<[^>]*>/g, "") || "Read more..."}
+          </p>
+        </div>
+      </Link>
+    </div>
+  );
+};
 
 // Category Card Component
 const CategoryCard = ({ title, description, icon: Icon, href }) => {
@@ -282,6 +309,167 @@ const MembershipCTA = ({
   );
 };
 
+// Create a BlogSection component that handles its own loading state
+const BlogSection = observer(() => {
+  const { blogs, blogsLoading, fetchBlogs } = MobxStore;
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadBlogs = async () => {
+      try {
+        await fetchBlogs(3); // Fetch only 3 blogs for the homepage
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    loadBlogs();
+  }, [fetchBlogs]);
+
+  if (error) {
+    return (
+      <section className="mb-16">
+        <SectionHeader
+          title="Latest Blog Posts"
+          viewAllLink="/blog"
+          viewAllText="See All Posts"
+        />
+        <div className="p-4 border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 rounded-lg text-center">
+          <p>Failed to load blog posts. Please try again later.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (blogsLoading) {
+    return (
+      <section className="mb-16">
+        <SectionHeader
+          title="Latest Blog Posts"
+          viewAllLink="/blog"
+          viewAllText="See All Posts"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="border rounded-lg shadow-sm overflow-hidden bg-card animate-pulse"
+            >
+              <div className="h-40 bg-muted"></div>
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-6 bg-muted rounded w-3/4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted rounded"></div>
+                  <div className="h-4 bg-muted rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Only show the section if we have blogs to display
+  if (!blogs || blogs.length === 0) {
+    return null;
+  }
+
+  // Take only the first 3 blogs
+  const latestBlogs = blogs.slice(0, 3);
+
+  return (
+    <section className="mb-16">
+      <SectionHeader
+        title="Latest Blog Posts"
+        viewAllLink="/blog"
+        viewAllText="See All Posts"
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {latestBlogs.map((blog) => (
+          <BlogCard key={blog.id} blog={blog} />
+        ))}
+      </div>
+    </section>
+  );
+});
+
+// Create Account CTA Component for non-logged-in users
+// const CreateAccountCTA = () => {
+//   return (
+//     <div className="border rounded-lg shadow-sm bg-card overflow-hidden mb-8">
+//       <div className="grid md:grid-cols-2 gap-6 p-6">
+//         <div className="flex flex-col justify-center">
+//           <h3 className="text-2xl font-bold mb-4">
+//             Create a Free Account - Get a Free Game!
+//           </h3>
+//           <p className="text-muted-foreground mb-6">
+//             Join our community of board game enthusiasts and start your
+//             collection with a free game. Track your progress, unlock
+//             achievements, and get access to exclusive content!
+//           </p>
+
+//           <div className="space-y-3 mb-6">
+//             <div className="flex items-start">
+//               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+//                 <Trophy size={14} className="text-primary" />
+//               </div>
+//               <span>Collect achievements and track your progress</span>
+//             </div>
+//             <div className="flex items-start">
+//               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+//                 <Gift size={14} className="text-primary" />
+//               </div>
+//               <span>Unlock mini-expansions and exclusive content</span>
+//             </div>
+//             <div className="flex items-start">
+//               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+//                 <GameController size={14} className="text-primary" />
+//               </div>
+//               <span>Build your game collection and track ownership</span>
+//             </div>
+//             <div className="flex items-start">
+//               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+//                 <BarChart3 size={14} className="text-primary" />
+//               </div>
+//               <span>Track your game stats and high scores</span>
+//             </div>
+//             <div className="flex items-start">
+//               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+//                 <BookOpen size={14} className="text-primary" />
+//               </div>
+//               <span>Access to digital rulebooks and game guides</span>
+//             </div>
+//           </div>
+
+//           <div className="flex flex-col sm:flex-row gap-3">
+//             <Button asChild className="w-full sm:w-auto">
+//               <Link href="/signup">
+//                 <UserPlus size={16} className="mr-2" /> Create Free Account
+//               </Link>
+//             </Button>
+
+//             <Button asChild variant="outline" className="w-full sm:w-auto">
+//               <Link href="/login">Already have an account? Log in</Link>
+//             </Button>
+//           </div>
+//         </div>
+
+//         <div className="relative h-[200px] md:h-auto order-first md:order-last">
+//           <Image
+//             src={placeholderImg}
+//             alt="Create an account"
+//             fill
+//             className="object-contain"
+//           />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
 const HomePage = observer(() => {
   const { products, loading, cart, user } = MobxStore;
 
@@ -289,20 +477,22 @@ const HomePage = observer(() => {
     return <LoadingSpinner />;
   }
 
-  // Filter products by type and other criteria
-  const games = products.filter((product) => product.type === "game");
-  const expansions = products.filter((product) => product.type === "expansion");
+  const sortedGames = [...products].sort((a, b) => {
+    // First check if user owns the games
+    const userOwnsA = user?.purchasedProducts?.includes(a.id) || false;
+    const userOwnsB = user?.purchasedProducts?.includes(b.id) || false;
 
-  // Sort by date to get newest games (assuming there's a dateReleased field)
-  // If no dateReleased field, we'll need to add it to the products
-  const newestGames = [...products]
-    .filter((product) => product.type === "game")
-    .sort((a, b) => {
-      const dateA = a.dateReleased ? new Date(a.dateReleased) : new Date(0);
-      const dateB = b.dateReleased ? new Date(b.dateReleased) : new Date(0);
-      return dateB - dateA;
-    })
-    .slice(0, 4); // Get the 4 newest games
+    if (userOwnsA !== userOwnsB) {
+      return userOwnsA ? 1 : -1;
+    }
+
+    // If ownership status is the same, sort by date (newest first)
+    const dateA = a.dateReleased ? new Date(a.dateReleased) : new Date(0);
+    const dateB = b.dateReleased ? new Date(b.dateReleased) : new Date(0);
+    return dateB - dateA;
+  });
+
+  // Get the newest games (already sorted by ownership and date)
 
   // Coming soon games (games with future release dates)
   const comingSoonGames = [...products]
@@ -318,40 +508,6 @@ const HomePage = observer(() => {
       !cart.includes(product.id) &&
       !(user ? user.purchasedProducts?.includes(product.id) : false)
   );
-
-  // Mock blog posts (replace with actual data when available)
-  const blogPosts = [
-    {
-      id: 1,
-      title: "The Art of Game Design: Creating Engaging Mechanics",
-      excerpt:
-        "Discover the principles behind creating game mechanics that keep players coming back for more.",
-      thumbnail:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
-      date: "2023-10-15",
-      slug: "art-of-game-design",
-    },
-    {
-      id: 2,
-      title: "Behind the Scenes: The Making of Monster Mixology",
-      excerpt:
-        "Take a peek behind the curtain and see how our latest game came to life from concept to final product.",
-      thumbnail:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media",
-      date: "2023-09-28",
-      slug: "making-of-monster-mixology",
-    },
-    {
-      id: 3,
-      title: "Game Night Strategies: How to Host the Perfect Session",
-      excerpt:
-        "Tips and tricks for hosting an unforgettable game night with friends and family.",
-      thumbnail:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
-      date: "2023-09-10",
-      slug: "game-night-strategies",
-    },
-  ];
 
   // Featured games for the slider
   const featuredGames = [
@@ -392,20 +548,27 @@ const HomePage = observer(() => {
       <FeaturedGamesSlider games={featuredGames} />
 
       <div className="container mx-auto py-8 px-4">
-        {/* Newest Games Section */}
+        {/* Newest Games Section - Now using sortedGames */}
         <section className="mb-16">
           <SectionHeader
-            title="Newest Games"
+            title="Games"
             viewAllLink="/shop"
             viewAllText="Shop All"
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {newestGames.map((game) => (
+            {sortedGames.map((game) => (
               <ProductCard key={game.id} product={game} />
             ))}
           </div>
         </section>
+
+        {/* Create Account CTA - Only show if user is not logged in */}
+        {/* {!user && (
+          <section className="mb-16">
+            <CreateAccountCTA />
+          </section>
+        )} */}
 
         {/* Coming Soon Section */}
         {comingSoonGames.length > 0 && (
@@ -420,20 +583,8 @@ const HomePage = observer(() => {
           </section>
         )}
 
-        {/* Latest Blog Posts */}
-        <section className="mb-16">
-          <SectionHeader
-            title="Latest Blog Posts"
-            viewAllLink="/blog"
-            viewAllText="See All Posts"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.map((post) => (
-              <BlogCard key={post.id} blog={post} />
-            ))}
-          </div>
-        </section>
+        {/* Latest Blog Posts - Now using the BlogSection component */}
+        <BlogSection />
 
         {/* Membership CTAs - Only show if user is not a member */}
         {!user?.isPatreon && (
