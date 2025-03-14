@@ -256,4 +256,12 @@ export const heroesCards = [
     effect:
       "Until the end of your next turn, your opponents can't avoid any disasters (even with monsters' abilities).",
   },
+  {
+    id: 30,
+    name: "Roblox",
+    vp: 3,
+    uses: 3,
+    trigger: "other",
+    effect: "Spend 🌕 to gain 1 Action or Spend 🌕🌕 to gain any 1 Ingredient.",
+  },
 ];
