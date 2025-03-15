@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 export function getCartStatus(cartItemsLength) {
   let muhar;
@@ -55,9 +56,9 @@ const CartItem = ({ product, onRemove }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0"
+      className="flex items-center gap-4 py-4 border-b border-border last:border-0"
     >
-      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
+      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
         <Image
           src={product.image || "https://via.placeholder.com/80"}
           alt={product.name}
@@ -70,13 +71,13 @@ const CartItem = ({ product, onRemove }) => {
         <div className="flex justify-between">
           <Link
             href={`/product-details/${product.slug}`}
-            className="font-medium text-foreground hover:text-blue-600 transition-colors"
+            className="font-medium text-foreground hover:text-primary transition-colors"
           >
             {product.name}
           </Link>
           <button
             onClick={() => onRemove(product.id)}
-            className="text-gray-400 hover:text-red-500 transition-colors"
+            className="text-muted-foreground hover:text-destructive transition-colors"
           >
             <X size={18} />
           </button>
@@ -109,7 +110,7 @@ const RecommendedProduct = ({ product, onAdd }) => {
   };
 
   return (
-    <div className="flex flex-col items-center p-3 border rounded-lg hover:shadow-md transition-shadow bg-white">
+    <div className="flex flex-col items-center p-3 border rounded-lg hover:shadow-md transition-shadow bg-card">
       <div className="relative h-24 w-24 mb-2">
         <Image
           src={product.image || "https://via.placeholder.com/96"}
@@ -118,18 +119,18 @@ const RecommendedProduct = ({ product, onAdd }) => {
           className="object-cover rounded-md"
         />
         {product.discountPercentage && (
-          <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-bl-md rounded-tr-md">
+          <div className="absolute top-0 right-0 bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-bl-md rounded-tr-md">
             -{product.discountPercentage}%
           </div>
         )}
       </div>
-      <h4 className="text-sm font-medium text-center line-clamp-1 mb-1">
+      <h4 className="text-sm font-medium text-center line-clamp-1 mb-1 text-foreground">
         {product.name}
       </h4>
       <div className="flex items-center gap-2 mb-2">
         <span className="font-bold text-sm">${product.price}.00</span>
         {product.originalPrice && (
-          <span className="text-gray-400 text-xs line-through">
+          <span className="text-muted-foreground text-xs line-through">
             ${product.originalPrice}.00
           </span>
         )}
@@ -137,7 +138,7 @@ const RecommendedProduct = ({ product, onAdd }) => {
       <Button
         variant="outline"
         size="sm"
-        className="w-full gap-1 hover:bg-primary hover:text-white transition-colors"
+        className="w-full gap-1 hover:bg-primary hover:text-primary-foreground transition-colors"
         onClick={handleAdd}
       >
         <Plus size={14} /> Add
@@ -149,11 +150,13 @@ const RecommendedProduct = ({ product, onAdd }) => {
 const EmptyCart = ({ recommendedProducts, onAddToCart }) => {
   return (
     <div className="flex flex-col items-center py-8">
-      <div className="bg-gray-50 p-6 rounded-full mb-4">
-        <ShoppingBag className="h-12 w-12 text-gray-400" />
+      <div className="bg-muted p-6 rounded-full mb-4">
+        <ShoppingBag className="h-12 w-12 text-muted-foreground" />
       </div>
-      <h3 className="text-xl font-bold mb-2">Your cart is empty</h3>
-      <p className="text-gray-500 text-center mb-6">
+      <h3 className="text-xl font-bold mb-2 text-foreground">
+        Your cart is empty
+      </h3>
+      <p className="text-muted-foreground text-center mb-6">
         Looks like you haven't added any products to your cart yet.
       </p>
       <Link href="/shop">
@@ -166,7 +169,7 @@ const EmptyCart = ({ recommendedProducts, onAddToCart }) => {
         <div className="w-full">
           <div className="flex items-center gap-2 mb-4">
             <Tag className="h-4 w-4 text-primary" />
-            <h4 className="font-medium">Recommended for you</h4>
+            <h4 className="font-medium text-foreground">Recommended for you</h4>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {recommendedProducts.map((product) => (
@@ -245,12 +248,12 @@ const ShoppingCart = observer(() => {
     <div className="relative z-50">
       <button
         onClick={toggleCart}
-        className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+        className="relative p-2 text-foreground hover:text-primary transition-colors"
         aria-label="Shopping cart"
       >
         <ShoppingCartIcon className="h-6 w-6" />
         {cartCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
             {cartCount}
           </span>
         )}
@@ -263,7 +266,7 @@ const ShoppingCart = observer(() => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black"
+              className="fixed inset-0 bg-black/50 dark:bg-black/70"
               onClick={toggleCart}
             />
 
@@ -274,14 +277,14 @@ const ShoppingCart = observer(() => {
               transition={{ type: "spring", damping: 25 }}
               className="fixed top-0 right-0 h-full w-full sm:w-96 bg-background shadow-xl flex flex-col"
             >
-              <div className="flex items-center justify-between p-4 border-b">
-                <h2 className="text-lg font-bold flex items-center gap-2">
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h2 className="text-lg font-bold flex items-center gap-2 text-foreground">
                   <ShoppingCartIcon className="h-5 w-5" />
                   Your Cart {cart.length > 0 && `(${cart.length})`}
                 </h2>
                 <button
                   onClick={toggleCart}
-                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  className="p-1 rounded-full hover:bg-muted transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -307,19 +310,23 @@ const ShoppingCart = observer(() => {
               </div>
 
               {cartItems.length > 0 && (
-                <div className="p-4 border-t bg-gray-50">
+                <div className="p-4 border-t border-border bg-muted/50">
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${subtotal}.00</span>
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium text-foreground">
+                      ${subtotal}.00
+                    </span>
                   </div>
                   <div className="flex justify-between mb-4">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium">Free</span>
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="font-medium text-foreground">Free</span>
                   </div>
                   <Separator className="mb-4" />
                   <div className="flex justify-between mb-4">
-                    <span className="font-bold">Total</span>
-                    <span className="font-bold">${subtotal}.00</span>
+                    <span className="font-bold text-foreground">Total</span>
+                    <span className="font-bold text-foreground">
+                      ${subtotal}.00
+                    </span>
                   </div>
 
                   <div className="space-y-2">

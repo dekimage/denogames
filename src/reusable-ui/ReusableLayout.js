@@ -18,6 +18,19 @@ import {
   Smartphone,
   Store,
   UserIcon,
+  ChevronDown,
+  Package,
+  ShoppingCart as CartIcon,
+  Home as HomeIcon,
+  User,
+  LogIn,
+  UserPlus,
+  Gift,
+  Trophy,
+  ShoppingBag,
+  Star,
+  Gamepad2,
+  Bell,
 } from "lucide-react";
 import MobxStore from "../mobx";
 import { Button } from "@/components/ui/button";
@@ -58,6 +71,15 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/ui/themeButton";
 import ShoppingCart from "@/components/Cart";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const routesWithoutHeaderFooter = ["/login", "/signup", "/app"];
 
@@ -156,99 +178,193 @@ const ReusableLayout = observer(({ children }) => {
 
   const hideFooter = pathname.startsWith("/account");
 
+  // Helper function to check if a path is active
+  const isActive = (path) => pathname === path;
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="hidden sm:block flex-grow">
         {showHeaderFooter && !showMvpHeader && (
-          <div className="fixed top-0 left-0 right-0 z-50 bg-white">
-            <div className="navigation">
-              <NavigationMenu>
-                <NavigationMenuList className="gap-4">
-                  <NavigationMenuItem>
-                    <Link href="/">
-                      <Image
-                        src={logoImg}
-                        alt="logo"
-                        width={75}
-                        height={75}
-                        className="cursor-pointer"
-                      />
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/">
-                      <Button variant="reverse" className="text-lg">
-                        HOME
-                      </Button>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/shop" legacyBehavior passHref>
-                      <Button variant="reverse" className="text-lg">
-                        {/* <Store className="mr-2" /> */}
-                        SHOP
-                      </Button>
-                    </Link>
-                  </NavigationMenuItem>
-
-                  <NavigationMenuItem>
-                    <Link href="/blog" legacyBehavior passHref>
-                      <Button variant="reverse" className="text-lg">
-                        {/* <FileText className="mr-2" /> */}
-                        BLOG
-                      </Button>
-                    </Link>
-                  </NavigationMenuItem>
-
-                  {/* <NavigationMenuItem>
-                    <Link href="/game-finder" legacyBehavior passHref>
-                      <Button variant="reverse" className="text-lg">
-                        
-                        FINDER TOOL
-                      </Button>
-                    </Link>
-                  </NavigationMenuItem> */}
-                </NavigationMenuList>
-              </NavigationMenu>
-              <div className="flex justify-end gap-4 items-center">
-                {/* <Link href="/app">
-                  <Button size="icon" variant="reverse">
-                    <Smartphone />
-                  </Button>
+          <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b shadow-sm">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+              {/* Logo and Main Navigation */}
+              <div className="flex items-center space-x-6">
+                <Link href="/" className="flex items-center">
+                  <Image
+                    src={logoImg}
+                    alt="Deno Games"
+                    width={48}
+                    height={48}
+                    className="mr-2"
+                  />
+                  <span className="font-bold text-xl hidden md:inline-block text-foreground">
+                    Deno Games
+                  </span>
                 </Link>
-                <Link href="/">
-                  <Button size="icon" variant="reverse">
-                    <Home />
-                  </Button>
-                </Link> */}
-                <ModeToggle />
-                <ShoppingCart />
-                {/* <Link href="/cart">
-                  <div className="relative inline-block">
-                    <Button variant="reverse">
-                      <ShoppingCart className="mr-2" />
-                      CART
+
+                {/* Main Navigation */}
+                <div className="hidden md:flex items-center space-x-1">
+                  <Link href="/">
+                    <Button
+                      variant={isActive("/") ? "secondary" : "ghost"}
+                      className="flex items-center gap-2"
+                    >
+                      <HomeIcon className="h-4 w-4" />
+                      Home
                     </Button>
-                    {cartItemCount > 0 && (
-                      <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold z-50">
-                        {cartItemCount}
-                      </span>
-                    )}
-                  </div>
-                </Link> */}
+                  </Link>
+
+                  <Link href="/shop">
+                    <Button
+                      variant={isActive("/shop") ? "secondary" : "ghost"}
+                      className="flex items-center gap-2"
+                    >
+                      <Package className="h-4 w-4" />
+                      Shop
+                    </Button>
+                  </Link>
+
+                  <Link href="/blog">
+                    <Button
+                      variant={isActive("/blog") ? "secondary" : "ghost"}
+                      className="flex items-center gap-2"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Blog
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Side Actions */}
+              <div className="flex items-center space-x-3">
+                {/* Search Button */}
+                <Button variant="ghost" size="icon" className="hidden md:flex">
+                  <Search className="h-5 w-5" />
+                </Button>
+
+                {/* Theme Toggle */}
+                <ModeToggle />
+
+                {/* Shopping Cart */}
+                <ShoppingCart />
+
+                {/* User Menu or Auth Buttons */}
                 {user ? (
-                  <>
+                  <div className="flex items-center space-x-3">
+                    {/* Notifications */}
                     <NotificationDropdown />
 
-                    <UserNav user={user} logout={logout} />
-                  </>
+                    {/* User Profile Dropdown - Using regular dropdown instead of NavigationMenu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-9 px-3 flex items-center gap-2"
+                        >
+                          <Avatar className="h-7 w-7">
+                            <AvatarImage
+                              src={user.photoURL || ""}
+                              alt={user.username}
+                            />
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              {user.username?.charAt(0).toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium text-sm hidden md:inline-block">
+                            {user.username}
+                          </span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                              {user.username}
+                            </p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                              {user.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/account" className="flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            <span>My Account</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/account/my-games"
+                            className="flex items-center"
+                          >
+                            <Gamepad2 className="mr-2 h-4 w-4" />
+                            <span>My Games</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/account/rewards"
+                            className="flex items-center"
+                          >
+                            <Gift className="mr-2 h-4 w-4" />
+                            <span>Rewards</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/account/achievements"
+                            className="flex items-center"
+                          >
+                            <Trophy className="mr-2 h-4 w-4" />
+                            <span>Achievements</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/account/my-orders"
+                            className="flex items-center"
+                          >
+                            <ShoppingBag className="mr-2 h-4 w-4" />
+                            <span>My Orders</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/account/my-reviews"
+                            className="flex items-center"
+                          >
+                            <Star className="mr-2 h-4 w-4" />
+                            <span>My Reviews</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={logout}>
+                          <LogIn className="mr-2 h-4 w-4 rotate-180" />
+                          <span>Log out</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex items-center space-x-2">
                     <Link href="/login">
-                      <Button variant="cream">Login</Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="hidden md:flex"
+                      >
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Log in
+                      </Button>
                     </Link>
                     <Link href="/signup">
-                      <Button>Create Free Account</Button>
+                      <Button size="sm">
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        <span className="hidden md:inline">Sign up</span>
+                        <span className="md:hidden">Sign up</span>
+                      </Button>
                     </Link>
                   </div>
                 )}
@@ -256,22 +372,29 @@ const ReusableLayout = observer(({ children }) => {
             </div>
           </div>
         )}
+
+        {/* MVP Header - Using proper NavigationMenu structure */}
         {showMvpHeader && (
-          <div className="fixed top-0 left-0 right-0 z-50 bg-white print:hidden">
-            <div className="navigation max-h-[50px]">
+          <div className="fixed top-0 left-0 right-0 z-50 bg-background print:hidden border-b shadow-sm">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
               <NavigationMenu>
-                <NavigationMenuList className="gap-4">
+                <NavigationMenuList>
                   <NavigationMenuItem>
-                    <Link href="/mvp">
-                      <Image
-                        src={logoImg}
-                        alt="logo"
-                        width={75}
-                        height={75}
-                        className="cursor-pointer"
-                      />
+                    <Link href="/mvp" legacyBehavior passHref>
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        <Image
+                          src={logoImg}
+                          alt="logo"
+                          width={48}
+                          height={48}
+                          className="cursor-pointer"
+                        />
+                      </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
                     <NavigationMenuTrigger>Builders Town</NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -303,6 +426,7 @@ const ReusableLayout = observer(({ children }) => {
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
                     <NavigationMenuTrigger>Farming</NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -331,6 +455,7 @@ const ReusableLayout = observer(({ children }) => {
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
                     <Link href="/mvp/pdf" legacyBehavior passHref>
                       <NavigationMenuLink
@@ -340,15 +465,18 @@ const ReusableLayout = observer(({ children }) => {
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
-                  <ModeToggle />
                 </NavigationMenuList>
               </NavigationMenu>
+
+              <ModeToggle />
             </div>
           </div>
         )}
+
+        {/* Main Content Area */}
         <div
           className={`${
-            showHeaderFooter || showMvpHeader ? "pt-[53px] print:pt-0" : ""
+            showHeaderFooter || showMvpHeader ? "pt-16 print:pt-0" : ""
           }`}
         >
           <ResizablePanelGroup
@@ -367,18 +495,21 @@ const ReusableLayout = observer(({ children }) => {
           </ResizablePanelGroup>
         </div>
       </div>
+
+      {/* Mobile View */}
       <div className="block sm:hidden flex-grow">
         {showHeaderFooter && !showMvpHeader && <MobileHeader />}
         {showMvpHeader && <div>MVP Header</div>}
         {children}
       </div>
+
+      {/* Footer */}
       {!hideFooter && <Footer />}
     </div>
   );
 });
 
-export default ReusableLayout;
-
+// Make sure ListItem is properly defined for NavigationMenu
 const ListItem = React.forwardRef(
   ({ className, title, children, ...props }, ref) => {
     return (
@@ -403,3 +534,5 @@ const ListItem = React.forwardRef(
   }
 );
 ListItem.displayName = "ListItem";
+
+export default ReusableLayout;
