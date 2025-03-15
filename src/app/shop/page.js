@@ -1,13 +1,20 @@
 "use client";
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
-import { useState, useEffect, useCallback } from "react";
-import Breadcrumbs from "@/components/Breadcrumbs";
-
-import { CheckSquare, Square, ChevronDown, ChevronUp } from "lucide-react";
-import { ProductCard } from "../page";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { ProductCard } from "@/app/home/page";
+import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  Filter,
+  Search,
+  SlidersHorizontal,
+  X,
+  Home,
   Swords,
   Castle,
   HeartHandshake,
@@ -19,9 +26,48 @@ import {
   Joystick,
   Puzzle,
   Box,
+  Users,
+  AlertCircle,
+  ArrowUpDown,
 } from "lucide-react";
-import { MAIN_CONFIG } from "@/config/main";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Filter options
 const typeOptions = [
   { name: "Competitive", icon: Swords },
   { name: "Engine Building", icon: Castle },
@@ -42,309 +88,749 @@ const productOptions = [
   { name: "Bundle", icon: Box },
 ];
 
+// Sort options
+const sortOptions = [
+  { value: "newest", label: "Newest" },
+  { value: "a-z", label: "A-Z" },
+  { value: "price-low-high", label: "Price: Low to High" },
+  { value: "price-high-low", label: "Price: High to Low" },
+  { value: "product-type", label: "Product Type" },
+];
+
+// Helper function to get icon for a filter option
 const getIconForOption = (option) => {
   const iconOption =
-    typeOptions.find((type) => type.name === option) ||
-    difficultyOptions.find((diff) => diff.name === option) ||
+    typeOptions.find(
+      (type) => type.name.toLowerCase() === option.toLowerCase()
+    ) ||
+    difficultyOptions.find(
+      (diff) => diff.name.toLowerCase() === option.toLowerCase()
+    ) ||
     productOptions.find(
       (prod) => prod.name.toLowerCase() === option.toLowerCase()
     );
+
   if (iconOption) {
     const IconComponent = iconOption.icon;
-    return <IconComponent size={20} className="mr-2" />;
+    return <IconComponent className="h-4 w-4" />;
   }
   return null;
 };
 
-const FilterSection = observer(
-  ({ title, options, selectedOptions, onToggle, isOpen, toggleOpen }) => (
-    <div className="mb-8">
-      <div
-        className="flex justify-between items-center cursor-pointer"
-        onClick={toggleOpen}
-      >
-        <div className="font-strike text-xl uppercase">{title}</div>
-        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-      </div>
-      {isOpen && (
-        <div className="mt-2">
-          {options.map((option) => (
-            <div
-              key={option.name}
-              className="flex items-center justify-between mb-2 cursor-pointer text-grayy"
-              onClick={() => onToggle(option.name)}
-            >
-              <div className="flex items-center">
-                {getIconForOption(option.name)}
-                <span>{option.name}</span>
-              </div>
-              {selectedOptions.includes(option.name.toLowerCase()) ? (
-                <CheckSquare size={20} className="ml-2" />
-              ) : (
-                <Square size={20} className="ml-2" />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+// Filter Badge Component
+const FilterBadge = ({ label, onRemove, icon }) => (
+  <Badge variant="secondary" className="flex items-center gap-1 px-2 py-1">
+    {icon && <span className="mr-1">{icon}</span>}
+    {label}
+    <X className="h-3 w-3 cursor-pointer ml-1" onClick={onRemove} />
+  </Badge>
 );
 
+// Desktop Filter Section Component
+const FilterSection = ({ title, options, selectedOptions, onToggle }) => (
+  <div className="mb-6">
+    <h3 className="font-medium mb-3">{title}</h3>
+    <div className="space-y-2">
+      {options.map((option) => {
+        const IconComponent = option.icon;
+        const isSelected = selectedOptions.includes(option.name.toLowerCase());
+
+        return (
+          <div key={option.name} className="flex items-center space-x-2">
+            <Checkbox
+              id={`${title}-${option.name}`}
+              checked={isSelected}
+              onCheckedChange={() => onToggle(option.name.toLowerCase())}
+            />
+            <label
+              htmlFor={`${title}-${option.name}`}
+              className="flex items-center text-sm cursor-pointer"
+            >
+              <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
+              {option.name}
+            </label>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
+
+// Mobile Filter Sheet Component
+const MobileFilterSheet = ({
+  isOpen,
+  onOpenChange,
+  filters,
+  setFilters,
+  resetFilters,
+}) => (
+  <Sheet open={isOpen} onOpenChange={onOpenChange}>
+    <SheetContent className="w-full sm:max-w-md">
+      <SheetHeader>
+        <SheetTitle>Filters</SheetTitle>
+        <SheetDescription>
+          Refine your product search with these filters.
+        </SheetDescription>
+      </SheetHeader>
+
+      <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+        <Accordion
+          type="multiple"
+          defaultValue={["types", "difficulty", "products", "players"]}
+        >
+          <AccordionItem value="types">
+            <AccordionTrigger>Game Types</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-2 pt-2">
+                {typeOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  const isSelected = filters.types.includes(
+                    option.name.toLowerCase()
+                  );
+
+                  return (
+                    <div
+                      key={option.name}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={`mobile-${option.name}`}
+                        checked={isSelected}
+                        onCheckedChange={() => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            types: isSelected
+                              ? prev.types.filter(
+                                  (t) => t !== option.name.toLowerCase()
+                                )
+                              : [...prev.types, option.name.toLowerCase()],
+                          }));
+                        }}
+                      />
+                      <label
+                        htmlFor={`mobile-${option.name}`}
+                        className="flex items-center text-sm cursor-pointer"
+                      >
+                        <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {option.name}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="difficulty">
+            <AccordionTrigger>Difficulty</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-2 pt-2">
+                {difficultyOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  const isSelected = filters.difficulty.includes(
+                    option.name.toLowerCase()
+                  );
+
+                  return (
+                    <div
+                      key={option.name}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={`mobile-${option.name}`}
+                        checked={isSelected}
+                        onCheckedChange={() => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            difficulty: isSelected
+                              ? prev.difficulty.filter(
+                                  (d) => d !== option.name.toLowerCase()
+                                )
+                              : [...prev.difficulty, option.name.toLowerCase()],
+                          }));
+                        }}
+                      />
+                      <label
+                        htmlFor={`mobile-${option.name}`}
+                        className="flex items-center text-sm cursor-pointer"
+                      >
+                        <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {option.name}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="products">
+            <AccordionTrigger>Product Types</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-2 pt-2">
+                {productOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  const isSelected = filters.products.includes(
+                    option.name.toLowerCase()
+                  );
+
+                  return (
+                    <div
+                      key={option.name}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={`mobile-${option.name}`}
+                        checked={isSelected}
+                        onCheckedChange={() => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            products: isSelected
+                              ? prev.products.filter(
+                                  (p) => p !== option.name.toLowerCase()
+                                )
+                              : [...prev.products, option.name.toLowerCase()],
+                          }));
+                        }}
+                      />
+                      <label
+                        htmlFor={`mobile-${option.name}`}
+                        className="flex items-center text-sm cursor-pointer"
+                      >
+                        <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {option.name}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="players">
+            <AccordionTrigger>Number of Players</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-6 pt-2">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm">
+                      Min Players: {filters.minPlayers}
+                    </span>
+                    <span className="text-sm">
+                      Max Players: {filters.maxPlayers}
+                    </span>
+                  </div>
+                  <div className="px-2">
+                    <Slider
+                      defaultValue={[filters.minPlayers, filters.maxPlayers]}
+                      min={1}
+                      max={10}
+                      step={1}
+                      onValueChange={(value) => {
+                        setFilters((prev) => ({
+                          ...prev,
+                          minPlayers: value[0],
+                          maxPlayers: value[1],
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between mt-2">
+                    <span className="text-xs text-muted-foreground">1</span>
+                    <span className="text-xs text-muted-foreground">10+</span>
+                  </div>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </ScrollArea>
+
+      <SheetFooter className="flex-row justify-between mt-6 gap-2">
+        <Button variant="outline" className="flex-1" onClick={resetFilters}>
+          Reset All
+        </Button>
+        <SheetClose asChild>
+          <Button className="flex-1">Apply Filters</Button>
+        </SheetClose>
+      </SheetFooter>
+    </SheetContent>
+  </Sheet>
+);
+
+// Main Shop Page Component
 const ShopPage = observer(() => {
-  const { products, loading } = MobxStore;
+  const { products, loading, loadingProducts } = MobxStore;
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     types: [],
     difficulty: [],
     minPlayers: 1,
-    maxPlayers: 6,
+    maxPlayers: 10,
     products: [],
   });
-  const [openSections, setOpenSections] = useState({
-    types: true,
-    difficulty: true,
-    players: true,
-    products: true,
-  });
   const [sortOption, setSortOption] = useState("newest");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [error, setError] = useState(null);
 
-  const sortOptions = [
-    { value: "newest", label: "Newest" },
-    { value: "a-z", label: "A-Z" },
-    { value: "price-low-high", label: "Price: Low to High" },
-    { value: "price-high-low", label: "Price: High to Low" },
-    { value: "product-type", label: "Product Type" },
-  ];
-
+  // Apply filters and sorting
   const applyFilters = useCallback(() => {
-    let filtered = products.filter((product) => {
-      const typeMatch =
-        filters.types.length === 0 ||
-        filters.types.some((type) => product.types?.includes(type));
-      const difficultyMatch =
-        filters.difficulty.length === 0 ||
-        filters.difficulty.includes(product.difficulty);
-      const playersMatch =
-        product.minPlayers >= filters.minPlayers &&
-        product.maxPlayers <= filters.maxPlayers;
-      const productMatch =
-        filters.products.length === 0 ||
-        filters.products.some(
-          (type) => product.type?.toLowerCase() === type.toLowerCase()
+    try {
+      let filtered = [...products];
+
+      // Apply search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (product) =>
+            product.name?.toLowerCase().includes(query) ||
+            product.description?.toLowerCase().includes(query)
         );
-      return typeMatch && difficultyMatch && playersMatch && productMatch;
-    });
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortOption) {
-        case "newest":
-          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-        case "a-z":
-          return (a.name || "").localeCompare(b.name || "");
-        case "price-low-high":
-          return (a.price || 0) - (b.price || 0);
-        case "price-high-low":
-          return (b.price || 0) - (a.price || 0);
-        case "product-type":
-          const typeOrder = { game: 1, expansion: 2, bundle: 3 };
-          const aType = a.type || "";
-          const bType = b.type || "";
-          return (typeOrder[aType] || 4) - (typeOrder[bType] || 4);
-        default:
-          return 0;
       }
-    });
 
-    setFilteredProducts(filtered);
-  }, [filters, products, sortOption]);
+      // Apply category filters
+      if (filters.types.length > 0) {
+        filtered = filtered.filter((product) =>
+          product.types?.some((type) =>
+            filters.types.includes(type.toLowerCase())
+          )
+        );
+      }
 
+      // Apply difficulty filter
+      if (filters.difficulty.length > 0) {
+        filtered = filtered.filter((product) =>
+          filters.difficulty.includes(product.difficulty?.toLowerCase())
+        );
+      }
+
+      // Apply product type filter
+      if (filters.products.length > 0) {
+        filtered = filtered.filter((product) =>
+          filters.products.includes(product.type?.toLowerCase())
+        );
+      }
+
+      // Apply player count filter
+      filtered = filtered.filter(
+        (product) =>
+          (product.minPlayers >= filters.minPlayers || !product.minPlayers) &&
+          (product.maxPlayers <= filters.maxPlayers || !product.maxPlayers)
+      );
+
+      // Apply sorting
+      filtered.sort((a, b) => {
+        switch (sortOption) {
+          case "newest":
+            return (
+              new Date(b.dateReleased || 0) - new Date(a.dateReleased || 0)
+            );
+          case "a-z":
+            return (a.name || "").localeCompare(b.name || "");
+          case "price-low-high":
+            return (a.price || 0) - (b.price || 0);
+          case "price-high-low":
+            return (b.price || 0) - (a.price || 0);
+          case "product-type":
+            const typeOrder = { game: 1, expansion: 2, bundle: 3 };
+            return (
+              (typeOrder[a.type?.toLowerCase()] || 4) -
+              (typeOrder[b.type?.toLowerCase()] || 4)
+            );
+          default:
+            return 0;
+        }
+      });
+
+      setFilteredProducts(filtered);
+    } catch (err) {
+      console.error("Error applying filters:", err);
+      setError("An error occurred while filtering products. Please try again.");
+    }
+  }, [products, filters, sortOption, searchQuery]);
+
+  // Apply filters whenever dependencies change
   useEffect(() => {
     if (products.length > 0) {
       applyFilters();
     }
-  }, [products, filters, sortOption, applyFilters]);
+  }, [products, filters, sortOption, searchQuery, applyFilters]);
 
+  // Toggle a filter option
   const toggleFilter = (filterType, value) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterType]: prevFilters[filterType].includes(value)
-        ? prevFilters[filterType].filter((item) => item !== value)
-        : [...prevFilters[filterType], value],
+    setFilters((prev) => ({
+      ...prev,
+      [filterType]: prev[filterType].includes(value)
+        ? prev[filterType].filter((item) => item !== value)
+        : [...prev[filterType], value],
     }));
   };
 
+  // Reset all filters
   const resetFilters = () => {
     setFilters({
       types: [],
       difficulty: [],
       minPlayers: 1,
-      maxPlayers: 6,
+      maxPlayers: 10,
       products: [],
     });
+    setSearchQuery("");
   };
 
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  const handleSortChange = (option) => {
-    setSortOption(option);
-    setIsDropdownOpen(false);
-  };
-
-  // Add this function to count active filters
+  // Count active filters for badge
   const countActiveFilters = () => {
     return (
       filters.types.length +
       filters.difficulty.length +
       filters.products.length +
-      (filters.minPlayers > 1 ? 1 : 0) +
-      (filters.maxPlayers < 6 ? 1 : 0)
+      (searchQuery ? 1 : 0) +
+      (filters.minPlayers > 1 || filters.maxPlayers < 10 ? 1 : 0)
     );
   };
 
-  if (MAIN_CONFIG.isUnderConstruction) {
+  // Handle search input
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Search is already applied via the useEffect
+  };
+
+  // Loading state
+  if (loading || loadingProducts) {
     return (
-      <div className="flex w-full h-full justify-center items-center min-h-[80vh]">
-        <div className="text-2xl font-strike uppercase">Under Construction</div>
+      <div className="container mx-auto py-16 flex flex-col justify-center items-center min-h-[60vh]">
+        <LoadingSpinner size={40} />
+        <p className="mt-4 text-muted-foreground">Loading products...</p>
       </div>
     );
   }
 
-  if (loading) {
-    return <div>Loading...</div>;
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto py-16 px-4">
+        <div className="flex items-center text-sm mb-8">
+          <Link
+            href="/"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Home className="h-4 w-4 inline mr-1" /> Home
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground" />
+          <span className="font-medium">Shop</span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <Breadcrumbs />
-      <div className="flex mt-8">
-        {/* Filters */}
-        <div className="w-1/4 pr-8">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-2xl font-bold uppercase font-strike">
-              Filters
-            </div>
-            {countActiveFilters() > 0 && (
-              <div className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-                {countActiveFilters()}
-              </div>
-            )}
-          </div>
-          <FilterSection
-            title="Type"
-            options={typeOptions}
-            selectedOptions={filters.types}
-            onToggle={(option) => toggleFilter("types", option.toLowerCase())}
-            isOpen={openSections.types}
-            toggleOpen={() => toggleSection("types")}
-          />
-          <FilterSection
-            title="Difficulty"
-            options={difficultyOptions}
-            selectedOptions={filters.difficulty}
-            onToggle={(option) =>
-              toggleFilter("difficulty", option.toLowerCase())
-            }
-            isOpen={openSections.difficulty}
-            toggleOpen={() => toggleSection("difficulty")}
-          />
-          <FilterSection
-            title="Product"
-            options={productOptions}
-            selectedOptions={filters.products}
-            onToggle={(option) =>
-              toggleFilter("products", option.toLowerCase())
-            }
-            isOpen={openSections.products}
-            toggleOpen={() => toggleSection("products")}
-          />
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">Number of Players</h3>
-            <div className="flex items-center">
-              <input
-                type="number"
-                min="1"
-                max="6"
-                value={filters.minPlayers}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    minPlayers: parseInt(e.target.value),
-                  }))
-                }
-                className="w-16 p-2 border rounded"
-              />
-              <span className="mx-2">-</span>
-              <input
-                type="number"
-                min="1"
-                max="6"
-                value={filters.maxPlayers}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    maxPlayers: parseInt(e.target.value),
-                  }))
-                }
-                className="w-16 p-2 border rounded"
-              />
-            </div>
-          </div>
-          <Button onClick={resetFilters} variant="reverse" className="w-fit">
-            Reset Filters
-          </Button>
-        </div>
-        {/* Products */}
-        <div className="w-3/4">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-2xl font-bold  uppercase font-strike ml-4">
-              Shop
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-2xl font-bold  uppercase font-strike ml-4">
-                Sort by
-              </div>
-              <div className="relative">
-                <div
-                  className="flex items-center justify-between w-48 px-4 py-2 text-sm bg-transparent border-2 border-gray-300 rounded cursor-pointer"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+    <div className="container mx-auto py-16 px-4">
+      {/* Breadcrumbs */}
+      <div className="flex items-center text-sm mb-8">
+        <Link href="/" className="text-muted-foreground hover:text-foreground">
+          <Home className="h-4 w-4 inline mr-1" /> Home
+        </Link>
+        <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground" />
+        <span className="font-medium">Shop</span>
+      </div>
+
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Shop</h1>
+        <p className="text-muted-foreground">
+          Browse our collection of games, expansions, and bundles.
+        </p>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Desktop Filters Sidebar */}
+        <div className="hidden lg:block w-64 flex-shrink-0">
+          <div className="sticky top-24 bg-card rounded-lg border p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-semibold text-lg">Filters</h2>
+              {countActiveFilters() > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="h-8 px-2"
                 >
-                  <span>
-                    {
-                      sortOptions.find((option) => option.value === sortOption)
-                        .label
-                    }
-                  </span>
-                  <ChevronDown size={20} />
-                </div>
-                {isDropdownOpen && (
-                  <div className="absolute z-10 w-48 mt-1 bg-white border-2 border-gray-300 rounded shadow-lg">
-                    {sortOptions.map((option) => (
-                      <div
-                        key={option.value}
-                        className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleSortChange(option.value)}
-                      >
-                        {option.label}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  Reset
+                </Button>
+              )}
+            </div>
+
+            {/* Search */}
+            <form onSubmit={handleSearch} className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search products..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
+            </form>
+
+            <Separator className="my-6" />
+
+            {/* Game Types Filter */}
+            <FilterSection
+              title="Game Types"
+              options={typeOptions}
+              selectedOptions={filters.types}
+              onToggle={(value) => toggleFilter("types", value)}
+            />
+
+            <Separator className="my-6" />
+
+            {/* Difficulty Filter */}
+            <FilterSection
+              title="Difficulty"
+              options={difficultyOptions}
+              selectedOptions={filters.difficulty}
+              onToggle={(value) => toggleFilter("difficulty", value)}
+            />
+
+            <Separator className="my-6" />
+
+            {/* Product Types Filter */}
+            <FilterSection
+              title="Product Types"
+              options={productOptions}
+              selectedOptions={filters.products}
+              onToggle={(value) => toggleFilter("products", value)}
+            />
+
+            <Separator className="my-6" />
+
+            {/* Player Count Filter */}
+            <div className="mb-6">
+              <h3 className="font-medium mb-3">Number of Players</h3>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm">Min: {filters.minPlayers}</span>
+                    <span className="text-sm">Max: {filters.maxPlayers}</span>
+                  </div>
+                  <div className="px-2">
+                    <Slider
+                      defaultValue={[filters.minPlayers, filters.maxPlayers]}
+                      min={1}
+                      max={10}
+                      step={1}
+                      onValueChange={(value) => {
+                        setFilters((prev) => ({
+                          ...prev,
+                          minPlayers: value[0],
+                          maxPlayers: value[1],
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between mt-2">
+                    <span className="text-xs text-muted-foreground">1</span>
+                    <span className="text-xs text-muted-foreground">10+</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          {/* Mobile Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 lg:hidden">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 w-full sm:w-auto"
+              onClick={() => setIsMobileFilterOpen(true)}
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {countActiveFilters() > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {countActiveFilters()}
+                </Badge>
+              )}
+            </Button>
+
+            <div className="relative w-full sm:w-auto">
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search products..."
+                    className="pl-10 pr-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                      onClick={() => setSearchQuery("")}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </form>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          {/* Active Filters */}
+          {countActiveFilters() > 0 && (
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2 items-center">
+                {searchQuery && (
+                  <FilterBadge
+                    label={`Search: ${searchQuery}`}
+                    onRemove={() => setSearchQuery("")}
+                    icon={<Search className="h-3 w-3" />}
+                  />
+                )}
+
+                {filters.types.map((type) => (
+                  <FilterBadge
+                    key={`type-${type}`}
+                    label={type}
+                    onRemove={() => toggleFilter("types", type)}
+                    icon={getIconForOption(type)}
+                  />
+                ))}
+
+                {filters.difficulty.map((difficulty) => (
+                  <FilterBadge
+                    key={`difficulty-${difficulty}`}
+                    label={difficulty}
+                    onRemove={() => toggleFilter("difficulty", difficulty)}
+                    icon={getIconForOption(difficulty)}
+                  />
+                ))}
+
+                {filters.products.map((product) => (
+                  <FilterBadge
+                    key={`product-${product}`}
+                    label={product}
+                    onRemove={() => toggleFilter("products", product)}
+                    icon={getIconForOption(product)}
+                  />
+                ))}
+
+                {(filters.minPlayers > 1 || filters.maxPlayers < 10) && (
+                  <FilterBadge
+                    label={`Players: ${filters.minPlayers}-${filters.maxPlayers}`}
+                    onRemove={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        minPlayers: 1,
+                        maxPlayers: 10,
+                      }))
+                    }
+                    icon={<Users className="h-3 w-3" />}
+                  />
+                )}
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm h-8"
+                  onClick={resetFilters}
+                >
+                  Clear all
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Results Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredProducts.length} of {products.length} products
+            </p>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm whitespace-nowrap">Sort by:</span>
+              <Select value={sortOption} onValueChange={setSortOption}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Products Grid */}
+          <AnimatePresence mode="wait">
+            {filteredProducts.length > 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              >
+                {filteredProducts.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center justify-center py-16 text-center"
+              >
+                <div className="bg-muted/30 rounded-full p-6 mb-4">
+                  <AlertCircle className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <h2 className="text-xl font-semibold mb-2">
+                  No products found
+                </h2>
+                <p className="text-muted-foreground mb-6 max-w-md">
+                  We couldn't find any products matching your current filters.
+                  Try adjusting your search criteria.
+                </p>
+                <Button onClick={resetFilters}>Reset All Filters</Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Mobile Filter Sheet */}
+      <MobileFilterSheet
+        isOpen={isMobileFilterOpen}
+        onOpenChange={setIsMobileFilterOpen}
+        filters={filters}
+        setFilters={setFilters}
+        resetFilters={resetFilters}
+      />
     </div>
   );
 });
