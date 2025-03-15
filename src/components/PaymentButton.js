@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { auth } from "@/firebase";
 import { Button } from "./ui/button";
+import { Lock } from "lucide-react";
 
-const PaymentButton = observer(({ cartItems }) => {
+const PaymentButton = observer(({ cartItems, total }) => {
   const [stripePromise, setStripePromise] = useState(null);
 
   useEffect(() => {
@@ -60,14 +61,18 @@ const PaymentButton = observer(({ cartItems }) => {
     }
   };
 
+  // Format the total amount for display
+  const displayAmount = total ? `$${total}.00` : "Checkout";
+
   return (
-    <Button
+    <button
       onClick={handlePayment}
       disabled={!stripePromise || cartItems.length === 0}
-      className="w-full h-12 text-lg w-1/2"
+      className="w-full h-12 text-lg flex items-center justify-center bg-[#635BFF] hover:bg-[#5851E1] text-white font-medium rounded-md transition-colors"
     >
-      Checkout
-    </Button>
+      <Lock className="mr-2 h-4 w-4" />
+      Pay with Stripe {total ? `• ${displayAmount}` : ""}
+    </button>
   );
 });
 

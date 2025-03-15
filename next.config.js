@@ -15,6 +15,7 @@ const nextConfig = {
       "via.placeholder.com",
       "storage.googleapis.com",
       "denogames-7c4dc.appspot.com",
+      "cdn-icons-png.flaticon.com",
     ],
   },
 };

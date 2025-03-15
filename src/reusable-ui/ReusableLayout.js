@@ -15,7 +15,6 @@ import {
   Plus,
   Search,
   SearchCheck,
-  ShoppingCart,
   Smartphone,
   Store,
   UserIcon,
@@ -58,6 +57,7 @@ import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/ui/themeButton";
+import ShoppingCart from "@/components/Cart";
 
 const routesWithoutHeaderFooter = ["/login", "/signup", "/app"];
 
@@ -222,7 +222,8 @@ const ReusableLayout = observer(({ children }) => {
                   </Button>
                 </Link> */}
                 <ModeToggle />
-                <Link href="/cart">
+                <ShoppingCart />
+                {/* <Link href="/cart">
                   <div className="relative inline-block">
                     <Button variant="reverse">
                       <ShoppingCart className="mr-2" />
@@ -234,7 +235,7 @@ const ReusableLayout = observer(({ children }) => {
                       </span>
                     )}
                   </div>
-                </Link>
+                </Link> */}
                 {user ? (
                   <>
                     <NotificationDropdown />
@@ -368,10 +369,7 @@ const ReusableLayout = observer(({ children }) => {
       </div>
       <div className="block sm:hidden flex-grow">
         {showHeaderFooter && !showMvpHeader && <MobileHeader />}
-        {showMvpHeader && (
-          // Add a mobile version of the MVP header here if needed
-          <div>MVP Header</div>
-        )}
+        {showMvpHeader && <div>MVP Header</div>}
         {children}
       </div>
       {!hideFooter && <Footer />}

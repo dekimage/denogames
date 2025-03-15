@@ -7,7 +7,6 @@ import {
   MenuIcon,
   Search,
   X,
-  ShoppingCart,
   LogIn,
   UserPlus,
   UserIcon,
@@ -24,10 +23,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logoImg from "../assets/logo.png";
+import ShoppingCart from "@/components/Cart";
 
 const MobileHeader = observer(() => {
   const { isMobileOpen, setIsMobileOpen, user, logout, cart } = MobxStore;
-  const cartItemCount = cart.length;
 
   const toggleMenu = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -58,16 +57,7 @@ const MobileHeader = observer(() => {
         />
       </div>
 
-      <Link href="/cart">
-        <Button variant="ghost" size="icon" className="relative">
-          <ShoppingCart className="h-6 w-6" />
-          {cartItemCount > 0 && (
-            <span className="absolute top-[-5px] right-[-5px] inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold">
-              {cartItemCount}
-            </span>
-          )}
-        </Button>
-      </Link>
+      <ShoppingCart />
 
       {isMobileOpen && (
         <div className="fixed top-[52px] left-0 w-full h-full flex flex-col items-center justify-start p-4 bg-white z-[998] overflow-y-auto">
