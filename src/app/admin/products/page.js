@@ -866,6 +866,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
               setFormData((prev) => ({ ...prev, neededComponents: components }))
             }
             type="needed"
+            productSlug={formData.slug}
           />
         </div>
 
@@ -880,6 +881,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
               }))
             }
             type="provided"
+            productSlug={formData.slug}
           />
         </div>
       </div>
@@ -897,17 +899,17 @@ const ProductForm = ({ product, onSave, onCancel }) => {
   );
 };
 
-const ComponentsEditor = ({ components, onChange, type }) => {
+const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
   const [newComponent, setNewComponent] = useState({
     name: "",
-    shortName: "",
     image: "",
   });
+  const [editingIndex, setEditingIndex] = useState(null);
   const [editingComponent, setEditingComponent] = useState(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleImageUpload = async (e, shortName) => {
+  const handleImageUpload = async (e, productSlug) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -915,7 +917,7 @@ const ComponentsEditor = ({ components, onChange, type }) => {
       setLoading(true);
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
-      formDataUpload.append("folder", `products/components/${shortName}`);
+      formDataUpload.append("folder", `products/${productSlug}/components`);
       formDataUpload.append("filename", `${Date.now()}_${file.name}`);
 
       const token = await auth.currentUser?.getIdToken();
@@ -937,7 +939,7 @@ const ComponentsEditor = ({ components, onChange, type }) => {
   };
 
   const addComponent = async () => {
-    if (!newComponent.name || !newComponent.shortName) return;
+    if (!newComponent.name) return;
 
     try {
       onChange([
@@ -945,10 +947,9 @@ const ComponentsEditor = ({ components, onChange, type }) => {
         {
           name: newComponent.name,
           image: newComponent.image,
-          shortName: newComponent.shortName,
         },
       ]);
-      setNewComponent({ name: "", shortName: "", image: "" });
+      setNewComponent({ name: "", image: "" });
     } catch (error) {
       console.error("Error adding component:", error);
     }
@@ -956,6 +957,8 @@ const ComponentsEditor = ({ components, onChange, type }) => {
 
   const updateComponent = async (index) => {
     try {
+      if (!editingComponent) return;
+
       // If there's a new image and an old image exists, delete the old one
       if (
         editingComponent.image !== components[index].image &&
@@ -975,13 +978,15 @@ const ComponentsEditor = ({ components, onChange, type }) => {
       const updatedComponents = [...components];
       updatedComponents[index] = editingComponent;
       onChange(updatedComponents);
+      setEditingIndex(null);
       setEditingComponent(null);
     } catch (error) {
       console.error("Error updating component:", error);
     }
   };
 
-  const removeComponent = async (index) => {
+  const removeComponent = async (index, e) => {
+    e.stopPropagation(); // Prevent event bubbling
     try {
       const component = components[index];
       if (component.image) {
@@ -1012,35 +1017,20 @@ const ComponentsEditor = ({ components, onChange, type }) => {
             key={index}
             className="flex items-center gap-4 p-4 border rounded-lg"
           >
-            {editingComponent &&
-            editingComponent.shortName === component.shortName ? (
+            {editingIndex === index ? (
               // Edit mode
               <div className="flex-1 grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Component Name</Label>
-                    <Input
-                      value={editingComponent.name}
-                      onChange={(e) =>
-                        setEditingComponent((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Short Name</Label>
-                    <Input
-                      value={editingComponent.shortName}
-                      onChange={(e) =>
-                        setEditingComponent((prev) => ({
-                          ...prev,
-                          shortName: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label>Component Name</Label>
+                  <Input
+                    value={editingComponent.name}
+                    onChange={(e) =>
+                      setEditingComponent((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Image</Label>
@@ -1064,10 +1054,7 @@ const ComponentsEditor = ({ components, onChange, type }) => {
                       accept="image/*"
                       onChange={async (e) => {
                         try {
-                          const url = await handleImageUpload(
-                            e,
-                            editingComponent.shortName
-                          );
+                          const url = await handleImageUpload(e, productSlug);
                           setEditingComponent((prev) => ({
                             ...prev,
                             image: url,
@@ -1083,13 +1070,20 @@ const ComponentsEditor = ({ components, onChange, type }) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setEditingComponent(null)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingIndex(null);
+                      setEditingComponent(null);
+                    }}
                   >
                     Cancel
                   </Button>
                   <Button
                     size="sm"
-                    onClick={() => updateComponent(index)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateComponent(index);
+                    }}
                     disabled={loading}
                   >
                     {loading ? (
@@ -1118,22 +1112,23 @@ const ComponentsEditor = ({ components, onChange, type }) => {
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">{component.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {component.shortName}
-                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setEditingComponent({ ...component })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingIndex(index);
+                      setEditingComponent({ ...component });
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => removeComponent(index)}
+                    onClick={(e) => removeComponent(index, e)}
                   >
                     Remove
                   </Button>
@@ -1145,30 +1140,15 @@ const ComponentsEditor = ({ components, onChange, type }) => {
       </div>
 
       <div className="grid gap-4 p-4 border rounded-lg">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Component Name</Label>
-            <Input
-              value={newComponent.name}
-              onChange={(e) =>
-                setNewComponent((prev) => ({ ...prev, name: e.target.value }))
-              }
-              placeholder="e.g., 1x Pen/Pencil per Player"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Short Name (for file path)</Label>
-            <Input
-              value={newComponent.shortName}
-              onChange={(e) =>
-                setNewComponent((prev) => ({
-                  ...prev,
-                  shortName: e.target.value,
-                }))
-              }
-              placeholder="e.g., pen"
-            />
-          </div>
+        <div className="space-y-2">
+          <Label>Component Name</Label>
+          <Input
+            value={newComponent.name}
+            onChange={(e) =>
+              setNewComponent((prev) => ({ ...prev, name: e.target.value }))
+            }
+            placeholder="e.g., 1x Pen/Pencil per Player"
+          />
         </div>
         <div className="space-y-2">
           <Label>Image</Label>
@@ -1177,15 +1157,7 @@ const ComponentsEditor = ({ components, onChange, type }) => {
             accept="image/*"
             onChange={async (e) => {
               try {
-                if (!newComponent.shortName) {
-                  toast({
-                    title: "Error",
-                    description: "Please enter a short name first",
-                    variant: "destructive",
-                  });
-                  return;
-                }
-                const url = await handleImageUpload(e, newComponent.shortName);
+                const url = await handleImageUpload(e, productSlug);
                 setNewComponent((prev) => ({ ...prev, image: url }));
               } catch (error) {
                 console.error("Error uploading image:", error);
@@ -1193,10 +1165,7 @@ const ComponentsEditor = ({ components, onChange, type }) => {
             }}
           />
         </div>
-        <Button
-          onClick={addComponent}
-          disabled={loading || !newComponent.name || !newComponent.shortName}
-        >
+        <Button onClick={addComponent} disabled={loading || !newComponent.name}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Add Component
         </Button>
