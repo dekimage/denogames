@@ -26,6 +26,9 @@ import {
   ArrowLeft,
   AlertCircle,
   AlertTriangle,
+  Trophy,
+  Lock,
+  CheckCircle2,
 } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
@@ -38,6 +41,14 @@ import kickstarterLogo from "@/assets/ks-logo.png";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/components/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const MechanicsBasicSection = ({ mechanics }) => {
   return (
@@ -496,6 +507,67 @@ const ProductDescription = ({ description }) => {
   );
 };
 
+const AchievementDialog = ({ achievement }) => {
+  const router = useRouter();
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent cursor-pointer">
+          <div className="relative h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+            <Image
+              src={achievement.image || "/placeholder-image.png"}
+              alt={achievement.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold">{achievement.name}</div>
+            <div className="text-sm text-muted-foreground">
+              {achievement.requirement}
+            </div>
+          </div>
+        </div>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5" />
+            {achievement.name}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="relative h-24 w-24 rounded-lg overflow-hidden flex-shrink-0">
+              <Image
+                src={achievement.image || "/placeholder-image.png"}
+                alt={achievement.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-muted-foreground">{achievement.description}</p>
+              <div className="mt-2 text-sm">
+                <span className="font-semibold">Requirement:</span>{" "}
+                {achievement.requirement}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => router.push("/account/achievements")}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View All Achievements
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const ProductDetailsPage = observer(({}) => {
   const { slug } = useParams();
 
@@ -597,6 +669,11 @@ const ProductDetailsPage = observer(({}) => {
     ? user.purchasedProducts?.includes(productDetails.id)
     : false;
 
+  const progress = MobxStore.getAddOnProgress(productDetails.id);
+  // const mainGame = MobxStore.products.find(
+  //   (p) => p.id === productDetails.relatedGames
+  // );
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <div className="py-4 sm:py-8 px-4 md:px-8 flex flex-col items-center">
@@ -647,14 +724,14 @@ const ProductDetailsPage = observer(({}) => {
                     <div
                       className={cn(
                         "my-4 p-3 rounded-lg text-sm flex items-center gap-2",
-                        user?.purchasedProducts?.includes(
+                        MobxStore.user?.purchasedProducts?.includes(
                           productDetails.relatedGames
                         )
                           ? "bg-green-50 border border-green-200 text-green-800"
                           : "bg-amber-50 border border-amber-200 text-amber-800"
                       )}
                     >
-                      {user?.purchasedProducts?.includes(
+                      {MobxStore.user?.purchasedProducts?.includes(
                         productDetails.relatedGames
                       ) ? (
                         <>
@@ -662,10 +739,18 @@ const ProductDetailsPage = observer(({}) => {
                           <span>
                             You own the base game{" "}
                             <Link
-                              href={`/product-details/${mainGame?.slug}`}
+                              href={`/product-details/${
+                                MobxStore.products.find(
+                                  (p) => p.id === productDetails.relatedGames
+                                )?.slug
+                              }`}
                               className="font-semibold hover:underline"
                             >
-                              {mainGame?.name}
+                              {
+                                MobxStore.products.find(
+                                  (p) => p.id === productDetails.relatedGames
+                                )?.name
+                              }
                             </Link>
                           </span>
                         </>
@@ -675,10 +760,18 @@ const ProductDetailsPage = observer(({}) => {
                           <span>
                             You need the base game{" "}
                             <Link
-                              href={`/product-details/${mainGame?.slug}`}
+                              href={`/product-details/${
+                                MobxStore.products.find(
+                                  (p) => p.id === productDetails.relatedGames
+                                )?.slug
+                              }`}
                               className="font-semibold hover:underline"
                             >
-                              {mainGame?.name}
+                              {
+                                MobxStore.products.find(
+                                  (p) => p.id === productDetails.relatedGames
+                                )?.name
+                              }
                             </Link>{" "}
                             to play this{" "}
                             {productDetails.type === "expansion"
@@ -690,12 +783,20 @@ const ProductDetailsPage = observer(({}) => {
                     </div>
 
                     <Link
-                      href={`/product-details/${mainGame?.slug}`}
+                      href={`/product-details/${
+                        MobxStore.products.find(
+                          (p) => p.id === productDetails.relatedGames
+                        )?.slug
+                      }`}
                       className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-accent/50 transition-colors border mb-4"
                     >
                       <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
                         <Image
-                          src={mainGame?.thumbnail || "/placeholder-image.png"}
+                          src={
+                            MobxStore.products.find(
+                              (p) => p.id === productDetails.relatedGames
+                            )?.thumbnail || "/placeholder-image.png"
+                          }
                           alt="Base game"
                           fill
                           className="object-cover"
@@ -707,9 +808,13 @@ const ProductDetailsPage = observer(({}) => {
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="text-base font-semibold truncate">
-                            {mainGame?.name}
+                            {
+                              MobxStore.products.find(
+                                (p) => p.id === productDetails.relatedGames
+                              )?.name
+                            }
                           </div>
-                          {user?.purchasedProducts?.includes(
+                          {MobxStore.user?.purchasedProducts?.includes(
                             productDetails.relatedGames
                           ) && (
                             <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
@@ -773,22 +878,106 @@ const ProductDetailsPage = observer(({}) => {
                 <MechanicsBasicSection mechanics={productDetails?.mechanics} />
               )}
 
-              {MobxStore.user?.purchasedProducts?.includes(
-                productDetails.id
-              ) ? (
-                <>
-                  <div className="flex items-center gap-2 text-[28px] font-strike uppercase mb-4">
-                    <BadgeCheck className="w-8 h-8" />
-                    Purchased
-                  </div>
+              {productDetails.type === "game" && (
+                <GameMetrics productDetails={productDetails} />
+              )}
+
+              {productDetails.type === "add-on" ? (
+                <div className="mt-8 space-y-6">
                   <div className="space-y-4">
-                    <Link href={`/mvp/monstermixology`}>
-                      <Button className="w-full bg-green-400 text-black h-[48px] text-xl  hover:bg-green-300 mb-4">
-                        <Download className="mr-2" /> Download Resources
-                      </Button>
-                    </Link>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">
+                        Requires Achievements
+                      </h3>
+                      {user ? (
+                        <div className="text-sm text-muted-foreground">
+                          Progress:{" "}
+                          {
+                            productDetails.requiredAchievements.filter((id) =>
+                              user.achievements?.includes(
+                                MobxStore.getAchievementByKey(id)?.key
+                              )
+                            ).length
+                          }
+                          /{productDetails.requiredAchievements.length}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {user && (
+                      <Progress
+                        value={
+                          (productDetails.requiredAchievements.filter((id) =>
+                            user.achievements?.includes(
+                              MobxStore.getAchievementByKey(id)?.key
+                            )
+                          ).length /
+                            productDetails.requiredAchievements.length) *
+                          100
+                        }
+                        className="h-2"
+                      />
+                    )}
+
+                    <div className="space-y-2">
+                      {productDetails.achievements?.map((achievement) => (
+                        <div
+                          key={achievement.id}
+                          className={cn(
+                            "relative rounded-lg border p-4",
+                            user?.achievements?.includes(achievement.key)
+                              ? "bg-green-50 border-green-200"
+                              : "bg-muted"
+                          )}
+                        >
+                          <AchievementDialog achievement={achievement} />
+                          {user?.achievements?.includes(achievement.key) && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                              <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </>
+
+                  {user ? (
+                    <Button
+                      className="w-full"
+                      disabled={
+                        !productDetails.requiredAchievements.every((id) =>
+                          user.achievements?.includes(
+                            MobxStore.getAchievementByKey(id)?.key
+                          )
+                        )
+                      }
+                    >
+                      {productDetails.requiredAchievements.every((id) =>
+                        user.achievements?.includes(
+                          MobxStore.getAchievementByKey(id)?.key
+                        )
+                      ) ? (
+                        <>
+                          <Trophy className="h-4 w-4 mr-2" />
+                          Craft Add-on
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4 mr-2" />
+                          Complete Required Achievements
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => router.push("/login")}
+                    >
+                      Sign in to Craft Add-on
+                    </Button>
+                  )}
+                </div>
               ) : (
                 <>
                   <div className="text-[28px] font-strike uppercase mb-4">
@@ -801,10 +990,6 @@ const ProductDetailsPage = observer(({}) => {
                     Add to Cart
                   </Button>
                 </>
-              )}
-
-              {productDetails.type === "game" && (
-                <GameMetrics productDetails={productDetails} />
               )}
             </div>
           </div>
@@ -842,23 +1027,26 @@ const ProductDetailsPage = observer(({}) => {
             </section>
           )}
 
-          {productDetails.type === "expansion" && mainGame && (
-            <section className="mb-12">
-              <div className="flex items-center mb-6">
-                <h2 className="text-2xl font-strike">Main Game</h2>
-                <div className="ml-4 flex-grow h-px bg-border"></div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <ProductCard product={mainGame} />
-              </div>
-            </section>
-          )}
+          {(productDetails.type === "expansion" ||
+            productDetails.type === "add-on") &&
+            mainGame && (
+              <section className="mb-12">
+                <div className="flex items-center mb-6">
+                  <h2 className="text-2xl font-strike">Main Game</h2>
+                  <div className="ml-4 flex-grow h-px bg-border"></div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <ProductCard product={mainGame} />
+                </div>
+              </section>
+            )}
 
-          {productDetails.type === "expansion" &&
+          {(productDetails.type === "expansion" ||
+            productDetails.type === "add-on") &&
             otherExpansions.length > 0 && (
               <section className="mb-12">
                 <div className="flex items-center mb-6">
-                  <h2 className="text-2xl font-strike">Other Expansions</h2>
+                  <h2 className="text-2xl font-strike">Related Expansions</h2>
                   <div className="ml-4 flex-grow h-px bg-border"></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

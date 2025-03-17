@@ -588,6 +588,18 @@ class Store {
         (product) => product.slug === slug
       );
       if (existingDetails) {
+        // If it's an add-on, ensure we have achievement details
+        if (
+          existingDetails.type === "add-on" &&
+          !existingDetails.achievements
+        ) {
+          const achievementsData = await this.fetchAchievementsForProduct(
+            existingDetails
+          );
+          runInAction(() => {
+            existingDetails.achievements = achievementsData;
+          });
+        }
         return existingDetails;
       }
 
@@ -603,11 +615,22 @@ class Store {
         const productData = productDoc.data();
         const productId = productDoc.id;
 
-        const productDetails = {
+        let productDetails = {
           id: productId,
           ...productData,
           slug: slug,
         };
+
+        // If it's an add-on, fetch achievement details
+        if (
+          productData.type === "add-on" &&
+          productData.requiredAchievements?.length
+        ) {
+          const achievementsData = await this.fetchAchievementsForProduct(
+            productData
+          );
+          productDetails.achievements = achievementsData;
+        }
 
         runInAction(() => {
           this.productDetails.push(productDetails);
@@ -622,6 +645,63 @@ class Store {
       console.log("Error fetching product details:", error);
       throw error;
     }
+  }
+
+  // Add this new helper method to fetch achievements for a product
+  async fetchAchievementsForProduct(product) {
+    try {
+      if (!product.requiredAchievements?.length) return [];
+
+      const achievementsPromises = product.requiredAchievements.map(
+        async (achievementId) => {
+          const achievementDoc = await getDoc(
+            doc(db, "achievements", achievementId)
+          );
+          if (achievementDoc.exists()) {
+            return {
+              id: achievementId,
+              ...achievementDoc.data(),
+            };
+          }
+          return null;
+        }
+      );
+
+      const achievements = await Promise.all(achievementsPromises);
+      return achievements.filter(Boolean);
+    } catch (error) {
+      console.log("Error fetching achievements for product:", error);
+      return [];
+    }
+  }
+
+  // Add a helper method to check if user has an achievement
+  hasAchievement(achievementKey) {
+    return this.user?.achievements?.includes(achievementKey) || false;
+  }
+
+  // Add a method to get achievement progress for an add-on
+  getAddOnProgress(productId) {
+    const product = this.products.find((p) => p.id === productId);
+    if (
+      !product ||
+      product.type !== "add-on" ||
+      !product.requiredAchievements?.length
+    ) {
+      return 0;
+    }
+
+    const completed = product.requiredAchievements.filter((achievementId) =>
+      this.user?.achievements?.includes(
+        this.achievements.find((a) => a.id === achievementId)?.key
+      )
+    ).length;
+
+    return {
+      completed,
+      total: product.requiredAchievements.length,
+      percentage: (completed / product.requiredAchievements.length) * 100,
+    };
   }
 
   async fetchCart() {
@@ -1396,6 +1476,11 @@ class Store {
         this.claimingReward = false;
       });
     }
+  }
+
+  // Add this method to your Store class
+  getAchievementByKey(id) {
+    return this.achievements.find((achievement) => achievement.id === id);
   }
 }
 
