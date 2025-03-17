@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   ShoppingCart,
 } from "lucide-react";
+import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 
 export const ProductCard = observer(({ product, isSmall = false }) => {
   const { addToCart, cart, user } = MobxStore;
@@ -19,15 +20,56 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
     ? user.purchasedProducts?.includes(product.id)
     : false;
 
-  const getTypeLabel = (type) => {
-    switch (type) {
-      case "expansion":
-        return "Expansion";
-      case "bundle":
-        return "Bundle";
-      default:
-        return "Game";
+  const renderPrice = () => {
+    if (product.type === "add-on") {
+      return null;
     }
+    if (product.price === 0) return "Free";
+    return `$${product.price}`;
+  };
+
+  const renderCTA = () => {
+    if (isPurchased) {
+      return (
+        <Link href={`/product-details/${product.slug}`} className="w-full">
+          <Button
+            variant="secondary"
+            className="w-full bg-black hover:bg-black/80 text-white"
+          >
+            PLAY
+          </Button>
+        </Link>
+      );
+    }
+
+    if (product.type === "add-on") {
+      return (
+        <Link href={`/product-details/${product.slug}`} className="w-full">
+          <Button variant="secondary" className="w-full">
+            CRAFT PRODUCT
+          </Button>
+        </Link>
+      );
+    }
+
+    if (isInCart) {
+      return (
+        <Link href="/cart" className="w-full">
+          <Button
+            variant="secondary"
+            className="w-full bg-orange-400 hover:bg-orange-300"
+          >
+            <ShoppingBag size={16} className="mr-1" /> CHECKOUT
+          </Button>
+        </Link>
+      );
+    }
+
+    return (
+      <Button onClick={() => addToCart(product)} className="w-full">
+        <ShoppingCart size={16} className="mr-1" /> ADD TO CART
+      </Button>
+    );
   };
 
   return (
@@ -62,9 +104,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
                   : product.name}
               </div>
               <div className="flex items-center mt-1">
-                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                  {getTypeLabel(product.type)}
-                </span>
+                <ProductTypeBadge type={product.type} />
               </div>
               <div className="flex items-center justify-between mt-4">
                 <p
@@ -72,15 +112,15 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
                     isSmall ? "mt-2 text-sm" : "text-xl"
                   } font-bold text-foreground`}
                 >
-                  ${product.price}
+                  {renderPrice()}
                 </p>
                 {isPurchased && (
-                  <div className=" bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
+                  <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
                     <CheckCircle size={12} className="mr-1" /> Owned
                   </div>
                 )}
-                {isInCart && (
-                  <div className=" text-orange-500 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 text-xs px-2 py-1 rounded-full flex items-center">
+                {isInCart && !product.type === "add-on" && (
+                  <div className="text-orange-500 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 text-xs px-2 py-1 rounded-full flex items-center">
                     <CheckCheck
                       className="text-orange-500 dark:text-orange-400 mr-2"
                       size={20}
@@ -92,33 +132,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
             </div>
           </div>
         </Link>
-        <div className={isSmall ? "p-2 pt-0" : "p-4 pt-0"}>
-          {isPurchased ? (
-            <Link href={`/product-details/${product.slug}`} className="w-full">
-              <Button
-                variant="secondary"
-                className="w-full bg-black hover:bg-black/80 text-white"
-              >
-                PLAY
-              </Button>
-            </Link>
-          ) : isInCart ? (
-            <div className="flex items-center">
-              <Link href="/cart" className="w-full">
-                <Button
-                  variant="secondary"
-                  className="w-full bg-orange-400 hover:bg-orange-300"
-                >
-                  <ShoppingBag size={16} className="mr-1" /> CHECKOUT
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <Button onClick={() => addToCart(product)} className="w-full">
-              <ShoppingCart size={16} className="mr-1" /> ADD TO CART
-            </Button>
-          )}
-        </div>
+        <div className={isSmall ? "p-2 pt-0" : "p-4 pt-0"}>{renderCTA()}</div>
       </div>
     </div>
   );

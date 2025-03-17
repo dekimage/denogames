@@ -36,6 +36,7 @@ import Image from "next/image";
 import { Loader2, Plus, Upload, Search, Star, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ImageIcon } from "lucide-react";
 
 const DIFFICULTY_OPTIONS = ["easy", "medium", "hard"];
 const TYPE_OPTIONS = ["game", "expansion", "add-on"];
@@ -87,6 +88,8 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     },
     howToPlayVideo: product?.howToPlayVideo || "",
     rulebookLink: product?.rulebookLink || "",
+    neededComponents: product?.neededComponents || [],
+    providedComponents: product?.providedComponents || [],
   });
 
   const handleImageUpload = async (e) => {
@@ -149,6 +152,8 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       thumbnail: data.thumbnail,
       type: data.type,
       slug: data.slug,
+      neededComponents: data.neededComponents,
+      providedComponents: data.providedComponents,
     };
 
     // Add type-specific properties
@@ -852,6 +857,33 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         </div>
       )}
 
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label>Needed Components</Label>
+          <ComponentsEditor
+            components={formData.neededComponents}
+            onChange={(components) =>
+              setFormData((prev) => ({ ...prev, neededComponents: components }))
+            }
+            type="needed"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Provided Components</Label>
+          <ComponentsEditor
+            components={formData.providedComponents}
+            onChange={(components) =>
+              setFormData((prev) => ({
+                ...prev,
+                providedComponents: components,
+              }))
+            }
+            type="provided"
+          />
+        </div>
+      </div>
+
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
@@ -862,6 +894,314 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         </Button>
       </div>
     </form>
+  );
+};
+
+const ComponentsEditor = ({ components, onChange, type }) => {
+  const [newComponent, setNewComponent] = useState({
+    name: "",
+    shortName: "",
+    image: "",
+  });
+  const [editingComponent, setEditingComponent] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleImageUpload = async (e, shortName) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+      formDataUpload.append("folder", `products/components/${shortName}`);
+      formDataUpload.append("filename", `${Date.now()}_${file.name}`);
+
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formDataUpload,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+      const { url } = await response.json();
+      return url;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addComponent = async () => {
+    if (!newComponent.name || !newComponent.shortName) return;
+
+    try {
+      onChange([
+        ...components,
+        {
+          name: newComponent.name,
+          image: newComponent.image,
+          shortName: newComponent.shortName,
+        },
+      ]);
+      setNewComponent({ name: "", shortName: "", image: "" });
+    } catch (error) {
+      console.error("Error adding component:", error);
+    }
+  };
+
+  const updateComponent = async (index) => {
+    try {
+      // If there's a new image and an old image exists, delete the old one
+      if (
+        editingComponent.image !== components[index].image &&
+        components[index].image
+      ) {
+        const token = await auth.currentUser?.getIdToken();
+        await fetch("/api/admin/upload", {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fileUrl: components[index].image }),
+        });
+      }
+
+      const updatedComponents = [...components];
+      updatedComponents[index] = editingComponent;
+      onChange(updatedComponents);
+      setEditingComponent(null);
+    } catch (error) {
+      console.error("Error updating component:", error);
+    }
+  };
+
+  const removeComponent = async (index) => {
+    try {
+      const component = components[index];
+      if (component.image) {
+        const token = await auth.currentUser?.getIdToken();
+        await fetch("/api/admin/upload", {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fileUrl: component.image }),
+        });
+      }
+
+      const newComponents = [...components];
+      newComponents.splice(index, 1);
+      onChange(newComponents);
+    } catch (error) {
+      console.error("Error removing component:", error);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4">
+        {components.map((component, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 p-4 border rounded-lg"
+          >
+            {editingComponent &&
+            editingComponent.shortName === component.shortName ? (
+              // Edit mode
+              <div className="flex-1 grid gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Component Name</Label>
+                    <Input
+                      value={editingComponent.name}
+                      onChange={(e) =>
+                        setEditingComponent((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Short Name</Label>
+                    <Input
+                      value={editingComponent.shortName}
+                      onChange={(e) =>
+                        setEditingComponent((prev) => ({
+                          ...prev,
+                          shortName: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Image</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="relative h-16 w-16 flex-shrink-0">
+                      {editingComponent.image ? (
+                        <Image
+                          src={editingComponent.image}
+                          alt={editingComponent.name}
+                          fill
+                          className="object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-gray-100 rounded-md flex items-center justify-center">
+                          <ImageIcon className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        try {
+                          const url = await handleImageUpload(
+                            e,
+                            editingComponent.shortName
+                          );
+                          setEditingComponent((prev) => ({
+                            ...prev,
+                            image: url,
+                          }));
+                        } catch (error) {
+                          console.error("Error uploading image:", error);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingComponent(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => updateComponent(index)}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // View mode
+              <>
+                <div className="relative h-16 w-16 flex-shrink-0">
+                  {component.image ? (
+                    <Image
+                      src={component.image}
+                      alt={component.name}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-gray-100 rounded-md flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">{component.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {component.shortName}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingComponent({ ...component })}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeComponent(index)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-4 p-4 border rounded-lg">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Component Name</Label>
+            <Input
+              value={newComponent.name}
+              onChange={(e) =>
+                setNewComponent((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="e.g., 1x Pen/Pencil per Player"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Short Name (for file path)</Label>
+            <Input
+              value={newComponent.shortName}
+              onChange={(e) =>
+                setNewComponent((prev) => ({
+                  ...prev,
+                  shortName: e.target.value,
+                }))
+              }
+              placeholder="e.g., pen"
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Image</Label>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              try {
+                if (!newComponent.shortName) {
+                  toast({
+                    title: "Error",
+                    description: "Please enter a short name first",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                const url = await handleImageUpload(e, newComponent.shortName);
+                setNewComponent((prev) => ({ ...prev, image: url }));
+              } catch (error) {
+                console.error("Error uploading image:", error);
+              }
+            }}
+          />
+        </div>
+        <Button
+          onClick={addComponent}
+          disabled={loading || !newComponent.name || !newComponent.shortName}
+        >
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          Add Component
+        </Button>
+      </div>
+    </div>
   );
 };
 

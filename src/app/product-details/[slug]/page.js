@@ -49,6 +49,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 
 const MechanicsBasicSection = ({ mechanics }) => {
   return (
@@ -177,7 +178,7 @@ const Speedometer = ({ value, max = 5 }) => {
 
 const GameMetrics = ({ productDetails }) => {
   return (
-    <div className="flex items-center justify-around gap-8 py-2">
+    <div className="flex items-center justify-around gap-8 py-2 mt-4">
       <div className="flex flex-col items-center">
         <Speedometer value={productDetails.luck || 2} />
         <span className="mt-2 text-sm">Luck</span>
@@ -267,22 +268,22 @@ const ComponentsList = ({ productDetails }) => {
           <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1">
               <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
-                Needed Components
-              </h3>
-              {renderComponentTable(
-                gamesStaticData[productDetails.slug]?.neededComponents ||
-                  neededComponents,
-                "needed"
-              )}
-            </div>
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
-                Provided Components
+                What you get:
               </h3>
               {renderComponentTable(
                 gamesStaticData[productDetails.slug]?.providedComponents ||
                   providedComponents,
                 "provided"
+              )}
+            </div>
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
+                What you need:
+              </h3>
+              {renderComponentTable(
+                gamesStaticData[productDetails.slug]?.neededComponents ||
+                  neededComponents,
+                "needed"
               )}
             </div>
           </div>
@@ -291,28 +292,6 @@ const ComponentsList = ({ productDetails }) => {
     </div>
   );
 };
-
-const RelatedGames = observer(({ gameId }) => {
-  const { getRelatedGames, addToCart } = MobxStore;
-  const relatedGames = getRelatedGames?.(gameId) ?? [];
-
-  if (relatedGames.length === 0) {
-    return null; // Don't render anything if there are no related games
-  }
-
-  return (
-    <div className="my-8">
-      <h2 className="text-3xl font-bold text-center mb-4 font-strike uppercase">
-        Other Games
-      </h2>
-      <div className="flex flex-wrap justify-center gap-4">
-        {relatedGames.map((game) => (
-          <ProductCard key={game.id} product={game} isSmall={true} />
-        ))}
-      </div>
-    </div>
-  );
-});
 
 const KickstarterSection = ({ productDetails }) => {
   if (!productDetails.kickstarter?.kickstarterLink) return null;
@@ -712,7 +691,7 @@ const ProductDetailsPage = observer(({}) => {
             />
 
             <div className="flex flex-col w-full lg:max-w-[440px]">
-              <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike ">
+              <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike mb-2">
                 {productDetails.name}
               </div>
 
@@ -827,19 +806,7 @@ const ProductDetailsPage = observer(({}) => {
                   </>
                 )}
 
-              <Badge
-                className={cn(
-                  "uppercase w-fit text-black font-bold",
-                  productDetails.type === "game" &&
-                    "bg-emerald-400 hover:bg-emerald-600",
-                  productDetails.type === "expansion" &&
-                    "bg-blue-300 hover:bg-blue-600",
-                  productDetails.type === "add-on" &&
-                    "bg-orange-400 hover:bg-orange-600"
-                )}
-              >
-                {productDetails.type || "game"}
-              </Badge>
+              <ProductTypeBadge type={productDetails.type} />
 
               <ProductDescription
                 description={productDetails.description || "No Description"}
@@ -847,7 +814,7 @@ const ProductDetailsPage = observer(({}) => {
 
               {productDetails.type === "game" && (
                 <Link href="#ratings" className="w-fit">
-                  <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-4 hover:border-foreground">
+                  <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-2 hover:border-foreground">
                     <div className="text-yellow-400 flex">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <FaStar
@@ -860,7 +827,7 @@ const ProductDetailsPage = observer(({}) => {
                         />
                       ))}
                     </div>
-                    <div className="text-[16px]">
+                    <div className="text-[12px] text-muted-foreground ">
                       (
                       {MobxStore.reviewsByProduct[productDetails.id]?.length ||
                         0}{" "}
@@ -878,16 +845,12 @@ const ProductDetailsPage = observer(({}) => {
                 <MechanicsBasicSection mechanics={productDetails?.mechanics} />
               )}
 
-              {productDetails.type === "game" && (
-                <GameMetrics productDetails={productDetails} />
-              )}
-
               {productDetails.type === "add-on" ? (
                 <div className="mt-8 space-y-6">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold">
-                        Requires Achievements
+                        Requires Materials
                       </h3>
                       {user ? (
                         <div className="text-sm text-muted-foreground">
@@ -943,7 +906,7 @@ const ProductDetailsPage = observer(({}) => {
 
                   {user ? (
                     <Button
-                      className="w-full"
+                      className="w-full font-strike"
                       disabled={
                         !productDetails.requiredAchievements.every((id) =>
                           user.achievements?.includes(
@@ -964,14 +927,14 @@ const ProductDetailsPage = observer(({}) => {
                       ) : (
                         <>
                           <Lock className="h-4 w-4 mr-2" />
-                          Complete Required Achievements
+                          Craft This
                         </>
                       )}
                     </Button>
                   ) : (
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full font-strike"
                       onClick={() => router.push("/login")}
                     >
                       Sign in to Craft Add-on
@@ -984,17 +947,20 @@ const ProductDetailsPage = observer(({}) => {
                     ${productDetails.price}.00 USD
                   </div>
                   <Button
-                    className="text-xl h-[48px]"
+                    className="text-xl h-[48px] font-strike"
                     onClick={() => MobxStore.addToCart(productDetails)}
                   >
                     Add to Cart
                   </Button>
                 </>
               )}
+              {productDetails.type === "game" && (
+                <GameMetrics productDetails={productDetails} />
+              )}
             </div>
           </div>
 
-          {/* <ComponentsList productDetails={productDetails} /> */}
+          <ComponentsList productDetails={productDetails} />
 
           {productDetails.type === "game" && (
             <KickstarterSection productDetails={productDetails} />
@@ -1011,10 +977,8 @@ const ProductDetailsPage = observer(({}) => {
             <HowToPlaySimple productDetails={productDetails} />
           )}
 
-          {/* {productDetails && <RelatedGames gameId={productDetails.id} />} */}
-
           {productDetails.type === "game" && relatedExpansions?.length > 0 && (
-            <section className="mb-12">
+            <section className="mb-12 mt-12">
               <div className="flex items-center mb-6">
                 <h2 className="text-2xl font-strike">Available Expansions</h2>
                 <div className="ml-4 flex-grow h-px bg-border"></div>

@@ -85,7 +85,7 @@ const difficultyOptions = [
 const productOptions = [
   { name: "Game", icon: Joystick },
   { name: "Expansion", icon: Puzzle },
-  { name: "Bundle", icon: Box },
+  { name: "Add-on", icon: Box },
 ];
 
 // Sort options
