@@ -197,9 +197,6 @@ const ReusableLayout = observer(({ children }) => {
                     height={48}
                     className="mr-2"
                   />
-                  <span className="font-bold text-xl hidden md:inline-block text-foreground">
-                    Deno Games
-                  </span>
                 </Link>
 
                 {/* Main Navigation */}

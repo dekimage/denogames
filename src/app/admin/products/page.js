@@ -33,7 +33,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
-import { Loader2, Plus, Upload, Search, Star } from "lucide-react";
+import { Loader2, Plus, Upload, Search, Star, Check, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const DIFFICULTY_OPTIONS = ["easy", "medium", "hard"];
 const TYPE_OPTIONS = ["game", "expansion", "add-on"];
@@ -56,10 +58,13 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     description: product?.description || "",
     thumbnail: product?.thumbnail || "",
     price: product?.price || 0,
-    minPlayers: product?.minPlayers || 1,
-    maxPlayers: product?.maxPlayers || 1,
-    age: product?.age || "8",
-    duration: product?.duration || "30",
+    stats: product?.stats || {
+      minPlayers: 1,
+      maxPlayers: 4,
+      minDuration: "30",
+      maxDuration: "60",
+      age: "12",
+    },
     complexity: product?.complexity || 1,
     difficulty: product?.difficulty || "easy",
     interaction: product?.interaction || 1,
@@ -67,9 +72,21 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     mechanics: product?.mechanics || [],
     type: product?.type || "game",
     relatedExpansions: product?.relatedExpansions || [],
-    relatedGame: product?.relatedGame || "",
+    relatedAddons: product?.relatedAddons || [],
+    relatedGames: product?.relatedGames || "",
     slug: product?.slug || "",
     averageRating: product?.averageRating || 0,
+    requiredAchievements: product?.requiredAchievements || [],
+    kickstarter: product?.kickstarter || {
+      kickstarterActive: false,
+      backers: "",
+      funded: "",
+      date: "",
+      thumbnail: "",
+      kickstarterLink: product?.kickstarterLink || "",
+    },
+    howToPlayVideo: product?.howToPlayVideo || "",
+    rulebookLink: product?.rulebookLink || "",
   });
 
   const handleImageUpload = async (e) => {
@@ -115,11 +132,73 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     }));
   };
 
+  const isBaseGame = formData.type === "game";
+
+  useEffect(() => {
+    if (AdminStore.achievements.length === 0) {
+      AdminStore.fetchAchievements();
+    }
+  }, []);
+
+  const getRelevantFormData = (data) => {
+    // Base properties that all product types share
+    const baseProperties = {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      thumbnail: data.thumbnail,
+      type: data.type,
+      slug: data.slug,
+    };
+
+    // Add type-specific properties
+    switch (data.type) {
+      case "game":
+        return {
+          ...baseProperties,
+          price: data.price,
+          stats: {
+            minPlayers: data.stats.minPlayers,
+            maxPlayers: data.stats.maxPlayers,
+            minDuration: data.stats.minDuration,
+            maxDuration: data.stats.maxDuration,
+            age: data.stats.age,
+          },
+          complexity: data.complexity,
+          difficulty: data.difficulty,
+          interaction: data.interaction,
+          luck: data.luck,
+          mechanics: data.mechanics,
+          relatedExpansions: data.relatedExpansions,
+          relatedAddons: data.relatedAddons,
+          averageRating: data.averageRating,
+          kickstarter: data.kickstarter,
+          howToPlayVideo: data.howToPlayVideo,
+          rulebookLink: data.rulebookLink,
+        };
+      case "expansion":
+        return {
+          ...baseProperties,
+          price: data.price,
+          relatedGames: data.relatedGames,
+        };
+      case "add-on":
+        return {
+          ...baseProperties,
+          requiredAchievements: data.requiredAchievements,
+          relatedGames: data.relatedGames,
+        };
+      default:
+        return baseProperties;
+    }
+  };
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSave(formData);
+        const relevantData = getRelevantFormData(formData);
+        onSave(relevantData);
       }}
       className="space-y-4 max-h-[80vh] overflow-y-auto p-4"
     >
@@ -234,104 +313,217 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label>Price ($)</Label>
-          <Input
-            type="number"
-            value={formData.price}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                price: parseFloat(e.target.value),
-              }))
-            }
-            required
-          />
-        </div>
+        {formData.type !== "add-on" ? (
+          <div className="space-y-2">
+            <Label>Price ($)</Label>
+            <Input
+              type="number"
+              value={formData.price}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  price: parseFloat(e.target.value),
+                }))
+              }
+              required
+            />
+          </div>
+        ) : (
+          <div className="col-span-3 space-y-2">
+            <Label>Required Achievements</Label>
+            <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto p-2 border rounded-lg">
+              {AdminStore.achievements.map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors",
+                    (formData.requiredAchievements || []).includes(
+                      achievement.id
+                    )
+                      ? "border-primary bg-primary/5"
+                      : "hover:bg-accent"
+                  )}
+                  onClick={() => {
+                    const current = formData.requiredAchievements || [];
+                    const updated = current.includes(achievement.id)
+                      ? current.filter((id) => id !== achievement.id)
+                      : [...current, achievement.id];
+                    setFormData((prev) => ({
+                      ...prev,
+                      requiredAchievements: updated,
+                      price: 0, // Reset price for add-ons
+                    }));
+                  }}
+                >
+                  <div className="relative h-12 w-12 flex-shrink-0">
+                    <Image
+                      src={achievement.image || "/placeholder-image.png"}
+                      alt={achievement.name}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{achievement.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {achievement.description}
+                    </p>
+                  </div>
+                  {(formData.requiredAchievements || []).includes(
+                    achievement.id
+                  ) ? (
+                    <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  )}
+                </div>
+              ))}
+            </div>
+            {formData.requiredAchievements?.length > 0 && (
+              <div className="mt-4">
+                <Label>Selected Achievements</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.requiredAchievements.map((achievementId) => {
+                    const achievement = AdminStore.achievements.find(
+                      (a) => a.id === achievementId
+                    );
+                    if (!achievement) return null;
+                    return (
+                      <Badge
+                        key={achievementId}
+                        variant="secondary"
+                        className="flex items-center gap-2"
+                      >
+                        <span className="truncate">{achievement.name}</span>
+                        <X
+                          className="h-3 w-3 cursor-pointer hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData((prev) => ({
+                              ...prev,
+                              requiredAchievements:
+                                prev.requiredAchievements.filter(
+                                  (id) => id !== achievementId
+                                ),
+                            }));
+                          }}
+                        />
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="space-y-2">
-          <Label>Min Players</Label>
-          <Input
-            type="number"
-            value={formData.minPlayers}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                minPlayers: parseInt(e.target.value),
-              }))
-            }
-            required
-          />
-        </div>
+        {isBaseGame && (
+          <div className="space-y-2">
+            <Label>Min Players</Label>
+            <Input
+              type="number"
+              value={formData.stats.minPlayers}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    minPlayers: parseInt(e.target.value),
+                  },
+                }))
+              }
+              required
+            />
+          </div>
+        )}
 
-        <div className="space-y-2">
-          <Label>Max Players</Label>
-          <Input
-            type="number"
-            value={formData.maxPlayers}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                maxPlayers: parseInt(e.target.value),
-              }))
-            }
-            required
-          />
-        </div>
+        {isBaseGame && (
+          <div className="space-y-2">
+            <Label>Max Players</Label>
+            <Input
+              type="number"
+              value={formData.stats.maxPlayers}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    maxPlayers: parseInt(e.target.value),
+                  },
+                }))
+              }
+              required
+            />
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      {isBaseGame && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Min Duration (minutes)</Label>
+            <Input
+              value={formData.stats.minDuration}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    minDuration: e.target.value,
+                  },
+                }))
+              }
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Max Duration (minutes)</Label>
+            <Input
+              value={formData.stats.maxDuration}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    maxDuration: e.target.value,
+                  },
+                }))
+              }
+              required
+            />
+          </div>
+        </div>
+      )}
+
+      {isBaseGame && (
         <div className="space-y-2">
           <Label>Age</Label>
           <Input
-            value={formData.age}
+            value={formData.stats.age}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, age: e.target.value }))
+              setFormData((prev) => ({
+                ...prev,
+                stats: {
+                  ...prev.stats,
+                  age: e.target.value,
+                },
+              }))
             }
             required
           />
         </div>
+      )}
 
-        <div className="space-y-2">
-          <Label>Duration (minutes)</Label>
-          <Input
-            value={formData.duration}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, duration: e.target.value }))
-            }
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Difficulty</Label>
-          <Select
-            value={formData.difficulty}
-            onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, difficulty: value }))
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select difficulty" />
-            </SelectTrigger>
-            <SelectContent>
-              {DIFFICULTY_OPTIONS.map((diff) => (
-                <SelectItem key={diff} value={diff}>
-                  {diff.charAt(0).toUpperCase() + diff.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
+      {isBaseGame && (
         <div className="space-y-2">
           <Label>Complexity (1-5)</Label>
           <Select
             value={String(formData.complexity || 1)}
             onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, complexity: parseInt(value) }))
+              setFormData((prev) => ({
+                ...prev,
+                complexity: parseInt(value),
+              }))
             }
           >
             <SelectTrigger>
@@ -346,13 +538,18 @@ const ProductForm = ({ product, onSave, onCancel }) => {
             </SelectContent>
           </Select>
         </div>
+      )}
 
+      {isBaseGame && (
         <div className="space-y-2">
           <Label>Interaction (1-5)</Label>
           <Select
             value={String(formData.interaction || 1)}
             onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, interaction: parseInt(value) }))
+              setFormData((prev) => ({
+                ...prev,
+                interaction: parseInt(value),
+              }))
             }
           >
             <SelectTrigger>
@@ -367,7 +564,9 @@ const ProductForm = ({ product, onSave, onCancel }) => {
             </SelectContent>
           </Select>
         </div>
+      )}
 
+      {isBaseGame && (
         <div className="space-y-2">
           <Label>Luck (1-5)</Label>
           <Select
@@ -388,74 +587,110 @@ const ProductForm = ({ product, onSave, onCancel }) => {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      )}
 
-      <div className="space-y-2">
-        <Label>Mechanics</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {MECHANICS_OPTIONS.map((mechanic) => (
-            <label key={mechanic} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                value={mechanic}
-                checked={formData.mechanics.includes(mechanic)}
-                onChange={handleMechanicsChange}
-              />
-              <span>
-                {mechanic
-                  .split("-")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ")}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {formData.type === "game" && (
+      {isBaseGame && (
         <div className="space-y-2">
-          <Label>Related Expansions</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {AdminStore.products
-              .filter((p) => p.type === "expansion")
-              .map((expansion) => (
-                <label
-                  key={expansion.id}
-                  className="flex items-center space-x-2"
-                >
-                  <input
-                    type="checkbox"
-                    value={expansion.id}
-                    checked={(formData.relatedExpansions || []).includes(
-                      expansion.id
-                    )}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData((prev) => ({
-                        ...prev,
-                        relatedExpansions: prev.relatedExpansions?.includes(
-                          value
-                        )
-                          ? prev.relatedExpansions.filter((id) => id !== value)
-                          : [...(prev.relatedExpansions || []), value],
-                      }));
-                    }}
-                  />
-                  <span>{expansion.name}</span>
-                </label>
-              ))}
+          <Label>Mechanics</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {MECHANICS_OPTIONS.map((mechanic) => (
+              <label key={mechanic} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  value={mechanic}
+                  checked={formData.mechanics.includes(mechanic)}
+                  onChange={handleMechanicsChange}
+                />
+                <span>
+                  {mechanic
+                    .split("-")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")}
+                </span>
+              </label>
+            ))}
           </div>
         </div>
       )}
 
-      {formData.type === "expansion" && (
+      {formData.type === "game" && (
+        <>
+          <div className="space-y-2">
+            <Label>Related Expansions</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {AdminStore.products
+                .filter((p) => p.type === "expansion")
+                .map((expansion) => (
+                  <label
+                    key={expansion.id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="checkbox"
+                      value={expansion.id}
+                      checked={(formData.relatedExpansions || []).includes(
+                        expansion.id
+                      )}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          relatedExpansions: prev.relatedExpansions?.includes(
+                            value
+                          )
+                            ? prev.relatedExpansions.filter(
+                                (id) => id !== value
+                              )
+                            : [...(prev.relatedExpansions || []), value],
+                        }));
+                      }}
+                    />
+                    <span>{expansion.name}</span>
+                  </label>
+                ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Related Add-ons</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {AdminStore.products
+                .filter((p) => p.type === "add-on")
+                .map((addon) => (
+                  <label key={addon.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      value={addon.id}
+                      checked={(formData.relatedAddons || []).includes(
+                        addon.id
+                      )}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          relatedAddons: prev.relatedAddons?.includes(value)
+                            ? prev.relatedAddons.filter((id) => id !== value)
+                            : [...(prev.relatedAddons || []), value],
+                        }));
+                      }}
+                    />
+                    <span>{addon.name}</span>
+                  </label>
+                ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {(formData.type === "expansion" || formData.type === "add-on") && (
         <div className="space-y-2">
           <Label>Related Game</Label>
           <Select
-            value={formData.relatedGame}
+            value={formData.relatedGames}
             onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, relatedGame: value }))
+              setFormData((prev) => ({ ...prev, relatedGames: value }))
             }
+            required
           >
             <SelectTrigger>
               <SelectValue placeholder="Select a game" />
@@ -470,6 +705,150 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                 ))}
             </SelectContent>
           </Select>
+        </div>
+      )}
+
+      {isBaseGame && (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Kickstarter Details</Label>
+            <div className="grid gap-4 p-4 border rounded-lg">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="kickstarterActive"
+                  checked={formData.kickstarter.kickstarterActive}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      kickstarter: {
+                        ...prev.kickstarter,
+                        kickstarterActive: e.target.checked,
+                      },
+                    }))
+                  }
+                />
+                <Label htmlFor="kickstarterActive">Active Campaign</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Kickstarter Link</Label>
+                <Input
+                  type="url"
+                  value={formData.kickstarter.kickstarterLink}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      kickstarter: {
+                        ...prev.kickstarter,
+                        kickstarterLink: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="https://www.kickstarter.com/..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Backers</Label>
+                <Input
+                  value={formData.kickstarter.backers}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      kickstarter: {
+                        ...prev.kickstarter,
+                        backers: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="e.g., 1,234"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Funded Amount</Label>
+                <Input
+                  value={formData.kickstarter.funded}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      kickstarter: {
+                        ...prev.kickstarter,
+                        funded: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="e.g., $123,456"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Campaign Date</Label>
+                <Input
+                  value={formData.kickstarter.date}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      kickstarter: {
+                        ...prev.kickstarter,
+                        date: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="e.g., March 2024"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Campaign Thumbnail</Label>
+                <Input
+                  type="url"
+                  value={formData.kickstarter.thumbnail}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      kickstarter: {
+                        ...prev.kickstarter,
+                        thumbnail: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>How to Play Video</Label>
+            <Input
+              type="url"
+              value={formData.howToPlayVideo}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  howToPlayVideo: e.target.value,
+                }))
+              }
+              placeholder="https://www.youtube.com/..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Rulebook Link</Label>
+            <Input
+              type="url"
+              value={formData.rulebookLink}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  rulebookLink: e.target.value,
+                }))
+              }
+              placeholder="https://..."
+            />
+          </div>
         </div>
       )}
 
@@ -525,6 +904,39 @@ const ProductsPage = observer(() => {
   const handleSave = async (formData) => {
     try {
       if (formData.id) {
+        // For updates, we should first remove all irrelevant properties
+        const currentProduct = AdminStore.getProductById(formData.id);
+        if (currentProduct && currentProduct.type !== formData.type) {
+          // If type has changed, we need to remove old type-specific properties
+          const propertiesToRemove = {
+            game: [
+              "stats",
+              "complexity",
+              "difficulty",
+              "interaction",
+              "luck",
+              "mechanics",
+              "relatedExpansions",
+              "relatedAddons",
+              "averageRating",
+              "kickstarter",
+              "howToPlayVideo",
+              "rulebookLink",
+            ],
+            expansion: ["relatedGames", "price"],
+            "add-on": ["relatedGames", "requiredAchievements"],
+          };
+
+          // Remove properties from the old type
+          const cleanupProperties =
+            propertiesToRemove[currentProduct.type] || [];
+          const cleanupData = { ...formData };
+          cleanupProperties.forEach((prop) => {
+            cleanupData[prop] = null; // Set to null to remove from Firebase
+          });
+
+          await AdminStore.updateProduct(formData.id, cleanupData);
+        }
         await AdminStore.updateProduct(formData.id, formData);
       } else {
         await AdminStore.createProduct(formData);
@@ -538,22 +950,6 @@ const ProductsPage = observer(() => {
       toast({
         title: "Error",
         description: "Failed to save product",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await AdminStore.deleteProduct(id);
-      toast({
-        title: "Success",
-        description: "Product deleted successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete product",
         variant: "destructive",
       });
     }
@@ -618,43 +1014,112 @@ const ProductsPage = observer(() => {
                 fill
                 className="object-cover"
               />
-              <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded">
-                {product.type || "game"}
-              </div>
             </div>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{product.name}</span>
-                <span className="text-lg font-normal">
-                  ${product.price || 0}
-                </span>
-              </CardTitle>
+              <div className="space-y-2">
+                <CardTitle className="flex items-center justify-between">
+                  <span>{product.name}</span>
+                  {product.type === "add-on" ? (
+                    <div className="text-lg font-normal">
+                      ${product.price || 0}
+                    </div>
+                  ) : (
+                    <span className="text-lg font-normal">
+                      ${product.price || 0}
+                    </span>
+                  )}
+                </CardTitle>
+                <Badge
+                  className={cn(
+                    "capitalize w-fit",
+                    product.type === "game" &&
+                      "bg-emerald-400 hover:bg-emerald-600",
+                    product.type === "expansion" &&
+                      "bg-blue-400 hover:bg-blue-600",
+                    product.type === "add-on" &&
+                      "bg-orange-400 hover:bg-orange-600"
+                  )}
+                >
+                  {product.type || "game"}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground line-clamp-2">
                 {product.description || "No description available"}
               </p>
-              <div className="grid grid-cols-3 gap-2 text-sm">
-                <div>
-                  <span className="font-semibold">Players:</span>{" "}
-                  {product.minPlayers || 1}-{product.maxPlayers || 1}
+
+              {product.type === "add-on" ? (
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold">
+                    Required Achievements:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(product.requiredAchievements || []).map(
+                      (achievementId) => {
+                        const achievement = AdminStore.achievements.find(
+                          (a) => a.id === achievementId
+                        );
+                        if (!achievement) return null;
+                        return (
+                          <div
+                            key={achievementId}
+                            className="flex items-center gap-2 p-1 bg-muted rounded-md"
+                            title={achievement.description}
+                          >
+                            <div className="relative h-6 w-6">
+                              <Image
+                                src={
+                                  achievement.image || "/placeholder-image.png"
+                                }
+                                alt={achievement.name}
+                                fill
+                                className="object-cover rounded-sm"
+                              />
+                            </div>
+                            <span className="text-xs">{achievement.name}</span>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <span className="font-semibold">Age:</span>{" "}
-                  {product.age || "8"}+
+              ) : (
+                <div className="text-lg font-semibold">
+                  ${product.price || 0}
                 </div>
-                <div>
-                  <span className="font-semibold">Duration:</span>{" "}
-                  {product.duration || "30"}min
-                </div>
-              </div>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 mr-1" />
-                  {(product.averageRating || 0).toFixed(1)}
-                </div>
-                <div className="capitalize">{product.difficulty || "easy"}</div>
-              </div>
+              )}
+
+              {product.type === "game" && (
+                <>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <span className="font-semibold">Players:</span>{" "}
+                      {product.stats?.minPlayers || 1}-
+                      {product.stats?.maxPlayers || 4}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Age:</span>{" "}
+                      {product.stats?.age || "12"}+
+                    </div>
+                    <div>
+                      <span className="font-semibold">Duration:</span>{" "}
+                      {product.stats?.minDuration || "30"}-
+                      {product.stats?.maxDuration || "60"}min
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 mr-1" />
+                      {(product.averageRating || 0).toFixed(1)}
+                    </div>
+                    <div className="capitalize">
+                      {product.difficulty || "easy"}
+                    </div>
+                  </div>
+                </>
+              )}
+
               {product.type === "game" &&
                 product.relatedExpansions?.length > 0 && (
                   <div className="space-y-1">
@@ -685,35 +1150,64 @@ const ProductsPage = observer(() => {
                     </div>
                   </div>
                 )}
-              {product.type === "expansion" && product.relatedGame && (
+
+              {product.type === "game" && product.relatedAddons?.length > 0 && (
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold">Related Game:</p>
-                  <div className="flex gap-2">
-                    {(() => {
-                      const game = AdminStore.getProductById(
-                        product.relatedGame
-                      );
+                  <p className="text-sm font-semibold">Add-ons:</p>
+                  <div className="flex gap-2 overflow-x-auto">
+                    {product.relatedAddons.map((addonId) => {
+                      const addon = AdminStore.getProductById(addonId);
                       return (
-                        game && (
+                        addon && (
                           <div
+                            key={addonId}
                             className="flex-shrink-0 relative w-12 h-12 rounded overflow-hidden"
-                            title={game.name}
+                            title={addon.name}
                           >
                             <Image
-                              src={game.thumbnail || "/placeholder-image.png"}
-                              alt={game.name}
+                              src={addon.thumbnail || "/placeholder-image.png"}
+                              alt={addon.name}
                               fill
                               className="object-cover"
                             />
                           </div>
                         )
                       );
-                    })()}
+                    })}
                   </div>
                 </div>
               )}
+
+              {(product.type === "expansion" || product.type === "add-on") &&
+                product.relatedGames && (
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold">Related Game:</p>
+                    <div className="flex gap-2">
+                      {(() => {
+                        const game = AdminStore.getProductById(
+                          product.relatedGames
+                        );
+                        return (
+                          game && (
+                            <div
+                              className="flex-shrink-0 relative w-12 h-12 rounded overflow-hidden"
+                              title={game.name}
+                            >
+                              <Image
+                                src={game.thumbnail || "/placeholder-image.png"}
+                                alt={game.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          )
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
+            <CardFooter className="flex justify-end">
               <Button
                 variant="outline"
                 size="sm"
@@ -723,13 +1217,6 @@ const ProductsPage = observer(() => {
                 }}
               >
                 Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(product.id)}
-              >
-                Delete
               </Button>
             </CardFooter>
           </Card>

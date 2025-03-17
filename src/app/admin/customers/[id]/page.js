@@ -19,7 +19,7 @@ import { formatDistanceToNow } from "date-fns";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import { ProductCard } from "@/app/page";
+import { ProductCard } from "@/components/ProductCard";
 import KickstarterTable from "../../components/KickstarterTable";
 
 function PersonalRecommendationsSection({ recommendations }) {

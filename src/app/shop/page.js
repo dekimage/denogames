@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ProductCard } from "@/app/home/page";
+import { ProductCard } from "@/components/ProductCard";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
 import {

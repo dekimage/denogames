@@ -25,9 +25,10 @@ import {
   ChevronRight,
   ArrowLeft,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 
-import { ProductCard } from "@/app/home/page";
+import { ProductCard } from "@/components/ProductCard";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 import { gamesStaticData, placeholderBenefitsImg } from "../productsData";
@@ -36,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import kickstarterLogo from "@/assets/ks-logo.png";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import { useParams, useRouter } from "next/navigation";
+import { cn } from "@/components/lib/utils";
 
 const MechanicsBasicSection = ({ mechanics }) => {
   return (
@@ -80,32 +82,44 @@ const BasicFeatures = ({ productDetails }) => {
 
 const HowToPlaySimple = ({ productDetails }) => {
   return (
-    <div className="my-8 w-full px-2 sm:px-8 flex flex-col" id="ratings">
+    <div className="my-8 w-full  flex flex-col max-w-[560px]" id="ratings">
       <div className="text-2xl font-strike uppercase my-4">How to Play</div>
+      {productDetails?.howToPlayVideo && (
+        <div className="relative w-full pt-[56.25%] ">
+          <iframe
+            width="560"
+            className="absolute top-0 left-0 w-full h-full max-w-[560px] max-h-[315px]"
+            height="315"
+            src={(() => {
+              const url = productDetails.howToPlayVideo;
+              const regExp =
+                /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+              const match = url.match(regExp);
+              return match && match[2].length === 11
+                ? `https://www.youtube.com/embed/${match[2]}`
+                : url;
+            })()}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      )}
 
-      <div>
-        <iframe
-          width="560"
-          height="315"
-          src={productDetails.howToPlayVideo}
-          title="YouTube video player"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-      </div>
-
-      <Link
-        href={productDetails?.rulebookLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 w-fit"
-      >
-        <Button className="mt-4 bg-foreground h-[48px]  text-background hover:bg-background hover:text-foreground border border-black">
-          Download Rulebook
-          <Download className="ml-2" />
-        </Button>
-      </Link>
+      {productDetails?.rulebookLink && (
+        <Link
+          href={productDetails.rulebookLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 w-full"
+        >
+          <Button className="mt-4 bg-foreground h-[48px] w-full text-background hover:bg-background hover:text-foreground border border-black">
+            Download Rulebook
+            <Download className="ml-2" />
+          </Button>
+        </Link>
+      )}
     </div>
   );
 };
@@ -290,9 +304,9 @@ const RelatedGames = observer(({ gameId }) => {
 });
 
 const KickstarterSection = ({ productDetails }) => {
-  if (!productDetails.kickstarterLink) return null;
+  if (!productDetails.kickstarter?.kickstarterLink) return null;
 
-  const isActive = productDetails.kickstarterActive === true;
+  const isActive = productDetails.kickstarter?.kickstarterActive === true;
 
   return (
     <section className="mb-12">
@@ -347,7 +361,7 @@ const KickstarterSection = ({ productDetails }) => {
                 className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
               >
                 <a
-                  href={productDetails.kickstarterLink}
+                  href={productDetails.kickstarter?.kickstarterLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center"
@@ -357,7 +371,7 @@ const KickstarterSection = ({ productDetails }) => {
                     viewBox="0 0 24 24"
                     fill="currentColor"
                   >
-                    <path d="M5.7 11.5L7.8 9.1 10.9 11.5 9.1 5.7 12 3.5 14.9 5.7 13.1 11.5 16.2 9.1 18.3 11.5 16.2 13.9 18.3 16.3 16.2 18.9 13.1 16.3 14.9 22.3 12 20.1 9.1 22.3 10.9 16.3 7.8 18.9 5.7 16.3 7.8 13.9z" />
+                    <path d="M5.7 11.5L7.8 9.1 10.9 11.5 9.1 5.7 12 3.5 14.9 5.7 13.1 11.5 16.2 9.1 18.3 11.5 16.2 13.9 18.3 16.3 16.3 18.9 13.1 16.3 14.9 22.3 12 20.1 9.1 22.3 10.9 16.3 7.8 18.9 5.7 16.3 7.8 13.9z" />
                   </svg>
                   Visit Kickstarter Campaign
                 </a>
@@ -512,18 +526,22 @@ const ProductDetailsPage = observer(({}) => {
           // For games, find related expansions
           const expansions = products.filter(
             (p) =>
-              p.type === "expansion" &&
+              (p.type === "expansion" || p.type === "add-on") &&
               p.relatedGames &&
               p.relatedGames.includes(productData.id)
           );
+
           setRelatedExpansions(expansions);
         } else if (
-          productDetails.type === "expansion" &&
-          productDetails.relatedGames?.length > 0
+          (productData.type === "expansion" || productData.type === "add-on") &&
+          productData.relatedGames?.length > 0
         ) {
           // For expansions, find the main game and other expansions
-          const mainGameId = productDetails.relatedGames[0];
+          const mainGameId = productData.relatedGames;
           const mainGameData = products.find((p) => p.id === mainGameId);
+          console.log(123, mainGameData);
+          console.log(4521, products);
+          console.log(555, mainGameId);
           setMainGame(mainGameData);
 
           // Find other expansions for the same game
@@ -549,8 +567,6 @@ const ProductDetailsPage = observer(({}) => {
     }
   }, [slug, fetchProductDetails, products]);
 
-  console.log(slug);
-
   if (loading) {
     return (
       <div className="container mx-auto py-16 flex justify-center items-center min-h-[60vh]">
@@ -558,8 +574,6 @@ const ProductDetailsPage = observer(({}) => {
       </div>
     );
   }
-
-  console.log({ error });
 
   if (error || !productDetails) {
     return (
@@ -624,35 +638,140 @@ const ProductDetailsPage = observer(({}) => {
               <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike ">
                 {productDetails.name}
               </div>
+
+              {/* here */}
+              {(productDetails.type === "expansion" ||
+                productDetails.type === "add-on") &&
+                productDetails.relatedGames && (
+                  <>
+                    <div
+                      className={cn(
+                        "my-4 p-3 rounded-lg text-sm flex items-center gap-2",
+                        user?.purchasedProducts?.includes(
+                          productDetails.relatedGames
+                        )
+                          ? "bg-green-50 border border-green-200 text-green-800"
+                          : "bg-amber-50 border border-amber-200 text-amber-800"
+                      )}
+                    >
+                      {user?.purchasedProducts?.includes(
+                        productDetails.relatedGames
+                      ) ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>
+                            You own the base game{" "}
+                            <Link
+                              href={`/product-details/${mainGame?.slug}`}
+                              className="font-semibold hover:underline"
+                            >
+                              {mainGame?.name}
+                            </Link>
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="h-4 w-4" />
+                          <span>
+                            You need the base game{" "}
+                            <Link
+                              href={`/product-details/${mainGame?.slug}`}
+                              className="font-semibold hover:underline"
+                            >
+                              {mainGame?.name}
+                            </Link>{" "}
+                            to play this{" "}
+                            {productDetails.type === "expansion"
+                              ? "expansion"
+                              : "add-on"}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    <Link
+                      href={`/product-details/${mainGame?.slug}`}
+                      className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-accent/50 transition-colors border mb-4"
+                    >
+                      <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
+                        <Image
+                          src={mainGame?.thumbnail || "/placeholder-image.png"}
+                          alt="Base game"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium mb-1">
+                          Base Game
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-base font-semibold truncate">
+                            {mainGame?.name}
+                          </div>
+                          {user?.purchasedProducts?.includes(
+                            productDetails.relatedGames
+                          ) && (
+                            <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
+                              <CheckCircle size={12} className="mr-1" /> Owned
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </>
+                )}
+
+              <Badge
+                className={cn(
+                  "uppercase w-fit text-black font-bold",
+                  productDetails.type === "game" &&
+                    "bg-emerald-400 hover:bg-emerald-600",
+                  productDetails.type === "expansion" &&
+                    "bg-blue-300 hover:bg-blue-600",
+                  productDetails.type === "add-on" &&
+                    "bg-orange-400 hover:bg-orange-600"
+                )}
+              >
+                {productDetails.type || "game"}
+              </Badge>
+
               <ProductDescription
                 description={productDetails.description || "No Description"}
               />
 
-              <Link href="#ratings" className="w-fit">
-                <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-4 hover:border-foreground">
-                  <div className="text-yellow-400 flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <FaStar
-                        key={star}
-                        className={`text-xl ${
-                          star <= (productDetails.averageRating || 0)
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
+              {productDetails.type === "game" && (
+                <Link href="#ratings" className="w-fit">
+                  <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-4 hover:border-foreground">
+                    <div className="text-yellow-400 flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <FaStar
+                          key={star}
+                          className={`text-xl ${
+                            star <= (productDetails.averageRating || 0)
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="text-[16px]">
+                      (
+                      {MobxStore.reviewsByProduct[productDetails.id]?.length ||
+                        0}{" "}
+                      Reviews)
+                    </div>
                   </div>
-                  <div className="text-[16px]">
-                    (
-                    {MobxStore.reviewsByProduct[productDetails.id]?.length || 0}{" "}
-                    Reviews)
-                  </div>
-                </div>
-              </Link>
+                </Link>
+              )}
 
-              <BasicFeatures productDetails={productDetails} />
+              {productDetails.type === "game" && (
+                <BasicFeatures productDetails={productDetails} />
+              )}
 
-              <MechanicsBasicSection mechanics={productDetails?.mechanics} />
+              {productDetails.type === "game" && (
+                <MechanicsBasicSection mechanics={productDetails?.mechanics} />
+              )}
 
               {MobxStore.user?.purchasedProducts?.includes(
                 productDetails.id
@@ -684,22 +803,28 @@ const ProductDetailsPage = observer(({}) => {
                 </>
               )}
 
-              <GameMetrics productDetails={productDetails} />
+              {productDetails.type === "game" && (
+                <GameMetrics productDetails={productDetails} />
+              )}
             </div>
           </div>
 
-          <ComponentsList productDetails={productDetails} />
+          {/* <ComponentsList productDetails={productDetails} /> */}
 
-          <KickstarterSection productDetails={productDetails} />
+          {productDetails.type === "game" && (
+            <KickstarterSection productDetails={productDetails} />
+          )}
 
-          {productDetails.id && (
+          {productDetails.id && productDetails.type === "game" && (
             <ReviewSection
               productDetails={productDetails}
               productId={productDetails.id}
             />
           )}
 
-          <HowToPlaySimple productDetails={productDetails} />
+          {productDetails.type === "game" && (
+            <HowToPlaySimple productDetails={productDetails} />
+          )}
 
           {/* {productDetails && <RelatedGames gameId={productDetails.id} />} */}
 

@@ -58,7 +58,6 @@ class Store {
   hasMoreReviewsByProduct = {};
   // Static Data
 
-  lists = [];
   // App States
   isMobileOpen = false;
   loading = false; // Initialize to false
@@ -75,7 +74,6 @@ class Store {
     maxPlayers: 6,
   };
 
-  // Add these new properties to the Store class
   blogs = [];
   blogDetails = new Map();
   blogsLoading = false;
@@ -605,20 +603,9 @@ class Store {
         const productData = productDoc.data();
         const productId = productDoc.id;
 
-        // Only try to fetch game data if gameId exists
-        let gameData = {};
-        if (productData.gameId) {
-          const gameDocRef = doc(db, "games", productData.gameId);
-          const gameDoc = await getDoc(gameDocRef);
-          if (gameDoc.exists()) {
-            gameData = gameDoc.data();
-          }
-        }
-
         const productDetails = {
           id: productId,
           ...productData,
-          ...gameData,
           slug: slug,
         };
 

@@ -29,7 +29,7 @@ import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import placeholderImg from "@/assets/placeholder.png";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ProductCard } from "@/app/home/page";
+import { ProductCard } from "@/components/ProductCard";
 
 const GameDetailsPage = observer(() => {
   const { slug } = useParams();

@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import denoImg from "../../../../public/deno.png";
 import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/app/page";
+import { ProductCard } from "@/components/ProductCard";
 
 const author = {
   name: "Deno Gavrilovic",
