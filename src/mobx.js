@@ -85,7 +85,6 @@ class Store {
 
   // Add to existing properties
   achievements = [];
-  specialRewards = [];
   achievementsLoading = false;
 
   // Add new properties
@@ -1418,7 +1417,7 @@ class Store {
   }
 
   async fetchAchievementsAndRewards() {
-    if (this.achievements.length && this.specialRewards.length) return; // Don't refetch if we have data
+    if (this.achievements.length) return; // Don't refetch if we have data
 
     try {
       runInAction(() => {
@@ -1433,11 +1432,10 @@ class Store {
 
       if (!response.ok) throw new Error("Failed to fetch achievements");
 
-      const { achievements, specialRewards } = await response.json();
+      const { achievements } = await response.json();
 
       runInAction(() => {
         this.achievements = achievements;
-        this.specialRewards = specialRewards;
         this.achievementsLoading = false;
       });
     } catch (error) {

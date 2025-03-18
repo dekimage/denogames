@@ -389,7 +389,7 @@ export const AchievementCard = observer(
 );
 
 const AchievementsPage = observer(() => {
-  const { achievements, specialRewards, achievementsLoading, user } = MobxStore;
+  const { achievements, products, achievementsLoading, user } = MobxStore;
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all"); // "all", "achievement", "collectible", "location"
   const [sortBy, setSortBy] = useState("status"); // "status", "name", "recent"
@@ -403,8 +403,13 @@ const AchievementsPage = observer(() => {
   }
 
   const getRelatedRewards = (achievementKey) => {
-    return specialRewards.filter((reward) =>
-      reward.requiredAchievements.includes(achievementKey)
+    // Filter products to find add-ons that require this achievement
+    return MobxStore.products.filter(
+      (product) =>
+        product.type === "add-on" &&
+        product.requiredAchievements &&
+        Array.isArray(product.requiredAchievements) &&
+        product.requiredAchievements.includes(achievementKey)
     );
   };
 

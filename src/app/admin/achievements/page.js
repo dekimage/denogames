@@ -34,7 +34,6 @@ import { Switch } from "@/components/ui/switch";
 
 import Image from "next/image";
 import { Loader2, Plus, Trash, Upload, X } from "lucide-react";
-import { achievements as dummyAchievements } from "@/data/achievements";
 import { useToast } from "@/components/ui/use-toast";
 import AdminStore from "@/mobx/AdminStore";
 import { cn } from "@/lib/utils";
@@ -439,42 +438,6 @@ const AchievementsPage = observer(() => {
     }
   };
 
-  const handleBulkUpload = async () => {
-    try {
-      await AdminStore.bulkUploadAchievements(dummyAchievements);
-      toast({
-        title: "Success",
-        description: "Achievements uploaded successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload achievements",
-        variant: "destructive",
-      });
-      console.error(error);
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    if (!confirm("Are you sure you want to delete all achievements?")) return;
-
-    try {
-      await AdminStore.deleteAllAchievements();
-      toast({
-        title: "Success",
-        description: "All achievements deleted successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete achievements",
-        variant: "destructive",
-      });
-      console.error(error);
-    }
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -488,21 +451,6 @@ const AchievementsPage = observer(() => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Achievements</h1>
         <div className="flex gap-2">
-          <Button
-            onClick={handleBulkUpload}
-            disabled={AdminStore.loading.achievements}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Bulk Upload
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAll}
-            disabled={AdminStore.loading.achievements}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            Delete All
-          </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setSelectedAchievement(null)}>

@@ -22,9 +22,8 @@ export async function POST(request) {
     }
 
     // Get user data and reward data in parallel
-    const [userDoc, rewardDoc] = await Promise.all([
+    const [userDoc] = await Promise.all([
       firestore.collection("users").doc(decodedToken.uid).get(),
-      firestore.collection("specialRewards").doc(rewardId).get(),
     ]);
 
     // Verify user exists

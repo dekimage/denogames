@@ -9,24 +9,16 @@ export async function GET(request) {
     }
 
     const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await auth.verifyIdToken(token);
+    await auth.verifyIdToken(token);
 
-    const [achievementsSnap, specialRewardsSnap] = await Promise.all([
-      firestore.collection("achievements").get(),
-      firestore.collection("specialRewards").get(),
-    ]);
+    const achievementsSnap = await firestore.collection("achievements").get();
 
     const achievements = achievementsSnap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    const specialRewards = specialRewardsSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return NextResponse.json({ achievements, specialRewards });
+    return NextResponse.json({ achievements });
   } catch (error) {
     console.error("Error in achievements API:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

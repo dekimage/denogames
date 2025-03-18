@@ -3,16 +3,28 @@
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import { Card } from "@/components/ui/card";
-import { CheckCircle, Package, ShoppingBag } from "lucide-react";
+import { CheckCircle, Package, ShoppingBag, Gift } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 const GameCard = ({ game }) => {
-  const { getRelatedExpansions } = MobxStore;
+  const { getRelatedExpansions, products, user } = MobxStore;
+
+  // Get related expansions
   const allExpansions = getRelatedExpansions(game.id, { includeOwned: true });
   const ownedExpansions = allExpansions.filter((exp) => exp.isOwned);
+
+  // Get related add-ons
+  const allAddons = products.filter(
+    (product) => product.type === "add-on" && product.relatedGames === game.id
+  );
+
+  const ownedAddons = allAddons.filter((addon) =>
+    user?.unlockedRewards?.includes(addon.id)
+  );
 
   const acquisitionMethod = game.acquisitionMethod || "Shop"; // Default to Shop
 
@@ -41,10 +53,18 @@ const GameCard = ({ game }) => {
             </div>
           </div>
 
-          <div className="mt-auto flex items-center gap-2">
+          <div className="mt-auto flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="flex items-center gap-1">
               <Package className="w-4 h-4" />
               {ownedExpansions.length}/{allExpansions.length} Expansions
+            </Badge>
+
+            <Badge
+              variant="outline"
+              className="flex items-center gap-1 bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 border-purple-500/20"
+            >
+              <Gift className="w-4 h-4" />
+              {ownedAddons.length}/{allAddons.length} Add-ons
             </Badge>
           </div>
         </div>
@@ -56,10 +76,19 @@ const GameCard = ({ game }) => {
 const MyGamesPage = observer(() => {
   const { user, products } = MobxStore;
 
+  useEffect(() => {
+    // Ensure products and achievements are loaded
+    if (products.length === 0) {
+      MobxStore.fetchProducts();
+    }
+    // This will ensure add-ons and achievements are loaded
+    MobxStore.fetchAchievementsAndRewards();
+  }, [products.length]);
+
   // Filter only owned base games (no expansions)
   const ownedGames = products.filter(
     (product) =>
-      product.type === "game" && user.purchasedProducts?.includes(product.id)
+      product.type === "game" && user?.purchasedProducts?.includes(product.id)
   );
 
   if (ownedGames.length === 0) {

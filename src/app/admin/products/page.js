@@ -1063,6 +1063,7 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
   const [newComponent, setNewComponent] = useState({
     name: "",
     image: "",
+    fileUrl: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingComponent, setEditingComponent] = useState(null);
@@ -1107,9 +1108,12 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
         {
           name: newComponent.name,
           image: newComponent.image,
+          ...(type === "provided" && newComponent.fileUrl
+            ? { fileUrl: newComponent.fileUrl }
+            : {}),
         },
       ]);
-      setNewComponent({ name: "", image: "" });
+      setNewComponent({ name: "", image: "", fileUrl: "" });
     } catch (error) {
       console.error("Error adding component:", error);
     }
@@ -1226,6 +1230,27 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                     />
                   </div>
                 </div>
+
+                {type === "provided" && (
+                  <div className="space-y-2">
+                    <Label>File URL (for download)</Label>
+                    <Input
+                      value={editingComponent.fileUrl || ""}
+                      onChange={(e) =>
+                        setEditingComponent((prev) => ({
+                          ...prev,
+                          fileUrl: e.target.value,
+                        }))
+                      }
+                      placeholder="https://example.com/files/component.pdf"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Enter the URL where users can download this component's
+                      files
+                    </p>
+                  </div>
+                )}
+
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
@@ -1272,6 +1297,11 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">{component.name}</p>
+                  {type === "provided" && component.fileUrl && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      File: {component.fileUrl}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -1325,6 +1355,26 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
             }}
           />
         </div>
+
+        {type === "provided" && (
+          <div className="space-y-2">
+            <Label>File URL (for download)</Label>
+            <Input
+              value={newComponent.fileUrl}
+              onChange={(e) =>
+                setNewComponent((prev) => ({
+                  ...prev,
+                  fileUrl: e.target.value,
+                }))
+              }
+              placeholder="https://example.com/files/component.pdf"
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter the URL where users can download this component's files
+            </p>
+          </div>
+        )}
+
         <Button onClick={addComponent} disabled={loading || !newComponent.name}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Add Component
