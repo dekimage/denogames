@@ -57,6 +57,7 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
       unlocksAddons: [],
       code: "",
       isHidden: false,
+      foundItems: [],
     }
   );
 
@@ -160,6 +161,7 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
           <SelectContent>
             <SelectItem value="achievement">Achievement</SelectItem>
             <SelectItem value="collectible">Collectible</SelectItem>
+            <SelectItem value="location">Location</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -197,6 +199,61 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
             }
             placeholder="Secret code for collectible..."
           />
+        </div>
+      )}
+
+      {formData.type === "location" && (
+        <div className="space-y-2">
+          <Label>Secret Code</Label>
+          <Input
+            value={formData.code}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, code: e.target.value }))
+            }
+            placeholder="Secret code to discover this location..."
+            required
+          />
+
+          <Label className="mt-4">Collectible Items in Location</Label>
+          <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg">
+            {AdminStore.achievements
+              .filter((a) => a.type === "collectible")
+              .map((collectible) => (
+                <div
+                  key={collectible.id}
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors",
+                    formData.foundItems?.includes(collectible.id)
+                      ? "border-primary bg-primary/5"
+                      : "hover:bg-accent"
+                  )}
+                  onClick={() => {
+                    const currentItems = formData.foundItems || [];
+                    const updated = currentItems.includes(collectible.id)
+                      ? currentItems.filter((id) => id !== collectible.id)
+                      : [...currentItems, collectible.id];
+                    setFormData((prev) => ({ ...prev, foundItems: updated }));
+                  }}
+                >
+                  <div className="relative h-10 w-10 flex-shrink-0">
+                    <Image
+                      src={collectible.image || "/placeholder-image.png"}
+                      alt={collectible.name}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                  <span className="text-sm font-medium line-clamp-2">
+                    {collectible.name}
+                  </span>
+                  {formData.foundItems?.includes(collectible.id) ? (
+                    <Check className="h-4 w-4 text-primary ml-auto" />
+                  ) : (
+                    <Plus className="h-4 w-4 text-muted-foreground ml-auto" />
+                  )}
+                </div>
+              ))}
+          </div>
         </div>
       )}
 
@@ -503,12 +560,43 @@ const AchievementsPage = observer(() => {
                     {achievement.hint}
                   </p>
                 )}
-                {achievement.type === "collectible" && achievement.code && (
-                  <p className="text-sm">
-                    <span className="font-medium">Code:</span>{" "}
-                    {achievement.code}
-                  </p>
-                )}
+                {(achievement.type === "collectible" ||
+                  achievement.type === "location") &&
+                  achievement.code && (
+                    <p className="text-sm">
+                      <span className="font-medium">Code:</span>{" "}
+                      {achievement.code}
+                    </p>
+                  )}
+                {achievement.type === "location" &&
+                  achievement.foundItems?.length > 0 && (
+                    <div className="space-y-1">
+                      <span className="text-sm font-medium">
+                        Collectible Items:
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {achievement.foundItems.map((itemId) => {
+                          const item = AdminStore.achievements.find(
+                            (a) => a.id === itemId
+                          );
+                          return item ? (
+                            <div
+                              key={itemId}
+                              className="relative w-8 h-8"
+                              title={item.name}
+                            >
+                              <Image
+                                src={item.image || "/placeholder-image.png"}
+                                alt={item.name}
+                                fill
+                                className="object-cover rounded-md"
+                              />
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
                 {achievement.unlocksAddons?.length > 0 && (
                   <div className="space-y-1">
                     <span className="text-sm font-medium">Unlocks:</span>

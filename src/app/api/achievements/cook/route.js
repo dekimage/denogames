@@ -1,18 +1,20 @@
 import { auth, firestore } from "@/firebaseAdmin";
 import { NextResponse } from "next/server";
 
-// Secret codes mapping (in production, consider storing this in a secure database)
+// Secret codes mapping
 const SECRET_CODES = {
-  49245: "collection-starter",
+  // Cauldron codes (achievements/collectibles)
+  49245: "achievement-id-1",
   MAGICWORD: "achievement-id-2",
-  // Add more codes here
+  // Portal codes (locations)
+  PORTAL1: "early-supporter",
+  PORTAL2: "location-id-2",
 };
 
 const DAILY_ATTEMPTS_LIMIT = 10;
 
 export async function POST(req) {
   try {
-    // Get the authorization header
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,8 +24,7 @@ export async function POST(req) {
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
-    // Get request body
-    const { code } = await req.json();
+    const { code, type = "cauldron" } = await req.json();
     if (!code) {
       return NextResponse.json(
         { message: "Code is required" },
@@ -40,26 +41,30 @@ export async function POST(req) {
     const now = new Date();
     const today = now.toISOString().split("T")[0];
 
-    if (userData.lastCookingDate !== today) {
+    const attemptsField =
+      type === "portal" ? "dailyPortalAttempts" : "dailyCookingAttempts";
+    const dateField = type === "portal" ? "lastPortalDate" : "lastCookingDate";
+
+    if (userData[dateField] !== today) {
       // Reset attempts for new day
       await userRef.update({
-        dailyCookingAttempts: 0,
-        lastCookingDate: today,
+        [attemptsField]: 0,
+        [dateField]: today,
       });
-      userData.dailyCookingAttempts = 0;
+      userData[attemptsField] = 0;
     }
 
-    if (userData.dailyCookingAttempts >= DAILY_ATTEMPTS_LIMIT) {
+    if (userData[attemptsField] >= DAILY_ATTEMPTS_LIMIT) {
       return NextResponse.json(
-        { message: "You've used all your cooking attempts for today!" },
+        { message: `You've used all your ${type} attempts for today!` },
         { status: 429 }
       );
     }
 
     // Increment attempts
     await userRef.update({
-      dailyCookingAttempts: (userData.dailyCookingAttempts || 0) + 1,
-      lastCookingDate: today,
+      [attemptsField]: (userData[attemptsField] || 0) + 1,
+      [dateField]: today,
     });
 
     // Check if code exists
@@ -71,15 +76,7 @@ export async function POST(req) {
       );
     }
 
-    // Check if user already has this achievement
-    if (userData.achievements?.includes(achievementId)) {
-      return NextResponse.json(
-        { message: "You already have this achievement!" },
-        { status: 400 }
-      );
-    }
-
-    // Get achievement details
+    // Get achievement/location details
     const achievementDoc = await firestore
       .collection("achievements")
       .doc(achievementId)
@@ -87,24 +84,94 @@ export async function POST(req) {
 
     if (!achievementDoc.exists) {
       return NextResponse.json(
-        { message: "Achievement not found" },
+        { message: "Location/Achievement not found" },
         { status: 404 }
       );
     }
 
-    // Add achievement to user
-    await userRef.update({
-      achievements: [...(userData.achievements || []), achievementId],
-    });
+    const achievement = achievementDoc.data();
 
-    // Return success with achievement data
+    // Verify type matches
+    if (type === "portal" && achievement.type !== "location") {
+      return NextResponse.json(
+        { message: "This code can only be used in the Cauldron!" },
+        { status: 400 }
+      );
+    }
+
+    if (type === "cauldron" && achievement.type === "location") {
+      return NextResponse.json(
+        { message: "This code can only be used in the Portal!" },
+        { status: 400 }
+      );
+    }
+
+    // For locations, check if already discovered
+    if (achievement.type === "location") {
+      // Get the found items data regardless of discovery status
+      const itemPromises =
+        achievement.foundItems?.map(async (itemId) => {
+          const itemDoc = await firestore
+            .collection("achievements")
+            .doc(itemId)
+            .get();
+          return {
+            id: itemId,
+            ...itemDoc.data(),
+          };
+        }) || [];
+
+      const foundItems = await Promise.all(itemPromises);
+
+      // Check if this is a new discovery or a revisit
+      const isNewDiscovery =
+        !userData.discoveredLocations?.includes(achievementId);
+
+      // If it's a new discovery, update the user's discovered locations
+      if (isNewDiscovery) {
+        await userRef.update({
+          discoveredLocations: [
+            ...(userData.discoveredLocations || []),
+            achievementId,
+          ],
+        });
+      }
+
+      return NextResponse.json({
+        success: isNewDiscovery, // true for new discoveries, false for revisits
+        message: isNewDiscovery ? "Location discovered!" : "Location found!",
+        achievement: {
+          id: achievementId,
+          ...achievement,
+          foundItems,
+        },
+        userAchievements: userData.achievements || [],
+      });
+    } else {
+      // For achievements/collectibles
+      if (userData.achievements?.includes(achievementId)) {
+        return NextResponse.json(
+          { message: "You already have this achievement!" },
+          { status: 400 }
+        );
+      }
+
+      // Add achievement to user
+      await userRef.update({
+        achievements: [...(userData.achievements || []), achievementId],
+      });
+    }
+
+    // Return success with data
     return NextResponse.json({
       success: true,
-      message: "Achievement unlocked!",
+      message:
+        type === "portal" ? "Location discovered!" : "Achievement unlocked!",
       achievement: {
         id: achievementId,
-        ...achievementDoc.data(),
+        ...achievement,
       },
+      userAchievements: userData.achievements || [],
     });
   } catch (error) {
     console.error("Error in cook route:", error);

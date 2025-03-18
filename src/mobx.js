@@ -93,6 +93,8 @@ class Store {
 
   ordersFetched = false; // New flag to track if orders were fetched
 
+  activeLocation = null;
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -149,6 +151,8 @@ class Store {
       this.fetchAchievementsAndRewards.bind(this);
 
     this.claimSpecialReward = this.claimSpecialReward.bind(this);
+
+    this.setActiveLocation = this.setActiveLocation.bind(this);
   }
 
   initializeAuth() {
@@ -198,6 +202,10 @@ class Store {
       }
     });
   }
+
+  setActiveLocation = (location) => {
+    this.activeLocation = location;
+  };
 
   // HELPER UTILS
   async addProductsToFirestore(products, collectionName) {

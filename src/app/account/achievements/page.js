@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import Image from "next/image";
@@ -12,16 +12,50 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CheckCircle, Lock, ChevronRight } from "lucide-react";
+import { CheckCircle, Lock, ChevronRight, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Cauldron } from "@/components/achievements/Cauldron";
+import { Portal } from "@/components/achievements/Portal";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { auth } from "@/firebase";
+
+function useScrollToTop() {
+  const scrollToTop = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    // Primary method
+    window.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+
+    // Fallbacks for different browsers
+    setTimeout(() => {
+      if (typeof window !== "undefined") {
+        window.scrollTo(0, 0);
+
+        if (typeof document !== "undefined") {
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        }
+      }
+    }, 10);
+  }, []);
+
+  return scrollToTop;
+}
 
 export const AchievementCard = observer(
   ({ achievement, isUnlocked, relatedRewards, fromReward }) => {
     const router = useRouter();
+    const [visitingLocation, setVisitingLocation] = useState(false);
+    const [open, setOpen] = useState(false);
+    const scrollToTop = useScrollToTop();
 
     // Get unlockable add-ons from MobxStore's products
     const unlockedAddons = useMemo(() => {
@@ -35,6 +69,64 @@ export const AchievementCard = observer(
         .map((addonId) => MobxStore.products.find((p) => p.id === addonId))
         .filter(Boolean);
     }, [achievement.unlocksAddons, MobxStore.products]);
+
+    const handleTravelToLocation = useCallback(
+      async (e) => {
+        e.stopPropagation();
+        setVisitingLocation(true);
+
+        try {
+          // Safely scroll to top
+          scrollToTop();
+
+          const user = auth.currentUser;
+          if (!user) {
+            throw new Error("You must be logged in to travel!");
+          }
+
+          const token = await user.getIdToken();
+
+          const response = await fetch("/api/achievements/visit-location", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              locationId: achievement.id,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || data.error);
+          }
+
+          MobxStore.setActiveLocation(data.location);
+
+          // Close the dialog after successful location loading
+          setOpen(false);
+
+          // After location is set
+          setTimeout(scrollToTop, 100);
+
+          toast({
+            title: "Location Loaded",
+            description: `You've traveled to ${data.location.name}`,
+          });
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        } finally {
+          setVisitingLocation(false);
+        }
+      },
+      [achievement.id, scrollToTop]
+    );
 
     const cardContent = (
       <div
@@ -70,6 +162,8 @@ export const AchievementCard = observer(
               "capitalize text-xs",
               achievement.type === "achievement"
                 ? "bg-primary/10 text-primary dark:bg-primary/20"
+                : achievement.type === "location"
+                ? "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
                 : "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400"
             )}
           >
@@ -109,7 +203,7 @@ export const AchievementCard = observer(
 
     // Otherwise, wrap in Dialog
     return (
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{cardContent}</DialogTrigger>
         <DialogContent className="max-w-lg sm:max-w-2xl max-h-[95vh] p-0">
           <ScrollArea className="max-h-[calc(100vh-40px)] p-6">
@@ -136,6 +230,27 @@ export const AchievementCard = observer(
                   </p>
                 </div>
               </div>
+
+              {/* Add Travel Button for locations inside dialog */}
+              {isUnlocked && achievement.type === "location" && (
+                <Button
+                  className="w-full"
+                  onClick={handleTravelToLocation}
+                  disabled={visitingLocation}
+                >
+                  {visitingLocation ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Traveling...
+                    </>
+                  ) : (
+                    <>
+                      <Map className="mr-2 h-4 w-4" />
+                      Travel to this Location
+                    </>
+                  )}
+                </Button>
+              )}
 
               {/* Achievement Details */}
               <div className="grid gap-4">
@@ -202,21 +317,31 @@ export const AchievementCard = observer(
                 )}
               </div>
 
-              {/* Status Footer */}
-              <div className="flex items-center justify-between rounded-lg border bg-card p-3">
+              {/* Status Footer - With fixed border */}
+              <div className="flex items-center justify-between rounded-lg border bg-card p-3 border-border">
                 <div className="flex items-center gap-2">
                   {isUnlocked ? (
                     <div className="flex items-center gap-1.5 text-emerald-500">
                       <CheckCircle className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        Achievement Unlocked
+                        {achievement.type === "achievement" &&
+                          "Achievement Unlocked"}
+                        {achievement.type === "collectible" &&
+                          "Collectible Unlocked"}
+                        {achievement.type === "location" &&
+                          "Location Discovered"}
                       </span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <Lock className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        Achievement Locked
+                        {achievement.type === "achievement" &&
+                          "Achievement Locked"}
+                        {achievement.type === "collectible" &&
+                          "Collectible Locked"}
+                        {achievement.type === "location" &&
+                          "Location Undiscovered"}
                       </span>
                     </div>
                   )}
@@ -227,6 +352,8 @@ export const AchievementCard = observer(
                     "capitalize text-xs",
                     achievement.type === "achievement"
                       ? "bg-primary/10 text-primary dark:bg-primary/20"
+                      : achievement.type === "location"
+                      ? "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
                       : "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400"
                   )}
                 >
@@ -276,31 +403,6 @@ const AchievementsPage = observer(() => {
     },
   };
 
-  // Debug logs
-  console.log(
-    "All achievements:",
-    achievements.map((a) => ({ key: a.key, type: a.type }))
-  );
-  console.log("User achievements:", user?.achievements);
-  console.log("Achievement stats:", {
-    total: {
-      achievements: achievements.filter((a) => a.type === "achievement").length,
-      collectibles: achievements.filter((a) => a.type === "collectible").length,
-    },
-    unlocked: {
-      achievements: achievements
-        .filter(
-          (a) => a.type === "achievement" && user?.achievements?.includes(a.key)
-        )
-        .map((a) => a.key),
-      collectibles: achievements
-        .filter(
-          (a) => a.type === "collectible" && user?.achievements?.includes(a.key)
-        )
-        .map((a) => a.key),
-    },
-  });
-
   // Sort achievements: unlocked first
   const sortedAchievements = [...achievements].sort((a, b) => {
     const aUnlocked = user?.achievements?.includes(a.key) || false;
@@ -308,6 +410,20 @@ const AchievementsPage = observer(() => {
     if (aUnlocked !== bUnlocked) return bUnlocked ? 1 : -1;
     return 0;
   });
+
+  // Helper function to check if achievement is unlocked
+  const isAchievementUnlocked = useCallback(
+    (achievement) => {
+      if (!user?.achievements) return false;
+
+      return user.achievements.some(
+        (userAchievement) =>
+          userAchievement === achievement.id ||
+          userAchievement === achievement.key
+      );
+    },
+    [user?.achievements]
+  );
 
   return (
     <div className="container py-6 md:py-8 px-4 sm:px-6">
@@ -335,9 +451,9 @@ const AchievementsPage = observer(() => {
         </div>
       </div>
 
-      {/* Add Cauldron here */}
-      <div className="mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Cauldron />
+        <Portal />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -345,7 +461,7 @@ const AchievementsPage = observer(() => {
           <AchievementCard
             key={achievement.id}
             achievement={achievement}
-            isUnlocked={user?.achievements?.includes(achievement.key)}
+            isUnlocked={isAchievementUnlocked(achievement)}
             relatedRewards={getRelatedRewards(achievement.key)}
             fromReward={false}
           />
