@@ -12,7 +12,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CheckCircle, Lock, ChevronRight, Map } from "lucide-react";
+import {
+  CheckCircle,
+  Lock,
+  ChevronRight,
+  Map,
+  Search,
+  X,
+  Award,
+  Trophy,
+  Star,
+  FileQuestion,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -23,6 +34,15 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { auth } from "@/firebase";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function useScrollToTop() {
   const scrollToTop = useCallback(() => {
@@ -370,6 +390,9 @@ export const AchievementCard = observer(
 
 const AchievementsPage = observer(() => {
   const { achievements, specialRewards, achievementsLoading, user } = MobxStore;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all"); // "all", "achievement", "collectible", "location"
+  const [sortBy, setSortBy] = useState("status"); // "status", "name", "recent"
 
   useEffect(() => {
     MobxStore.fetchAchievementsAndRewards();
@@ -385,7 +408,7 @@ const AchievementsPage = observer(() => {
     );
   };
 
-  // Calculate stats correctly based on all achievements
+  // Calculate stats for all achievement types
   const stats = {
     achievements: {
       total: achievements.filter((a) => a.type === "achievement").length || 0,
@@ -401,15 +424,14 @@ const AchievementsPage = observer(() => {
           (a) => a.type === "collectible" && user?.achievements?.includes(a.key)
         ).length || 0,
     },
+    locations: {
+      total: achievements.filter((a) => a.type === "location").length || 0,
+      unlocked:
+        achievements.filter(
+          (a) => a.type === "location" && user?.achievements?.includes(a.key)
+        ).length || 0,
+    },
   };
-
-  // Sort achievements: unlocked first
-  const sortedAchievements = [...achievements].sort((a, b) => {
-    const aUnlocked = user?.achievements?.includes(a.key) || false;
-    const bUnlocked = user?.achievements?.includes(b.key) || false;
-    if (aUnlocked !== bUnlocked) return bUnlocked ? 1 : -1;
-    return 0;
-  });
 
   // Helper function to check if achievement is unlocked
   const isAchievementUnlocked = useCallback(
@@ -425,48 +447,309 @@ const AchievementsPage = observer(() => {
     [user?.achievements]
   );
 
+  // Apply filters and sorting to achievements
+  const filteredAchievements = useMemo(() => {
+    let filtered = [...achievements];
+
+    // Apply type filter
+    if (filterType !== "all") {
+      filtered = filtered.filter((a) => a.type === filterType);
+    }
+
+    // Apply search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        (a) =>
+          a.name.toLowerCase().includes(query) ||
+          a.description.toLowerCase().includes(query) ||
+          a.obtainedBy.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case "status":
+        // Sort by unlocked status (unlocked first)
+        filtered.sort((a, b) => {
+          const aUnlocked = isAchievementUnlocked(a);
+          const bUnlocked = isAchievementUnlocked(b);
+
+          if (aUnlocked !== bUnlocked) return bUnlocked ? 1 : -1;
+
+          // If same unlock status, sort by type: achievements -> collectibles -> locations
+          const typeOrder = { achievement: 0, collectible: 1, location: 2 };
+          return typeOrder[a.type] - typeOrder[b.type];
+        });
+        break;
+      case "name":
+        // Sort alphabetically by name
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "recent":
+        // Most recent at the top (assuming we have a timestamp)
+        filtered.sort((a, b) => {
+          // If no timestamp, use ID as fallback (newer achievements usually have higher IDs)
+          const aTime = a.createdAt || a.id;
+          const bTime = b.createdAt || b.id;
+          return bTime - aTime;
+        });
+        break;
+    }
+
+    return filtered;
+  }, [achievements, filterType, searchQuery, sortBy, isAchievementUnlocked]);
+
   return (
     <div className="container py-6 md:py-8 px-4 sm:px-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold">Achievements</h1>
+      {/* Enhanced Header Section */}
+      <div className="space-y-6 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold">Achievements</h1>
 
-        <div className="w-full sm:w-auto grid grid-cols-2 gap-3">
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
-            <h3 className="text-sm text-muted-foreground font-medium mb-1">
-              Achievements
-            </h3>
-            <p className="text-xl font-bold text-primary">
-              {stats.achievements.unlocked}/{stats.achievements.total}
-            </p>
+          {/* Search Input */}
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search achievements..."
+              className="pl-10 w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Achievement Type Stats & Filters */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          {/* "All" Filter Card */}
+          <div
+            className={cn(
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              filterType === "all"
+                ? "border-primary"
+                : "hover:border-primary/50"
+            )}
+            onClick={() => setFilterType("all")}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10">
+                <Award className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium">All Items</h3>
+                <p className="text-xl font-bold text-primary">
+                  {stats.achievements.unlocked +
+                    stats.collectibles.unlocked +
+                    stats.locations.unlocked}
+                  /
+                  {stats.achievements.total +
+                    stats.collectibles.total +
+                    stats.locations.total}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
-            <h3 className="text-sm text-muted-foreground font-medium mb-1">
-              Collectibles
-            </h3>
-            <p className="text-xl font-bold text-primary">
-              {stats.collectibles.unlocked}/{stats.collectibles.total}
-            </p>
+          {/* Achievements Filter Card */}
+          <div
+            className={cn(
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              filterType === "achievement"
+                ? "border-primary"
+                : "hover:border-primary/50"
+            )}
+            onClick={() => setFilterType("achievement")}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10">
+                <Trophy className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium">Achievements</h3>
+                <p className="text-xl font-bold text-primary">
+                  {stats.achievements.unlocked}/{stats.achievements.total}
+                </p>
+              </div>
+            </div>
+            <div className="mt-2">
+              <Progress
+                value={
+                  (stats.achievements.unlocked / stats.achievements.total) * 100
+                }
+                className="h-1.5"
+              />
+            </div>
           </div>
+
+          {/* Collectibles Filter Card */}
+          <div
+            className={cn(
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              filterType === "collectible"
+                ? "border-primary"
+                : "hover:border-primary/50"
+            )}
+            onClick={() => setFilterType("collectible")}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-500/10">
+                <Star className="h-5 w-5 text-purple-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium">Collectibles</h3>
+                <p className="text-xl font-bold text-primary">
+                  {stats.collectibles.unlocked}/{stats.collectibles.total}
+                </p>
+              </div>
+            </div>
+            <div className="mt-2">
+              <Progress
+                value={
+                  (stats.collectibles.unlocked / stats.collectibles.total) * 100
+                }
+                className="h-1.5"
+              />
+            </div>
+          </div>
+
+          {/* Locations Filter Card */}
+          <div
+            className={cn(
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              filterType === "location"
+                ? "border-primary"
+                : "hover:border-primary/50"
+            )}
+            onClick={() => setFilterType("location")}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-blue-500/10">
+                <Map className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium">Locations</h3>
+                <p className="text-xl font-bold text-primary">
+                  {stats.locations.unlocked}/{stats.locations.total}
+                </p>
+              </div>
+            </div>
+            <div className="mt-2">
+              <Progress
+                value={(stats.locations.unlocked / stats.locations.total) * 100}
+                className="h-1.5"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Sort Dropdown and Filter Indicators */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Filter Pills */}
+          <div className="flex flex-wrap gap-2">
+            {filterType !== "all" && (
+              <Badge
+                variant="outline"
+                className="flex items-center gap-1.5 px-3 py-1.5 capitalize"
+              >
+                {filterType === "achievement" && (
+                  <Trophy className="h-3.5 w-3.5" />
+                )}
+                {filterType === "collectible" && (
+                  <Star className="h-3.5 w-3.5" />
+                )}
+                {filterType === "location" && <Map className="h-3.5 w-3.5" />}
+                {filterType}
+                <X
+                  className="h-3.5 w-3.5 cursor-pointer"
+                  onClick={() => setFilterType("all")}
+                />
+              </Badge>
+            )}
+            {searchQuery && (
+              <Badge
+                variant="outline"
+                className="flex items-center gap-1.5 px-3 py-1.5"
+              >
+                <Search className="h-3.5 w-3.5" />
+                Search: {searchQuery}
+                <X
+                  className="h-3.5 w-3.5 cursor-pointer"
+                  onClick={() => setSearchQuery("")}
+                />
+              </Badge>
+            )}
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">Sort by:</p>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="status">Unlock Status</SelectItem>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="recent">Most Recent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredAchievements.length} of {achievements.length} items
         </div>
       </div>
 
+      {/* Portal and Cauldron Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Cauldron />
         <Portal />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-        {sortedAchievements.map((achievement) => (
-          <AchievementCard
-            key={achievement.id}
-            achievement={achievement}
-            isUnlocked={isAchievementUnlocked(achievement)}
-            relatedRewards={getRelatedRewards(achievement.key)}
-            fromReward={false}
-          />
-        ))}
-      </div>
+      {/* Filtered Achievements Grid */}
+      {filteredAchievements.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+          {filteredAchievements.map((achievement) => (
+            <AchievementCard
+              key={achievement.id}
+              achievement={achievement}
+              isUnlocked={isAchievementUnlocked(achievement)}
+              relatedRewards={getRelatedRewards(achievement.key)}
+              fromReward={false}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <FileQuestion className="h-12 w-12 mx-auto text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-medium">No achievements found</h3>
+          <p className="mt-2 text-muted-foreground">
+            Try adjusting your filters or search query
+          </p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => {
+              setFilterType("all");
+              setSearchQuery("");
+            }}
+          >
+            Clear all filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 });
