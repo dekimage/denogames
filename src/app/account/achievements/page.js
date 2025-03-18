@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Cauldron } from "@/components/achievements/Cauldron";
 
 export const AchievementCard = observer(
   ({ achievement, isUnlocked, relatedRewards, fromReward }) => {
@@ -332,6 +333,11 @@ const AchievementsPage = observer(() => {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Add Cauldron here */}
+      <div className="mb-8">
+        <Cauldron />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
