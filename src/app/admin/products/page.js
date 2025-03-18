@@ -33,7 +33,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
-import { Loader2, Plus, Upload, Search, Star, Check, X } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Upload,
+  Search,
+  Star,
+  Check,
+  X,
+  Trash2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ImageIcon } from "lucide-react";
@@ -90,6 +99,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     rulebookLink: product?.rulebookLink || "",
     neededComponents: product?.neededComponents || [],
     providedComponents: product?.providedComponents || [],
+    carouselImages: product?.carouselImages || [],
   });
 
   const handleImageUpload = async (e) => {
@@ -154,6 +164,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       slug: data.slug,
       neededComponents: data.neededComponents,
       providedComponents: data.providedComponents,
+      carouselImages: data.carouselImages || [],
     };
 
     // Add type-specific properties
@@ -196,6 +207,134 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       default:
         return baseProperties;
     }
+  };
+
+  const CarouselImageManager = ({ images, onChange, productSlug }) => {
+    const [loading, setLoading] = useState(false);
+    const { toast } = useToast();
+
+    const handleImageUpload = async (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      setLoading(true);
+      try {
+        const uploadedUrls = [];
+        for (const file of files) {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("folder", `products/${productSlug}/carousel`);
+          formData.append("filename", `${Date.now()}_${file.name}`);
+
+          const token = await auth.currentUser?.getIdToken();
+          const response = await fetch("/api/admin/upload", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+
+          if (!response.ok) throw new Error("Upload failed");
+          const { url } = await response.json();
+          uploadedUrls.push(url);
+        }
+
+        onChange([...images, ...uploadedUrls]);
+        toast({
+          title: "Success",
+          description: "Images uploaded successfully",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to upload images",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const removeImage = async (index) => {
+      try {
+        const imageUrl = images[index];
+        const token = await auth.currentUser?.getIdToken();
+        await fetch("/api/admin/upload", {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fileUrl: imageUrl }),
+        });
+
+        const newImages = [...images];
+        newImages.splice(index, 1);
+        onChange(newImages);
+        toast({ title: "Success", description: "Image removed successfully" });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to remove image",
+          variant: "destructive",
+        });
+      }
+    };
+
+    const reorderImages = (dragIndex, dropIndex) => {
+      const newImages = [...images];
+      const [draggedImage] = newImages.splice(dragIndex, 1);
+      newImages.splice(dropIndex, 0, draggedImage);
+      onChange(newImages);
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {images.map((image, index) => (
+            <div
+              key={index}
+              className="group relative aspect-square rounded-lg border overflow-hidden"
+              draggable
+              onDragStart={(e) => e.dataTransfer.setData("index", index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const dragIndex = parseInt(e.dataTransfer.getData("index"));
+                reorderImages(dragIndex, index);
+              }}
+            >
+              <Image
+                src={image}
+                alt={`Carousel image ${index + 1}`}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => removeImage(index)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+          <label className="relative aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors">
+            <Upload className="h-8 w-8 mb-2" />
+            <span>Upload Images</span>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+              disabled={loading}
+            />
+          </label>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -267,6 +406,22 @@ const ProductForm = ({ product, onSave, onCancel }) => {
             </label>
           )}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Product Images</Label>
+        <CarouselImageManager
+          images={[formData.thumbnail, ...formData.carouselImages]}
+          onChange={(images) => {
+            const [thumbnail, ...carouselImages] = images;
+            setFormData((prev) => ({
+              ...prev,
+              thumbnail,
+              carouselImages,
+            }));
+          }}
+          productSlug={formData.slug}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -1213,10 +1368,8 @@ const ProductsPage = observer(() => {
   const handleSave = async (formData) => {
     try {
       if (formData.id) {
-        // For updates, we should first remove all irrelevant properties
         const currentProduct = AdminStore.getProductById(formData.id);
         if (currentProduct && currentProduct.type !== formData.type) {
-          // If type has changed, we need to remove old type-specific properties
           const propertiesToRemove = {
             game: [
               "stats",
@@ -1236,13 +1389,15 @@ const ProductsPage = observer(() => {
             "add-on": ["relatedGames", "requiredAchievements"],
           };
 
-          // Remove properties from the old type
           const cleanupProperties =
             propertiesToRemove[currentProduct.type] || [];
           const cleanupData = { ...formData };
           cleanupProperties.forEach((prop) => {
-            cleanupData[prop] = null; // Set to null to remove from Firebase
+            cleanupData[prop] = null;
           });
+
+          // Preserve carouselImages during type changes
+          cleanupData.carouselImages = formData.carouselImages;
 
           await AdminStore.updateProduct(formData.id, cleanupData);
         }

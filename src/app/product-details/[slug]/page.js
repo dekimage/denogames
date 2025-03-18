@@ -50,6 +50,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
+import SimpleImageCarousel from "@/components/SimpleImageCarousel";
 
 const MechanicsBasicSection = ({ mechanics }) => {
   return (
@@ -647,9 +648,6 @@ const ProductDetailsPage = observer(({}) => {
     : false;
 
   const progress = MobxStore.getAddOnProgress(productDetails.id);
-  // const mainGame = MobxStore.products.find(
-  //   (p) => p.id === productDetails.relatedGames
-  // );
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
@@ -678,13 +676,10 @@ const ProductDetailsPage = observer(({}) => {
           </div>
 
           <div className="flex flex-col lg:flex-row items-center lg:justify-center gap-12">
-            <ImageCarousel
+            <SimpleImageCarousel
               images={[
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2Fa4-mm.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
-                "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FMM-APP.png?alt=media",
+                productDetails.thumbnail,
+                ...(productDetails.carouselImages || []),
               ]}
             />
 
