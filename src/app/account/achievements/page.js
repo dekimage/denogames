@@ -409,29 +409,40 @@ const AchievementsPage = observer(() => {
   };
 
   // Calculate stats for all achievement types
-  const stats = {
-    achievements: {
-      total: achievements.filter((a) => a.type === "achievement").length || 0,
-      unlocked:
-        achievements.filter(
-          (a) => a.type === "achievement" && user?.achievements?.includes(a.key)
-        ).length || 0,
-    },
-    collectibles: {
-      total: achievements.filter((a) => a.type === "collectible").length || 0,
-      unlocked:
-        achievements.filter(
-          (a) => a.type === "collectible" && user?.achievements?.includes(a.key)
-        ).length || 0,
-    },
-    locations: {
-      total: achievements.filter((a) => a.type === "location").length || 0,
-      unlocked:
-        achievements.filter(
-          (a) => a.type === "location" && user?.achievements?.includes(a.key)
-        ).length || 0,
-    },
-  };
+  const stats = useMemo(() => {
+    // First, let's create a helper function to check if an achievement is unlocked
+    const isUnlocked = (achievement) => {
+      if (!user?.achievements) return false;
+
+      // Check if either the id or key is in the user's achievements
+      return user.achievements.some(
+        (userAchievement) =>
+          userAchievement === achievement.id ||
+          userAchievement === achievement.key
+      );
+    };
+
+    return {
+      achievements: {
+        total: achievements.filter((a) => a.type === "achievement").length || 0,
+        unlocked:
+          achievements.filter((a) => a.type === "achievement" && isUnlocked(a))
+            .length || 0,
+      },
+      collectibles: {
+        total: achievements.filter((a) => a.type === "collectible").length || 0,
+        unlocked:
+          achievements.filter((a) => a.type === "collectible" && isUnlocked(a))
+            .length || 0,
+      },
+      locations: {
+        total: achievements.filter((a) => a.type === "location").length || 0,
+        unlocked:
+          achievements.filter((a) => a.type === "location" && isUnlocked(a))
+            .length || 0,
+      },
+    };
+  }, [achievements, user?.achievements]);
 
   // Helper function to check if achievement is unlocked
   const isAchievementUnlocked = useCallback(
