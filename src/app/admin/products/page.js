@@ -197,6 +197,8 @@ const ProductForm = ({ product, onSave, onCancel }) => {
           ...baseProperties,
           price: data.price,
           relatedGames: data.relatedGames,
+          howToPlayVideo: data.howToPlayVideo,
+          rulebookLink: data.rulebookLink,
         };
       case "add-on":
         return {
@@ -979,7 +981,11 @@ const ProductForm = ({ product, onSave, onCancel }) => {
               </div>
             </div>
           </div>
+        </div>
+      )}
 
+      {(formData.type === "game" || formData.type === "expansion") && (
+        <>
           <div className="space-y-2">
             <Label>How to Play Video</Label>
             <Input
@@ -1009,9 +1015,8 @@ const ProductForm = ({ product, onSave, onCancel }) => {
               placeholder="https://..."
             />
           </div>
-        </div>
+        </>
       )}
-
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>Needed Components</Label>
@@ -1336,6 +1341,7 @@ const ProductsPage = observer(() => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGameFilter, setSelectedGameFilter] = useState("all");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -1427,15 +1433,48 @@ const ProductsPage = observer(() => {
     );
   }
 
-  const filteredProducts = AdminStore.products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  // Get list of base games for the filter
+  const baseGames = AdminStore.products.filter(
+    (product) => product.type === "game"
   );
+
+  // Updated filtering logic
+  const filteredProducts = AdminStore.products.filter((product) => {
+    // First apply game filter if selected
+    if (selectedGameFilter !== "all") {
+      if (product.id === selectedGameFilter) return true; // Show the game itself
+      if (product.relatedGames === selectedGameFilter) return true; // Show products related to the game
+      return false;
+    }
+
+    // Then apply search filter
+    return product.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Products</h1>
         <div className="flex items-center gap-2">
+          {/* Game Filter Dropdown */}
+          <Select
+            value={selectedGameFilter}
+            onValueChange={setSelectedGameFilter}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by game" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Games</SelectItem>
+              {baseGames.map((game) => (
+                <SelectItem key={game.id} value={game.id}>
+                  {game.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Existing Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -1445,6 +1484,50 @@ const ProductsPage = observer(() => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
+          {/* Show active filters */}
+          {(selectedGameFilter !== "all" || searchQuery) && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-muted-foreground">
+                Active filters:
+              </span>
+              <div className="flex gap-2">
+                {selectedGameFilter !== "all" && (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                    onClick={() => setSelectedGameFilter("all")}
+                  >
+                    Game:{" "}
+                    {baseGames.find((g) => g.id === selectedGameFilter)?.name}
+                    <X className="h-3 w-3 cursor-pointer" />
+                  </Badge>
+                )}
+                {searchQuery && (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    Search: {searchQuery}
+                    <X className="h-3 w-3 cursor-pointer" />
+                  </Badge>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedGameFilter("all");
+                  setSearchQuery("");
+                }}
+              >
+                Clear all
+              </Button>
+            </div>
+          )}
+
+          {/* Add Product Button */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setSelectedProduct(null)}>

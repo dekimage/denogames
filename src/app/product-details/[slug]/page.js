@@ -94,6 +94,8 @@ const BasicFeatures = ({ productDetails }) => {
 };
 
 const HowToPlaySimple = ({ productDetails }) => {
+  if (!productDetails.howToPlayVideo && !productDetails.rulebookLink)
+    return null;
   return (
     <div className="my-8 w-full  flex flex-col max-w-[560px]" id="ratings">
       <div className="text-2xl font-strike uppercase my-4">How to Play</div>
@@ -966,7 +968,8 @@ const ProductDetailsPage = observer(({}) => {
             />
           )}
 
-          {productDetails.type === "game" && (
+          {(productDetails.type === "game" ||
+            productDetails.type === "expansion") && (
             <HowToPlaySimple productDetails={productDetails} />
           )}
 
