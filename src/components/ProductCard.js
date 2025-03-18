@@ -46,7 +46,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
       return (
         <Link href={`/product-details/${product.slug}`} className="w-full">
           <Button variant="secondary" className="w-full">
-            CRAFT PRODUCT
+            CRAFT THIS
           </Button>
         </Link>
       );

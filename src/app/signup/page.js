@@ -166,7 +166,7 @@ export const SignupCard = observer(() => {
   return (
     <div className="box">
       <div className="box-inner ">
-        <div className="box-broken p-10 py-16 min-w-3xl font-strike">
+        <div className="box-broken py-8 min-w-3xl font-strike">
           <CardHeader className="space-y-1">
             <div className="text-2xl uppercase">
               {isUserAnonymous

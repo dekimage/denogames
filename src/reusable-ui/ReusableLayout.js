@@ -235,22 +235,14 @@ const ReusableLayout = observer(({ children }) => {
 
               {/* Right Side Actions */}
               <div className="flex items-center space-x-3">
-                {/* Search Button */}
-                <Button variant="ghost" size="icon" className="hidden md:flex">
-                  <Search className="h-5 w-5" />
-                </Button>
-
-                {/* Theme Toggle */}
                 <ModeToggle />
+                {user && <NotificationDropdown />}
 
-                {/* Shopping Cart */}
                 <ShoppingCart />
 
-                {/* User Menu or Auth Buttons */}
                 {user ? (
                   <div className="flex items-center space-x-3">
                     {/* Notifications */}
-                    <NotificationDropdown />
 
                     {/* User Profile Dropdown - Using regular dropdown instead of NavigationMenu */}
                     <DropdownMenu>

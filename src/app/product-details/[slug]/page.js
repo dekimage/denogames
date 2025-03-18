@@ -203,6 +203,8 @@ const GameMetrics = ({ productDetails }) => {
 };
 
 const ComponentsList = ({ productDetails }) => {
+  if (!productDetails.providedComponents || !productDetails.neededComponents)
+    return null;
   const [expandedItems, setExpandedItems] = useState({});
 
   const toggleItem = (type, index) => {
@@ -242,13 +244,16 @@ const ComponentsList = ({ productDetails }) => {
             {expandedItems[type]?.[index] && (
               <TableRow>
                 <TableCell colSpan={2} className="p-0">
-                  <div className="h-48 relative overflow-hidden">
+                  <div className=" relative overflow-hidden flex justify-center items-center">
                     {item.image && (
                       <Image
                         src={item.image}
                         alt={item.name}
-                        layout="fill"
-                        objectFit="cover"
+                        height={800}
+                        width={800}
+                        className="w-[400px] h-auto"
+                        // layout="fill"
+                        // objectFit="cover"
                       />
                     )}
                   </div>
@@ -271,8 +276,7 @@ const ComponentsList = ({ productDetails }) => {
                 What you get:
               </h3>
               {renderComponentTable(
-                gamesStaticData[productDetails.slug]?.providedComponents ||
-                  providedComponents,
+                productDetails.providedComponents,
                 "provided"
               )}
             </div>
@@ -280,11 +284,7 @@ const ComponentsList = ({ productDetails }) => {
               <h3 className="text-2xl font-bold mb-4 font-strike uppercase">
                 What you need:
               </h3>
-              {renderComponentTable(
-                gamesStaticData[productDetails.slug]?.neededComponents ||
-                  neededComponents,
-                "needed"
-              )}
+              {renderComponentTable(productDetails.neededComponents, "needed")}
             </div>
           </div>
         </div>
@@ -300,7 +300,7 @@ const KickstarterSection = ({ productDetails }) => {
 
   return (
     <section className="mb-12">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center my-6">
         <div className="ml-4 flex-grow h-px bg-border"></div>
       </div>
 
@@ -590,9 +590,7 @@ const ProductDetailsPage = observer(({}) => {
           // For expansions, find the main game and other expansions
           const mainGameId = productData.relatedGames;
           const mainGameData = products.find((p) => p.id === mainGameId);
-          console.log(123, mainGameData);
-          console.log(4521, products);
-          console.log(555, mainGameId);
+
           setMainGame(mainGameData);
 
           // Find other expansions for the same game
@@ -850,7 +848,7 @@ const ProductDetailsPage = observer(({}) => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold">
-                        Requires Materials
+                        Required Materials
                       </h3>
                       {user ? (
                         <div className="text-sm text-muted-foreground">
@@ -979,7 +977,7 @@ const ProductDetailsPage = observer(({}) => {
 
           {productDetails.type === "game" && relatedExpansions?.length > 0 && (
             <section className="mb-12 mt-12">
-              <div className="flex items-center mb-6">
+              <div className="flex items-center my-6">
                 <h2 className="text-2xl font-strike">Available Expansions</h2>
                 <div className="ml-4 flex-grow h-px bg-border"></div>
               </div>
@@ -995,7 +993,7 @@ const ProductDetailsPage = observer(({}) => {
             productDetails.type === "add-on") &&
             mainGame && (
               <section className="mb-12">
-                <div className="flex items-center mb-6">
+                <div className="flex items-center my-6">
                   <h2 className="text-2xl font-strike">Main Game</h2>
                   <div className="ml-4 flex-grow h-px bg-border"></div>
                 </div>
@@ -1009,7 +1007,7 @@ const ProductDetailsPage = observer(({}) => {
             productDetails.type === "add-on") &&
             otherExpansions.length > 0 && (
               <section className="mb-12">
-                <div className="flex items-center mb-6">
+                <div className="flex items-center my-6">
                   <h2 className="text-2xl font-strike">Related Expansions</h2>
                   <div className="ml-4 flex-grow h-px bg-border"></div>
                 </div>

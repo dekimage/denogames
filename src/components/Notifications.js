@@ -106,7 +106,7 @@ const NotificationDropdown = observer(() => {
         onClick={handleToggleDropdown}
         className="relative"
         size="icon"
-        variant="reverse"
+        variant="ghost"
       >
         <Bell />
         {notifications.filter((n) => !n.isRead).length > 0 && (
