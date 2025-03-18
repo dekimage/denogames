@@ -145,7 +145,7 @@ const MobileHeader = observer(() => {
             variants={menuVariants}
             className="fixed top-14 left-0 right-0 bottom-0 bg-background z-40"
           >
-            <ScrollArea className="h-full pb-20">
+            <ScrollArea className="h-full pb-2">
               <div className="p-4">
                 {!user ? (
                   <>

@@ -73,7 +73,7 @@ const AccountLayout = observer(({ children }) => {
   }
 
   return (
-    <SidebarProvider className="w-full bg-gray-100">
+    <SidebarProvider className="w-full bg-background">
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader>
@@ -116,7 +116,7 @@ const AccountLayout = observer(({ children }) => {
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
-        <main className="w-full bg-gray-100">{children}</main>
+        <main>{children}</main>
       </div>
     </SidebarProvider>
   );

@@ -33,25 +33,30 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 import Image from "next/image";
-import { Loader2, Plus, Trash, Upload } from "lucide-react";
+import { Loader2, Plus, Trash, Upload, X } from "lucide-react";
 import { achievements as dummyAchievements } from "@/data/achievements";
 import { useToast } from "@/components/ui/use-toast";
 import AdminStore from "@/mobx/AdminStore";
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
+import { ImageIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const AchievementForm = ({ achievement, onSave, onCancel }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(
     achievement || {
-      id: "",
-      key: "",
+      id: String(Date.now()),
       name: "",
       description: "",
-      requirement: "",
       image: "",
-      difficulty: 1,
+      obtainedBy: "",
+      hint: "",
+      type: "achievement",
+      unlocksAddons: [],
+      code: "",
       isHidden: false,
-      unlocksRewards: [],
     }
   );
 
@@ -64,7 +69,7 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("folder", "achievements");
-      formData.append("filename", `${formData.id || Date.now()}_${file.name}`);
+      formData.append("filename", `${Date.now()}_${file.name}`);
 
       const token = await auth.currentUser?.getIdToken();
       const response = await fetch("/api/admin/upload", {
@@ -89,64 +94,39 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
         description: "Failed to upload image",
         variant: "destructive",
       });
-      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      await onSave(formData);
-      toast({
-        title: "Success",
-        description: "Achievement saved successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save achievement",
-        variant: "destructive",
-      });
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Get available add-ons from AdminStore
+  const availableAddons = AdminStore.products.filter(
+    (product) => product.type === "add-on"
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="id">ID</Label>
-          <Input
-            id="id"
-            value={formData.id}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, id: e.target.value }))
-            }
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="key">Key</Label>
-          <Input
-            id="key"
-            value={formData.key}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, key: e.target.value }))
-            }
-            required
-          />
-        </div>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave(formData);
+      }}
+      className="space-y-4 max-h-[80vh] overflow-y-auto p-4"
+    >
+      <div className="space-y-2">
+        <Label>ID</Label>
+        <Input
+          value={formData.id}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, id: e.target.value }))
+          }
+          required
+          disabled={!!achievement}
+        />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
+        <Label>Name</Label>
         <Input
-          id="name"
           value={formData.name}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, name: e.target.value }))
@@ -156,9 +136,8 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label>Description</Label>
         <Textarea
-          id="description"
           value={formData.description}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, description: e.target.value }))
@@ -168,61 +147,139 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="requirement">Requirement</Label>
-        <Textarea
-          id="requirement"
-          value={formData.requirement}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, requirement: e.target.value }))
+        <Label>Type</Label>
+        <Select
+          value={formData.type}
+          onValueChange={(value) =>
+            setFormData((prev) => ({ ...prev, type: value }))
           }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="achievement">Achievement</SelectItem>
+            <SelectItem value="collectible">Collectible</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Obtained By</Label>
+        <Textarea
+          value={formData.obtainedBy}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, obtainedBy: e.target.value }))
+          }
+          placeholder="How to obtain this achievement..."
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="image">Image</Label>
-        <div className="flex items-center gap-4">
-          {formData.image && (
-            <div className="relative w-20 h-20">
-              <Image
-                src={formData.image}
-                alt="Achievement"
-                fill
-                className="object-cover rounded-md"
-              />
-            </div>
-          )}
+        <Label>Hint</Label>
+        <Textarea
+          value={formData.hint}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, hint: e.target.value }))
+          }
+          placeholder="Optional hint for players..."
+        />
+      </div>
+
+      {formData.type === "collectible" && (
+        <div className="space-y-2">
+          <Label>Code</Label>
           <Input
-            id="image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="flex-1"
+            value={formData.code}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, code: e.target.value }))
+            }
+            placeholder="Secret code for collectible..."
           />
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label>Unlocks Add-ons</Label>
+        <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg">
+          {availableAddons.map((addon) => (
+            <div
+              key={addon.id}
+              className={cn(
+                "flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors",
+                formData.unlocksAddons?.includes(addon.id)
+                  ? "border-primary bg-primary/5"
+                  : "hover:bg-accent"
+              )}
+              onClick={() => {
+                const currentAddons = formData.unlocksAddons || [];
+                const updated = currentAddons.includes(addon.id)
+                  ? currentAddons.filter((id) => id !== addon.id)
+                  : [...currentAddons, addon.id];
+                setFormData((prev) => ({ ...prev, unlocksAddons: updated }));
+              }}
+            >
+              <div className="relative h-10 w-10 flex-shrink-0">
+                <Image
+                  src={addon.thumbnail || "/placeholder-image.png"}
+                  alt={addon.name}
+                  fill
+                  className="object-cover rounded-md"
+                />
+              </div>
+              <span className="text-sm font-medium line-clamp-2">
+                {addon.name}
+              </span>
+              {formData.unlocksAddons?.includes(addon.id) ? (
+                <Check className="h-4 w-4 text-primary ml-auto" />
+              ) : (
+                <Plus className="h-4 w-4 text-muted-foreground ml-auto" />
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="difficulty">Difficulty</Label>
-          <Select
-            value={formData.difficulty}
-            onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, difficulty: parseInt(value) }))
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select difficulty" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={1}>1 Star</SelectItem>
-              <SelectItem value={2}>2 Stars</SelectItem>
-              <SelectItem value={3}>3 Stars</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="space-y-2">
+        <Label>Image</Label>
+        <div className="flex items-center gap-4">
+          {formData.image ? (
+            <div className="relative h-20 w-20">
+              <Image
+                src={formData.image}
+                alt="Achievement image"
+                fill
+                className="object-cover rounded-md"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="absolute -top-2 -right-2"
+                onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="h-20 w-20 border-2 border-dashed rounded-md flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            </div>
+          )}
+          <div className="flex-1">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={loading}
+            />
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="isHidden">Hidden Achievement</Label>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center space-x-2">
           <Switch
             id="isHidden"
             checked={formData.isHidden}
@@ -230,11 +287,12 @@ const AchievementForm = ({ achievement, onSave, onCancel }) => {
               setFormData((prev) => ({ ...prev, isHidden: checked }))
             }
           />
+          <Label htmlFor="isHidden">Hidden Achievement</Label>
         </div>
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} type="button">
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" disabled={loading}>
@@ -268,11 +326,14 @@ const AchievementsPage = observer(() => {
 
   const fetchData = async () => {
     try {
-      await AdminStore.fetchAchievements();
+      await Promise.all([
+        AdminStore.fetchAchievements(),
+        AdminStore.fetchProducts(),
+      ]);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch achievements",
+        description: "Failed to fetch data",
         variant: "destructive",
       });
       if (error.message.includes("Unauthorized")) {
@@ -425,17 +486,55 @@ const AchievementsPage = observer(() => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-2">
-                {achievement.description}
-              </p>
-              <p className="text-sm">Requirement: {achievement.requirement}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span>Difficulty:</span>
-                {Array.from({ length: achievement.difficulty }).map((_, i) => (
-                  <span key={i} className="text-yellow-400">
-                    ★
-                  </span>
-                ))}
+              <div className="space-y-2">
+                <Badge variant="outline" className="capitalize">
+                  {achievement.type}
+                </Badge>
+                <p className="text-sm text-muted-foreground">
+                  {achievement.description}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Obtained by:</span>{" "}
+                  {achievement.obtainedBy}
+                </p>
+                {achievement.hint && (
+                  <p className="text-sm">
+                    <span className="font-medium">Hint:</span>{" "}
+                    {achievement.hint}
+                  </p>
+                )}
+                {achievement.type === "collectible" && achievement.code && (
+                  <p className="text-sm">
+                    <span className="font-medium">Code:</span>{" "}
+                    {achievement.code}
+                  </p>
+                )}
+                {achievement.unlocksAddons?.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium">Unlocks:</span>
+                    <div className="flex gap-2">
+                      {achievement.unlocksAddons.map((addonId) => {
+                        const addon = AdminStore.products.find(
+                          (p) => p.id === addonId
+                        );
+                        return addon ? (
+                          <div
+                            key={addonId}
+                            className="relative w-8 h-8"
+                            title={addon.name}
+                          >
+                            <Image
+                              src={addon.thumbnail || "/placeholder-image.png"}
+                              alt={addon.name}
+                              fill
+                              className="object-cover rounded-md"
+                            />
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
