@@ -29,6 +29,8 @@ import {
   Trophy,
   Lock,
   CheckCircle2,
+  ShoppingBag,
+  ShoppingCart,
 } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
@@ -850,27 +852,21 @@ const ProductDetailsPage = observer(({}) => {
                       {user ? (
                         <div className="text-sm text-muted-foreground">
                           Progress:{" "}
-                          {
-                            productDetails.requiredAchievements.filter((id) =>
-                              user.achievements?.includes(
-                                MobxStore.getAchievementByKey(id)?.key
-                              )
-                            ).length
-                          }
-                          /{productDetails.requiredAchievements.length}
+                          {productDetails.achievements?.filter((achievement) =>
+                            user?.achievements?.includes(achievement.id)
+                          ).length || 0}
+                          /{productDetails.achievements?.length || 0}
                         </div>
                       ) : null}
                     </div>
 
-                    {user && (
+                    {user && productDetails.achievements?.length > 0 && (
                       <Progress
                         value={
-                          (productDetails.requiredAchievements.filter((id) =>
-                            user.achievements?.includes(
-                              MobxStore.getAchievementByKey(id)?.key
-                            )
-                          ).length /
-                            productDetails.requiredAchievements.length) *
+                          ((productDetails.achievements.filter((achievement) =>
+                            user?.achievements?.includes(achievement.id)
+                          ).length || 0) /
+                            productDetails.achievements.length) *
                           100
                         }
                         className="h-2"
@@ -883,13 +879,13 @@ const ProductDetailsPage = observer(({}) => {
                           key={achievement.id}
                           className={cn(
                             "relative rounded-lg border p-4",
-                            user?.achievements?.includes(achievement.key)
+                            user?.achievements?.includes(achievement.id)
                               ? "bg-green-50 border-green-200"
                               : "bg-muted"
                           )}
                         >
                           <AchievementDialog achievement={achievement} />
-                          {user?.achievements?.includes(achievement.key) && (
+                          {user?.achievements?.includes(achievement.id) && (
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
                               <CheckCircle2 className="h-5 w-5 text-green-600" />
                             </div>
@@ -903,17 +899,13 @@ const ProductDetailsPage = observer(({}) => {
                     <Button
                       className="w-full font-strike"
                       disabled={
-                        !productDetails.requiredAchievements.every((id) =>
-                          user.achievements?.includes(
-                            MobxStore.getAchievementByKey(id)?.key
-                          )
+                        !productDetails.achievements?.every((achievement) =>
+                          user?.achievements?.includes(achievement.id)
                         )
                       }
                     >
-                      {productDetails.requiredAchievements.every((id) =>
-                        user.achievements?.includes(
-                          MobxStore.getAchievementByKey(id)?.key
-                        )
+                      {productDetails.achievements?.every((achievement) =>
+                        user?.achievements?.includes(achievement.id)
                       ) ? (
                         <>
                           <Trophy className="h-4 w-4 mr-2" />
@@ -941,12 +933,40 @@ const ProductDetailsPage = observer(({}) => {
                   <div className="text-[28px] font-strike uppercase mb-4">
                     ${productDetails.price}.00 USD
                   </div>
-                  <Button
-                    className="text-xl h-[48px] font-strike"
-                    onClick={() => MobxStore.addToCart(productDetails)}
-                  >
-                    Add to Cart
-                  </Button>
+
+                  {/* Three state button: Owned, In Cart, or Add to Cart */}
+                  {isPurchased ? (
+                    // If user owns the product, show "Open Files" button
+                    <Link
+                      href={`/account/my-games/${
+                        productDetails.type === "game"
+                          ? productDetails.id
+                          : productDetails.relatedGames
+                      }`}
+                      className="w-full"
+                    >
+                      <Button className="text-xl h-[48px] font-strike w-full bg-black hover:bg-black/80 text-white">
+                        Open Files
+                      </Button>
+                    </Link>
+                  ) : isInCart ? (
+                    // If product is in cart but not owned, show "Checkout" button
+                    <Link href="/checkout" className="w-full">
+                      <Button className="text-xl h-[48px] font-strike w-full bg-orange-400 hover:bg-orange-300">
+                        <ShoppingBag size={20} className="mr-2" />
+                        Checkout
+                      </Button>
+                    </Link>
+                  ) : (
+                    // If product is not owned and not in cart, show "Add to Cart" button
+                    <Button
+                      className="text-xl h-[48px] font-strike w-full"
+                      onClick={() => MobxStore.addToCart(productDetails)}
+                    >
+                      <ShoppingCart size={20} className="mr-2" />
+                      Add to Cart
+                    </Button>
+                  )}
                 </>
               )}
               {productDetails.type === "game" && (

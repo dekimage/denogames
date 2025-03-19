@@ -52,7 +52,7 @@ export async function POST(req) {
       line_items: lineItems,
       mode: "payment",
       success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`, //fix
-      cancel_url: `${baseUrl}/cart`,
+      cancel_url: `${baseUrl}/checkout`,
       metadata: {
         cartItems: JSON.stringify(
           cartItems.map((item) => ({

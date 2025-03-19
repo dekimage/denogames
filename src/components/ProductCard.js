@@ -54,7 +54,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
 
     if (isInCart) {
       return (
-        <Link href="/cart" className="w-full">
+        <Link href="/checkout" className="w-full">
           <Button
             variant="secondary"
             className="w-full bg-orange-400 hover:bg-orange-300"

@@ -398,10 +398,6 @@ const AchievementsPage = observer(() => {
     MobxStore.fetchAchievementsAndRewards();
   }, []);
 
-  if (achievementsLoading) {
-    return <LoadingSpinner />;
-  }
-
   const getRelatedRewards = (achievementKey) => {
     // Filter products to find add-ons that require this achievement
     return MobxStore.products.filter(
@@ -421,9 +417,7 @@ const AchievementsPage = observer(() => {
 
       // Check if either the id or key is in the user's achievements
       return user.achievements.some(
-        (userAchievement) =>
-          userAchievement === achievement.id ||
-          userAchievement === achievement.key
+        (userAchievement) => userAchievement === achievement.id
       );
     };
 
@@ -455,9 +449,7 @@ const AchievementsPage = observer(() => {
       if (!user?.achievements) return false;
 
       return user.achievements.some(
-        (userAchievement) =>
-          userAchievement === achievement.id ||
-          userAchievement === achievement.key
+        (userAchievement) => userAchievement === achievement.id
       );
     },
     [user?.achievements]
@@ -515,6 +507,10 @@ const AchievementsPage = observer(() => {
 
     return filtered;
   }, [achievements, filterType, searchQuery, sortBy, isAchievementUnlocked]);
+
+  if (achievementsLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="container py-6 md:py-8 px-4 sm:px-6">
@@ -742,7 +738,7 @@ const AchievementsPage = observer(() => {
               key={achievement.id}
               achievement={achievement}
               isUnlocked={isAchievementUnlocked(achievement)}
-              relatedRewards={getRelatedRewards(achievement.key)}
+              relatedRewards={getRelatedRewards(achievement.id)}
               fromReward={false}
             />
           ))}

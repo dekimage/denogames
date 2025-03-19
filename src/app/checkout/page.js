@@ -437,16 +437,17 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
         .map((item) => item.id);
 
       // Find expansions for games in cart and games related to expansions
+
       let related = products.filter(
         (product) =>
           // Don't include products already in cart
           !cartProductIds.includes(product.id) &&
+          product.type !== "add-on" &&
+          product.price !== 0 &&
           // Find expansions for games in cart
           ((product.type === "expansion" &&
             product.relatedGames &&
-            product.relatedGames.some((gameId) =>
-              cartGameIds.includes(gameId)
-            )) ||
+            cartGameIds.includes(product.relatedGames)) ||
             // Or find games related to expansions in cart
             (product.type === "game" &&
               cartProductTypes.includes("expansion") &&
@@ -454,7 +455,7 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
                 (item) =>
                   item.type === "expansion" &&
                   item.relatedGames &&
-                  item.relatedGames.includes(product.id)
+                  item.relatedGames === product.id
               )))
       );
 
@@ -463,6 +464,8 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
         const popular = products
           .filter(
             (p) =>
+              p.type !== "add-on" &&
+              p.price !== 0 &&
               !cartProductIds.includes(p.id) &&
               !related.some((r) => r.id === p.id)
           )
@@ -501,57 +504,109 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
 
 const CheckoutPage = observer(() => {
   const router = useRouter();
-  const { cart, products, user, removeFromCart, addToCart } = MobxStore;
+  const {
+    cart,
+    products,
+    user,
+    removeFromCart,
+    addToCart,
+    loading: mobxLoading,
+  } = MobxStore;
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoadAttempted, setInitialLoadAttempted] = useState(false);
   const [subtotal, setSubtotal] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [total, setTotal] = useState(0);
   const [accountCreated, setAccountCreated] = useState(false);
   const { toast } = useToast();
 
+  // This effect will handle the initial loading when MobX data is ready
   useEffect(() => {
-    // Load cart items
-    const loadCartItems = async () => {
-      setLoading(true);
+    const loadCheckoutData = async () => {
+      // Wait for MobX store to be ready (products loaded)
+      if (mobxLoading || !Array.isArray(products) || products.length === 0) {
+        return; // Exit early, we'll try again when store is ready
+      }
 
-      // Add a small delay to ensure we show the loading state
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      // Set initial load attempted to true so we don't repeat unnecessarily
+      if (!initialLoadAttempted) {
+        setInitialLoadAttempted(true);
 
-      try {
-        const items = cart
-          .map((id) => {
-            const product = products.find((p) => p.id === id);
-            return product || null;
-          })
-          .filter(Boolean);
+        try {
+          // Ensure cart is an array and has valid data
+          if (!Array.isArray(cart)) {
+            console.log("Cart is not ready yet");
+            return;
+          }
 
-        setCartItems(items);
+          setLoading(true);
 
-        // Calculate subtotal
-        const calculatedSubtotal = items.reduce(
-          (sum, item) => sum + (item.price || 0),
-          0
-        );
-        setSubtotal(calculatedSubtotal);
+          // Add a consistent delay to ensure we show the loading state
+          await new Promise((resolve) => setTimeout(resolve, 800));
 
-        // Calculate total (considering discount)
-        const calculatedTotal = calculatedSubtotal - discount;
-        setTotal(calculatedTotal);
-      } catch (error) {
-        console.error("Error loading cart items:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load cart items. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
+          // Map cart IDs to product objects
+          const items = cart
+            .map((id) => products.find((p) => p.id === id))
+            .filter(Boolean);
+
+          setCartItems(items);
+
+          // Calculate totals
+          const calculatedSubtotal = items.reduce(
+            (sum, item) => sum + (item.price || 0),
+            0
+          );
+          setSubtotal(calculatedSubtotal);
+          setTotal(calculatedSubtotal - discount);
+        } catch (error) {
+          console.error("Error loading checkout data:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load checkout data. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
-    loadCartItems();
-  }, [cart, products, discount, toast]);
+    loadCheckoutData();
+  }, [mobxLoading, products, cart, initialLoadAttempted, discount, toast]);
+
+  // Always show loading until both MobX data is loaded and our cart processing is complete
+  if (mobxLoading || loading || !initialLoadAttempted) {
+    return (
+      <div className="container mx-auto py-16 flex flex-col justify-center items-center min-h-[60vh]">
+        <LoadingSpinner size={40} />
+        <p className="mt-4 text-muted-foreground">Loading your checkout...</p>
+      </div>
+    );
+  }
+
+  // Only show empty cart message when we're SURE data is fully loaded
+  if (initialLoadAttempted && cartItems.length === 0) {
+    return (
+      <div className="container mx-auto py-16 px-4 max-w-4xl">
+        <div className="text-center py-16">
+          <div className="bg-gray-50 p-6 rounded-full inline-flex mb-4">
+            <AlertCircle className="h-12 w-12 text-gray-400" />
+          </div>
+          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
+          <p className="mb-8 text-muted-foreground">
+            You don't have any items in your cart. Add some products to proceed
+            with checkout.
+          </p>
+          <Link href="/shop">
+            <Button>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Browse Products
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleApplyDiscount = (discountPercentage) => {
     const discountAmount = Math.round((subtotal * discountPercentage) / 100);
@@ -597,37 +652,6 @@ const CheckoutPage = observer(() => {
       setTotal((prev) => prev + product.price - discount);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto py-16 flex flex-col justify-center items-center min-h-[60vh]">
-        <LoadingSpinner size={40} />
-        <p className="mt-4 text-muted-foreground">Loading your checkout...</p>
-      </div>
-    );
-  }
-
-  if (cartItems.length === 0) {
-    return (
-      <div className="container mx-auto py-16 px-4 max-w-4xl">
-        <div className="text-center py-16">
-          <div className="bg-gray-50 p-6 rounded-full inline-flex mb-4">
-            <AlertCircle className="h-12 w-12 text-gray-400" />
-          </div>
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <p className="mb-8 text-muted-foreground">
-            You don't have any items in your cart. Add some products to proceed
-            with checkout.
-          </p>
-          <Link href="/shop">
-            <Button>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Browse Products
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto py-16 px-4 max-w-6xl">

@@ -700,7 +700,8 @@ class Store {
 
     const completed = product.requiredAchievements.filter((achievementId) =>
       this.user?.achievements?.includes(
-        this.achievements.find((a) => a.id === achievementId)?.key
+        this.achievements.find((a) => a.id === achievementId)?.id
+        //kluc
       )
     ).length;
 

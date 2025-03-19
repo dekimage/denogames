@@ -6,6 +6,7 @@ const SECRET_CODES = {
   // Cauldron codes (achievements/collectibles)
   49245: "achievement-id-1",
   MAGICWORD: "achievement-id-2",
+  magic: "expansion-expert",
   // Portal codes (locations)
   PORTAL1: "early-supporter",
   PORTAL2: "location-id-2",

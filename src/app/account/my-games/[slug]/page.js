@@ -65,7 +65,7 @@ const ComponentCard = ({
           return {
             message: "Available after purchase",
             action: (
-              <Link href="/cart" className="w-full">
+              <Link href="/checkout" className="w-full">
                 <Button variant="secondary" size="sm" className="w-full">
                   <CheckCheck className="w-4 h-4 mr-2" />
                   Complete Purchase

@@ -421,6 +421,43 @@ const ShopPage = observer(() => {
 
       // Apply sorting
       filtered.sort((a, b) => {
+        // First priority: user ownership (owned products last)
+        const userPurchases = MobxStore.user?.purchasedProducts || [];
+        const userRewards = MobxStore.user?.unlockedRewards || [];
+
+        // Check if user owns the product based on product type
+        const isProductOwnedA =
+          a.type?.toLowerCase() === "add-on"
+            ? userRewards.includes(a.id)
+            : userPurchases.includes(a.id);
+
+        const isProductOwnedB =
+          b.type?.toLowerCase() === "add-on"
+            ? userRewards.includes(b.id)
+            : userPurchases.includes(b.id);
+
+        // If ownership status is different, prioritize non-owned products
+        if (isProductOwnedA !== isProductOwnedB) {
+          return isProductOwnedA ? 1 : -1; // Non-owned products first (owned products last)
+        }
+
+        // Second priority: for non-owned products, sort by type (games first, expansions second, add-ons last)
+        const getTypeOrder = (product) => {
+          const type = product.type?.toLowerCase();
+          if (type === "game") return 1;
+          if (type === "expansion") return 2;
+          if (type === "add-on") return 3;
+          return 4; // Any other type
+        };
+
+        const typeOrderA = getTypeOrder(a);
+        const typeOrderB = getTypeOrder(b);
+
+        if (typeOrderA !== typeOrderB) {
+          return typeOrderA - typeOrderB;
+        }
+
+        // Third priority: apply the selected sort option
         switch (sortOption) {
           case "newest":
             return (
@@ -433,11 +470,8 @@ const ShopPage = observer(() => {
           case "price-high-low":
             return (b.price || 0) - (a.price || 0);
           case "product-type":
-            const typeOrder = { game: 1, expansion: 2, bundle: 3 };
-            return (
-              (typeOrder[a.type?.toLowerCase()] || 4) -
-              (typeOrder[b.type?.toLowerCase()] || 4)
-            );
+            // Already handled by second priority
+            return 0;
           default:
             return 0;
         }

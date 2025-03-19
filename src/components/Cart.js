@@ -113,7 +113,7 @@ const RecommendedProduct = ({ product, onAdd }) => {
     <div className="flex flex-col items-center p-3 border rounded-lg hover:shadow-md transition-shadow bg-card">
       <div className="relative h-24 w-24 mb-2">
         <Image
-          src={product.image || "https://via.placeholder.com/96"}
+          src={product.thumbnail || "https://via.placeholder.com/96"}
           alt={product.name}
           fill
           className="object-cover rounded-md"
@@ -217,7 +217,13 @@ const ShoppingCart = observer(() => {
       const cartIds = currentCart || [];
 
       const recommended = products
-        .filter((p) => !cartIds.includes(p.id) && !purchasedIds.includes(p.id))
+        .filter(
+          (p) =>
+            !cartIds.includes(p.id) &&
+            !purchasedIds.includes(p.id) &&
+            p.type !== "add-on" &&
+            p.price !== 0
+        )
         .sort(() => 0.5 - Math.random())
         .slice(0, 4);
 
