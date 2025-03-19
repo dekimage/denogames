@@ -1603,8 +1603,15 @@ const ProductsPage = observer(() => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredProducts.map((product) => (
-          <Card key={product.id} className="overflow-hidden">
-            <div className="relative h-48">
+          <Card
+            key={product.id}
+            className="overflow-hidden cursor-pointer h-[450px] w-[250px]"
+            onClick={() => {
+              setSelectedProduct(product);
+              setIsDialogOpen(true);
+            }}
+          >
+            <div className="relative h-40">
               <Image
                 src={product.thumbnail || "/placeholder-image.png"}
                 alt={product.name}
@@ -1612,10 +1619,10 @@ const ProductsPage = observer(() => {
                 className="object-cover"
               />
             </div>
-            <CardHeader>
+            <CardHeader className="p-2">
               <div className="space-y-2">
                 <CardTitle className="flex items-center justify-between">
-                  <span>{product.name}</span>
+                  <span className="text-sm">{product.name}</span>
                   {product.type === "add-on" ? (
                     <div className="text-lg font-normal">
                       ${product.price || 0}
@@ -1641,12 +1648,8 @@ const ProductsPage = observer(() => {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {product.description || "No description available"}
-              </p>
-
-              {product.type === "add-on" ? (
+            <CardContent className="space-y-2 p-2">
+              {product.type === "add-on" && (
                 <div className="space-y-2">
                   <p className="text-sm font-semibold">
                     Required Achievements:
@@ -1681,40 +1684,6 @@ const ProductsPage = observer(() => {
                     )}
                   </div>
                 </div>
-              ) : (
-                <div className="text-lg font-semibold">
-                  ${product.price || 0}
-                </div>
-              )}
-
-              {product.type === "game" && (
-                <>
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div>
-                      <span className="font-semibold">Players:</span>{" "}
-                      {product.stats?.minPlayers || 1}-
-                      {product.stats?.maxPlayers || 4}
-                    </div>
-                    <div>
-                      <span className="font-semibold">Age:</span>{" "}
-                      {product.stats?.age || "12"}+
-                    </div>
-                    <div>
-                      <span className="font-semibold">Duration:</span>{" "}
-                      {product.stats?.minDuration || "30"}-
-                      {product.stats?.maxDuration || "60"}min
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 mr-1" />
-                      {(product.averageRating || 0).toFixed(1)}
-                    </div>
-                    <div className="capitalize">
-                      {product.difficulty || "easy"}
-                    </div>
-                  </div>
-                </>
               )}
 
               {product.type === "game" &&
@@ -1804,18 +1773,6 @@ const ProductsPage = observer(() => {
                   </div>
                 )}
             </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedProduct(product);
-                  setIsDialogOpen(true);
-                }}
-              >
-                Edit
-              </Button>
-            </CardFooter>
           </Card>
         ))}
       </div>

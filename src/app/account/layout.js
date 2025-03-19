@@ -34,7 +34,7 @@ const navItems = [
   { icon: User, label: "Account", href: "/account" },
   { icon: GamepadIcon, label: "My Games", href: "/account/my-games" },
   { icon: Gift, label: "Rewards", href: "/account/rewards" },
-  { icon: Trophy, label: "Achievements", href: "/account/achievements" },
+  { icon: Trophy, label: "Collectibles", href: "/account/achievements" },
   { icon: Package, label: "My Orders", href: "/account/my-orders" },
   { icon: Star, label: "My Reviews", href: "/account/my-reviews" },
 ];

@@ -50,7 +50,7 @@ export function UserNav({ user, logout }) {
           <DropdownMenuItem
             onClick={() => router.push("/account/achievements")}
           >
-            Achievements
+            Collectibles
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/account/my-orders")}>
             My Orders

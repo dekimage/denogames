@@ -101,8 +101,6 @@ const AccountOverview = observer(() => {
 
   return (
     <div className="space-y-8 container mx-auto py-8 mt-6">
-      <h1 className="text-3xl font-bold">Welcome back, {user.username}!</h1>
-
       {/* User Info */}
       <div className="box-inner  max-w-[400px]">
         <div className="box-broken my-4 border p-8">
@@ -190,7 +188,6 @@ const AccountOverview = observer(() => {
           ctaLink="https://patreon.com/yourpage"
           ctaTarget="_blank"
         />
-
         <MembershipCard
           title={
             user.tags?.isActiveSubstack
@@ -218,48 +215,6 @@ const AccountOverview = observer(() => {
                 ]
               : []
           }
-        />
-
-        <MembershipCard
-          title={
-            user.tags?.isActiveDiscord
-              ? "Thank you for being a Discord Member"
-              : "Join our Discord"
-          }
-          description={
-            user.tags?.isActiveDiscord
-              ? "You're part of an amazing community. Keep sharing and collaborating!"
-              : "Join our lovely community where we discuss game mechanics, collaborate on projects, find playtest buddies, and share scores."
-          }
-          image="/path/to/discord-image.jpg"
-          xpAmount={10}
-          isRecurring={false}
-          isActive={user.tags?.isActiveDiscord}
-          ctaText="Join Discord"
-          ctaLink="https://discord.gg/yourserver"
-          ctaTarget="_blank"
-        />
-
-        <MembershipCard
-          title="Monster Mixology on Kickstarter"
-          description={
-            user.tags?.backedMonsterMixology
-              ? "Thank you for backing Monster Mixology! Your support means everything."
-              : "Back our latest game on Kickstarter and get exclusive rewards!"
-          }
-          image="/path/to/kickstarter-image.jpg"
-          xpAmount={25}
-          isRecurring={false}
-          isActive={user.tags?.backedMonsterMixology}
-          ctaText={
-            user.tags?.backedMonsterMixology ? "Go to Game" : "Back it Now"
-          }
-          ctaLink={
-            user.tags?.backedMonsterMixology
-              ? "/games/monster-mixology"
-              : "https://kickstarter.com/projects/yourgame"
-          }
-          ctaTarget="_blank"
         />
       </div>
     </div>

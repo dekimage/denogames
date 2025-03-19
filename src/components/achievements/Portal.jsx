@@ -327,7 +327,7 @@ export const Portal = observer(() => {
           {/* Portal UI */}
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold">The Portal</h2>
+              <h2 className="text-2xl font-bold font-strike">The Portal</h2>
               <p className="text-sm text-muted-foreground">
                 Enter a secret code to travel to mysterious locations!
               </p>
@@ -355,7 +355,7 @@ export const Portal = observer(() => {
       <div className="space-y-6">
         {/* Portal Title */}
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold">The Portal</h2>
+          <h2 className="text-2xl font-bold font-strike">The Portal</h2>
           <p className="text-sm text-muted-foreground">
             Enter a secret code to travel to mysterious locations!
           </p>

@@ -417,7 +417,9 @@ const AchievementsPage = observer(() => {
 
       // Check if either the id or key is in the user's achievements
       return user.achievements.some(
-        (userAchievement) => userAchievement === achievement.id
+        (userAchievement) =>
+          userAchievement === achievement.id ||
+          userAchievement === achievement.key
       );
     };
 
@@ -449,7 +451,9 @@ const AchievementsPage = observer(() => {
       if (!user?.achievements) return false;
 
       return user.achievements.some(
-        (userAchievement) => userAchievement === achievement.id
+        (userAchievement) =>
+          userAchievement === achievement.id ||
+          userAchievement === achievement.key
       );
     },
     [user?.achievements]
@@ -517,7 +521,9 @@ const AchievementsPage = observer(() => {
       {/* Enhanced Header Section */}
       <div className="space-y-6 mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h1 className="text-2xl md:text-3xl font-bold">Achievements</h1>
+          <h1 className="text-2xl md:text-3xl font-bold font-strike">
+            Collectibles
+          </h1>
 
           {/* Search Input */}
           <div className="relative w-full sm:w-72">
@@ -738,7 +744,7 @@ const AchievementsPage = observer(() => {
               key={achievement.id}
               achievement={achievement}
               isUnlocked={isAchievementUnlocked(achievement)}
-              relatedRewards={getRelatedRewards(achievement.id)}
+              relatedRewards={getRelatedRewards(achievement.key)}
               fromReward={false}
             />
           ))}

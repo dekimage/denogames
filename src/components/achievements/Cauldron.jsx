@@ -96,7 +96,9 @@ export function Cauldron() {
       <div className="space-y-6">
         {/* Cauldron Title */}
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold">The Magical Cauldron</h2>
+          <h2 className="text-2xl font-bold font-strike">
+            The Magical Cauldron
+          </h2>
           <p className="text-sm text-muted-foreground">
             Enter a secret code to cook up something special!
           </p>
