@@ -381,6 +381,12 @@ const HomePage = observer(() => {
     return dateB - dateA;
   });
 
+  const gamesAndExpansions = sortedGames.filter(
+    (product) => product.type === "game" || product.type === "expansion"
+  );
+
+  const addOns = sortedGames.filter((product) => product.type === "add-on");
+
   // Get the newest games (already sorted by ownership and date)
 
   // Coming soon games (games with future release dates)
@@ -445,8 +451,20 @@ const HomePage = observer(() => {
             viewAllText="Shop All"
           />
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            {gamesAndExpansions.map((game) => (
+              <ProductCard key={game.id} product={game} />
+            ))}
+          </div>
+
+          <SectionHeader
+            title="Add-Ons"
+            viewAllLink="/shop?category=add-on"
+            viewAllText="See All"
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {sortedGames.map((game) => (
+            {addOns.map((game) => (
               <ProductCard key={game.id} product={game} />
             ))}
           </div>

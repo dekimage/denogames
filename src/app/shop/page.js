@@ -374,6 +374,70 @@ const ShopPage = observer(() => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [error, setError] = useState(null);
 
+  // Handle URL query parameters - only for category/type
+  useEffect(() => {
+    // Only run this on client-side
+    if (typeof window !== "undefined") {
+      const queryParams = new URLSearchParams(window.location.search);
+
+      // Get category/type query parameter
+      const categoryParam = queryParams.get("category");
+
+      // Apply category/type filter
+      if (categoryParam) {
+        const categoryValue = categoryParam.toLowerCase();
+
+        // Check if it's a valid product type
+        if (
+          productOptions.some(
+            (option) => option.name.toLowerCase() === categoryValue
+          )
+        ) {
+          setFilters((prev) => ({
+            ...prev,
+            products: [categoryValue],
+          }));
+        }
+        // Check if it's a valid game type
+        else if (
+          typeOptions.some(
+            (option) => option.name.toLowerCase() === categoryValue
+          )
+        ) {
+          setFilters((prev) => ({
+            ...prev,
+            types: [categoryValue],
+          }));
+        }
+      }
+    }
+  }, []);
+
+  // Function to update URL when product type filters change
+  useEffect(() => {
+    if (typeof window === "undefined" || loading) return;
+
+    const queryParams = new URLSearchParams();
+
+    // Get the current product type filter (prioritize product type over game type)
+    if (filters.products.length > 0) {
+      queryParams.set("category", filters.products[0]);
+    } else if (filters.types.length > 0) {
+      queryParams.set("category", filters.types[0]);
+    }
+
+    // Update URL without refreshing the page
+    const newUrl = `${window.location.pathname}${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+
+    window.history.replaceState(
+      { ...window.history.state, as: newUrl, url: newUrl },
+      "",
+      newUrl
+    );
+  }, [filters.products, filters.types, loading]);
+
   // Apply filters and sorting
   const applyFilters = useCallback(() => {
     try {
@@ -507,10 +571,21 @@ const ShopPage = observer(() => {
       types: [],
       difficulty: [],
       minPlayers: 1,
-      maxPlayers: 10,
+      maxPlayers: 99,
       products: [],
     });
     setSearchQuery("");
+
+    // Remove category parameter from URL
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("category");
+      window.history.replaceState(
+        { ...window.history.state, as: url.toString(), url: url.toString() },
+        "",
+        url.toString()
+      );
+    }
   };
 
   // Count active filters for badge
@@ -520,7 +595,7 @@ const ShopPage = observer(() => {
       filters.difficulty.length +
       filters.products.length +
       (searchQuery ? 1 : 0) +
-      (filters.minPlayers > 1 || filters.maxPlayers < 10 ? 1 : 0)
+      (filters.minPlayers > 1 || filters.maxPlayers < 99 ? 1 : 0)
     );
   };
 
@@ -762,14 +837,14 @@ const ShopPage = observer(() => {
                   />
                 ))}
 
-                {(filters.minPlayers > 1 || filters.maxPlayers < 10) && (
+                {(filters.minPlayers > 1 || filters.maxPlayers < 99) && (
                   <FilterBadge
                     label={`Players: ${filters.minPlayers}-${filters.maxPlayers}`}
                     onRemove={() =>
                       setFilters((prev) => ({
                         ...prev,
                         minPlayers: 1,
-                        maxPlayers: 10,
+                        maxPlayer: 99,
                       }))
                     }
                     icon={<Users className="h-3 w-3" />}

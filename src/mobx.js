@@ -178,9 +178,9 @@ class Store {
             this.userFullyLoaded = true; // Set this when we have everything
           });
 
-          await this.fetchProducts();
           await this.fetchCart();
           await this.fetchNotifications();
+          await this.fetchAchievementsAndRewards();
         } else {
           runInAction(() => {
             this.user = null;
@@ -205,25 +205,6 @@ class Store {
   setActiveLocation = (location) => {
     this.activeLocation = location;
   };
-
-  // HELPER UTILS
-  async addProductsToFirestore(products, collectionName) {
-    try {
-      const collectionRef = collection(db, collectionName);
-
-      const promises = products.map(async (product) => {
-        // Add product to Firestore with an auto-generated ID
-        const docRef = await addDoc(collectionRef, product);
-        console.log("Document written with ID: ", docRef.id);
-      });
-
-      await Promise.all(promises);
-
-      console.log("Products added successfully:", products);
-    } catch (error) {
-      console.log("Error adding products:", error);
-    }
-  }
 
   // NOTIFICAITONS
 
@@ -1010,18 +991,21 @@ class Store {
   async fetchProducts() {
     this.loadingProducts = true;
     try {
-      const productsCollectionRef = collection(db, "products");
-      const querySnapshot = await getDocs(productsCollectionRef);
+      // Use the new API endpoint instead of direct Firestore access
+      const response = await fetch("/api/products");
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch products: ${response.statusText}`);
+      }
+
+      const data = await response.json();
 
       runInAction(() => {
-        this.products = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        this.products = data.products || [];
         this.loadingProducts = false;
       });
     } catch (error) {
-      console.log("Error fetching products:", error);
+      console.error("Error fetching products:", error);
       runInAction(() => {
         this.loadingProducts = false;
         this.products = []; // Ensure products is an array even if fetch fails

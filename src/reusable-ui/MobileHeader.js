@@ -24,6 +24,7 @@ import {
   LogOut,
   ChevronRight,
   Package,
+  Sparkle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -175,7 +176,7 @@ const MobileHeader = observer(() => {
                     <div className="flex items-center gap-3 mb-6 p-4 bg-muted rounded-lg">
                       <Avatar className="h-10 w-10">
                         <AvatarImage
-                          src={user.photoURL || ""}
+                          src={user.avatarImg || ""}
                           alt={user.username}
                         />
                         <AvatarFallback className="bg-primary/10 text-primary">

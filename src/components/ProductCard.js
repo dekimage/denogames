@@ -31,12 +31,12 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
   const renderCTA = () => {
     if (isPurchased) {
       return (
-        <Link href={`/product-details/${product.slug}`} className="w-full">
+        <Link href={`/account/my-games/${product.id}`} className="w-full">
           <Button
             variant="secondary"
             className="w-full bg-black hover:bg-black/80 text-white"
           >
-            PLAY
+            Download Files
           </Button>
         </Link>
       );
@@ -132,7 +132,11 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
             </div>
           </div>
         </Link>
-        <div className={isSmall ? "p-2 pt-0" : "p-4 pt-0"}>{renderCTA()}</div>
+        <div
+          className={isSmall ? "p-2 pt-0 font-strike" : "p-4 pt-0 font-strike"}
+        >
+          {renderCTA()}
+        </div>
       </div>
     </div>
   );

@@ -46,6 +46,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ImageIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 const DIFFICULTY_OPTIONS = ["easy", "medium", "hard"];
 const TYPE_OPTIONS = ["game", "expansion", "add-on"];
@@ -100,6 +101,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     neededComponents: product?.neededComponents || [],
     providedComponents: product?.providedComponents || [],
     carouselImages: product?.carouselImages || [],
+    isDraft: product?.isDraft || false,
   });
 
   const handleImageUpload = async (e) => {
@@ -165,6 +167,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       neededComponents: data.neededComponents,
       providedComponents: data.providedComponents,
       carouselImages: data.carouselImages || [],
+      isDraft: data.isDraft,
     };
 
     // Add type-specific properties
@@ -348,6 +351,34 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       }}
       className="space-y-4 max-h-[80vh] overflow-y-auto p-4"
     >
+      <div className="flex items-center justify-between p-2 bg-muted rounded-lg">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="isDraft" className="font-medium">
+            Draft Mode
+          </Label>
+          <div className="text-xs text-muted-foreground">
+            (Draft products won't be visible to users)
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label
+            htmlFor="isDraft"
+            className={`cursor-pointer ${
+              formData.isDraft ? "text-amber-500 font-bold" : "text-gray-400"
+            }`}
+          >
+            {formData.isDraft ? "DRAFT" : "PUBLISHED"}
+          </Label>
+          <Switch
+            id="isDraft"
+            checked={formData.isDraft}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isDraft: checked }))
+            }
+          />
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label>ID</Label>
         <Input
@@ -873,113 +904,121 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       {isBaseGame && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Kickstarter Details</Label>
-            <div className="grid gap-4 p-4 border rounded-lg">
+            <div className="flex items-center justify-between">
+              <Label>Kickstarter Details</Label>
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+                <Label
+                  htmlFor="kickstarterActive"
+                  className="text-sm cursor-pointer"
+                >
+                  Has Kickstarter Campaign
+                </Label>
+                <Switch
                   id="kickstarterActive"
                   checked={formData.kickstarter.kickstarterActive}
-                  onChange={(e) =>
+                  onCheckedChange={(checked) =>
                     setFormData((prev) => ({
                       ...prev,
                       kickstarter: {
                         ...prev.kickstarter,
-                        kickstarterActive: e.target.checked,
+                        kickstarterActive: checked,
                       },
                     }))
                   }
-                />
-                <Label htmlFor="kickstarterActive">Active Campaign</Label>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Kickstarter Link</Label>
-                <Input
-                  type="url"
-                  value={formData.kickstarter.kickstarterLink}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      kickstarter: {
-                        ...prev.kickstarter,
-                        kickstarterLink: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="https://www.kickstarter.com/..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Backers</Label>
-                <Input
-                  value={formData.kickstarter.backers}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      kickstarter: {
-                        ...prev.kickstarter,
-                        backers: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="e.g., 1,234"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Funded Amount</Label>
-                <Input
-                  value={formData.kickstarter.funded}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      kickstarter: {
-                        ...prev.kickstarter,
-                        funded: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="e.g., $123,456"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Campaign Date</Label>
-                <Input
-                  value={formData.kickstarter.date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      kickstarter: {
-                        ...prev.kickstarter,
-                        date: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="e.g., March 2024"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Campaign Thumbnail</Label>
-                <Input
-                  type="url"
-                  value={formData.kickstarter.thumbnail}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      kickstarter: {
-                        ...prev.kickstarter,
-                        thumbnail: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="https://..."
                 />
               </div>
             </div>
+
+            {formData.kickstarter.kickstarterActive && (
+              <div className="grid gap-4 p-4 border rounded-lg">
+                <div className="space-y-2">
+                  <Label>Kickstarter Link</Label>
+                  <Input
+                    type="url"
+                    value={formData.kickstarter.kickstarterLink}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        kickstarter: {
+                          ...prev.kickstarter,
+                          kickstarterLink: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="https://www.kickstarter.com/..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Backers</Label>
+                  <Input
+                    value={formData.kickstarter.backers}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        kickstarter: {
+                          ...prev.kickstarter,
+                          backers: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="e.g., 1,234"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Funded Amount</Label>
+                  <Input
+                    value={formData.kickstarter.funded}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        kickstarter: {
+                          ...prev.kickstarter,
+                          funded: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="e.g., $123,456"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Campaign Date</Label>
+                  <Input
+                    value={formData.kickstarter.date}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        kickstarter: {
+                          ...prev.kickstarter,
+                          date: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="e.g., March 2024"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Campaign Thumbnail</Label>
+                  <Input
+                    type="url"
+                    value={formData.kickstarter.thumbnail}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        kickstarter: {
+                          ...prev.kickstarter,
+                          thumbnail: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1618,6 +1657,13 @@ const ProductsPage = observer(() => {
                 fill
                 className="object-cover"
               />
+              {product.isDraft && (
+                <div className="absolute top-0 right-0 m-2">
+                  <Badge variant="destructive" className="font-bold">
+                    DRAFT
+                  </Badge>
+                </div>
+              )}
             </div>
             <CardHeader className="p-2">
               <div className="space-y-2">
@@ -1633,19 +1679,31 @@ const ProductsPage = observer(() => {
                     </span>
                   )}
                 </CardTitle>
-                <Badge
-                  className={cn(
-                    "capitalize w-fit",
-                    product.type === "game" &&
-                      "bg-emerald-400 hover:bg-emerald-600",
-                    product.type === "expansion" &&
-                      "bg-blue-400 hover:bg-blue-600",
-                    product.type === "add-on" &&
-                      "bg-orange-400 hover:bg-orange-600"
-                  )}
-                >
-                  {product.type || "game"}
-                </Badge>
+                <div className="flex gap-2 flex-wrap">
+                  <Badge
+                    className={cn(
+                      "capitalize w-fit",
+                      product.type === "game" &&
+                        "bg-emerald-400 hover:bg-emerald-600",
+                      product.type === "expansion" &&
+                        "bg-blue-400 hover:bg-blue-600",
+                      product.type === "add-on" &&
+                        "bg-orange-400 hover:bg-orange-600"
+                    )}
+                  >
+                    {product.type || "game"}
+                  </Badge>
+
+                  {product.type === "game" &&
+                    product.kickstarter?.kickstarterActive && (
+                      <Badge
+                        variant="outline"
+                        className="bg-purple-400 hover:bg-purple-600"
+                      >
+                        Kickstarter
+                      </Badge>
+                    )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-2 p-2">

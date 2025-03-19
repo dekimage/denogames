@@ -177,7 +177,7 @@ const ReusableLayout = observer(({ children }) => {
                         >
                           <Avatar className="h-7 w-7">
                             <AvatarImage
-                              src={user.photoURL || ""}
+                              src={user.avatarImg || ""}
                               alt={user.username}
                             />
                             <AvatarFallback className="bg-primary/10 text-primary text-xs">

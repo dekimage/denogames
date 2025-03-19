@@ -542,10 +542,10 @@ const AchievementDialog = ({ achievement }) => {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => router.push("/account/achievements")}
+            onClick={() => router.push("/account/my-collection")}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            View All Achievements
+            View All Collectibles
           </Button>
         </div>
       </DialogContent>
@@ -897,28 +897,38 @@ const ProductDetailsPage = observer(({}) => {
                   </div>
 
                   {user ? (
-                    <Button
-                      className="w-full font-strike"
-                      disabled={
-                        !productDetails.achievements?.every((achievement) =>
+                    <>
+                      <Button
+                        className="w-full font-strike"
+                        disabled={
+                          !productDetails.achievements?.every((achievement) =>
+                            user?.achievements?.includes(achievement.id)
+                          )
+                        }
+                      >
+                        {productDetails.achievements?.every((achievement) =>
                           user?.achievements?.includes(achievement.id)
-                        )
-                      }
-                    >
-                      {productDetails.achievements?.every((achievement) =>
-                        user?.achievements?.includes(achievement.id)
-                      ) ? (
-                        <>
-                          <Hammer className="h-4 w-4 mr-2" />
-                          Craft Booster
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="h-4 w-4 mr-2" />
-                          Craft This
-                        </>
-                      )}
-                    </Button>
+                        ) ? (
+                          <>
+                            <Hammer className="h-4 w-4 mr-2" />
+                            Craft Booster
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="h-4 w-4 mr-2" />
+                            Craft This
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full font-strike"
+                        onClick={() => router.push("/account/my-collection")}
+                      >
+                        <Trophy className="h-4 w-4 mr-2" />
+                        View Your Collection
+                      </Button>
+                    </>
                   ) : (
                     <Button
                       variant="outline"
