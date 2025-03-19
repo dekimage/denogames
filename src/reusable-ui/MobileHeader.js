@@ -224,7 +224,7 @@ const MobileHeader = observer(() => {
                     <Separator className="my-4" />
 
                     {/* Account Navigation */}
-                    <NavSection title="My Account">
+                    <NavSection title="Account">
                       <NavItem
                         href="/account"
                         icon={User}
@@ -241,16 +241,16 @@ const MobileHeader = observer(() => {
                       />
                       <NavItem
                         href="/account/rewards"
-                        icon={Gift}
-                        title="Rewards"
+                        icon={Sparkle}
+                        title="Add-ons"
                         active={isActive("/account/rewards")}
                         onClick={closeMenu}
                       />
                       <NavItem
-                        href="/account/achievements"
+                        href="/account/my-collection"
                         icon={Trophy}
-                        title="Achievements"
-                        active={isActive("/account/achievements")}
+                        title="My Collection"
+                        active={isActive("/account/my-collection")}
                         onClick={closeMenu}
                       />
                       <NavItem

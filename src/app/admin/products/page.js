@@ -492,7 +492,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
           </div>
         ) : (
           <div className="col-span-3 space-y-2">
-            <Label>Required Achievements</Label>
+            <Label>Required Collectibles</Label>
             <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto p-2 border rounded-lg">
               {AdminStore.achievements.map((achievement) => (
                 <div
@@ -1652,7 +1652,7 @@ const ProductsPage = observer(() => {
               {product.type === "add-on" && (
                 <div className="space-y-2">
                   <p className="text-sm font-semibold">
-                    Required Achievements:
+                    Required Collectibles:
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {(product.requiredAchievements || []).map(

@@ -138,7 +138,7 @@ const AccountOverview = observer(() => {
         />
         <StatCard
           icon={Trophy}
-          label="Deno Points"
+          label="Add-ons"
           value={user.xp || 0}
           total={100}
           href="/account/rewards"
@@ -148,7 +148,7 @@ const AccountOverview = observer(() => {
           label="Achievements"
           value={user.achievements?.length || 0}
           total={100}
-          href="/account/achievements"
+          href="/account/my-collection"
         />
         <StatCard
           icon={Star}

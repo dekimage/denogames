@@ -31,6 +31,7 @@ import {
   CheckCircle2,
   ShoppingBag,
   ShoppingCart,
+  Hammer,
 } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
@@ -847,7 +848,7 @@ const ProductDetailsPage = observer(({}) => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold">
-                        Required Materials
+                        Required Collectibles
                       </h3>
                       {user ? (
                         <div className="text-sm text-muted-foreground">
@@ -908,8 +909,8 @@ const ProductDetailsPage = observer(({}) => {
                         user?.achievements?.includes(achievement.id)
                       ) ? (
                         <>
-                          <Trophy className="h-4 w-4 mr-2" />
-                          Craft Add-on
+                          <Hammer className="h-4 w-4 mr-2" />
+                          Craft Booster
                         </>
                       ) : (
                         <>
@@ -924,7 +925,7 @@ const ProductDetailsPage = observer(({}) => {
                       className="w-full font-strike"
                       onClick={() => router.push("/login")}
                     >
-                      Sign in to Craft Add-on
+                      Sign in to Craft Booster
                     </Button>
                   )}
                 </div>

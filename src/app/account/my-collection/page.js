@@ -522,7 +522,7 @@ const AchievementsPage = observer(() => {
       <div className="space-y-6 mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-bold font-strike">
-            Collectibles
+            My Collection
           </h1>
 
           {/* Search Input */}

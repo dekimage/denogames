@@ -23,7 +23,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { AchievementCard } from "../achievements/page";
+import { AchievementCard } from "../my-collection/page";
 import { useRouter } from "next/navigation";
 
 const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
@@ -105,7 +105,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
       <div className="mt-4 space-y-2">
         <div className="flex items-center gap-2 text-sm">
           <Trophy className="w-4 h-4 text-primary" />
-          <span className="text-muted-foreground">Required Achievements</span>
+          <span className="text-muted-foreground">Required Collectibles</span>
           <span className="font-medium text-primary ml-auto">
             {achievementsCompleted}/{requiredAchievements.length}
           </span>
@@ -172,7 +172,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
             ) : (
               <>
                 <Hammer className="mr-2 h-3 w-3" />
-                Craft Add-on
+                Craft Booster
               </>
             )}
           </Button>
@@ -276,7 +276,7 @@ const RewardsPage = observer(() => {
     <div className="container mx-auto py-8">
       <div className="mb-8 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-3xl font-bold">Add-on Rewards</h1>
+          <h1 className="text-3xl font-bold font-strike">Add-ons</h1>
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <span className="text-sm text-muted-foreground mr-2">
               Add-ons Claimed:
@@ -287,12 +287,12 @@ const RewardsPage = observer(() => {
           </div>
         </div>
         <p className="text-muted-foreground">
-          Craft add-ons by collecting{" "}
+          Craft Add-ons by collecting{" "}
           <Link
-            href="/account/achievements"
+            href="/account/my-collection"
             className="text-primary underline hover:text-primary/80"
           >
-            achievements
+            collectibles
           </Link>
         </p>
       </div>

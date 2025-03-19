@@ -48,9 +48,9 @@ export function UserNav({ user, logout }) {
             Rewards
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push("/account/achievements")}
+            onClick={() => router.push("/account/my-collection")}
           >
-            Collectibles
+            My Collection
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/account/my-orders")}>
             My Orders

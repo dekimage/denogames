@@ -15,6 +15,7 @@ import {
   GamepadIcon,
   Star,
   Gift,
+  Sparkle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,8 +34,8 @@ import {
 const navItems = [
   { icon: User, label: "Account", href: "/account" },
   { icon: GamepadIcon, label: "My Games", href: "/account/my-games" },
-  { icon: Gift, label: "Rewards", href: "/account/rewards" },
-  { icon: Trophy, label: "Collectibles", href: "/account/achievements" },
+  { icon: Sparkle, label: "Add-ons", href: "/account/rewards" },
+  { icon: Trophy, label: "My Collection", href: "/account/my-collection" },
   { icon: Package, label: "My Orders", href: "/account/my-orders" },
   { icon: Star, label: "My Reviews", href: "/account/my-reviews" },
 ];
@@ -84,7 +85,7 @@ const AccountLayout = observer(({ children }) => {
                     <div className="rounded-lg bg-primary p-1">
                       <User className="h-5 w-5 text-primary-foreground" />
                     </div>
-                    <span className="font-semibold">My Account</span>
+                    <span className="font-semibold">Account</span>
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>

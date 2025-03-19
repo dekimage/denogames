@@ -5,20 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { VerticalNavbar } from "./VerticalNavbar";
 
 import {
-  AppWindow,
   BookOpen,
-  FileText,
-  GaugeCircle,
-  Home,
-  LayoutDashboard,
-  ListMinus,
-  Plus,
-  Search,
-  SearchCheck,
-  Smartphone,
-  Store,
-  UserIcon,
-  ChevronDown,
   Package,
   ShoppingCart as CartIcon,
   Home as HomeIcon,
@@ -30,30 +17,18 @@ import {
   ShoppingBag,
   Star,
   Gamepad2,
-  Bell,
+  Sparkle,
 } from "lucide-react";
 import MobxStore from "../mobx";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { observer } from "mobx-react";
-import { LoadingSpinner } from "./LoadingSpinner";
-import { UserNav } from "./ReusableProfileMenu";
 import Image from "next/image";
 import logoImg from "../assets/logo.png";
 
 import MobileHeader from "./MobileHeader";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+
 import React, { useState } from "react";
 
 import {
@@ -229,7 +204,7 @@ const ReusableLayout = observer(({ children }) => {
                         <DropdownMenuItem asChild>
                           <Link href="/account" className="flex items-center">
                             <User className="mr-2 h-4 w-4" />
-                            <span>My Account</span>
+                            <span>Account</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
@@ -246,17 +221,17 @@ const ReusableLayout = observer(({ children }) => {
                             href="/account/rewards"
                             className="flex items-center"
                           >
-                            <Gift className="mr-2 h-4 w-4" />
-                            <span>Rewards</span>
+                            <Sparkle className="mr-2 h-4 w-4" />
+                            <span>Add-ons</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link
-                            href="/account/achievements"
+                            href="/account/my-collection"
                             className="flex items-center"
                           >
                             <Trophy className="mr-2 h-4 w-4" />
-                            <span>Collectibles</span>
+                            <span>My Collection</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>

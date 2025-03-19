@@ -54,7 +54,7 @@ export async function POST(request) {
 
     if (!hasAllAchievements) {
       return NextResponse.json(
-        { error: "Missing required achievements" },
+        { error: "Missing required collectibles" },
         { status: 400 }
       );
     }

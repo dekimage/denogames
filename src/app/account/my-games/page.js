@@ -112,7 +112,7 @@ const MyGamesPage = observer(() => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">My Games</h1>
+      <h1 className="text-3xl font-bold mb-6 font-strike">My Games</h1>
       <div className="flex flex-col gap-4 mb-20">
         {ownedGames.map((game) => (
           <GameCard key={game.id} game={game} />

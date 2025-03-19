@@ -538,33 +538,10 @@ const HomePage = observer(() => {
             />
 
             <CategoryCard
-              title="Bundles"
-              description="Get more value with our carefully curated game bundles"
+              title="Add-ons"
+              description="Check out our exclusive add-ons that you can craft with your collectibles"
               icon={Package}
-              href="/shop?category=bundle"
-            />
-          </div>
-        </section>
-
-        {/* Community Section */}
-        <section className="mb-16">
-          <SectionHeader title="Join Our Community" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <CommunityCard
-              title="Discord Community"
-              description="Join our Discord server to connect with other players, find game groups, share strategies, and get help with rules."
-              icon={Users}
-              ctaText="Join Discord"
-              ctaLink="https://discord.gg/yourserver"
-            />
-
-            <CommunityCard
-              title="Stay Updated"
-              description="Subscribe to our email newsletter for game announcements, special offers, and exclusive content."
-              icon={Mail}
-              ctaText="Subscribe"
-              ctaLink="/newsletter"
+              href="/shop?category=add-on"
             />
           </div>
         </section>
