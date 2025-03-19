@@ -212,13 +212,6 @@ const RewardsPage = observer(() => {
     return products.filter((product) => product.type === "add-on");
   }, [products]);
 
-  useEffect(() => {
-    MobxStore.fetchAchievementsAndRewards();
-    if (products.length === 0) {
-      MobxStore.fetchProducts();
-    }
-  }, [products.length]);
-
   if (achievementsLoading || MobxStore.loadingProducts) {
     return <LoadingSpinner />;
   }

@@ -76,15 +76,6 @@ const GameCard = ({ game }) => {
 const MyGamesPage = observer(() => {
   const { user, products } = MobxStore;
 
-  useEffect(() => {
-    // Ensure products and achievements are loaded
-    if (products.length === 0) {
-      MobxStore.fetchProducts();
-    }
-    // This will ensure add-ons and achievements are loaded
-    MobxStore.fetchAchievementsAndRewards();
-  }, [products.length]);
-
   // Filter only owned base games (no expansions)
   const ownedGames = products.filter(
     (product) =>

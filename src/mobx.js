@@ -2,10 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { auth, db } from "./firebase";
 import {
   onAuthStateChanged,
-  signInAnonymously,
   getAuth,
-  EmailAuthProvider,
-  linkWithCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -21,7 +18,6 @@ import {
   addDoc,
   deleteDoc,
   query,
-  onSnapshot,
   updateDoc,
   getDocs,
   where,
@@ -65,7 +61,7 @@ class Store {
   loadingProducts = false;
   loadingCart = false;
   loadingNotifications = false;
-
+  cartFetched = false;
   // New properties for filters
   filters = {
     types: [],
@@ -146,8 +142,7 @@ class Store {
     this.getRelatedExpansions = this.getRelatedExpansions.bind(this);
     this.getRelatedGames = this.getRelatedGames.bind(this);
 
-    this.fetchAchievementsAndRewards =
-      this.fetchAchievementsAndRewards.bind(this);
+    this.fetchAchievements = this.fetchAchievements.bind(this);
 
     this.claimSpecialReward = this.claimSpecialReward.bind(this);
 
@@ -167,20 +162,30 @@ class Store {
 
       try {
         if (user) {
-          const userDocRef = doc(db, "users", user.uid);
-          const userDoc = await getDoc(userDocRef);
+          // Get the user's ID token
+          const token = await user.getIdToken();
+
+          // Fetch user data from the API route
+          const response = await fetch("/api/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+          }
+
+          const { user: userData } = await response.json();
 
           runInAction(() => {
-            this.user = {
-              uid: user.uid,
-              ...userDoc.data(),
-            };
+            this.user = userData;
             this.userFullyLoaded = true; // Set this when we have everything
           });
 
           await this.fetchCart();
           await this.fetchNotifications();
-          await this.fetchAchievementsAndRewards();
+          await this.fetchAchievements();
         } else {
           runInAction(() => {
             this.user = null;
@@ -694,7 +699,7 @@ class Store {
   }
 
   async fetchCart() {
-    if (this.loadingCart) return;
+    if (this.loadingCart || this.cartFetched) return;
     this.loadingCart = true;
 
     try {
@@ -708,6 +713,7 @@ class Store {
       console.error("Error fetching cart:", error);
     } finally {
       this.loadingCart = false;
+      this.cartFetched = true;
     }
   }
   clearCart() {
@@ -989,6 +995,7 @@ class Store {
   }
 
   async fetchProducts() {
+    if (this.products.length > 0 && !this.loadingProducts) return;
     this.loadingProducts = true;
     try {
       // Use the new API endpoint instead of direct Firestore access
@@ -1401,8 +1408,8 @@ class Store {
     });
   }
 
-  async fetchAchievementsAndRewards() {
-    if (this.achievements.length) return; // Don't refetch if we have data
+  async fetchAchievements() {
+    if (this.achievements.length > 0 && !this.achievementsLoading) return; // Don't refetch if we have data
 
     try {
       runInAction(() => {

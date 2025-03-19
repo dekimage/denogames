@@ -394,10 +394,6 @@ const AchievementsPage = observer(() => {
   const [filterType, setFilterType] = useState("all"); // "all", "achievement", "collectible", "location"
   const [sortBy, setSortBy] = useState("status"); // "status", "name", "recent"
 
-  useEffect(() => {
-    MobxStore.fetchAchievementsAndRewards();
-  }, []);
-
   const getRelatedRewards = (achievementKey) => {
     // Filter products to find add-ons that require this achievement
     return MobxStore.products.filter(
