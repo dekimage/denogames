@@ -595,8 +595,8 @@ const CheckoutPage = observer(() => {
           </div>
           <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
           <p className="mb-8 text-muted-foreground">
-            You don't have any items in your cart. Add some products to proceed
-            with checkout.
+            You don&apos;t have any items in your cart. Add some products to
+            proceed with checkout.
           </p>
           <Link href="/shop">
             <Button>
@@ -752,7 +752,7 @@ const CheckoutPage = observer(() => {
                 </div>
                 <div className="flex items-center text-gray-700">
                   <ShieldCheck className="h-4 w-4 mr-2" />
-                  <span>We don't store your card details</span>
+                  <span>We don&apos;t store your card details</span>
                 </div>
               </div>
             </div>

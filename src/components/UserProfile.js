@@ -42,14 +42,39 @@ export const UserProfile = observer(({ user }) => {
   const formatDate = (timestamp) => {
     if (!timestamp) return "Unknown";
 
-    // Check if it's a Firebase Timestamp object
-    if (timestamp.seconds) {
-      // Convert Firebase timestamp to JS Date
-      return format(new Date(timestamp.seconds * 1000), "MMMM d, yyyy");
-    }
+    try {
+      // Check if it's a Firebase Timestamp object
+      if (timestamp.seconds && timestamp.nanoseconds) {
+        // Convert Firebase timestamp to JS Date
+        return format(new Date(timestamp.seconds * 1000), "MMMM d, yyyy");
+      }
 
-    // If it's already a Date object or timestamp string
-    return format(new Date(timestamp), "MMMM d, yyyy");
+      // Check if it's a Firebase server timestamp that might be in a different format
+      if (typeof timestamp === "object" && timestamp._seconds) {
+        return format(new Date(timestamp._seconds * 1000), "MMMM d, yyyy");
+      }
+
+      // If it's a string that represents a date (ISO format)
+      if (typeof timestamp === "string" && !isNaN(Date.parse(timestamp))) {
+        return format(new Date(timestamp), "MMMM d, yyyy");
+      }
+
+      // If it's a number (unix timestamp in milliseconds)
+      if (typeof timestamp === "number") {
+        return format(new Date(timestamp), "MMMM d, yyyy");
+      }
+
+      // If it's already a Date object
+      if (timestamp instanceof Date) {
+        return format(timestamp, "MMMM d, yyyy");
+      }
+
+      // Default fallback
+      return "Unknown date format";
+    } catch (error) {
+      console.error("Error formatting date:", error, timestamp);
+      return "Invalid date";
+    }
   };
 
   const joinDate = formatDate(user?.createdAt);

@@ -77,7 +77,7 @@ function formatBlogPost(post) {
     categories.push("Uncategorized");
   }
 
-  console.log("Categories for post", post.id, ":", categories);
+  // console.log("Categories for post", post.id, ":", categories);
 
   const thumbnail = post.jetpack_featured_media_url || "/default-thumbnail.jpg";
 

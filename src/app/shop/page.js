@@ -922,8 +922,8 @@ const ShopPage = observer(() => {
                   No products found
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-md">
-                  We couldn't find any products matching your current filters.
-                  Try adjusting your search criteria.
+                  We couldn&apos;t find any products matching your current
+                  filters. Try adjusting your search criteria.
                 </p>
                 <Button onClick={resetFilters}>Reset All Filters</Button>
               </motion.div>

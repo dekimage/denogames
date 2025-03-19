@@ -11,11 +11,18 @@ import {
   ShoppingCart,
   ChevronRight,
   Sparkle,
+  FlagTriangleRight,
+  Repeat2,
 } from "lucide-react";
 import Link from "next/link";
 import { MembershipCard } from "@/components/membership-card";
 import { UserProfile } from "@/components/UserProfile";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Mimage } from "@/components/Mimage";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const StatCard = ({
   icon: Icon,
@@ -63,6 +70,95 @@ const StatCard = ({
       </div>
     </Card>
   </Link>
+);
+
+const ActionCard = observer(
+  ({
+    action,
+    title,
+    description,
+    cta,
+    xp,
+    claimed,
+    hasInput = false,
+    isOnetime = false,
+    unavailable = false,
+    muhar = false,
+  }) => {
+    const [code, setCode] = useState("");
+    const { claimXP } = MobxStore;
+
+    const handleClaim = () => {
+      claimXP(action, code);
+    };
+
+    return (
+      <div className="box-inner">
+        <div className="p-6 mb-4 box-broken">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-xl uppercase">{title}</div>
+            {isOnetime ? (
+              <Badge variant="outline">
+                <FlagTriangleRight size={14} /> One-time
+              </Badge>
+            ) : (
+              <Badge variant="outline">
+                <Repeat2 size={14} className="mr-1 " /> Repeatable
+              </Badge>
+            )}
+          </div>
+
+          <p>{description}</p>
+          <div className="w-full flex justify-center items-center">
+            {muhar && <Mimage muhar={muhar} width={200} height={200} />}
+          </div>
+          {!claimed ? (
+            <div className="mt-4">
+              {hasInput && (
+                <a
+                  href={cta}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500"
+                >
+                  {unavailable ? "Unavilable Now" : "Join"}
+                </a>
+              )}
+
+              {hasInput && (
+                <div className="mt-2">
+                  <Input
+                    type="text"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="Enter code here"
+                    className="mb-4"
+                  />
+                </div>
+              )}
+              <div className="flex">
+                <Button className="mr-2 bg-yellow-200 cursor-auto hover:bg-yellow-200">
+                  + {xp} XP
+                </Button>
+                {hasInput ? (
+                  <Button className="w-full" onClick={handleClaim}>
+                    Claim
+                  </Button>
+                ) : (
+                  <Button className="cursor-auto bg-cream hover:bg-cream">
+                    {" "}
+                    <Repeat2 size={14} className="mr-1" /> Automatic
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-green-500 mt-4">Obtained</p>
+          )}
+        </div>
+      </div>
+    );
+  }
 );
 
 const AccountPage = observer(() => {
@@ -158,6 +254,66 @@ const AccountPage = observer(() => {
                 showProgress={false}
                 href="/account/my-orders"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
+                <ActionCard
+                  isOnetime
+                  hasInput
+                  action="discord"
+                  title="Join Discord"
+                  description="Join our Discord community and enter the code from the welcome channel."
+                  cta="https://discord.com/invite/your-invite-code"
+                  xp={20}
+                  claimed={user.discordJoined}
+                  muhar="discord"
+                />
+                <ActionCard
+                  isOnetime
+                  hasInput
+                  action="newsletter"
+                  title="Join Newsletter"
+                  description="Join the newsletter and enter the code from the welcome email."
+                  xp={15}
+                  claimed={user.newsletterSignedUp}
+                  muhar="mail"
+                />
+                <ActionCard
+                  hasInput
+                  unavailable
+                  action="kickstarter"
+                  title="Back a Kickstarter"
+                  description="Enter the unique code you receive from the Kickstarter Campaign."
+                  cta="https://www.kickstarter.com/projects/your-kickstarter"
+                  xp={15}
+                  claimed={user.kickstarterBacked}
+                  muhar="kickstarter"
+                />
+
+                <ActionCard
+                  action="game"
+                  title="Buy a Game"
+                  description="You will automatically receive 10 XP for each game you purchase."
+                  xp={10}
+                  claimed={user.newsletterSignedUp}
+                />
+                <ActionCard
+                  action="expansion"
+                  title="Buy an Expansion"
+                  description="You will automatically receive 5 XP for each expansion you purchase."
+                  xp={5}
+                  claimed={user.newsletterSignedUp}
+                />
+                <ActionCard
+                  action="review"
+                  title="Write a Review"
+                  description="You will automatically receive 2 XP for each review you write. *You can only write one review per product and you must have purchased the product."
+                  xp={2}
+                  claimed={user.newsletterSignedUp}
+                  muhar="rating"
+                />
+              </div>
             </div>
 
             {/* Membership Cards */}

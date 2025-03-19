@@ -357,7 +357,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
             Draft Mode
           </Label>
           <div className="text-xs text-muted-foreground">
-            (Draft products won't be visible to users)
+            (Draft products wont be visible to users)
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -1162,7 +1162,7 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
     try {
       if (!editingComponent) return;
 
-      // If there's a new image and an old image exists, delete the old one
+      // If theres a new image and an old image exists, delete the old one
       if (
         editingComponent.image !== components[index].image &&
         components[index].image
@@ -1284,7 +1284,7 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                       placeholder="https://example.com/files/component.pdf"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Enter the URL where users can download this component's
+                      Enter the URL where users can download this components
                       files
                     </p>
                   </div>
@@ -1409,7 +1409,7 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
               placeholder="https://example.com/files/component.pdf"
             />
             <p className="text-xs text-muted-foreground">
-              Enter the URL where users can download this component's files
+              Enter the URL where users can download this components files
             </p>
           </div>
         )}

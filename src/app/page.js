@@ -408,12 +408,12 @@ const HomePage = observer(() => {
   const featuredGames = [
     {
       title: "Monster Mixology",
-      description:
-        "Mix potions, cast spells, and become the ultimate monster mixologist!",
+      description: "Back it now on Kickstarter!",
       imgUrl:
         "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
-      button: "Play Now",
-      link: "/product-details/monster-mixology",
+      openNewTab: true,
+      button: "Back it now!",
+      link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
       index: 1,
     },
     {

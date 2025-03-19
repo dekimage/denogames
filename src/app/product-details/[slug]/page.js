@@ -209,9 +209,9 @@ const GameMetrics = ({ productDetails }) => {
 };
 
 const ComponentsList = ({ productDetails }) => {
+  const [expandedItems, setExpandedItems] = useState({});
   if (!productDetails.providedComponents || !productDetails.neededComponents)
     return null;
-  const [expandedItems, setExpandedItems] = useState({});
 
   const toggleItem = (type, index) => {
     setExpandedItems((prev) => ({
@@ -637,7 +637,8 @@ const ProductDetailsPage = observer(({}) => {
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
           <p className="mb-8 text-muted-foreground">
-            The product you're looking for doesn't exist or has been removed.
+            The product you&apos;re looking for doesn&apos;t exist or has been
+            removed.
           </p>
           <Button onClick={() => router.push("/")}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home

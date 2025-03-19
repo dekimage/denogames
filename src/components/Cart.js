@@ -157,7 +157,7 @@ const EmptyCart = ({ recommendedProducts, onAddToCart }) => {
         Your cart is empty
       </h3>
       <p className="text-muted-foreground text-center mb-6">
-        Looks like you haven't added any products to your cart yet.
+        Looks like you haven&apos;t added any products to your cart yet.
       </p>
       <Link href="/shop">
         <Button className="mb-8">

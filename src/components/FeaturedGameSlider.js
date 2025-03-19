@@ -87,7 +87,10 @@ const FeaturedGamesSlider = ({ games }) => {
               <p className="text-xl text-white mb-6 font-strike ">
                 {game.description}
               </p>
-              <Link href={game.link}>
+              <Link
+                href={game.link}
+                target={game.openNewTab ? "_blank" : "_self"}
+              >
                 <Button className="w-52 text-2xl">{game.button}</Button>
               </Link>
             </div>

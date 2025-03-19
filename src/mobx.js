@@ -998,8 +998,12 @@ class Store {
     if (this.products.length > 0 && !this.loadingProducts) return;
     this.loadingProducts = true;
     try {
-      // Use the new API endpoint instead of direct Firestore access
-      const response = await fetch("/api/products");
+      // Use absolute URL instead of relative URL
+      const origin =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "http://localhost:3000";
+      const response = await fetch(`${origin}/api/products`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch products: ${response.statusText}`);
