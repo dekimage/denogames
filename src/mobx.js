@@ -40,7 +40,6 @@ class Store {
   orders = [];
   notifications = [];
 
-  productDetails = [];
   // reviews = [];
   // lastReviewFetched = null;
   // hasMoreReviews = true;
@@ -96,57 +95,51 @@ class Store {
     this.fetchProducts();
 
     this.fetchProducts = this.fetchProducts.bind(this);
-    this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
+    this.fetchOrders = this.fetchOrders.bind(this);
+    this.fetchAchievements = this.fetchAchievements.bind(this);
+
+    this.claimSpecialReward = this.claimSpecialReward.bind(this);
+
+    //AUTH
     this.loginWithEmail = this.loginWithEmail.bind(this);
     this.signupWithEmail = this.signupWithEmail.bind(this);
     this.logout = this.logout.bind(this);
     this.signInWithGoogle = this.signInWithGoogle.bind(this);
 
+    //CART
     this.fetchCart = this.fetchCart.bind(this);
     this.addToCart = this.addToCart.bind(this);
     this.removeFromCart = this.removeFromCart.bind(this);
     this.clearCart = this.clearCart.bind(this);
     this.transferLocalStorageCartToFirestore =
       this.transferLocalStorageCartToFirestore.bind(this);
-    this.continueToCheckout = this.continueToCheckout.bind(this);
 
-    this.claimXP = this.claimXP.bind(this);
-    this.verifyDiscordCode = this.verifyDiscordCode.bind(this);
-    this.verifyKickstarterCode = this.verifyKickstarterCode.bind(this);
-    this.addXP = this.addXP.bind(this);
-    this.checkForRewards = this.checkForRewards.bind(this);
-    this.syncUserProfile = this.syncUserProfile.bind(this);
-    this.fetchOrders = this.fetchOrders.bind(this);
-
-    this.fetchProductDetails = this.fetchProductDetails.bind(this);
+    //REVIEWS
     this.fetchReviews = this.fetchReviews.bind(this);
     this.submitReview = this.submitReview.bind(this);
     this.deleteReview = this.deleteReview.bind(this);
     this.updateReview = this.updateReview.bind(this);
     this.updateProductRating = this.updateProductRating.bind(this);
 
+    //NOTIFICATIONS
     this.fetchNotifications = this.fetchNotifications.bind(this);
     this.addNotification = this.addNotification.bind(this);
     this.markAsRead = this.markAsRead.bind(this);
     this.deleteNotification = this.deleteNotification.bind(this);
 
-    // New methods for filters
+    //FILTERS - SHOP
     this.setFilter = this.setFilter.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
 
-    // Add these new methods to the Store class
-
+    //BLOG
     this.fetchBlogs = this.fetchBlogs.bind(this);
     this.fetchBlogDetails = this.fetchBlogDetails.bind(this);
     this.isBlogDetailsLoading = this.isBlogDetailsLoading.bind(this);
+
     this.getRelatedExpansions = this.getRelatedExpansions.bind(this);
-    this.getRelatedGames = this.getRelatedGames.bind(this);
-
-    this.fetchAchievements = this.fetchAchievements.bind(this);
-
-    this.claimSpecialReward = this.claimSpecialReward.bind(this);
 
     this.setActiveLocation = this.setActiveLocation.bind(this);
+    this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
   }
 
   initializeAuth() {
@@ -571,108 +564,6 @@ class Store {
     }
   }
 
-  // product details + game details
-
-  // Fetch detailed game data
-  async fetchProductDetails(slug) {
-    try {
-      // First check if we already have the details cached
-      const existingDetails = this.productDetails.find(
-        (product) => product.slug === slug
-      );
-      if (existingDetails) {
-        // If it's an add-on, ensure we have achievement details
-        if (
-          existingDetails.type === "add-on" &&
-          !existingDetails.achievements
-        ) {
-          const achievementsData = await this.fetchAchievementsForProduct(
-            existingDetails
-          );
-          runInAction(() => {
-            existingDetails.achievements = achievementsData;
-          });
-        }
-        return existingDetails;
-      }
-
-      // Fetch product data based on the slug
-      const productQuery = query(
-        collection(db, "products"),
-        where("slug", "==", slug)
-      );
-      const productSnapshot = await getDocs(productQuery);
-
-      if (!productSnapshot.empty) {
-        const productDoc = productSnapshot.docs[0];
-        const productData = productDoc.data();
-        const productId = productDoc.id;
-
-        let productDetails = {
-          id: productId,
-          ...productData,
-          slug: slug,
-        };
-
-        // If it's an add-on, fetch achievement details
-        if (
-          productData.type === "add-on" &&
-          productData.requiredAchievements?.length
-        ) {
-          const achievementsData = await this.fetchAchievementsForProduct(
-            productData
-          );
-          productDetails.achievements = achievementsData;
-        }
-
-        runInAction(() => {
-          this.productDetails.push(productDetails);
-        });
-
-        return productDetails;
-      } else {
-        console.log("No product found with the given slug.");
-        return null;
-      }
-    } catch (error) {
-      console.log("Error fetching product details:", error);
-      throw error;
-    }
-  }
-
-  // Add this new helper method to fetch achievements for a product
-  async fetchAchievementsForProduct(product) {
-    try {
-      if (!product.requiredAchievements?.length) return [];
-
-      const achievementsPromises = product.requiredAchievements.map(
-        async (achievementId) => {
-          const achievementDoc = await getDoc(
-            doc(db, "achievements", achievementId)
-          );
-          if (achievementDoc.exists()) {
-            return {
-              id: achievementId,
-              ...achievementDoc.data(),
-            };
-          }
-          return null;
-        }
-      );
-
-      const achievements = await Promise.all(achievementsPromises);
-      return achievements.filter(Boolean);
-    } catch (error) {
-      console.log("Error fetching achievements for product:", error);
-      return [];
-    }
-  }
-
-  // Add a helper method to check if user has an achievement
-  hasAchievement(achievementKey) {
-    return this.user?.achievements?.includes(achievementKey) || false;
-  }
-
   // Add a method to get achievement progress for an add-on
   getAddOnProgress(productId) {
     const product = this.products.find((p) => p.id === productId);
@@ -857,14 +748,6 @@ class Store {
     }
   }
 
-  // Continue to Checkout
-  continueToCheckout() {
-    if (!this.cart.length) return;
-
-    // Redirect to checkout page or prepare data for checkout
-    console.log("Proceeding to checkout with cart items:", this.cart);
-  }
-
   // Global Loading State
   setLoading(isLoading) {
     runInAction(() => {
@@ -901,96 +784,6 @@ class Store {
       runInAction(() => {
         this.ordersFetched = false; // Reset flag on error
       });
-    }
-  }
-
-  // Add a method to reset orders (useful for logout)
-  resetOrders() {
-    runInAction(() => {
-      this.orders = [];
-      this.ordersFetched = false;
-    });
-  }
-
-  claimXP(action, code) {
-    if (action === "discord" && this.verifyDiscordCode(code)) {
-      this.addXP(10);
-      runInAction(() => {
-        this.user.discordJoined = true;
-      });
-    } else if (action === "kickstarter" && this.verifyKickstarterCode(code)) {
-      this.addXP(15);
-      runInAction(() => {
-        this.user.kickstarterBacked = true;
-      });
-    } else if (action === "newsletter") {
-      this.addXP(5);
-      runInAction(() => {
-        this.user.newsletterSignedUp = true;
-      });
-    }
-    this.checkForRewards();
-  }
-
-  verifyDiscordCode(code) {
-    // Example verification logic for Discord code
-    return code === "WELCOME123"; // Replace with actual logic
-  }
-
-  verifyKickstarterCode(code) {
-    // Example verification logic for Kickstarter code
-    return code === "BACKER123"; // Replace with actual logic
-  }
-
-  // Function to add XP and check for rewards
-  addXP(points) {
-    runInAction(() => {
-      this.user.xp += points;
-    });
-    this.checkForRewards();
-  }
-
-  // Function to check if new rewards are unlocked
-  checkForRewards() {
-    const rewardsTrack = [
-      { xp: 10, reward: "Special Card" },
-      { xp: 20, reward: "Mini Expansion" },
-      { xp: 30, reward: "Extended Content" },
-      // Add more rewards...
-    ];
-
-    rewardsTrack.forEach((milestone) => {
-      if (
-        this.user.xp >= milestone.xp &&
-        !this.user.rewards.includes(milestone.reward)
-      ) {
-        runInAction(() => {
-          this.user.rewards.push(milestone.reward);
-        });
-      }
-    });
-
-    this.syncUserProfile();
-  }
-
-  async syncUserProfile() {
-    try {
-      if (this.user.uid) {
-        const userDocRef = doc(db, "users", this.user.uid);
-        await setDoc(userDocRef, {
-          xp: this.user.xp,
-          rewards: this.user.rewards,
-          discordJoined: this.user.discordJoined,
-          kickstarterBacked: this.user.kickstarterBacked,
-          newsletterSignedUp: this.user.newsletterSignedUp,
-          // Add any other relevant user data here
-        });
-        console.log("User profile synced successfully!");
-      } else {
-        console.log("User is not logged in. Cannot sync profile.");
-      }
-    } catch (error) {
-      console.log("Error syncing user profile:", error);
     }
   }
 
@@ -1032,7 +825,6 @@ class Store {
     return this.products.filter((game) => !purchasedGameIds.includes(game.id));
   }
 
-  // GLOBAL MOBX STATE
   setIsMobileOpen(isMobileOpen) {
     runInAction(() => {
       this.isMobileOpen = isMobileOpen;
@@ -1063,39 +855,6 @@ class Store {
     }
   }
 
-  // async signupWithEmail(email, password, username) {
-  //   try {
-  //     this.loading = true;
-  //     const userCredential = await createUserWithEmailAndPassword(
-  //       auth,
-  //       email,
-  //       password
-  //     );
-
-  //     // Additional user properties
-  //     const newUserProfile = {
-  //       ...DEFAULT_USER,
-  //       createdAt: new Date(),
-  //       username: username,
-  //       email: email,
-  //       uid: userCredential.user.uid,
-  //     };
-
-  //     // Create a user profile in Firestore
-  //     await setDoc(doc(db, "users", userCredential.user.uid), newUserProfile);
-
-  //     runInAction(() => {
-  //       this.user = newUserProfile;
-  //       this.loading = false;
-  //     });
-  //   } catch (error) {
-  //     console.log("Error signing up:", error);
-  //     runInAction(() => {
-  //       this.loading = false;
-  //     });
-  //     throw error;
-  //   }
-  // }
   async signupWithEmail(email, password, username) {
     try {
       this.loading = true;
@@ -1144,7 +903,8 @@ class Store {
       await signOut(auth);
       runInAction(() => {
         this.user = null;
-        this.resetOrders(); // Reset orders on logout
+        this.achievements = [];
+        this.orders = [];
       });
     } catch (error) {
       console.log("Error during logout:", error);
@@ -1190,39 +950,6 @@ class Store {
       throw error;
     }
   }
-
-  // async signInWithGoogle() {
-  //   try {
-  //     const provider = new GoogleAuthProvider();
-  //     const result = await signInWithPopup(auth, provider);
-  //     const user = result.user;
-
-  //     const userDocRef = doc(db, "users", user.uid);
-  //     const userDoc = await getDoc(userDocRef);
-
-  //     if (!userDoc.exists()) {
-  //       const newUserProfile = {
-  //         ...DEFAULT_USER,
-  //         createdAt: new Date(),
-  //         username: user.displayName || "New User",
-  //         email: user.email,
-  //         uid: user.uid,
-  //       };
-
-  //       await setDoc(userDocRef, newUserProfile);
-
-  //       runInAction(() => {
-  //         this.user = newUserProfile;
-  //       });
-  //     } else {
-  //       runInAction(() => {
-  //         this.user = { uid: user.uid, ...userDoc.data() };
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.log("Error with Google sign-in:", error);
-  //   }
-  // }
 
   async sendPasswordReset(email) {
     try {
@@ -1353,22 +1080,6 @@ class Store {
     return this.blogDetailsLoading.get(slug) || false;
   }
 
-  getRelatedGames(gameId) {
-    return this.products
-      .filter((product) => {
-        return (
-          product.type === "game" &&
-          product.id !== gameId &&
-          product.relatedGames &&
-          product.relatedGames.includes(gameId) &&
-          (!this.user ||
-            !this.user.purchasedProducts ||
-            !this.user.purchasedProducts.includes(product.id))
-        );
-      })
-      .slice(0, 4); // Limit to 4 related games
-  }
-
   getRelatedExpansions(gameId, { includeOwned = false } = {}) {
     const expansions = this.products.filter((product) => {
       const isExpansionForGame =
@@ -1483,6 +1194,30 @@ class Store {
   // Add this method to your Store class
   getAchievementByKey(id) {
     return this.achievements.find((achievement) => achievement.id === id);
+  }
+
+  // Add this method to your MobxStore class
+  getProductBySlug(slug) {
+    const product = this.products.find((p) => p.slug === slug);
+
+    if (
+      product &&
+      product.type === "add-on" &&
+      product.requiredAchievements?.length
+    ) {
+      // Enrich with achievement data from the store
+      const achievements = product.requiredAchievements
+        .map((id) => this.achievements.find((a) => a.id === id))
+        .filter(Boolean);
+
+      // Return a new object with the achievements added
+      return {
+        ...product,
+        achievements,
+      };
+    }
+
+    return product;
   }
 }
 

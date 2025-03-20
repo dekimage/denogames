@@ -410,7 +410,7 @@ const HomePage = observer(() => {
       title: "Monster Mixology",
       description: "Back it now on Kickstarter!",
       imgUrl:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage1.png?alt=media",
+        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
       openNewTab: true,
       button: "Back it now!",
       link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
@@ -421,19 +421,10 @@ const HomePage = observer(() => {
       description:
         "Embark on an epic journey through mystical lands and ancient ruins.",
       imgUrl:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fimage2.png?alt=media",
+        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
       button: "Explore",
       link: "/product-details/mystic-quest",
       index: 2,
-    },
-    {
-      title: "Galactic Conquest",
-      description: "Conquer the galaxy and build your interstellar empire!",
-      imgUrl:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fgame1%2Fthumbnail.png?alt=media",
-      button: "Launch",
-      link: "/product-details/galactic-conquest",
-      index: 3,
     },
   ];
 

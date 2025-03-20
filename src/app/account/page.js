@@ -86,11 +86,6 @@ const ActionCard = observer(
     muhar = false,
   }) => {
     const [code, setCode] = useState("");
-    const { claimXP } = MobxStore;
-
-    const handleClaim = () => {
-      claimXP(action, code);
-    };
 
     return (
       <div className="box-inner">
@@ -141,9 +136,7 @@ const ActionCard = observer(
                   + {xp} XP
                 </Button>
                 {hasInput ? (
-                  <Button className="w-full" onClick={handleClaim}>
-                    Claim
-                  </Button>
+                  <Button className="w-full">Claim</Button>
                 ) : (
                   <Button className="cursor-auto bg-cream hover:bg-cream">
                     {" "}

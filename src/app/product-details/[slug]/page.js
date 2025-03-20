@@ -557,7 +557,7 @@ const ProductDetailsPage = observer(({}) => {
   const { slug } = useParams();
 
   const router = useRouter();
-  const { fetchProductDetails, addToCart, cart, user, products } = MobxStore;
+  const { addToCart, cart, user, products, loadingProducts } = MobxStore;
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -566,10 +566,12 @@ const ProductDetailsPage = observer(({}) => {
   const [otherExpansions, setOtherExpansions] = useState([]);
 
   useEffect(() => {
-    const loadProductDetails = async () => {
+    const loadProductDetails = () => {
       try {
         setLoading(true);
-        const productData = await fetchProductDetails(slug);
+
+        // Use the new utility method
+        const productData = MobxStore.getProductBySlug(slug);
 
         if (!productData) {
           setError("Product not found");
@@ -578,49 +580,40 @@ const ProductDetailsPage = observer(({}) => {
 
         setProductDetails(productData);
 
-        // Find related content
+        // Handle related products
         if (productData.type === "game") {
-          // For games, find related expansions
-          const expansions = products.filter(
-            (p) =>
-              (p.type === "expansion" || p.type === "add-on") &&
-              p.relatedGames &&
-              p.relatedGames.includes(productData.id)
+          setRelatedExpansions(
+            products.filter(
+              (p) =>
+                (p.type === "expansion" || p.type === "add-on") &&
+                p.relatedGames === productData.id
+            )
           );
+        } else if (productData.relatedGames) {
+          setMainGame(products.find((p) => p.id === productData.relatedGames));
 
-          setRelatedExpansions(expansions);
-        } else if (
-          (productData.type === "expansion" || productData.type === "add-on") &&
-          productData.relatedGames?.length > 0
-        ) {
-          // For expansions, find the main game and other expansions
-          const mainGameId = productData.relatedGames;
-          const mainGameData = products.find((p) => p.id === mainGameId);
-
-          setMainGame(mainGameData);
-
-          // Find other expansions for the same game
-          const otherExps = products.filter(
-            (p) =>
-              p.id !== productData.id &&
-              p.type === "expansion" &&
-              p.relatedGames &&
-              p.relatedGames.includes(mainGameId)
+          setOtherExpansions(
+            products.filter(
+              (p) =>
+                p.id !== productData.id &&
+                p.type === "expansion" &&
+                p.relatedGames === productData.relatedGames
+            )
           );
-          setOtherExpansions(otherExps);
         }
       } catch (err) {
-        console.error("Error loading product details:", err);
+        console.error("Error processing product details:", err);
         setError("Failed to load product details");
       } finally {
         setLoading(false);
       }
     };
 
-    if (slug) {
+    // Only process if products are loaded
+    if (!loadingProducts && products.length > 0) {
       loadProductDetails();
     }
-  }, [slug, fetchProductDetails, products]);
+  }, [slug, products, loadingProducts]);
 
   if (loading) {
     return (
@@ -702,14 +695,14 @@ const ProductDetailsPage = observer(({}) => {
                     <div
                       className={cn(
                         "my-4 p-3 rounded-lg text-sm flex items-center gap-2",
-                        MobxStore.user?.purchasedProducts?.includes(
+                        user?.purchasedProducts?.includes(
                           productDetails.relatedGames
                         )
                           ? "bg-green-50 border border-green-200 text-green-800"
                           : "bg-amber-50 border border-amber-200 text-amber-800"
                       )}
                     >
-                      {MobxStore.user?.purchasedProducts?.includes(
+                      {user?.purchasedProducts?.includes(
                         productDetails.relatedGames
                       ) ? (
                         <>
@@ -718,14 +711,14 @@ const ProductDetailsPage = observer(({}) => {
                             You own the base game{" "}
                             <Link
                               href={`/product-details/${
-                                MobxStore.products.find(
+                                products.find(
                                   (p) => p.id === productDetails.relatedGames
                                 )?.slug
                               }`}
                               className="font-semibold hover:underline"
                             >
                               {
-                                MobxStore.products.find(
+                                products.find(
                                   (p) => p.id === productDetails.relatedGames
                                 )?.name
                               }
@@ -739,14 +732,14 @@ const ProductDetailsPage = observer(({}) => {
                             You need the base game{" "}
                             <Link
                               href={`/product-details/${
-                                MobxStore.products.find(
+                                products.find(
                                   (p) => p.id === productDetails.relatedGames
                                 )?.slug
                               }`}
                               className="font-semibold hover:underline"
                             >
                               {
-                                MobxStore.products.find(
+                                products.find(
                                   (p) => p.id === productDetails.relatedGames
                                 )?.name
                               }
@@ -762,7 +755,7 @@ const ProductDetailsPage = observer(({}) => {
 
                     <Link
                       href={`/product-details/${
-                        MobxStore.products.find(
+                        products.find(
                           (p) => p.id === productDetails.relatedGames
                         )?.slug
                       }`}
@@ -771,7 +764,7 @@ const ProductDetailsPage = observer(({}) => {
                       <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
                         <Image
                           src={
-                            MobxStore.products.find(
+                            products.find(
                               (p) => p.id === productDetails.relatedGames
                             )?.thumbnail || "/placeholder-image.png"
                           }
@@ -787,12 +780,12 @@ const ProductDetailsPage = observer(({}) => {
                         <div className="flex items-center justify-between">
                           <div className="text-base font-semibold truncate">
                             {
-                              MobxStore.products.find(
+                              products.find(
                                 (p) => p.id === productDetails.relatedGames
                               )?.name
                             }
                           </div>
-                          {MobxStore.user?.purchasedProducts?.includes(
+                          {user?.purchasedProducts?.includes(
                             productDetails.relatedGames
                           ) && (
                             <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full px-2 py-1 text-xs flex items-center">
