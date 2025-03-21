@@ -9,6 +9,8 @@ import {
   CheckCheck,
   ShoppingBag,
   ShoppingCart,
+  Download,
+  Hammer,
 } from "lucide-react";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 
@@ -36,7 +38,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
             variant="secondary"
             className="w-full bg-black hover:bg-black/80 text-white"
           >
-            Download Files
+            <Download size={16} className="mr-1" /> DOWNLOAD FILES
           </Button>
         </Link>
       );
@@ -46,7 +48,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
       return (
         <Link href={`/product-details/${product.slug}`} className="w-full">
           <Button variant="secondary" className="w-full">
-            CRAFT THIS
+            <Hammer size={16} className="mr-1" /> CRAFT THIS
           </Button>
         </Link>
       );

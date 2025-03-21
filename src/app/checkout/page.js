@@ -41,6 +41,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { auth } from "@/firebase";
+import { runInAction } from "mobx";
+import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 
 // Form schema for guest checkout
 const guestCheckoutSchema = z.object({
@@ -67,7 +70,7 @@ const CheckoutItem = ({ product, onRemove }) => {
     <div className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">
       <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
         <Image
-          src={product.image || "https://via.placeholder.com/80"}
+          src={product.thumbnail || "https://via.placeholder.com/80"}
           alt={product.name}
           fill
           className="object-cover object-center"
@@ -94,9 +97,7 @@ const CheckoutItem = ({ product, onRemove }) => {
         </div>
 
         {product.type && (
-          <Badge variant="outline" className="w-fit mt-1 text-xs">
-            {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
-          </Badge>
+          <ProductTypeBadge type={product.type} className="mt-1 text-xs" />
         )}
       </div>
 
@@ -121,8 +122,8 @@ const OrderSummary = ({
 }) => {
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+      <div className="p-4">
+        <h3 className="text-lg font-strike mb-4">Order Summary</h3>
 
         <div className="space-y-4 mb-6">
           {cartItems.map((item) => (
@@ -268,7 +269,7 @@ const GuestCheckoutForm = ({ onComplete }) => {
   };
 
   return (
-    <div className="bg-gray-50 p-6 rounded-lg border mb-6">
+    <div className="bg-gray-50 p-4 rounded-lg border mb-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center">
         <User className="mr-2 h-5 w-5" />
         Create Account
@@ -389,7 +390,7 @@ const UpsellItem = ({ product, onAdd }) => {
     <div className="flex items-center gap-3 p-3 border rounded-lg hover:border-primary transition-colors">
       <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
         <Image
-          src={product.image || "https://via.placeholder.com/80"}
+          src={product.thumbnail || "https://via.placeholder.com/80"}
           alt={product.name}
           fill
           className="object-cover object-center"
@@ -401,9 +402,7 @@ const UpsellItem = ({ product, onAdd }) => {
         <div className="flex items-center gap-2 mt-1">
           <span className="text-sm font-semibold">${product.price}.00</span>
           {product.type && (
-            <Badge variant="outline" className="text-xs">
-              {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
-            </Badge>
+            <ProductTypeBadge type={product.type} className="mt-1 text-xs" />
           )}
         </div>
       </div>
@@ -422,14 +421,18 @@ const UpsellItem = ({ product, onAdd }) => {
   );
 };
 
-// Update the UpsellSection to filter out items already in cart
+// Update the UpsellSection component to filter out already purchased products
 const UpsellSection = ({ cartItems, onAddToCart }) => {
-  const { products, cart } = MobxStore;
+  const { products, cart, user } = MobxStore;
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     // Find related products based on cart items
     if (cartItems.length > 0 && products.length > 0) {
+      // Get IDs of products the user already owns
+      const userOwnedProductIds = user?.purchasedProducts || [];
+
+      // Get IDs of products in the current cart
       const cartProductIds = cartItems.map((item) => item.id);
       const cartProductTypes = cartItems.map((item) => item.type);
       const cartGameIds = cartItems
@@ -437,13 +440,13 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
         .map((item) => item.id);
 
       // Find expansions for games in cart and games related to expansions
-
       let related = products.filter(
         (product) =>
           // Don't include products already in cart
           !cartProductIds.includes(product.id) &&
+          // Don't include products the user already owns
+          !userOwnedProductIds.includes(product.id) &&
           product.type !== "add-on" &&
-          product.price !== 0 &&
           // Find expansions for games in cart
           ((product.type === "expansion" &&
             product.relatedGames &&
@@ -465,8 +468,9 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
           .filter(
             (p) =>
               p.type !== "add-on" &&
-              p.price !== 0 &&
               !cartProductIds.includes(p.id) &&
+              // Don't include products the user already owns
+              !userOwnedProductIds.includes(p.id) &&
               !related.some((r) => r.id === p.id)
           )
           .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
@@ -478,16 +482,57 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
       // Limit to 3 products
       setRelatedProducts(related.slice(0, 3));
     }
-  }, [cartItems, products, cart]); // Add cart as dependency to update when cart changes
+  }, [cartItems, products, cart, user?.purchasedProducts]); // Add user.purchasedProducts as dependency
 
-  if (relatedProducts.length === 0) return null;
+  if (relatedProducts.length === 0) {
+    // If no related products but cart has free item(s), show some paid products
+    if (cartItems.some((item) => item.price === 0)) {
+      // Get IDs of products the user already owns
+      const userOwnedProductIds = user?.purchasedProducts || [];
+
+      const freeCartProductIds = cartItems.map((item) => item.id);
+
+      // Filter to show non-free products that aren't already in cart and aren't already owned
+      const paidProducts = products
+        .filter(
+          (p) =>
+            p.price > 0 &&
+            !freeCartProductIds.includes(p.id) &&
+            !userOwnedProductIds.includes(p.id) &&
+            p.type !== "add-on"
+        )
+        .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
+        .slice(0, 3);
+
+      if (paidProducts.length > 0) {
+        return (
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm mt-6">
+            <div className="p-4">
+              <h3 className="text-lg font-semibold mb-4">
+                You Might Also Like
+              </h3>
+              <div className="space-y-3">
+                {paidProducts.map((product) => (
+                  <UpsellItem
+                    key={product.id}
+                    product={product}
+                    onAdd={onAddToCart}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+    }
+
+    return null;
+  }
 
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm mt-6">
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          Frequently Bought Together
-        </h3>
+      <div className="p-4">
+        <h3 className="text-lg font-strike mb-4">Frequently Bought Together</h3>
         <div className="space-y-3">
           {relatedProducts.map((product) => (
             <UpsellItem
@@ -499,6 +544,102 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Update the FreeCheckoutButton component to update MobX state
+const FreeCheckoutButton = ({ cartItems }) => {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleFreeCheckout = async () => {
+    try {
+      setIsProcessing(true);
+
+      // Get the current user's ID token
+      const token = await auth.currentUser?.getIdToken();
+
+      if (!token) {
+        throw new Error("Authentication required. Please log in again.");
+      }
+
+      // Call API to process zero-cost checkout with auth token
+      const response = await fetch("/api/checkout/free", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productIds: cartItems.map((item) => item.id),
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to process free checkout");
+      }
+
+      // Get the product IDs that were just purchased
+      const purchasedProductIds = cartItems.map((item) => item.id);
+
+      // Update MobX state with the newly purchased products
+      runInAction(() => {
+        // First, ensure user.purchasedProducts exists
+        if (!MobxStore.user.purchasedProducts) {
+          MobxStore.user.purchasedProducts = [];
+        }
+
+        // Add the new product IDs to the user's purchasedProducts
+        MobxStore.user.purchasedProducts = [
+          ...new Set([
+            ...MobxStore.user.purchasedProducts,
+            ...purchasedProductIds,
+          ]),
+        ];
+      });
+
+      // Clear the cart
+      MobxStore.clearCart();
+
+      // Show success toast
+      toast({
+        title: "Success!",
+        description: "Your free product is now available in your library.",
+        variant: "success",
+      });
+
+      // Redirect to success page
+      router.push("/checkout/success");
+    } catch (error) {
+      console.error("Free checkout error:", error);
+      toast({
+        title: "Checkout failed",
+        description:
+          error.message ||
+          "There was a problem processing your request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <Button
+      className="w-full h-12 text-lg font-semibold"
+      onClick={handleFreeCheckout}
+      disabled={isProcessing}
+    >
+      {isProcessing ? (
+        <>
+          <LoadingSpinner size={20} className="mr-2" /> Processing...
+        </>
+      ) : (
+        "Get for Free"
+      )}
+    </Button>
   );
 };
 
@@ -524,9 +665,15 @@ const CheckoutPage = observer(() => {
   // This effect will handle the initial loading when MobX data is ready
   useEffect(() => {
     const loadCheckoutData = async () => {
-      // Wait for MobX store to be ready (products loaded)
-      if (mobxLoading || !Array.isArray(products) || products.length === 0) {
-        return; // Exit early, we'll try again when store is ready
+      // Wait for MobX store to be ready - we need to wait for both products AND userFullyLoaded
+      if (
+        mobxLoading ||
+        !Array.isArray(products) ||
+        products.length === 0 ||
+        !MobxStore.userFullyLoaded ||
+        !MobxStore.cartFetched
+      ) {
+        return; // Exit early, we'll try again when everything is ready
       }
 
       // Set initial load attempted to true so we don't repeat unnecessarily
@@ -541,9 +688,6 @@ const CheckoutPage = observer(() => {
           }
 
           setLoading(true);
-
-          // Add a consistent delay to ensure we show the loading state
-          await new Promise((resolve) => setTimeout(resolve, 800));
 
           // Map cart IDs to product objects
           const items = cart
@@ -573,10 +717,36 @@ const CheckoutPage = observer(() => {
     };
 
     loadCheckoutData();
-  }, [mobxLoading, products, cart, initialLoadAttempted, discount, toast]);
+
+    // Crucial improvement: If cart doesn't load within a reasonable time, try to force a fetch
+    const timeoutId = setTimeout(() => {
+      if (!initialLoadAttempted && MobxStore.userFullyLoaded) {
+        console.log("Forcing cart fetch due to timeout");
+        // Force fetch cart if it hasn't happened yet
+        MobxStore.fetchCart();
+      }
+    }, 1500);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    mobxLoading,
+    products,
+    cart,
+    initialLoadAttempted,
+    discount,
+    toast,
+    MobxStore.userFullyLoaded,
+    MobxStore.cartFetched,
+  ]);
 
   // Always show loading until both MobX data is loaded and our cart processing is complete
-  if (mobxLoading || loading || !initialLoadAttempted) {
+  if (
+    mobxLoading ||
+    loading ||
+    !initialLoadAttempted ||
+    !MobxStore.userFullyLoaded ||
+    !MobxStore.cartFetched
+  ) {
     return (
       <div className="container mx-auto py-16 flex flex-col justify-center items-center min-h-[60vh]">
         <LoadingSpinner size={40} />
@@ -590,10 +760,12 @@ const CheckoutPage = observer(() => {
     return (
       <div className="container mx-auto py-16 px-4 max-w-4xl">
         <div className="text-center py-16">
-          <div className="bg-gray-50 p-6 rounded-full inline-flex mb-4">
+          <div className="bg-gray-50 p-4 rounded-full inline-flex mb-4">
             <AlertCircle className="h-12 w-12 text-gray-400" />
           </div>
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
+          <h1 className="text-2xl font-bold mb-4 font-strike">
+            Your cart is empty
+          </h1>
           <p className="mb-8 text-muted-foreground">
             You don&apos;t have any items in your cart. Add some products to
             proceed with checkout.
@@ -648,10 +820,25 @@ const CheckoutPage = observer(() => {
       setCartItems((prevItems) => [...prevItems, product]);
 
       // Update totals
-      setSubtotal((prev) => prev + product.price);
-      setTotal((prev) => prev + product.price - discount);
+      const newSubtotal = subtotal + product.price;
+      setSubtotal(newSubtotal);
+
+      // If this was a free order and now it's not, we need to recalculate discount
+      if (total === 0 && product.price > 0) {
+        // Recalculate discount for the new order
+        const newDiscount = Math.round(
+          (newSubtotal * discount) / subtotal || 0
+        );
+        setDiscount(newDiscount);
+        setTotal(newSubtotal - newDiscount);
+      } else {
+        setTotal((prev) => prev + product.price);
+      }
     }
   };
+
+  // Determine if the order is free (all products cost zero)
+  const isZeroCostOrder = total === 0 && cartItems.length > 0;
 
   return (
     <div className="container mx-auto py-16 px-4 max-w-6xl">
@@ -664,7 +851,7 @@ const CheckoutPage = observer(() => {
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-3xl font-bold mb-8 font-strike">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -672,7 +859,7 @@ const CheckoutPage = observer(() => {
           {!user && !accountCreated ? (
             <GuestCheckoutForm onComplete={handleAccountCreated} />
           ) : (
-            <div className="bg-green-50 p-6 rounded-lg border border-green-200 mb-6">
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-6">
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
                 <h3 className="text-lg font-semibold text-green-800">
@@ -687,80 +874,111 @@ const CheckoutPage = observer(() => {
             </div>
           )}
 
-          {/* Discount Code Section */}
-          <div className="bg-white p-6 rounded-lg border mb-6">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <Tag className="mr-2 h-5 w-5" />
-              Discount Code
-            </h3>
-            <DiscountForm onApplyDiscount={handleApplyDiscount} />
-          </div>
-
-          {/* Payment Section */}
-          <div className="bg-white p-6 rounded-lg border">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <CreditCard className="mr-2 h-5 w-5" />
-              Payment
-            </h3>
-
-            <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-6 mr-2 flex items-center justify-center">
-                  <Image
-                    src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg"
-                    alt="Stripe"
-                    width={40}
-                    height={16}
-                  />
-                </div>
-                <span className="text-sm">
-                  Secure payment processing by Stripe
-                </span>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Image
-                  src="https://cdn-icons-png.flaticon.com/512/196/196578.png"
-                  alt="Visa"
-                  width={40}
-                  height={25}
-                />
-                <Image
-                  src="https://cdn-icons-png.flaticon.com/512/196/196561.png"
-                  alt="MasterCard"
-                  width={40}
-                  height={25}
-                />
-                <Image
-                  src="https://cdn-icons-png.flaticon.com/512/196/196539.png"
-                  alt="Amex"
-                  width={40}
-                  height={25}
-                />
-                <Image
-                  src="https://cdn-icons-png.flaticon.com/512/196/196565.png"
-                  alt="Discover"
-                  width={40}
-                  height={25}
-                />
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg mb-4 text-sm">
-                <div className="flex items-center text-gray-700 mb-2">
-                  <Lock className="h-4 w-4 mr-2" />
-                  <span>Your payment information is secure</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  <span>We don&apos;t store your card details</span>
-                </div>
-              </div>
+          {/* Discount Code Section - only show for paid products */}
+          {!isZeroCostOrder && (
+            <div className="bg-white p-4 rounded-lg border mb-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Tag className="mr-2 h-5 w-5" />
+                Discount Code
+              </h3>
+              <DiscountForm onApplyDiscount={handleApplyDiscount} />
             </div>
+          )}
 
-            <PaymentButton cartItems={cartItems} total={total} />
+          {/* Payment Section - modified to handle free products */}
+          <div className="bg-white p-4 rounded-lg border">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              {isZeroCostOrder ? (
+                <>
+                  <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                  Free Product
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 h-5 w-5" />
+                  Payment
+                </>
+              )}
+            </h3>
+
+            {isZeroCostOrder ? (
+              <div className="space-y-4">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                  <p className="flex items-center text-green-800">
+                    <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                    This product is available for free!
+                  </p>
+                  <p className="mt-2 text-sm text-green-700">
+                    Click the button below to add it to your library. No payment
+                    required.
+                  </p>
+                </div>
+
+                <FreeCheckoutButton cartItems={cartItems} />
+              </div>
+            ) : (
+              <>
+                <div className="mb-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-6 mr-2 flex items-center justify-center">
+                      <Image
+                        src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg"
+                        alt="Stripe"
+                        width={40}
+                        height={16}
+                      />
+                    </div>
+                    <span className="text-sm">
+                      Secure payment processing by Stripe
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Image
+                      src="https://cdn-icons-png.flaticon.com/512/196/196578.png"
+                      alt="Visa"
+                      width={40}
+                      height={25}
+                    />
+                    <Image
+                      src="https://cdn-icons-png.flaticon.com/512/196/196561.png"
+                      alt="MasterCard"
+                      width={40}
+                      height={25}
+                    />
+                    <Image
+                      src="https://cdn-icons-png.flaticon.com/512/196/196539.png"
+                      alt="Amex"
+                      width={40}
+                      height={25}
+                    />
+                    <Image
+                      src="https://cdn-icons-png.flaticon.com/512/196/196565.png"
+                      alt="Discover"
+                      width={40}
+                      height={25}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4 text-sm">
+                    <div className="flex items-center text-gray-700 mb-2">
+                      <Lock className="h-4 w-4 mr-2" />
+                      <span>Your payment information is secure</span>
+                    </div>
+                    <div className="flex items-center text-gray-700">
+                      <ShieldCheck className="h-4 w-4 mr-2" />
+                      <span>We don&apos;t store your card details</span>
+                    </div>
+                  </div>
+                </div>
+
+                <PaymentButton cartItems={cartItems} total={total} />
+              </>
+            )}
 
             <p className="text-xs text-center text-muted-foreground mt-4">
-              By proceeding with your purchase, you agree to our{" "}
+              By proceeding with your{" "}
+              {isZeroCostOrder ? "download" : "purchase"}, you agree to our{" "}
               <Link href="/terms" className="underline">
                 Terms of Service
               </Link>{" "}
@@ -783,7 +1001,7 @@ const CheckoutPage = observer(() => {
             onRemoveItem={handleRemoveItem}
           />
 
-          {/* Add the new upsell section */}
+          {/* Always show upsell section, regardless of order cost */}
           <UpsellSection cartItems={cartItems} onAddToCart={handleAddToCart} />
         </div>
       </div>

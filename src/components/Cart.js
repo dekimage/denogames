@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { ProductTypeBadge } from "./ProductTypeBadge";
 
 export function getCartStatus(cartItemsLength) {
   let muhar;
@@ -60,7 +61,7 @@ const CartItem = ({ product, onRemove }) => {
     >
       <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
         <Image
-          src={product.image || "https://via.placeholder.com/80"}
+          src={product.thumbnail || "https://via.placeholder.com/80"}
           alt={product.name}
           fill
           className="object-cover object-center"
@@ -84,9 +85,7 @@ const CartItem = ({ product, onRemove }) => {
         </div>
 
         {product.type && (
-          <Badge variant="outline" className="w-fit mt-1 text-xs">
-            {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
-          </Badge>
+          <ProductTypeBadge type={product.type} className="mt-1 text-xs" />
         )}
 
         <div className="mt-2 flex items-center justify-between">
