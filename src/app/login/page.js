@@ -31,6 +31,7 @@ import { useState, useEffect } from "react";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   password: z.string().min(6, {
@@ -183,27 +184,43 @@ const LoginCard = observer(() => {
 
 const LoginPage = observer(() => {
   const router = useRouter();
+  const [shouldReturnToCheckout, setShouldReturnToCheckout] = useState(false);
 
+  // Check if we should return to checkout
   useEffect(() => {
-    // If user is fully loaded and authenticated
-    if (MobxStore.userFullyLoaded && MobxStore.user) {
-      // Check for redirect URL
-      const redirectUrl = localStorage.getItem("redirectAfterLogin");
-      if (redirectUrl) {
-        localStorage.removeItem("redirectAfterLogin"); // Clean up
-        router.push(redirectUrl);
-      }
+    if (typeof window !== "undefined") {
+      setShouldReturnToCheckout(
+        localStorage.getItem("returnToCheckout") === "true"
+      );
     }
-  }, [router]);
+  }, []);
 
   // Handle successful login
   const handleLoginSuccess = () => {
-    const redirectUrl = localStorage.getItem("redirectAfterLogin");
-    if (redirectUrl) {
-      localStorage.removeItem("redirectAfterLogin");
-      router.push(redirectUrl);
+    if (shouldReturnToCheckout) {
+      localStorage.removeItem("returnToCheckout");
+      router.push("/checkout");
     } else {
       router.push("/");
+    }
+  };
+
+  const onSubmit = async (values) => {
+    try {
+      setIsLoading(true);
+      await MobxStore.loginWithEmail(values);
+
+      toast({
+        title: "Login successful!",
+        description: "Welcome back.",
+        variant: "success",
+      });
+
+      handleLoginSuccess();
+    } catch (error) {
+      // Error handling...
+    } finally {
+      setIsLoading(false);
     }
   };
 

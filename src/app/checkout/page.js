@@ -236,6 +236,15 @@ const GuestCheckoutForm = ({ onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signupWithEmail } = MobxStore;
   const { toast } = useToast();
+  const router = useRouter();
+
+  const handleLoginRedirect = () => {
+    // Store the current URL to return after login
+    if (typeof window !== "undefined") {
+      localStorage.setItem("returnToCheckout", "true");
+    }
+    router.push("/login");
+  };
 
   const form = useForm({
     resolver: zodResolver(guestCheckoutSchema),
@@ -272,11 +281,11 @@ const GuestCheckoutForm = ({ onComplete }) => {
     <div className="bg-gray-50 p-4 rounded-lg border mb-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center">
         <User className="mr-2 h-5 w-5" />
-        Create Account
+        Create Account or Log In
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Create an account to complete your purchase and access your games after
-        checkout.
+        Authentication is required to complete your purchase and access your
+        games.
       </p>
 
       <Form {...form}>
@@ -348,16 +357,126 @@ const GuestCheckoutForm = ({ onComplete }) => {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? <LoadingSpinner /> : "Create Account & Continue"}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? <LoadingSpinner /> : "Create Account"}
+            </Button>
 
-          <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/login" className="text-primary underline">
-              Log in
-            </Link>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={handleLoginRedirect}
+            >
+              Already Have an Account
+            </Button>
           </div>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+// Add this new component for simplified login
+const QuickLoginForm = ({ onComplete }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { loginWithEmail } = MobxStore;
+  const { toast } = useToast();
+
+  const loginSchema = z.object({
+    email: z.string().email({
+      message: "Please enter a valid email address.",
+    }),
+    password: z.string().min(1, {
+      message: "Password is required.",
+    }),
+  });
+
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      await loginWithEmail({ email: data.email, password: data.password });
+      toast({
+        title: "Login successful!",
+        description: "You can now complete your purchase.",
+      });
+      onComplete();
+    } catch (error) {
+      console.error("Error logging in:", error);
+      toast({
+        title: "Login failed",
+        description:
+          error.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-6 bg-gray-50 p-4 rounded-lg border">
+      <h3 className="text-lg font-semibold mb-2">Already have an account?</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        Log in to complete your purchase quickly
+      </p>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Email address"
+                      className="pl-10"
+                      {...field}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      className="pl-10"
+                      {...field}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? <LoadingSpinner /> : "Log In"}
+          </Button>
         </form>
       </Form>
     </div>
@@ -857,7 +976,10 @@ const CheckoutPage = observer(() => {
         <div className="lg:col-span-2 space-y-6">
           {/* Account Section */}
           {!user && !accountCreated ? (
-            <GuestCheckoutForm onComplete={handleAccountCreated} />
+            <div>
+              <GuestCheckoutForm onComplete={handleAccountCreated} />
+              <QuickLoginForm onComplete={() => {}} />
+            </div>
           ) : (
             <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-6">
               <div className="flex items-center">
@@ -885,8 +1007,30 @@ const CheckoutPage = observer(() => {
             </div>
           )}
 
-          {/* Payment Section - modified to handle free products */}
-          <div className="bg-white p-4 rounded-lg border">
+          {/* Payment Section - modified to handle free products and require authentication */}
+          <div
+            className={`bg-white p-4 rounded-lg border ${
+              !user && !accountCreated
+                ? "opacity-60 pointer-events-none relative"
+                : ""
+            }`}
+          >
+            {/* Add an overlay for unauthenticated users */}
+            {!user && !accountCreated && (
+              <div className="absolute inset-0 bg-gray-100/40 flex items-center justify-center z-10 rounded-lg">
+                <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 max-w-md text-center">
+                  <Lock className="h-6 w-6 text-primary mx-auto mb-2" />
+                  <h4 className="font-semibold mb-1">
+                    Authentication Required
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Please create an account or log in above to continue with
+                    checkout.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <h3 className="text-lg font-semibold mb-4 flex items-center">
               {isZeroCostOrder ? (
                 <>

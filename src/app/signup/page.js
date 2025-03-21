@@ -27,10 +27,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   username: z.string().min(4, {
@@ -233,11 +234,57 @@ export const SignupCard = observer(() => {
   );
 });
 
-const Signup = () => {
+const SignupPage = observer(() => {
+  const router = useRouter();
+  const [shouldReturnToCheckout, setShouldReturnToCheckout] = useState(false);
+
+  // Check if we should return to checkout
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setShouldReturnToCheckout(
+        localStorage.getItem("returnToCheckout") === "true"
+      );
+    }
+  }, []);
+
+  // Handle successful signup
+  const handleSignupSuccess = () => {
+    if (shouldReturnToCheckout) {
+      localStorage.removeItem("returnToCheckout");
+      router.push("/checkout");
+    } else {
+      router.push("/");
+    }
+  };
+
+  const onSubmit = async (values) => {
+    try {
+      setIsLoading(true);
+      await MobxStore.signupWithEmail(
+        values.email,
+        values.password,
+        values.username
+      );
+
+      toast({
+        title: "Account created!",
+        description: "You can now log in with your new account.",
+        variant: "success",
+      });
+
+      handleSignupSuccess();
+    } catch (error) {
+      // Error handling...
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center mt-8">
       <SignupCard />
     </div>
   );
-};
-export default Signup;
+});
+
+export default SignupPage;
