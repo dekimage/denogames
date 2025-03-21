@@ -232,19 +232,10 @@ const DiscountForm = ({ onApplyDiscount }) => {
   );
 };
 
-const GuestCheckoutForm = ({ onComplete }) => {
+const GuestCheckoutForm = ({ onComplete, onSwitchToLogin }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signupWithEmail } = MobxStore;
   const { toast } = useToast();
-  const router = useRouter();
-
-  const handleLoginRedirect = () => {
-    // Store the current URL to return after login
-    if (typeof window !== "undefined") {
-      localStorage.setItem("returnToCheckout", "true");
-    }
-    router.push("/login");
-  };
 
   const form = useForm({
     resolver: zodResolver(guestCheckoutSchema),
@@ -281,7 +272,7 @@ const GuestCheckoutForm = ({ onComplete }) => {
     <div className="bg-gray-50 p-4 rounded-lg border mb-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center">
         <User className="mr-2 h-5 w-5" />
-        Create Account or Log In
+        Create Account
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
         Authentication is required to complete your purchase and access your
@@ -366,7 +357,7 @@ const GuestCheckoutForm = ({ onComplete }) => {
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={handleLoginRedirect}
+              onClick={onSwitchToLogin}
             >
               Already Have an Account
             </Button>
@@ -377,8 +368,8 @@ const GuestCheckoutForm = ({ onComplete }) => {
   );
 };
 
-// Add this new component for simplified login
-const QuickLoginForm = ({ onComplete }) => {
+// Update the QuickLoginForm to include toggle to signup
+const QuickLoginForm = ({ onComplete, onSwitchToSignup }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { loginWithEmail } = MobxStore;
   const { toast } = useToast();
@@ -423,8 +414,11 @@ const QuickLoginForm = ({ onComplete }) => {
   };
 
   return (
-    <div className="mt-6 bg-gray-50 p-4 rounded-lg border">
-      <h3 className="text-lg font-semibold mb-2">Already have an account?</h3>
+    <div className="bg-gray-50 p-4 rounded-lg border mb-6">
+      <h3 className="text-lg font-semibold mb-4 flex items-center">
+        <User className="mr-2 h-5 w-5" />
+        Log In
+      </h3>
       <p className="text-sm text-muted-foreground mb-4">
         Log in to complete your purchase quickly
       </p>
@@ -436,6 +430,7 @@ const QuickLoginForm = ({ onComplete }) => {
             name="email"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -457,6 +452,7 @@ const QuickLoginForm = ({ onComplete }) => {
             name="password"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -474,9 +470,20 @@ const QuickLoginForm = ({ onComplete }) => {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? <LoadingSpinner /> : "Log In"}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? <LoadingSpinner /> : "Log In"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={onSwitchToSignup}
+            >
+              Don't Have an Account?
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
@@ -780,6 +787,7 @@ const CheckoutPage = observer(() => {
   const [total, setTotal] = useState(0);
   const [accountCreated, setAccountCreated] = useState(false);
   const { toast } = useToast();
+  const [showLoginForm, setShowLoginForm] = useState(false);
 
   // This effect will handle the initial loading when MobX data is ready
   useEffect(() => {
@@ -795,43 +803,43 @@ const CheckoutPage = observer(() => {
         return; // Exit early, we'll try again when everything is ready
       }
 
-      // Set initial load attempted to true so we don't repeat unnecessarily
-      if (!initialLoadAttempted) {
-        setInitialLoadAttempted(true);
-
-        try {
-          // Ensure cart is an array and has valid data
-          if (!Array.isArray(cart)) {
-            console.log("Cart is not ready yet");
-            return;
-          }
-
-          setLoading(true);
-
-          // Map cart IDs to product objects
-          const items = cart
-            .map((id) => products.find((p) => p.id === id))
-            .filter(Boolean);
-
-          setCartItems(items);
-
-          // Calculate totals
-          const calculatedSubtotal = items.reduce(
-            (sum, item) => sum + (item.price || 0),
-            0
-          );
-          setSubtotal(calculatedSubtotal);
-          setTotal(calculatedSubtotal - discount);
-        } catch (error) {
-          console.error("Error loading checkout data:", error);
-          toast({
-            title: "Error",
-            description: "Failed to load checkout data. Please try again.",
-            variant: "destructive",
-          });
-        } finally {
-          setLoading(false);
+      try {
+        // Ensure cart is an array and has valid data
+        if (!Array.isArray(cart)) {
+          console.log("Cart is not ready yet");
+          return;
         }
+
+        setLoading(true);
+
+        // Map cart IDs to product objects
+        const items = cart
+          .map((id) => products.find((p) => p.id === id))
+          .filter(Boolean);
+
+        setCartItems(items);
+
+        // Calculate totals
+        const calculatedSubtotal = items.reduce(
+          (sum, item) => sum + (item.price || 0),
+          0
+        );
+        setSubtotal(calculatedSubtotal);
+        setTotal(calculatedSubtotal - discount);
+
+        // Set initial load attempted only after successful data loading
+        if (!initialLoadAttempted) {
+          setInitialLoadAttempted(true);
+        }
+      } catch (error) {
+        console.error("Error loading checkout data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load checkout data. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -850,7 +858,7 @@ const CheckoutPage = observer(() => {
   }, [
     mobxLoading,
     products,
-    cart,
+    cart, // This is the critical dependency - now we'll refresh when cart changes
     initialLoadAttempted,
     discount,
     toast,
@@ -976,10 +984,35 @@ const CheckoutPage = observer(() => {
         <div className="lg:col-span-2 space-y-6">
           {/* Account Section */}
           {!user && !accountCreated ? (
-            <div>
-              <GuestCheckoutForm onComplete={handleAccountCreated} />
-              <QuickLoginForm onComplete={() => {}} />
-            </div>
+            <AnimatePresence mode="wait">
+              {showLoginForm ? (
+                <motion.div
+                  key="login-form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <QuickLoginForm
+                    onComplete={handleAccountCreated}
+                    onSwitchToSignup={() => setShowLoginForm(false)}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="signup-form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <GuestCheckoutForm
+                    onComplete={handleAccountCreated}
+                    onSwitchToLogin={() => setShowLoginForm(true)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           ) : (
             <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-6">
               <div className="flex items-center">
