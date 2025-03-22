@@ -555,7 +555,6 @@ const AchievementDialog = ({ achievement }) => {
 
 const ProductDetailsPage = observer(({}) => {
   const { slug } = useParams();
-
   const router = useRouter();
   const { addToCart, cart, user, products, loadingProducts } = MobxStore;
   const [productDetails, setProductDetails] = useState(null);
@@ -564,6 +563,7 @@ const ProductDetailsPage = observer(({}) => {
   const [relatedExpansions, setRelatedExpansions] = useState([]);
   const [mainGame, setMainGame] = useState(null);
   const [otherExpansions, setOtherExpansions] = useState([]);
+  const [otherGames, setOtherGames] = useState([]);
 
   useEffect(() => {
     const loadProductDetails = () => {
@@ -590,7 +590,10 @@ const ProductDetailsPage = observer(({}) => {
             )
           );
         } else if (productData.relatedGames) {
-          setMainGame(products.find((p) => p.id === productData.relatedGames));
+          const mainGameProduct = products.find(
+            (p) => p.id === productData.relatedGames
+          );
+          setMainGame(mainGameProduct);
 
           setOtherExpansions(
             products.filter(
@@ -601,8 +604,30 @@ const ProductDetailsPage = observer(({}) => {
             )
           );
         }
+
+        // Get other games, with proper filtering:
+        // 1. Only include products of type "game"
+        // 2. Exclude the current product we're viewing
+        // 3. Exclude the main game if we're viewing an expansion
+        const otherGamesList = products.filter(
+          (p) =>
+            p.type === "game" &&
+            p.id !== productData.id &&
+            // If we're viewing an expansion, exclude its main game
+            p.id !== productData.relatedGames
+        );
+
+        // Sort: unpurchased games first, then purchased ones
+        const sortedGames = otherGamesList.sort((a, b) => {
+          const aIsPurchased = user?.purchasedProducts?.includes(a.id) ? 1 : 0;
+          const bIsPurchased = user?.purchasedProducts?.includes(b.id) ? 1 : 0;
+          return aIsPurchased - bIsPurchased;
+        });
+
+        // Take up to 4 games for display
+        setOtherGames(sortedGames.slice(0, 4));
       } catch (err) {
-        console.error("Error processing product details:", err);
+        console.log("Error processing product details:", err);
         setError("Failed to load product details");
       } finally {
         setLoading(false);
@@ -613,7 +638,7 @@ const ProductDetailsPage = observer(({}) => {
     if (!loadingProducts && products.length > 0) {
       loadProductDetails();
     }
-  }, [slug, products, loadingProducts]);
+  }, [slug, products, loadingProducts, user?.purchasedProducts]);
 
   if (loading) {
     return (
@@ -1041,6 +1066,21 @@ const ProductDetailsPage = observer(({}) => {
                 </div>
               </section>
             )}
+
+          {/* New "Other Games" section */}
+          {otherGames.length > 0 && (
+            <section className="mb-12">
+              <div className="flex items-center my-6">
+                <h2 className="text-2xl font-strike">Other Games</h2>
+                <div className="ml-4 flex-grow h-px bg-border"></div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {otherGames.map((game) => (
+                  <ProductCard key={game.id} product={game} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </div>
