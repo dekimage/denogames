@@ -21,6 +21,8 @@ import {
   PlusCircle,
   Plus,
   Minus,
+  ArrowDown,
+  InfoIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import PaymentButton from "@/components/PaymentButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+
 import { useToast } from "@/components/ui/use-toast";
 import {
   Form,
@@ -44,6 +46,7 @@ import * as z from "zod";
 import { auth } from "@/firebase";
 import { runInAction } from "mobx";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
+import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 
 // Form schema for guest checkout
 const guestCheckoutSchema = z.object({
@@ -673,8 +676,8 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
   );
 };
 
-// Update the FreeCheckoutButton component to update MobX state
-const FreeCheckoutButton = ({ cartItems }) => {
+// Update the FreeCheckoutButton component
+const FreeCheckoutButton = ({ cartItems, disabled }) => {
   const router = useRouter();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -756,7 +759,7 @@ const FreeCheckoutButton = ({ cartItems }) => {
     <Button
       className="w-full h-12 text-lg font-semibold"
       onClick={handleFreeCheckout}
-      disabled={isProcessing}
+      disabled={disabled || isProcessing}
     >
       {isProcessing ? (
         <>
@@ -767,6 +770,34 @@ const FreeCheckoutButton = ({ cartItems }) => {
       )}
     </Button>
   );
+};
+
+// Add this new function at the top of your checkout page
+const validateExpansionsInCart = (cartItems, userPurchasedProducts = []) => {
+  // Track expansions and their related games
+  const expansions = cartItems.filter((item) => item.type === "expansion");
+  const cartGameIds = cartItems
+    .filter((item) => item.type === "game")
+    .map((game) => game.id);
+  const ownedGameIds = userPurchasedProducts || [];
+
+  // Find problematic expansions (those without their main game)
+  const problematicExpansions = expansions.filter((expansion) => {
+    const mainGameId = expansion.relatedGames;
+    // If this expansion doesn't have a related game, skip validation
+    if (!mainGameId) return false;
+
+    // It's valid if user already owns the main game OR is buying it now
+    const ownsMainGame = ownedGameIds.includes(mainGameId);
+    const isBuyingMainGame = cartGameIds.includes(mainGameId);
+
+    return !(ownsMainGame || isBuyingMainGame);
+  });
+
+  return {
+    isValid: problematicExpansions.length === 0,
+    problematicExpansions,
+  };
 };
 
 const CheckoutPage = observer(() => {
@@ -788,6 +819,70 @@ const CheckoutPage = observer(() => {
   const [accountCreated, setAccountCreated] = useState(false);
   const { toast } = useToast();
   const [showLoginForm, setShowLoginForm] = useState(false);
+  const [validationIssues, setValidationIssues] = useState([]);
+
+  // Add this function to find related games for expansions
+  const findRelatedGame = (gameId) => {
+    return products.find((product) => product.id === gameId);
+  };
+
+  // Update the validation effect to ensure it runs when needed
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      const { isValid, problematicExpansions } = validateExpansionsInCart(
+        cartItems,
+        user?.purchasedProducts
+      );
+
+      // Update validation issues state
+      setValidationIssues(problematicExpansions);
+    } else {
+      setValidationIssues([]);
+    }
+  }, [cartItems, user?.purchasedProducts, cart]); // Add cart as a dependency to ensure revalidation
+
+  // Update the handleAddRelatedGame function to ensure checkout state is updated
+  const handleAddRelatedGame = (gameId) => {
+    const gameToAdd = findRelatedGame(gameId);
+    if (gameToAdd) {
+      // Add to MobX store
+      addToCart(gameToAdd);
+
+      // Update local component state directly
+      setCartItems((prevItems) => [...prevItems, gameToAdd]);
+
+      // Update totals
+      const newSubtotal = subtotal + gameToAdd.price;
+      setSubtotal(newSubtotal);
+
+      // If this was a free order and now it's not, we need to recalculate discount
+      if (total === 0 && gameToAdd.price > 0) {
+        // Recalculate discount for the new order
+        const newDiscount = Math.round(
+          (newSubtotal * discount) / subtotal || 0
+        );
+        setDiscount(newDiscount);
+        setTotal(newSubtotal - newDiscount);
+      } else {
+        setTotal((prev) => prev + gameToAdd.price);
+      }
+
+      // Re-run validation immediately
+      const updatedCart = [...cartItems, gameToAdd];
+      const { isValid, problematicExpansions } = validateExpansionsInCart(
+        updatedCart,
+        user?.purchasedProducts
+      );
+      setValidationIssues(problematicExpansions);
+
+      // Show toast notification
+      toast({
+        title: "Main game added",
+        description: `${gameToAdd.name} has been added to your cart.`,
+        variant: "success",
+      });
+    }
+  };
 
   // This effect will handle the initial loading when MobX data is ready
   useEffect(() => {
@@ -866,6 +961,26 @@ const CheckoutPage = observer(() => {
     MobxStore.cartFetched,
   ]);
 
+  // Add this effect to keep local state in sync with MobX state
+  useEffect(() => {
+    if (Array.isArray(cart) && cart.length !== cartItems.length) {
+      // If cart length changed in MobX, sync local state
+      const items = cart
+        .map((id) => products.find((p) => p.id === id))
+        .filter(Boolean);
+
+      setCartItems(items);
+
+      // Recalculate totals
+      const calculatedSubtotal = items.reduce(
+        (sum, item) => sum + (item.price || 0),
+        0
+      );
+      setSubtotal(calculatedSubtotal);
+      setTotal(calculatedSubtotal - discount);
+    }
+  }, [cart, products, discount]);
+
   // Always show loading until both MobX data is loaded and our cart processing is complete
   if (
     mobxLoading ||
@@ -918,6 +1033,10 @@ const CheckoutPage = observer(() => {
   };
 
   const handleRemoveItem = (productId) => {
+    // Find the item being removed to access its price
+    const removedItem = cartItems.find((item) => item.id === productId);
+    if (!removedItem) return;
+
     // Remove from MobX store first
     removeFromCart(productId);
 
@@ -927,14 +1046,19 @@ const CheckoutPage = observer(() => {
     );
 
     // Recalculate subtotal and total
-    const removedItem = cartItems.find((item) => item.id === productId);
-    if (removedItem) {
-      const newSubtotal = subtotal - removedItem.price;
-      setSubtotal(newSubtotal);
+    const newSubtotal = subtotal - removedItem.price;
+    setSubtotal(newSubtotal);
 
-      // Recalculate total with discount
-      setTotal(newSubtotal - discount);
-    }
+    // Recalculate total with discount
+    setTotal(newSubtotal - discount);
+
+    // Re-run validation immediately with the updated cart
+    const updatedCart = cartItems.filter((item) => item.id !== productId);
+    const { isValid, problematicExpansions } = validateExpansionsInCart(
+      updatedCart,
+      user?.purchasedProducts
+    );
+    setValidationIssues(problematicExpansions);
   };
 
   const handleAddToCart = (product) => {
@@ -967,6 +1091,9 @@ const CheckoutPage = observer(() => {
   // Determine if the order is free (all products cost zero)
   const isZeroCostOrder = total === 0 && cartItems.length > 0;
 
+  // Determine if checkout should be disabled due to validation issues
+  const disableCheckout = validationIssues.length > 0;
+
   return (
     <div className="container mx-auto py-16 px-4 max-w-6xl">
       <div className="mb-8">
@@ -982,6 +1109,120 @@ const CheckoutPage = observer(() => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
+          {/* Add Validation Issues Warning */}
+          {validationIssues.length > 0 && (
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-2 text-amber-800 flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                Unable to Complete Checkout
+              </h3>
+              <p className="mb-4 text-amber-700">
+                To use these expansions, you need their main games. Add the
+                required game(s) to continue:
+              </p>
+
+              <div className="space-y-6 mb-4">
+                {validationIssues.map((expansion) => {
+                  const mainGame = findRelatedGame(expansion.relatedGames);
+                  if (!mainGame) return null;
+
+                  return (
+                    <div
+                      key={expansion.id}
+                      className="bg-white rounded-lg overflow-hidden border border-gray-200"
+                    >
+                      {/* Expansion Item */}
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 border-b border-gray-200">
+                        <div className="relative h-14 w-14 flex-shrink-0">
+                          <Image
+                            src={expansion.thumbnail || "/placeholder.jpg"}
+                            alt={expansion.name}
+                            fill
+                            className="object-cover rounded-md"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className="bg-blue-500/10 text-blue-600 border-blue-200"
+                            >
+                              Expansion
+                            </Badge>
+                          </div>
+                          <p className="font-medium mt-1">{expansion.name}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-medium">
+                            ${expansion.price}.00
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Arrow Connector */}
+                      <div className="flex justify-center py-2 bg-amber-50">
+                        <div className="flex flex-col items-center">
+                          <ArrowDown className="h-5 w-5 text-amber-500" />
+                          <span className="text-xs text-amber-600 font-medium">
+                            Requires Main Game
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Main Game Item */}
+                      <div className="flex items-center gap-3 p-3">
+                        <div className="relative h-14 w-14 flex-shrink-0">
+                          <Image
+                            src={mainGame.thumbnail || "/placeholder.jpg"}
+                            alt={mainGame.name}
+                            fill
+                            className="object-cover rounded-md"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className="bg-green-500/10 text-green-600 border-green-200"
+                            >
+                              Main Game
+                            </Badge>
+                          </div>
+                          <p className="font-medium mt-1">{mainGame.name}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="font-medium">
+                            ${mainGame.price}.00
+                          </span>
+                          <Button
+                            size="sm"
+                            className="gap-1"
+                            onClick={() =>
+                              handleAddRelatedGame(expansion.relatedGames)
+                            }
+                          >
+                            <Plus className="h-4 w-4" /> Add to Cart
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-sm text-amber-700 bg-amber-100 p-3 rounded">
+                <p className="flex items-start">
+                  <InfoIcon className="h-5 w-5 mr-2 flex-shrink0 mt-0.5" />
+                  <span>
+                    <strong>Why is this important?</strong> Expansions enhance
+                    the main game but cannot be played on their own. You must
+                    own the main game to use its expansions.
+                  </span>
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Account Section */}
           {!user && !accountCreated ? (
             <AnimatePresence mode="wait">
@@ -1043,22 +1284,19 @@ const CheckoutPage = observer(() => {
           {/* Payment Section - modified to handle free products and require authentication */}
           <div
             className={`bg-white p-4 rounded-lg border ${
-              !user && !accountCreated
+              (!user && !accountCreated) || disableCheckout
                 ? "opacity-60 pointer-events-none relative"
                 : ""
             }`}
           >
-            {/* Add an overlay for unauthenticated users */}
-            {!user && !accountCreated && (
+            {/* Add an overlay for validation issues */}
+            {disableCheckout && (
               <div className="absolute inset-0 bg-gray-100/40 flex items-center justify-center z-10 rounded-lg">
                 <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 max-w-md text-center">
-                  <Lock className="h-6 w-6 text-primary mx-auto mb-2" />
-                  <h4 className="font-semibold mb-1">
-                    Authentication Required
-                  </h4>
+                  <AlertCircle className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+                  <h4 className="font-semibold mb-1">Checkout Unavailable</h4>
                   <p className="text-sm text-muted-foreground">
-                    Please create an account or log in above to continue with
-                    checkout.
+                    Please resolve the validation issues above to continue.
                   </p>
                 </div>
               </div>
@@ -1091,7 +1329,10 @@ const CheckoutPage = observer(() => {
                   </p>
                 </div>
 
-                <FreeCheckoutButton cartItems={cartItems} />
+                <FreeCheckoutButton
+                  cartItems={cartItems}
+                  disabled={disableCheckout}
+                />
               </div>
             ) : (
               <>
@@ -1149,7 +1390,11 @@ const CheckoutPage = observer(() => {
                   </div>
                 </div>
 
-                <PaymentButton cartItems={cartItems} total={total} />
+                <PaymentButton
+                  cartItems={cartItems}
+                  total={total}
+                  disabled={disableCheckout}
+                />
               </>
             )}
 

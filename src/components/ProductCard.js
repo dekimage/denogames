@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Download,
   Hammer,
+  ArrowRight,
 } from "lucide-react";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 
@@ -61,7 +62,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
             variant="secondary"
             className="w-full bg-orange-400 hover:bg-orange-300"
           >
-            <ShoppingBag size={16} className="mr-1" /> CHECKOUT
+            COMPLETE CHECKOUT <ArrowRight size={16} className="ml-1" />
           </Button>
         </Link>
       );

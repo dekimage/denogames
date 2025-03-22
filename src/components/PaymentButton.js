@@ -4,9 +4,11 @@ import { observer } from "mobx-react-lite";
 import { auth } from "@/firebase";
 import { Button } from "./ui/button";
 import { Lock } from "lucide-react";
+import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 
-const PaymentButton = observer(({ cartItems, total }) => {
+const PaymentButton = observer(({ cartItems, total, disabled }) => {
   const [stripePromise, setStripePromise] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY));
@@ -65,14 +67,20 @@ const PaymentButton = observer(({ cartItems, total }) => {
   const displayAmount = total ? `$${total}.00` : "Checkout";
 
   return (
-    <button
+    <Button
+      className="w-full h-12 text-lg font-semibold"
       onClick={handlePayment}
-      disabled={!stripePromise || cartItems.length === 0}
-      className="w-full h-12 text-lg flex items-center justify-center bg-[#635BFF] hover:bg-[#5851E1] text-white font-medium rounded-md transition-colors"
+      disabled={disabled || isLoading}
     >
-      <Lock className="mr-2 h-4 w-4" />
+      {isLoading ? (
+        <>
+          <LoadingSpinner size={20} className="mr-2" /> Processing...
+        </>
+      ) : (
+        <Lock className="mr-2 h-4 w-4" />
+      )}
       Pay with Stripe {total ? `• ${displayAmount}` : ""}
-    </button>
+    </Button>
   );
 });
 
