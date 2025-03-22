@@ -323,12 +323,24 @@ const ExpansionSection = ({ title, expansions, icon, type }) => {
 const GameDetailsPage = observer(({ params }) => {
   const { slug } = params;
   const router = useRouter();
-  const { user, products, getRelatedExpansions } = MobxStore;
-  const [gameData, setGameData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    user,
+    products,
+    getRelatedExpansions,
+    fetchGameDetails,
+    gameDetailsCache,
+    gameDetailsLoading,
+  } = MobxStore;
+
   const [error, setError] = useState(null);
 
   const game = products.find((p) => p.slug === slug);
+
+  // Get data directly from MobX cache instead of local state
+  const gameData = gameDetailsCache.get(slug);
+
+  // Determine loading state from MobX
+  const isLoading = gameDetailsLoading.has(slug) || (!gameData && game?.id);
 
   // Get add-ons data for the badge display
   const allAddons = products.filter(
@@ -339,42 +351,16 @@ const GameDetailsPage = observer(({ params }) => {
   );
 
   useEffect(() => {
-    // Ensure products are loaded
-    if (products.length === 0) {
-      MobxStore.fetchProducts();
+    // Only fetch if we have a game ID, don't have data already, and aren't already loading
+    if (game?.id && !gameData && !gameDetailsLoading.has(slug)) {
+      fetchGameDetails(slug).catch((err) => {
+        setError(err.message);
+      });
     }
-
-    const fetchGameDetails = async () => {
-      try {
-        setLoading(true);
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) throw new Error("No auth token available");
-
-        const response = await fetch(`/api/game-details/${slug}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setGameData(data);
-      } catch (error) {
-        console.error("Error fetching game details:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (game?.id) {
-      fetchGameDetails();
-    }
-  }, [game?.id, slug, products.length]);
+  }, [game?.id, slug, gameData, fetchGameDetails, gameDetailsLoading]);
 
   if (!game) return <div>Game not found</div>;
-  if (loading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />;
   if (error) return <div>Error: {error}</div>;
 
   // Get expansion data for the badge display

@@ -89,6 +89,10 @@ class Store {
 
   activeLocation = null;
 
+  // Add these new properties to your Store class
+  gameDetailsCache = new Map(); // Store fetched game details
+  gameDetailsLoading = new Map(); // Track loading state for each game
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -140,6 +144,9 @@ class Store {
 
     this.setActiveLocation = this.setActiveLocation.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
+
+    // Bind the new method
+    this.fetchGameDetails = this.fetchGameDetails.bind(this);
   }
 
   initializeAuth() {
@@ -175,10 +182,9 @@ class Store {
             this.user = userData;
             this.userFullyLoaded = true; // Set this when we have everything
           });
-
-          await this.fetchCart();
-          await this.fetchNotifications();
           await this.fetchAchievements();
+          await this.fetchCart();
+          // await this.fetchNotifications();
         } else {
           runInAction(() => {
             this.user = null;
@@ -1218,6 +1224,57 @@ class Store {
     }
 
     return product;
+  }
+
+  // Add this method to your Store class
+  async fetchGameDetails(slug) {
+    // If we're already loading this game's details, return the existing promise
+    if (this.gameDetailsLoading.get(slug)) {
+      return this.gameDetailsLoading.get(slug);
+    }
+
+    // If we already have cached data for this game, return it
+    if (this.gameDetailsCache.has(slug)) {
+      return this.gameDetailsCache.get(slug);
+    }
+
+    // Create a promise for the data fetch
+    const fetchPromise = (async () => {
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) throw new Error("No auth token available");
+
+        const response = await fetch(`/api/game-details/${slug}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Cache the result
+        runInAction(() => {
+          this.gameDetailsCache.set(slug, data);
+        });
+
+        return data;
+      } catch (error) {
+        console.error("Error fetching game details:", error);
+        throw error;
+      } finally {
+        // Remove the loading promise when done
+        runInAction(() => {
+          this.gameDetailsLoading.delete(slug);
+        });
+      }
+    })();
+
+    // Store the promise so we can return it for concurrent requests
+    this.gameDetailsLoading.set(slug, fetchPromise);
+
+    return fetchPromise;
   }
 }
 

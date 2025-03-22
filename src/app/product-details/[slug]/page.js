@@ -930,7 +930,7 @@ const ProductDetailsPage = observer(({}) => {
                         ) ? (
                           <>
                             <Hammer className="h-4 w-4 mr-2" />
-                            Craft Booster
+                            Craft Add-on
                           </>
                         ) : (
                           <>
@@ -954,7 +954,7 @@ const ProductDetailsPage = observer(({}) => {
                       className="w-full font-strike"
                       onClick={() => router.push("/login")}
                     >
-                      Sign in to Craft Booster
+                      Sign in to Craft Add-ons
                     </Button>
                   )}
                 </div>

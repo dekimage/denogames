@@ -172,7 +172,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
             ) : (
               <>
                 <Hammer className="mr-2 h-3 w-3" />
-                Craft Booster
+                Craft Add-on
               </>
             )}
           </Button>
