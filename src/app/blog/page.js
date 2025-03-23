@@ -53,24 +53,38 @@ const BlogPage = observer(() => {
     const fetchBlogs = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/wordpress");
-        if (!response.ok) throw new Error("Failed to fetch blogs");
 
-        const data = await response.json();
+        // Check if blogs are already in MobxStore before making API call
+        if (MobxStore.blogsFetched && MobxStore.blogs.length > 0) {
+          // Use data from MobxStore
+          const categories = new Set();
+          MobxStore.blogs.forEach((blog) => {
+            if (blog.categories && Array.isArray(blog.categories)) {
+              blog.categories.forEach((category) => categories.add(category));
+            }
+          });
 
-        // Extract all categories for the filter
-        const categories = new Set();
-        data.forEach((blog) => {
-          if (blog.categories && Array.isArray(blog.categories)) {
-            blog.categories.forEach((category) => categories.add(category));
-          }
-        });
+          setAllCategories(Array.from(categories).sort());
+          setBlogs(MobxStore.blogs);
+          setFilteredBlogs(MobxStore.blogs);
+        } else {
+          // Fetch from MobxStore which handles caching internally
+          await MobxStore.fetchBlogs();
 
-        setAllCategories(Array.from(categories).sort());
-        setBlogs(data);
-        setFilteredBlogs(data);
+          // Extract all categories for the filter
+          const categories = new Set();
+          MobxStore.blogs.forEach((blog) => {
+            if (blog.categories && Array.isArray(blog.categories)) {
+              blog.categories.forEach((category) => categories.add(category));
+            }
+          });
+
+          setAllCategories(Array.from(categories).sort());
+          setBlogs(MobxStore.blogs);
+          setFilteredBlogs(MobxStore.blogs);
+        }
       } catch (err) {
-        console.error("Error fetching blogs:", err);
+        console.log("Error fetching blogs:", err);
         setError("Failed to load blog posts. Please try again later.");
       } finally {
         setLoading(false);
@@ -78,7 +92,7 @@ const BlogPage = observer(() => {
     };
 
     fetchBlogs();
-  }, []);
+  }, []); // Empty dependency array ensures this only runs once
 
   // Filter blogs based on search query and selected categories
   useEffect(() => {
