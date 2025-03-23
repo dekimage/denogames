@@ -93,6 +93,10 @@ class Store {
   gameDetailsCache = new Map(); // Store fetched game details
   gameDetailsLoading = new Map(); // Track loading state for each game
 
+  // Add a new loading state for orders
+  ordersLoading = false;
+  ordersFetched = false; // Flag to track if orders were already fetched
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -762,10 +766,15 @@ class Store {
   }
 
   async fetchOrders() {
-    // Return early if we already have the orders
-    if (this.ordersFetched || !this.user) return;
+    // Return early if we already have the orders or if they're already being fetched
+    if (this.ordersFetched || this.ordersLoading || !this.user) return;
 
     try {
+      // Set loading flag to true before starting the fetch
+      runInAction(() => {
+        this.ordersLoading = true;
+      });
+
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("No auth token available");
 
@@ -784,12 +793,36 @@ class Store {
       runInAction(() => {
         this.orders = data.orders;
         this.ordersFetched = true; // Mark as fetched
+        this.ordersLoading = false;
       });
     } catch (error) {
       console.error("Error fetching orders:", error);
       runInAction(() => {
         this.ordersFetched = false; // Reset flag on error
+        this.ordersLoading = false;
       });
+    }
+  }
+
+  // Add a method to reset orders state (useful for logout)
+  resetOrders() {
+    runInAction(() => {
+      this.orders = [];
+      this.ordersFetched = false;
+    });
+  }
+
+  async logout() {
+    try {
+      await signOut(auth);
+      runInAction(() => {
+        this.user = null;
+        this.achievements = [];
+        this.resetOrders(); // Clear orders data on logout
+        // ... any other resets needed
+      });
+    } catch (error) {
+      console.log("Error during logout:", error);
     }
   }
 
@@ -901,19 +934,6 @@ class Store {
         this.loading = false;
       });
       throw error;
-    }
-  }
-
-  async logout() {
-    try {
-      await signOut(auth);
-      runInAction(() => {
-        this.user = null;
-        this.achievements = [];
-        this.orders = [];
-      });
-    } catch (error) {
-      console.log("Error during logout:", error);
     }
   }
 
