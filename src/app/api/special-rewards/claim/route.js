@@ -21,9 +21,10 @@ export async function POST(request) {
       );
     }
 
-    // Get user data and reward data in parallel
-    const [userDoc] = await Promise.all([
+    // Get user data and product (reward) data in parallel
+    const [userDoc, productDoc] = await Promise.all([
       firestore.collection("users").doc(decodedToken.uid).get(),
+      firestore.collection("products").doc(rewardId).get(),
     ]);
 
     // Verify user exists
@@ -31,30 +32,67 @@ export async function POST(request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Verify reward exists
-    if (!rewardDoc.exists) {
-      return NextResponse.json({ error: "Reward not found" }, { status: 404 });
+    // Verify product exists and is an add-on (reward)
+    if (!productDoc.exists) {
+      return NextResponse.json({ error: "Add-on not found" }, { status: 404 });
     }
 
     const userData = userDoc.data();
-    const rewardData = rewardDoc.data();
+    const productData = productDoc.data();
+
+    // Check if the product is actually an add-on type
+    if (productData.type !== "add-on") {
+      return NextResponse.json(
+        { error: "Product is not a claimable add-on" },
+        { status: 400 }
+      );
+    }
 
     // Check if reward is already claimed
     if (userData.unlockedRewards?.includes(rewardId)) {
       return NextResponse.json(
-        { error: "Reward already claimed" },
+        { error: "Add-on already claimed" },
+        { status: 400 }
+      );
+    }
+
+    // NEW: Check if user owns the base game
+    if (productData.relatedGames) {
+      const userOwnsBaseGame = userData.purchasedProducts?.includes(
+        productData.relatedGames
+      );
+
+      if (!userOwnsBaseGame) {
+        return NextResponse.json(
+          { error: "You must own the base game to claim this add-on" },
+          { status: 400 }
+        );
+      }
+    } else {
+      return NextResponse.json(
+        { error: "This add-on is not associated with any base game" },
         { status: 400 }
       );
     }
 
     // Verify user has all required achievements
-    const hasAllAchievements = rewardData.requiredAchievements.every(
+    if (
+      !productData.requiredAchievements ||
+      productData.requiredAchievements.length === 0
+    ) {
+      return NextResponse.json(
+        { error: "This add-on has no achievement requirements defined" },
+        { status: 400 }
+      );
+    }
+
+    const hasAllAchievements = productData.requiredAchievements.every(
       (achievementKey) => userData.achievements?.includes(achievementKey)
     );
 
     if (!hasAllAchievements) {
       return NextResponse.json(
-        { error: "Missing required collectibles" },
+        { error: "Missing required achievements" },
         { status: 400 }
       );
     }

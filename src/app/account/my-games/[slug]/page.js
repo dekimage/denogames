@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import Link from "next/link";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 
 const ComponentCard = ({
   title,
@@ -193,11 +194,37 @@ const ComponentSection = ({ title, components, icon }) => {
 const ExpansionSection = ({ title, expansions, icon, type }) => {
   if (!expansions || expansions.length === 0) return null;
 
+  // Use a ref to track initialization of expandedItems
+  const initialized = useRef(false);
+  const [expandedItems, setExpandedItems] = useState({});
+
   // Sort expansions to show owned first
   const sortedExpansions = [...expansions].sort((a, b) => {
     if (a.isOwned === b.isOwned) return 0;
     return a.isOwned ? -1 : 1;
   });
+
+  const toggleExpand = (itemId, e) => {
+    // Stop event propagation to prevent issues with links
+    if (e) e.stopPropagation();
+
+    setExpandedItems((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
+  };
+
+  // Initialize all items as expanded by default - ONLY ONCE
+  useEffect(() => {
+    if (!initialized.current) {
+      const initialState = {};
+      sortedExpansions.forEach((item) => {
+        initialState[item.id] = true; // Set all to expanded by default
+      });
+      setExpandedItems(initialState);
+      initialized.current = true;
+    }
+  }, [sortedExpansions]);
 
   return (
     <div className="mb-10">
@@ -208,111 +235,128 @@ const ExpansionSection = ({ title, expansions, icon, type }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {sortedExpansions.map((item) => (
-          <div key={item.id} className="space-y-5">
-            {/* Improved Card for Expansion/Add-on */}
-            <div className="relative rounded-lg overflow-hidden border shadow-sm hover:shadow-md transition-all">
-              {/* Card Header with Thumbnail */}
-              <div className="relative w-full h-[140px]">
-                <Image
-                  src={item.thumbnail || "/placeholder-image.jpg"}
-                  alt={item.name}
-                  fill
-                  className={`object-cover ${
-                    !item.isOwned ? "grayscale opacity-80" : ""
-                  }`}
-                />
-                {!item.isOwned && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                    <Lock className="w-10 h-10 text-white/90" />
-                  </div>
-                )}
-
-                {/* Status Badge */}
-                <div className="absolute top-3 right-3">
-                  {item.isOwned ? (
-                    <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                      Owned
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="bg-white/80">
-                      Locked
-                    </Badge>
-                  )}
+          <div
+            key={item.id}
+            className="border rounded-lg overflow-hidden shadow-sm h-fit"
+          >
+            {/* Card Header with Thumbnail */}
+            <div className="relative w-full h-[140px]">
+              <Image
+                src={item.thumbnail || "/placeholder-image.jpg"}
+                alt={item.name}
+                fill
+                className={`object-cover ${
+                  !item.isOwned ? "grayscale opacity-80" : ""
+                }`}
+              />
+              {!item.isOwned && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <Lock className="w-10 h-10 text-white/90" />
                 </div>
+              )}
+            </div>
 
-                {/* Product Type Badge */}
-                <div className="absolute top-3 left-3">
-                  <Badge
-                    variant="outline"
-                    className={`
-                      capitalize ${
-                        type === "expansion"
-                          ? "bg-blue-500/10 text-blue-600 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400"
-                          : "bg-purple-500/10 text-purple-600 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400"
-                      }
-                    `}
-                  >
-                    {type}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-3 truncate">
+            {/* Card Content */}
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold truncate flex-1">
                   {item.name}
                 </h3>
 
-                {/* Action Button */}
-                <div className="mb-3">
-                  {!item.isOwned ? (
-                    <Link
-                      href={`/product-details/${item.slug}`}
+                {item.components &&
+                  item.components.length > 0 &&
+                  item.isOwned && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-2 p-0 h-8 w-8"
+                      onClick={(e) => toggleExpand(item.id, e)}
+                    >
+                      <ChevronDown
+                        className={`w-5 h-5 transform transition-transform ${
+                          expandedItems[item.id] ? "rotate-180" : ""
+                        }`}
+                      />
+                    </Button>
+                  )}
+              </div>
+
+              <div className="flex items-center gap-2 mb-3">
+                <ProductTypeBadge type={type} />
+
+                {item.isOwned ? (
+                  <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                    Owned
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-white/80">
+                    Locked
+                  </Badge>
+                )}
+              </div>
+              {/* Action Button or Component Count */}
+              <div className="mb-3">
+                {!item.isOwned ? (
+                  <Link
+                    href={`/product-details/${item.slug}`}
+                    className="w-full"
+                    onClick={(e) => {
+                      // Ensure the click event properly navigates
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Button
+                      variant={type === "expansion" ? "default" : "secondary"}
+                      size="sm"
                       className="w-full"
                     >
-                      <Button
-                        variant={type === "expansion" ? "default" : "secondary"}
-                        size="sm"
-                        className="w-full"
-                      >
-                        {type === "expansion" ? (
-                          <>
-                            <ShoppingCart className="w-4 h-4 mr-2" />
-                            Buy Expansion
-                          </>
-                        ) : (
-                          <>
-                            <Gift className="w-4 h-4 mr-2" />
-                            View Add-on
-                          </>
-                        )}
-                      </Button>
-                    </Link>
-                  ) : item.components && item.components.length > 0 ? (
-                    <div className="text-sm text-muted-foreground">
-                      {item.components.length} component
-                      {item.components.length !== 1 ? "s" : ""} available
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      No downloadable components
-                    </div>
-                  )}
-                </div>
+                      {type === "expansion" ? (
+                        <>
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          {item.price
+                            ? `$${item.price} Buy Expansion`
+                            : "Buy Expansion"}
+                        </>
+                      ) : (
+                        <>
+                          <Gift className="w-4 h-4 mr-2" />
+                          {item.price
+                            ? `$${item.price} View Add-on`
+                            : "View Add-on"}
+                        </>
+                      )}
+                    </Button>
+                  </Link>
+                ) : item.components && item.components.length > 0 ? (
+                  <div className="text-sm text-muted-foreground flex items-center">
+                    <Download className="w-4 h-4 mr-2" />
+                    {item.components.length} Downloadable File
+                    {item.components.length !== 1 ? "s" : ""}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    No downloadable files
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Components Section - Using original component design */}
-            {item.components && item.components.length > 0 && (
-              <div className="grid grid-cols-1 gap-4 pl-4 border-l-2 border-muted ml-4">
-                {item.components.map((component, index) => (
-                  <ComponentCard
-                    key={`${item.id}-component-${index}`}
-                    {...component}
-                  />
-                ))}
-              </div>
-            )}
+            {/* Components Section - Only shown when expanded */}
+            {item.isOwned &&
+              item.components &&
+              item.components.length > 0 &&
+              expandedItems[item.id] && (
+                <div className="border-t pt-2 px-4 pb-4 bg-muted/30">
+                  <div className="grid grid-cols-1 gap-4">
+                    {item.components.map((component, index) => (
+                      <ComponentCard
+                        key={`${item.id}-component-${index}`}
+                        {...component}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
           </div>
         ))}
       </div>
@@ -449,7 +493,7 @@ const GameDetailsPage = observer(({ params }) => {
         title="Add-ons"
         expansions={gameData?.addons}
         icon={<Gift className="w-6 h-6 text-purple-500" />}
-        type="addon"
+        type="add-on"
       />
 
       {/* Variable Files Section - Keeping as requested */}

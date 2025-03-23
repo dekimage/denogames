@@ -864,89 +864,210 @@ const ProductDetailsPage = observer(({}) => {
 
               {productDetails.type === "add-on" ? (
                 <div className="mt-8 space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">
-                        Required Collectibles
-                      </h3>
-                      {user ? (
-                        <div className="text-sm text-muted-foreground">
-                          Progress:{" "}
-                          {productDetails.achievements?.filter((achievement) =>
-                            user?.achievements?.includes(achievement.id)
-                          ).length || 0}
-                          /{productDetails.achievements?.length || 0}
+                  {user?.unlockedRewards?.includes(productDetails.id) ? (
+                    // User already owns/unlocked the add-on - show download button
+                    <div className="space-y-4">
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-green-700 mb-2">
+                          <CheckCircle2 className="h-5 w-5" />
+                          <span className="font-medium">
+                            You've crafted this add-on!
+                          </span>
                         </div>
-                      ) : null}
-                    </div>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          You can now access all files for this add-on in your
+                          game library.
+                        </p>
 
-                    {user && productDetails.achievements?.length > 0 && (
-                      <Progress
-                        value={
-                          ((productDetails.achievements.filter((achievement) =>
-                            user?.achievements?.includes(achievement.id)
-                          ).length || 0) /
-                            productDetails.achievements.length) *
-                          100
-                        }
-                        className="h-2"
-                      />
-                    )}
-
-                    <div className="space-y-2">
-                      {productDetails.achievements?.map((achievement) => (
-                        <div
-                          key={achievement.id}
-                          className={cn(
-                            "relative rounded-lg border p-4",
-                            user?.achievements?.includes(achievement.id)
-                              ? "bg-green-50 border-green-200"
-                              : "bg-muted"
-                          )}
+                        <Link
+                          href={`/account/my-games/${productDetails.relatedGames}`}
+                          className="w-full"
                         >
-                          <AchievementDialog achievement={achievement} />
-                          {user?.achievements?.includes(achievement.id) && (
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                              <CheckCircle2 className="h-5 w-5 text-green-600" />
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                          <Button className="w-full font-strike">
+                            <Download className="h-4 w-4 mr-2" />
+                            Download Files
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    // User doesn't own the add-on yet - show achievements progress
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">
+                          Required Collectibles
+                        </h3>
+                        {user ? (
+                          <div className="text-sm text-muted-foreground">
+                            Progress:{" "}
+                            {productDetails.achievements?.filter(
+                              (achievement) =>
+                                user?.achievements?.includes(achievement.id)
+                            ).length || 0}
+                            /{productDetails.achievements?.length || 0}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {user && productDetails.achievements?.length > 0 && (
+                        <Progress
+                          value={
+                            ((productDetails.achievements.filter(
+                              (achievement) =>
+                                user?.achievements?.includes(achievement.id)
+                            ).length || 0) /
+                              productDetails.achievements.length) *
+                            100
+                          }
+                          className="h-2"
+                        />
+                      )}
+
+                      <div className="space-y-2">
+                        {productDetails.achievements?.map((achievement) => (
+                          <div
+                            key={achievement.id}
+                            className={cn(
+                              "relative rounded-lg border p-4",
+                              user?.achievements?.includes(achievement.id)
+                                ? "bg-green-50 border-green-200"
+                                : "bg-muted"
+                            )}
+                          >
+                            <AchievementDialog achievement={achievement} />
+                            {user?.achievements?.includes(achievement.id) && (
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {user ? (
                     <>
-                      <Button
-                        className="w-full font-strike"
-                        disabled={
-                          !productDetails.achievements?.every((achievement) =>
+                      {!user?.unlockedRewards?.includes(productDetails.id) && (
+                        <>
+                          {/* Check if user has all achievements but doesn't own the base game */}
+                          {productDetails.achievements?.every((achievement) =>
                             user?.achievements?.includes(achievement.id)
-                          )
-                        }
-                      >
-                        {productDetails.achievements?.every((achievement) =>
-                          user?.achievements?.includes(achievement.id)
-                        ) ? (
-                          <>
-                            <Hammer className="h-4 w-4 mr-2" />
-                            Craft Add-on
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="h-4 w-4 mr-2" />
-                            Craft This
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full font-strike"
-                        onClick={() => router.push("/account/my-collection")}
-                      >
-                        <Trophy className="h-4 w-4 mr-2" />
-                        View Your Collection
-                      </Button>
+                          ) &&
+                          !user?.purchasedProducts?.includes(
+                            productDetails.relatedGames
+                          ) ? (
+                            // User has all achievements but is missing the base game
+                            <div className="mb-4 p-4 border border-amber-200 bg-amber-50 rounded-lg">
+                              <div className="flex items-start gap-2">
+                                <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="font-medium text-amber-800">
+                                    You've collected all required achievements!
+                                  </p>
+                                  <p className="text-sm text-amber-700 mt-1">
+                                    However, you need to own the base game{" "}
+                                    <Link
+                                      href={`/product-details/${
+                                        products.find(
+                                          (p) =>
+                                            p.id === productDetails.relatedGames
+                                        )?.slug
+                                      }`}
+                                      className="font-semibold underline hover:text-amber-900"
+                                    >
+                                      {
+                                        products.find(
+                                          (p) =>
+                                            p.id === productDetails.relatedGames
+                                        )?.name
+                                      }
+                                    </Link>{" "}
+                                    to craft this add-on.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <Button
+                            className="w-full font-strike"
+                            disabled={
+                              !productDetails.achievements?.every(
+                                (achievement) =>
+                                  user?.achievements?.includes(achievement.id)
+                              ) ||
+                              !user?.purchasedProducts?.includes(
+                                productDetails.relatedGames
+                              )
+                            }
+                            onClick={async () => {
+                              if (
+                                productDetails.achievements?.every(
+                                  (achievement) =>
+                                    user?.achievements?.includes(achievement.id)
+                                ) &&
+                                user?.purchasedProducts?.includes(
+                                  productDetails.relatedGames
+                                )
+                              ) {
+                                try {
+                                  setLoading(true);
+                                  await MobxStore.claimSpecialReward(
+                                    productDetails.id
+                                  );
+                                } catch (error) {
+                                  console.error(
+                                    "Error claiming reward:",
+                                    error
+                                  );
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }
+                            }}
+                          >
+                            {loading ? (
+                              <LoadingSpinner size="sm" />
+                            ) : productDetails.achievements?.every(
+                                (achievement) =>
+                                  user?.achievements?.includes(achievement.id)
+                              ) ? (
+                              <>
+                                {user?.purchasedProducts?.includes(
+                                  productDetails.relatedGames
+                                ) ? (
+                                  <>
+                                    <Hammer className="h-4 w-4 mr-2" />
+                                    Craft Add-on
+                                  </>
+                                ) : (
+                                  <>
+                                    <Lock className="h-4 w-4 mr-2" />
+                                    Get Base Game to Craft
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <Lock className="h-4 w-4 mr-2" />
+                                Collect All Achievements
+                              </>
+                            )}
+                          </Button>
+                        </>
+                      )}
+
+                      {!user?.unlockedRewards?.includes(productDetails.id) && (
+                        <Button
+                          variant="outline"
+                          className="w-full font-strike"
+                          onClick={() => router.push("/account/my-collection")}
+                        >
+                          <Trophy className="h-4 w-4 mr-2" />
+                          View Your Collection
+                        </Button>
+                      )}
                     </>
                   ) : (
                     <Button

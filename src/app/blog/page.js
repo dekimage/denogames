@@ -325,10 +325,9 @@ const BlogPage = observer(() => {
 
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Our Blog</h1>
+        <h1 className="text-4xl font-bold mb-4 font-strike">Deno Press</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Discover the latest news, tips, and insights about our games and the
-          gaming industry.
+          Discover new games, explore mechanics and find hidden collectibles.
         </p>
       </div>
 
@@ -412,7 +411,7 @@ const BlogPage = observer(() => {
           {/* Results Count */}
           <div className="mb-6 flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              Showing {filteredBlogs.length} of {blogs.length} articles
+              Showing {filteredBlogs.length} of {blogs.length} blogs
             </p>
 
             <DropdownMenu>

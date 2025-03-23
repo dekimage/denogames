@@ -21,6 +21,9 @@ import {
   Loader2,
   Hammer,
   CheckCircle,
+  AlertCircle,
+  ShoppingCart,
+  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AchievementCard } from "../my-collection/page";
@@ -28,7 +31,7 @@ import { useRouter } from "next/navigation";
 
 const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
   const { toast } = useToast();
-  const { claimingReward } = MobxStore;
+  const { claimingReward, products, user } = MobxStore;
   const router = useRouter();
 
   // Check if user has all required achievements
@@ -45,6 +48,17 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
   ).length;
   const progressPercentage =
     (achievementsCompleted / requiredAchievements.length) * 100;
+
+  // Check if user owns the main game
+  const mainGameId = addon.relatedGames;
+  const ownsMainGame = mainGameId
+    ? (user?.purchasedProducts || []).includes(mainGameId)
+    : true; // If no related game, we assume it's standalone
+
+  // Find main game for display
+  const mainGame = mainGameId
+    ? products.find((p) => p.id === mainGameId)
+    : null;
 
   const handleCraft = async () => {
     try {
@@ -67,7 +81,9 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
   };
 
   const navigateToMainGame = () => {
-    router.push(`/account/my-games/${addon.relatedGames}`);
+    if (mainGameId && mainGame) {
+      router.push(`/product-details/${mainGame.slug}`);
+    }
   };
 
   return (
@@ -88,7 +104,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
       {/* Reward Image */}
       <div className="relative h-32 w-full mb-3">
         <Image
-          src={addon.thumbnail || "/placeholder-image.jpg"} // Fallback image if thumbnail is empty
+          src={addon.thumbnail || "/placeholder-image.jpg"}
           alt={addon.name}
           fill
           className={`object-contain ${!isUnlocked ? "grayscale" : ""}`}
@@ -100,6 +116,60 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
       <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
         {addon.description}
       </p>
+
+      {/* Related Game Section - NEW */}
+      {mainGame && (
+        <div className="mt-3 border rounded-md p-2 bg-gray-50">
+          <p className="text-xs text-muted-foreground mb-2 font-medium">
+            Related Game:
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="relative w-12 h-12 flex-shrink-0 border rounded-md overflow-hidden">
+              <Image
+                src={mainGame.thumbnail || "/placeholder-image.jpg"}
+                alt={mainGame.name}
+                fill
+                className="object-contain"
+              />
+            </div>
+            <div className="flex-grow min-w-0">
+              <p className="text-sm font-medium truncate">{mainGame.name}</p>
+              <div className="flex items-center gap-1 mt-1">
+                {ownsMainGame ? (
+                  <div className="flex items-center text-green-600 text-xs">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    <span>Owned</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={navigateToMainGame}
+                    className="flex items-center text-amber-600 text-xs hover:underline"
+                  >
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    <span>Required - Get Game</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Game Warning - UPDATED */}
+      {isUnlocked && !isClaimed && !ownsMainGame && mainGame && (
+        <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-md">
+          <div className="flex gap-2 text-amber-700 text-xs items-start">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">You've Unlocked This Add-on!</p>
+              <p className="mt-0.5">
+                You have all the required achievements, but you need to own{" "}
+                {mainGame.name} before you can craft this add-on.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Achievement Progress */}
       <div className="mt-4 space-y-2">
@@ -162,7 +232,12 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
             className="w-full"
             size="sm"
             onClick={handleCraft}
-            disabled={claimingReward}
+            disabled={claimingReward || !ownsMainGame}
+            title={
+              !ownsMainGame && mainGame
+                ? `You need to own ${mainGame.name} first`
+                : ""
+            }
           >
             {claimingReward ? (
               <>
@@ -187,6 +262,19 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
           <ExternalLink className="mr-2 h-3 w-3" />
           View Add-on
         </Button>
+
+        {/* Updated Buy Main Game Button */}
+        {isUnlocked && !isClaimed && !ownsMainGame && mainGame && (
+          <Button
+            className="w-full"
+            variant="secondary"
+            size="sm"
+            onClick={navigateToMainGame}
+          >
+            <ShoppingCart className="mr-2 h-3 w-3" />
+            Get Main Game
+          </Button>
+        )}
 
         {isClaimed && (
           <Button
