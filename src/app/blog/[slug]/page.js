@@ -65,12 +65,26 @@ const ProgressBar = () => {
 const BlogPost = observer(() => {
   const params = useParams();
   const slug = params.slug;
-
-  const relatedGames = MobxStore.products?.slice(0, 2) || [];
+  const [relatedGames, setRelatedGames] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (slug) {
-      MobxStore.fetchBlogDetails(slug);
+      setIsLoading(true);
+
+      MobxStore.fetchBlogDetails(slug)
+        .then((blog) => {
+          if (blog && blog.relatedGames) {
+            const games = MobxStore.products
+              .filter((product) => blog.relatedGames.includes(product.id))
+              .slice(0, 2);
+
+            setRelatedGames(games);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   }, [slug]);
 

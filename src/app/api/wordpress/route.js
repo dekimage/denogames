@@ -72,22 +72,26 @@ function formatBlogPost(post) {
     post._embedded["wp:term"] &&
     post._embedded["wp:term"][0]
   ) {
-    categories = post._embedded["wp:term"][0].map((term) => term.name);
+    categories = post._embedded["wp:term"][0]
+      .map((term) => term.name)
+      // Filter out any categories that start with "game-" (just in case)
+      .filter((category) => !category.toLowerCase().startsWith("game-"));
   }
   if (categories.length === 0) {
     categories.push("Uncategorized");
   }
 
-  // Add related games extraction from tags
-  let relatedGameIds = [];
+  // Extract tags that might match game IDs
+  let relatedGames = [];
   if (
     post._embedded &&
     post._embedded["wp:term"] &&
     post._embedded["wp:term"][1] // Tags are in the second term array
   ) {
-    relatedGameIds = post._embedded["wp:term"][1]
-      .filter((tag) => tag.slug.startsWith("game-"))
-      .map((tag) => tag.slug.replace("game-", ""));
+    // Filter tags that match your game ID pattern or naming convention
+    relatedGames = post._embedded["wp:term"][1]
+      .filter((tag) => tag.slug.startsWith("game-")) // Assuming tags like "game-monstermixology"
+      .map((tag) => tag.slug.replace("game-", "")); // Extract just the game ID
   }
 
   const thumbnail = post.jetpack_featured_media_url || "/default-thumbnail.jpg";
@@ -101,7 +105,7 @@ function formatBlogPost(post) {
     date: post.date ? new Date(post.date).toLocaleDateString() : "No date",
     categories,
     thumbnail,
-    relatedGameIds,
+    relatedGames,
   };
 }
 

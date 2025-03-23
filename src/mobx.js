@@ -1125,28 +1125,52 @@ class Store {
   }
 
   async fetchBlogDetails(slug) {
-    if (this.blogDetails.has(slug)) return this.blogDetails.get(slug);
-    if (this.blogDetailsLoading.get(slug)) return;
+    // If we already have this blog's details, return it without fetching
+    if (this.blogDetails.has(slug)) {
+      console.log("Returning cached blog details for:", slug);
+      return this.blogDetails.get(slug);
+    }
 
+    // If we're already loading this blog's details, don't start another fetch
+    if (this.blogDetailsLoading.get(slug)) {
+      console.log("Already loading blog details for:", slug);
+      // Wait for the existing request to complete
+      const loadingPromise = this.blogDetailsLoading.get(slug);
+      return loadingPromise;
+    }
+
+    // Create a promise for the data fetch
+    const fetchPromise = (async () => {
+      try {
+        console.log("Fetching blog details from API for:", slug);
+        const response = await fetch(`/api/wordpress?slug=${slug}`);
+        if (!response.ok) throw new Error("Failed to fetch blog details");
+
+        const data = await response.json();
+
+        // Store the blog data in our cache
+        runInAction(() => {
+          this.blogDetails.set(slug, data);
+        });
+
+        return data;
+      } catch (error) {
+        console.error("Error fetching blog details:", error);
+        // Return null to indicate an error occurred
+        return null;
+      } finally {
+        runInAction(() => {
+          this.blogDetailsLoading.delete(slug);
+        });
+      }
+    })();
+
+    // Store the promise so we can return it for concurrent requests
     runInAction(() => {
-      this.blogDetailsLoading.set(slug, true);
+      this.blogDetailsLoading.set(slug, fetchPromise);
     });
 
-    try {
-      const response = await fetch(`/api/wordpress?slug=${slug}`);
-      if (!response.ok) throw new Error("Failed to fetch blog details");
-      const data = await response.json();
-      runInAction(() => {
-        this.blogDetails.set(slug, data);
-        this.blogDetailsLoading.set(slug, false);
-      });
-      return data;
-    } catch (error) {
-      console.error("Error fetching blog details:", error);
-      runInAction(() => {
-        this.blogDetailsLoading.set(slug, false);
-      });
-    }
+    return fetchPromise;
   }
 
   // Getter for checking if a specific blog's details are loading
