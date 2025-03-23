@@ -44,7 +44,8 @@ export async function POST(request) {
     let url = `${process.env.WORDPRESS_API_URL}/posts?_embed&per_page=10`;
 
     if (category && category !== "all") {
-      url += `&category=${category}`;
+      // Make sure we're only filtering by actual categories, not our game tags
+      url += `&categories=${category}`;
     }
 
     const response = await fetch(url);
@@ -77,7 +78,17 @@ function formatBlogPost(post) {
     categories.push("Uncategorized");
   }
 
-  // console.log("Categories for post", post.id, ":", categories);
+  // Add related games extraction from tags
+  let relatedGameIds = [];
+  if (
+    post._embedded &&
+    post._embedded["wp:term"] &&
+    post._embedded["wp:term"][1] // Tags are in the second term array
+  ) {
+    relatedGameIds = post._embedded["wp:term"][1]
+      .filter((tag) => tag.slug.startsWith("game-"))
+      .map((tag) => tag.slug.replace("game-", ""));
+  }
 
   const thumbnail = post.jetpack_featured_media_url || "/default-thumbnail.jpg";
 
@@ -88,8 +99,9 @@ function formatBlogPost(post) {
     content: post.content ? post.content.rendered : "",
     excerpt: post.excerpt ? post.excerpt.rendered : "",
     date: post.date ? new Date(post.date).toLocaleDateString() : "No date",
-    categories, // Now it's an array of all categories
+    categories,
     thumbnail,
+    relatedGameIds,
   };
 }
 

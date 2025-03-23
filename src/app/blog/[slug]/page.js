@@ -10,6 +10,8 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import denoImg from "../../../../public/deno.png";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 const author = {
   name: "Deno Gavrilovic",
@@ -129,12 +131,9 @@ const BlogPost = observer(() => {
             </div>
             <div className="mb-8 flex flex-wrap">
               {blog.categories.map((category, index) => (
-                <span
-                  key={index}
-                  className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
-                >
+                <Badge key={index} variant="secondary">
                   {category}
-                </span>
+                </Badge>
               ))}
             </div>
             {blog.thumbnail && (
