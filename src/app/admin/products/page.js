@@ -47,18 +47,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ImageIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-
-const DIFFICULTY_OPTIONS = ["easy", "medium", "hard"];
-const TYPE_OPTIONS = ["game", "expansion", "add-on"];
-const RATING_OPTIONS = [1, 2, 3, 4, 5];
-const MECHANICS_OPTIONS = [
-  "push-your-luck",
-  "resource-management",
-  "engine-builder",
-  "deck-building",
-  "worker-placement",
-  "area-control",
-];
+import {
+  GAME_MECHANICS,
+  DIFFICULTY_OPTIONS,
+  TYPE_OPTIONS,
+  RATING_OPTIONS,
+} from "@/constants/game-data";
 
 const ProductForm = ({ product, onSave, onCancel }) => {
   const { toast } = useToast();
@@ -168,6 +162,13 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       providedComponents: data.providedComponents,
       carouselImages: data.carouselImages || [],
       isDraft: data.isDraft,
+      stats: {
+        minPlayers: data.stats.minPlayers,
+        maxPlayers: data.stats.maxPlayers,
+        minDuration: data.stats.minDuration,
+        maxDuration: data.stats.maxDuration,
+        age: data.stats.age,
+      },
     };
 
     // Add type-specific properties
@@ -176,13 +177,6 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         return {
           ...baseProperties,
           price: data.price,
-          stats: {
-            minPlayers: data.stats.minPlayers,
-            maxPlayers: data.stats.maxPlayers,
-            minDuration: data.stats.minDuration,
-            maxDuration: data.stats.maxDuration,
-            age: data.stats.age,
-          },
           complexity: data.complexity,
           difficulty: data.difficulty,
           interaction: data.interaction,
@@ -786,19 +780,19 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         <div className="space-y-2">
           <Label>Mechanics</Label>
           <div className="grid grid-cols-2 gap-2">
-            {MECHANICS_OPTIONS.map((mechanic) => (
-              <label key={mechanic} className="flex items-center space-x-2">
+            {GAME_MECHANICS.map((mechanic) => (
+              <label key={mechanic.id} className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  value={mechanic}
-                  checked={formData.mechanics.includes(mechanic)}
+                  value={mechanic.id}
+                  checked={formData.mechanics.includes(mechanic.id)}
                   onChange={handleMechanicsChange}
                 />
-                <span>
-                  {mechanic
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")}
+                <span className="flex items-center">
+                  {mechanic.icon && (
+                    <mechanic.icon className="h-4 w-4 mr-2 text-muted-foreground" />
+                  )}
+                  {mechanic.name}
                 </span>
               </label>
             ))}
@@ -1056,6 +1050,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
           </div>
         </>
       )}
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>Needed Components</Label>

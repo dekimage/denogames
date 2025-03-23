@@ -29,6 +29,9 @@ import {
   Users,
   AlertCircle,
   ArrowUpDown,
+  ArrowDownUp,
+  Pencil,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,15 +69,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { GAME_MECHANICS, PLAYER_MODES } from "@/constants/game-data";
 
-// Filter options
-const typeOptions = [
-  { name: "Competitive", icon: Swords },
-  { name: "Engine Building", icon: Castle },
-  { name: "Co-op", icon: HeartHandshake },
-  { name: "Party", icon: PartyPopper },
-  { name: "Deck-building", icon: WalletCards },
-];
+// Use GAME_MECHANICS and PLAYER_MODES as before
+export const GAME_TYPES = GAME_MECHANICS;
 
 const difficultyOptions = [
   { name: "Easy", icon: Dice2 },
@@ -100,11 +98,8 @@ const sortOptions = [
 // Helper function to get icon for a filter option
 const getIconForOption = (option) => {
   const iconOption =
-    typeOptions.find(
+    GAME_TYPES.find(
       (type) => type.name.toLowerCase() === option.toLowerCase()
-    ) ||
-    difficultyOptions.find(
-      (diff) => diff.name.toLowerCase() === option.toLowerCase()
     ) ||
     productOptions.find(
       (prod) => prod.name.toLowerCase() === option.toLowerCase()
@@ -127,27 +122,44 @@ const FilterBadge = ({ label, onRemove, icon }) => (
 );
 
 // Desktop Filter Section Component
-const FilterSection = ({ title, options, selectedOptions, onToggle }) => (
+const FilterSection = ({
+  title,
+  options,
+  selectedOptions,
+  onToggle,
+  includeDescription = false,
+}) => (
   <div className="mb-6">
     <h3 className="font-medium mb-3">{title}</h3>
     <div className="space-y-2">
       {options.map((option) => {
         const IconComponent = option.icon;
-        const isSelected = selectedOptions.includes(option.name.toLowerCase());
+        const value = option.id || option.name.toLowerCase();
+        const isSelected = selectedOptions.includes(value);
 
         return (
-          <div key={option.name} className="flex items-center space-x-2">
+          <div
+            key={option.id || option.name}
+            className="flex items-center space-x-2"
+          >
             <Checkbox
-              id={`${title}-${option.name}`}
+              id={`shop-${title}-${option.id || option.name}`}
               checked={isSelected}
-              onCheckedChange={() => onToggle(option.name.toLowerCase())}
+              onCheckedChange={() => onToggle(value)}
             />
             <label
-              htmlFor={`${title}-${option.name}`}
+              htmlFor={`shop-${title}-${option.id || option.name}`}
               className="flex items-center text-sm cursor-pointer"
             >
               <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
-              {option.name}
+              <div>
+                <span>{option.name}</span>
+                {includeDescription && option.description && (
+                  <p className="text-xs text-muted-foreground">
+                    {option.description}
+                  </p>
+                )}
+              </div>
             </label>
           </div>
         );
@@ -176,13 +188,13 @@ const MobileFilterSheet = ({
       <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
         <Accordion
           type="multiple"
-          defaultValue={["types", "difficulty", "products", "players"]}
+          defaultValue={["types", "products", "players"]}
         >
           <AccordionItem value="types">
             <AccordionTrigger>Game Types</AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2 pt-2">
-                {typeOptions.map((option) => {
+                {GAME_TYPES.map((option) => {
                   const IconComponent = option.icon;
                   const isSelected = filters.types.includes(
                     option.name.toLowerCase()
@@ -194,7 +206,7 @@ const MobileFilterSheet = ({
                       className="flex items-center space-x-2"
                     >
                       <Checkbox
-                        id={`mobile-${option.name}`}
+                        id={`mobile-product-${option.name}`}
                         checked={isSelected}
                         onCheckedChange={() => {
                           setFilters((prev) => ({
@@ -208,50 +220,7 @@ const MobileFilterSheet = ({
                         }}
                       />
                       <label
-                        htmlFor={`mobile-${option.name}`}
-                        className="flex items-center text-sm cursor-pointer"
-                      >
-                        <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
-                        {option.name}
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="difficulty">
-            <AccordionTrigger>Difficulty</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-2 pt-2">
-                {difficultyOptions.map((option) => {
-                  const IconComponent = option.icon;
-                  const isSelected = filters.difficulty.includes(
-                    option.name.toLowerCase()
-                  );
-
-                  return (
-                    <div
-                      key={option.name}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={`mobile-${option.name}`}
-                        checked={isSelected}
-                        onCheckedChange={() => {
-                          setFilters((prev) => ({
-                            ...prev,
-                            difficulty: isSelected
-                              ? prev.difficulty.filter(
-                                  (d) => d !== option.name.toLowerCase()
-                                )
-                              : [...prev.difficulty, option.name.toLowerCase()],
-                          }));
-                        }}
-                      />
-                      <label
-                        htmlFor={`mobile-${option.name}`}
+                        htmlFor={`mobile-product-${option.name}`}
                         className="flex items-center text-sm cursor-pointer"
                       >
                         <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -280,7 +249,7 @@ const MobileFilterSheet = ({
                       className="flex items-center space-x-2"
                     >
                       <Checkbox
-                        id={`mobile-${option.name}`}
+                        id={`mobile-product-${option.name}`}
                         checked={isSelected}
                         onCheckedChange={() => {
                           setFilters((prev) => ({
@@ -294,7 +263,7 @@ const MobileFilterSheet = ({
                         }}
                       />
                       <label
-                        htmlFor={`mobile-${option.name}`}
+                        htmlFor={`mobile-product-${option.name}`}
                         className="flex items-center text-sm cursor-pointer"
                       >
                         <IconComponent className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -320,12 +289,13 @@ const MobileFilterSheet = ({
                       Max Players: {filters.maxPlayers}
                     </span>
                   </div>
-                  <div className="px-2">
+                  <div className="px-2 py-6">
                     <Slider
-                      defaultValue={[filters.minPlayers, filters.maxPlayers]}
+                      value={[filters.minPlayers, filters.maxPlayers]}
                       min={1}
                       max={10}
                       step={1}
+                      minStepsBetweenThumbs={0}
                       onValueChange={(value) => {
                         setFilters((prev) => ({
                           ...prev,
@@ -365,7 +335,6 @@ const ShopPage = observer(() => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     types: [],
-    difficulty: [],
     minPlayers: 1,
     maxPlayers: 10,
     products: [],
@@ -400,7 +369,7 @@ const ShopPage = observer(() => {
         }
         // Check if it's a valid game type
         else if (
-          typeOptions.some(
+          GAME_TYPES.some(
             (option) => option.name.toLowerCase() === categoryValue
           )
         ) {
@@ -453,35 +422,36 @@ const ShopPage = observer(() => {
         );
       }
 
-      // Apply category filters
+      // Apply game type/mechanics filters
       if (filters.types.length > 0) {
         filtered = filtered.filter((product) =>
-          product.types?.some((type) =>
-            filters.types.includes(type.toLowerCase())
+          product.mechanics?.some((mechanic) =>
+            filters.types.includes(mechanic.toLowerCase())
           )
         );
       }
 
-      // Apply difficulty filter
-      if (filters.difficulty.length > 0) {
-        filtered = filtered.filter((product) =>
-          filters.difficulty.includes(product.difficulty?.toLowerCase())
-        );
-      }
-
-      // Apply product type filter
+      // Apply product type filters
       if (filters.products.length > 0) {
         filtered = filtered.filter((product) =>
           filters.products.includes(product.type?.toLowerCase())
         );
       }
 
-      // Apply player count filter
-      filtered = filtered.filter(
-        (product) =>
-          (product.minPlayers >= filters.minPlayers || !product.minPlayers) &&
-          (product.maxPlayers <= filters.maxPlayers || !product.maxPlayers)
-      );
+      // Apply player count filter - simplified without player modes
+      filtered = filtered.filter((product) => {
+        // Skip products that don't have player count information
+        if (!product.stats?.minPlayers && !product.stats?.maxPlayers)
+          return true;
+
+        const productMin = product.stats?.minPlayers || 1;
+        const productMax = product.stats?.maxPlayers || 99;
+
+        // A game matches if it can be played with the selected player count range
+        return (
+          productMax >= filters.minPlayers && productMin <= filters.maxPlayers
+        );
+      });
 
       // Apply sorting
       filtered.sort((a, b) => {
@@ -543,7 +513,7 @@ const ShopPage = observer(() => {
 
       setFilteredProducts(filtered);
     } catch (err) {
-      console.error("Error applying filters:", err);
+      console.log("Error applying filters:", err);
       setError("An error occurred while filtering products. Please try again.");
     }
   }, [products, filters, sortOption, searchQuery]);
@@ -569,9 +539,8 @@ const ShopPage = observer(() => {
   const resetFilters = () => {
     setFilters({
       types: [],
-      difficulty: [],
       minPlayers: 1,
-      maxPlayers: 99,
+      maxPlayers: 10,
       products: [],
     });
     setSearchQuery("");
@@ -592,10 +561,9 @@ const ShopPage = observer(() => {
   const countActiveFilters = () => {
     return (
       filters.types.length +
-      filters.difficulty.length +
       filters.products.length +
       (searchQuery ? 1 : 0) +
-      (filters.minPlayers > 1 || filters.maxPlayers < 99 ? 1 : 0)
+      (filters.minPlayers > 1 || filters.maxPlayers < 10 ? 1 : 0)
     );
   };
 
@@ -694,20 +662,10 @@ const ShopPage = observer(() => {
 
             {/* Game Types Filter */}
             <FilterSection
-              title="Game Types"
-              options={typeOptions}
+              title="Game Mechanics"
+              options={GAME_TYPES}
               selectedOptions={filters.types}
               onToggle={(value) => toggleFilter("types", value)}
-            />
-
-            <Separator className="my-6" />
-
-            {/* Difficulty Filter */}
-            <FilterSection
-              title="Difficulty"
-              options={difficultyOptions}
-              selectedOptions={filters.difficulty}
-              onToggle={(value) => toggleFilter("difficulty", value)}
             />
 
             <Separator className="my-6" />
@@ -731,12 +689,13 @@ const ShopPage = observer(() => {
                     <span className="text-sm">Min: {filters.minPlayers}</span>
                     <span className="text-sm">Max: {filters.maxPlayers}</span>
                   </div>
-                  <div className="px-2">
+                  <div className="px-2 py-6">
                     <Slider
-                      defaultValue={[filters.minPlayers, filters.maxPlayers]}
+                      value={[filters.minPlayers, filters.maxPlayers]}
                       min={1}
                       max={10}
                       step={1}
+                      minStepsBetweenThumbs={0}
                       onValueChange={(value) => {
                         setFilters((prev) => ({
                           ...prev,
@@ -753,6 +712,8 @@ const ShopPage = observer(() => {
                 </div>
               </div>
             </div>
+
+            <Separator className="my-6" />
           </div>
         </div>
 
@@ -819,15 +780,6 @@ const ShopPage = observer(() => {
                   />
                 ))}
 
-                {filters.difficulty.map((difficulty) => (
-                  <FilterBadge
-                    key={`difficulty-${difficulty}`}
-                    label={difficulty}
-                    onRemove={() => toggleFilter("difficulty", difficulty)}
-                    icon={getIconForOption(difficulty)}
-                  />
-                ))}
-
                 {filters.products.map((product) => (
                   <FilterBadge
                     key={`product-${product}`}
@@ -837,14 +789,14 @@ const ShopPage = observer(() => {
                   />
                 ))}
 
-                {(filters.minPlayers > 1 || filters.maxPlayers < 99) && (
+                {(filters.minPlayers > 1 || filters.maxPlayers < 10) && (
                   <FilterBadge
                     label={`Players: ${filters.minPlayers}-${filters.maxPlayers}`}
                     onRemove={() =>
                       setFilters((prev) => ({
                         ...prev,
                         minPlayers: 1,
-                        maxPlayer: 99,
+                        maxPlayers: 10,
                       }))
                     }
                     icon={<Users className="h-3 w-3" />}

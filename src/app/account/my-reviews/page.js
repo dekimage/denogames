@@ -191,7 +191,7 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
           <p className="text-xs text-muted-foreground">
             {isEditing
               ? "Updating your review helps other players make better decisions."
-              : "Submitting a review will earn you 50 XP!"}
+              : "Your review has been submitted successfully!"}
           </p>
           <div className="flex gap-2">
             <Button
