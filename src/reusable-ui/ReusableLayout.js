@@ -56,7 +56,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const routesWithoutHeaderFooter = ["/login", "/signup", "/app"];
+const routesWithoutHeaderFooter = ["/app"];
 
 const routePrefixesWithoutHeaderFooter = [
   "/machines",
@@ -70,7 +70,6 @@ const routePrefixesWithoutHeaderFooter = [
   "/mvp/monstermixology",
   "/mvp/bazaar",
   "/landing/monstermixology",
-  // "/account",
 ];
 
 const shouldShowHeaderFooter = (pathname) => {
