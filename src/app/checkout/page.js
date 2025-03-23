@@ -186,13 +186,11 @@ const DiscountForm = ({ onApplyDiscount }) => {
         toast({
           title: "Discount applied!",
           description: "10% discount has been applied to your order.",
-          variant: "success",
         });
       } else {
         toast({
           title: "Invalid code",
           description: "The discount code you entered is invalid or expired.",
-          variant: "destructive",
         });
       }
     } catch (error) {
@@ -736,7 +734,6 @@ const FreeCheckoutButton = ({ cartItems, disabled }) => {
       toast({
         title: "Success!",
         description: "Your free product is now available in your library.",
-        variant: "success",
       });
 
       // Redirect to success page
@@ -879,7 +876,6 @@ const CheckoutPage = observer(() => {
       toast({
         title: "Main game added",
         description: `${gameToAdd.name} has been added to your cart.`,
-        variant: "success",
       });
     }
   };

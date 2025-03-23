@@ -76,8 +76,7 @@ export const LoginForm = observer(() => {
       });
       toast({
         title: "Login successful!",
-        description: "Welcome back to Pathway Games.",
-        variant: "success",
+        description: "Welcome back to Deno Games.",
       });
       router.push("/");
     } catch (error) {
@@ -122,7 +121,7 @@ export const LoginForm = observer(() => {
               <FormLabel className="text-sm font-semibold">EMAIL</FormLabel>
               <FormControl>
                 <Input
-                  id="email"
+                  id="login-email"
                   type="email"
                   placeholder="Email Address"
                   disabled={isLoading}
@@ -143,7 +142,7 @@ export const LoginForm = observer(() => {
               <FormLabel className="text-sm font-semibold">PASSWORD</FormLabel>
               <FormControl>
                 <Input
-                  id="password"
+                  id="login-password"
                   type="password"
                   placeholder="Password"
                   disabled={isLoading}
@@ -192,8 +191,7 @@ const LoginCard = observer(() => {
       await signInWithGoogle();
       toast({
         title: "Login successful!",
-        description: "Welcome to Pathway Games.",
-        variant: "success",
+        description: "Welcome to Deno Games.",
       });
       router.push("/");
     } catch (error) {

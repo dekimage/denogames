@@ -74,15 +74,13 @@ export const SignupForm = observer(() => {
         toast({
           title: "Account upgraded!",
           description: "Your anonymous account has been upgraded successfully.",
-          variant: "success",
         });
       } else {
         // Regular signup
         await signupWithEmail(email, password, username);
         toast({
           title: "Account created!",
-          description: "Welcome to Pathway Games!",
-          variant: "success",
+          description: "Welcome to Deno Games!",
         });
       }
       router.push("/"); // Redirect after successful operation
@@ -125,7 +123,7 @@ export const SignupForm = observer(() => {
               <FormLabel className="text-sm font-semibold">EMAIL</FormLabel>
               <FormControl>
                 <Input
-                  id="email"
+                  id="signup-email"
                   type="email"
                   placeholder="Email Address"
                   disabled={isLoading}
@@ -146,7 +144,7 @@ export const SignupForm = observer(() => {
               <FormLabel className="text-sm font-semibold">USERNAME</FormLabel>
               <FormControl>
                 <Input
-                  id="username"
+                  id="signup-username"
                   type="string"
                   placeholder="Choose a username"
                   disabled={isLoading}
@@ -167,7 +165,7 @@ export const SignupForm = observer(() => {
               <FormLabel className="text-sm font-semibold">PASSWORD</FormLabel>
               <FormControl>
                 <Input
-                  id="password"
+                  id="signup-password"
                   type="password"
                   placeholder="Password (6+ characters)"
                   disabled={isLoading}
@@ -207,8 +205,7 @@ export const SignupCard = observer(() => {
       await signInWithGoogle();
       toast({
         title: "Account created!",
-        description: "Welcome to Pathway Games!",
-        variant: "success",
+        description: "Welcome to Deno Games!",
       });
       router.push("/");
     } catch (error) {

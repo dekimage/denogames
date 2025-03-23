@@ -58,7 +58,6 @@ const PasswordResetPage = () => {
       toast({
         title: "Reset email sent",
         description: "Check your inbox for password reset instructions.",
-        variant: "success",
       });
     } catch (error) {
       console.error("Password reset error:", error);
@@ -125,7 +124,7 @@ const PasswordResetPage = () => {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              id="email"
+                              id="reset-password-email"
                               type="email"
                               placeholder="Enter your email address"
                               disabled={isLoading}
