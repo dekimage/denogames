@@ -30,6 +30,7 @@ export async function GET(request) {
         name: doc.data().name,
         slug: doc.data().slug,
         type: doc.data().type,
+        thumbnail: doc.data().thumbnail || null,
       };
     });
 

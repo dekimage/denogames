@@ -88,16 +88,14 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
 
   return (
     <div
-      className={`relative rounded-lg border p-4 transition-all hover:shadow-lg ${
-        !isUnlocked ? "bg-white" : "bg-white"
-      }`}
+      className={`relative rounded-lg border p-4 transition-all hover:shadow-lg bg-card`}
     >
       {/* Status Icon */}
       <div className="absolute top-2 right-2">
         {isClaimed ? (
           <CheckCircle className="w-5 h-5 text-primary" />
         ) : !isUnlocked ? (
-          <Lock className="w-5 h-5 text-gray-400" />
+          <Lock className="w-5 h-5 text-muted-foreground" />
         ) : null}
       </div>
 
@@ -107,7 +105,9 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
           src={addon.thumbnail || "/placeholder-image.jpg"}
           alt={addon.name}
           fill
-          className={`object-contain ${!isUnlocked ? "grayscale" : ""}`}
+          className={`object-contain ${
+            !isUnlocked ? "opacity-60 grayscale" : ""
+          }`}
         />
       </div>
 
@@ -117,9 +117,9 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
         {addon.description}
       </p>
 
-      {/* Related Game Section - NEW */}
+      {/* Related Game Section */}
       {mainGame && (
-        <div className="mt-3 border rounded-md p-2 bg-gray-50">
+        <div className="mt-3 border rounded-md p-2 bg-muted/30">
           <p className="text-xs text-muted-foreground mb-2 font-medium">
             Related Game:
           </p>
@@ -136,14 +136,14 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
               <p className="text-sm font-medium truncate">{mainGame.name}</p>
               <div className="flex items-center gap-1 mt-1">
                 {ownsMainGame ? (
-                  <div className="flex items-center text-green-600 text-xs">
+                  <div className="flex items-center text-green-600 dark:text-green-400 text-xs">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     <span>Owned</span>
                   </div>
                 ) : (
                   <button
                     onClick={navigateToMainGame}
-                    className="flex items-center text-amber-600 text-xs hover:underline"
+                    className="flex items-center text-amber-600 dark:text-amber-400 text-xs hover:underline"
                   >
                     <AlertTriangle className="w-3 h-3 mr-1" />
                     <span>Required - Get Game</span>
@@ -155,10 +155,10 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
         </div>
       )}
 
-      {/* Main Game Warning - UPDATED */}
+      {/* Main Game Warning */}
       {isUnlocked && !isClaimed && !ownsMainGame && mainGame && (
-        <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-md">
-          <div className="flex gap-2 text-amber-700 text-xs items-start">
+        <div className="mt-3 p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-md">
+          <div className="flex gap-2 text-amber-700 dark:text-amber-400 text-xs items-start">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-medium">You've Unlocked This Add-on!</p>
@@ -182,7 +182,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
           <div
             className="h-full bg-primary transition-all duration-300 ease-in-out"
             style={{ width: `${progressPercentage}%` }}
@@ -201,13 +201,13 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
                     fill
                     className={`object-cover p-1 ${
                       !userAchievements?.includes(achievement.id)
-                        ? "grayscale"
+                        ? "grayscale opacity-60"
                         : ""
                     }`}
                   />
                   {userAchievements?.includes(achievement.id) && (
                     <div className="absolute top-0.5 right-0.5">
-                      <CheckCircle className="w-3 h-3 text-primary fill-white" />
+                      <CheckCircle className="w-3 h-3 text-primary fill-background" />
                     </div>
                   )}
                 </button>
@@ -263,7 +263,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
           View Add-on
         </Button>
 
-        {/* Updated Buy Main Game Button */}
+        {/* Buy Main Game Button */}
         {isUnlocked && !isClaimed && !ownsMainGame && mainGame && (
           <Button
             className="w-full"
@@ -358,7 +358,7 @@ const RewardsPage = observer(() => {
       <div className="mb-8 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-3xl font-bold font-strike">Add-ons</h1>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
+          <div className="bg-card p-4 rounded-lg shadow-sm border">
             <span className="text-sm text-muted-foreground mr-2">
               Add-ons Claimed:
             </span>

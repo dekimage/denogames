@@ -1396,6 +1396,8 @@ class Store {
 
       const data = await response.json();
 
+      console.log("User reviews:", data.reviews);
+
       runInAction(() => {
         this.userReviews = data.reviews;
         this.userReviewsFetched = true; // Mark as fetched

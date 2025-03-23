@@ -359,7 +359,7 @@ const ReviewsPage = observer(() => {
   return (
     <div className="container py-8 px-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl md:text-2xl font-bold">Your Reviews</h2>
+        <h2 className="text-xl md:text-2xl font-strike">Your Reviews</h2>
       </div>
 
       <Separator className="my-6 dark:bg-gray-800" />

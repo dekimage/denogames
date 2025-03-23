@@ -1,8 +1,6 @@
 "use client";
 
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Separator } from "@/components/ui/separator";
-import { VerticalNavbar } from "./VerticalNavbar";
 
 import {
   BookOpen,
@@ -12,7 +10,6 @@ import {
   User,
   LogIn,
   UserPlus,
-  Gift,
   Trophy,
   ShoppingBag,
   Star,
@@ -29,7 +26,7 @@ import logoImg from "../assets/logo.png";
 
 import MobileHeader from "./MobileHeader";
 
-import React, { useState } from "react";
+import React from "react";
 
 import {
   NavigationMenu,
@@ -40,9 +37,8 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import NotificationDropdown from "@/components/Notifications";
+
 import Footer from "@/components/Footer";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/ui/themeButton";
 import ShoppingCart from "@/components/Cart";
@@ -159,7 +155,7 @@ const ReusableLayout = observer(({ children }) => {
               {/* Right Side Actions */}
               <div className="flex items-center space-x-3">
                 <ModeToggle />
-                {user && <NotificationDropdown />}
+                {/* {user && <NotificationDropdown />} */}
 
                 <ShoppingCart />
 
