@@ -2,20 +2,94 @@
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
 import { useEffect, useState } from "react";
-import { FaStar, FaEdit } from "react-icons/fa";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { useCallback } from "react";
-import { useRef } from "react";
 import { Textarea } from "./ui/textarea";
-import { Edit, Plus, ShieldCheck } from "lucide-react";
-import { getRelativeTime } from "@/utils/date";
-import { toJS } from "mobx";
+import { Edit, Plus, ShieldCheck, Star } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { DialogDescription } from "@radix-ui/react-dialog";
+
+const StarRating = ({ rating }) => {
+  return (
+    <div className="flex">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Star
+          key={index}
+          className={`w-5 h-5 ${
+            index < rating
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300 dark:text-gray-600"
+          }`}
+        />
+      ))}
+    </div>
+  );
+};
+
+const StarRatingInput = ({ rating, setRating }) => {
+  const [hoverRating, setHoverRating] = useState(0);
+
+  return (
+    <div className="flex justify-center">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          onClick={() => setRating(star)}
+          onMouseEnter={() => setHoverRating(star)}
+          onMouseLeave={() => setHoverRating(0)}
+          className={`cursor-pointer text-4xl mx-1 transition-colors ${
+            (hoverRating || rating) >= star
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300 dark:text-gray-600"
+          }`}
+        />
+      ))}
+    </div>
+  );
+};
+
+const formatReviewDate = (timestamp) => {
+  if (!timestamp) return "";
+
+  // Handle both Firestore timestamp objects and ISO date strings
+  let date;
+  if (timestamp.seconds) {
+    date = new Date(timestamp.seconds * 1000);
+  } else {
+    date = new Date(timestamp);
+  }
+
+  const now = new Date();
+
+  // If less than 24 hours ago, show relative time
+  const diffHours = (now - date) / (1000 * 60 * 60);
+
+  if (diffHours < 24) {
+    if (diffHours < 1) {
+      return "Just now";
+    }
+    const hours = Math.floor(diffHours);
+    return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  }
+
+  // If less than 7 days ago, show day of week
+  if (diffHours < 168) {
+    // 7 days
+    const options = { weekday: "long" };
+    return date.toLocaleDateString(undefined, options);
+  }
+
+  // Otherwise show full date
+  return date.toLocaleDateString();
+};
 
 export const ReviewSection = observer(({ productDetails, productId }) => {
   const {
@@ -27,14 +101,17 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
     hasMoreReviewsByProduct,
     lastReviewFetchedByProduct,
   } = MobxStore;
+  const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reviews = reviewsByProduct[productId] || [];
   const hasMoreReviews = hasMoreReviewsByProduct[productId];
   const lastReviewFetched = lastReviewFetchedByProduct[productId];
 
-  // Add this to get the existing review for the current user
+  // Get the existing review for the current user
   const existingReview = user
-    ? reviews.find((review) => review.userId === user.uid)
+    ? reviews.find((review) => review.userId === user?.uid)
     : null;
 
   const [rating, setRating] = useState(
@@ -44,175 +121,211 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
     existingReview ? existingReview.comment : ""
   );
 
+  // Reset form when dialog closes
   useEffect(() => {
-    if (reviews.length === 0) {
-      fetchReviews(productId);
+    if (!dialogOpen) {
+      setRating(existingReview ? existingReview.rating : 0);
+      setComment(existingReview ? existingReview.comment : "");
     }
-  }, [productId, fetchReviews, reviews.length]);
+  }, [dialogOpen, existingReview]);
+
+  useEffect(() => {
+    // Fetch reviews on component mount
+    fetchReviews(productId);
+  }, [productId, fetchReviews]);
 
   const loadMoreReviews = () => {
     fetchReviews(productId, lastReviewFetched);
   };
 
-  const handleSubmit = () => {
-    if (existingReview) {
-      updateReview(existingReview.id, productId, rating, comment);
-    } else {
-      submitReview(productId, rating, comment);
+  const handleSubmit = async () => {
+    if (rating === 0) {
+      toast({
+        title: "Rating Required",
+        description: "Please select a star rating before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      if (existingReview) {
+        await updateReview(existingReview.id, productId, rating, comment);
+        toast({
+          title: "Review Updated",
+          description: "Your review has been updated successfully.",
+        });
+      } else {
+        await submitReview(productId, rating, comment);
+        toast({
+          title: "Review Submitted",
+          description:
+            "Your review has been submitted successfully. You earned 50 XP!",
+        });
+      }
+
+      setDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // const handleDelete = () => {
-  //   if (existingReview) {
-  //     deleteReview(existingReview.id, productId);
-  //     closeModal();
-  //   }
-  // };
-
-  const averageRating = productDetails.averageRating;
+  const averageRating = productDetails.averageRating || 0;
 
   return (
-    <div className="my-8 w-full flex flex-col" id="ratings">
+    <div className="my-8 w-full flex flex-col" id="reviews">
       <div className="text-2xl font-strike uppercase my-4">Reviews</div>
+
       <div className="flex items-center text-lg mb-2">
-        <div className="flex items-center gap-2">
-          <div className="text-yellow-400 flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <FaStar
-                key={star}
-                className={`text-2xl ${
-                  averageRating >= star ? "text-yellow-400" : "text-gray-300"
-                }`}
-              />
-            ))}
+        <div className="flex items-center gap-4">
+          <StarRating rating={Math.round(averageRating)} />
+          <div className="font-bold text-2xl">{averageRating.toFixed(1)}</div>
+          <div className="text-sm text-muted-foreground">
+            ({productDetails.totalReviews || 0}{" "}
+            {productDetails.totalReviews === 1 ? "review" : "reviews"})
           </div>
-          <div className="font-strike uppercase text-2xl">
-            {averageRating?.toFixed(1) || 0}
-          </div>
-          <div className="text-sm">Average Rating</div>
         </div>
       </div>
-      <p className="text-sm">({productDetails.totalReviews} store reviews)</p>
-      <div className="flex">
-        <Dialog>
-          <DialogTrigger>
-            <div className="my-4">
+
+      {user ? (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="my-4 w-fit"
+              disabled={!user?.purchasedProducts?.includes(productId)}
+            >
               {existingReview ? (
-                <Button variant="reverse" className="flex gap-2 items-center">
-                  Edit Your Review <Edit />
-                </Button>
+                <>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Your Review
+                </>
               ) : (
-                <Button variant="reverse" className="flex gap-2 items-center">
-                  Submit Your Review <Plus />
-                </Button>
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Write a Review
+                </>
               )}
-            </div>
+            </Button>
           </DialogTrigger>
-          <DialogContent
-            className="bg-white rounded-lg p-8 mx-auto mt-10 max-w-md"
-            style={{ maxWidth: "500px" }}
-          >
-            <h2 className="text-2xl font-strike uppercase text-center mb-4">
-              Share Your Experience
-            </h2>
-            <p className="text-center text-gray-600 mb-6">
-              Thank you so much for taking the time to leave a review! It helps
-              me improve each game and allows others to know what to expect.
-            </p>
-            <div className="rating mb-6 flex justify-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar
-                  key={star}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setRating(star)}
-                  onMouseLeave={() => setRating(rating)}
-                  className={`cursor-pointer text-5xl transition-colors ${
-                    rating >= star ? "text-yellow-400" : "text-gray-300"
-                  }`}
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="text-center">
+                {existingReview ? "Edit Your Review" : "Write a Review"}
+              </DialogTitle>
+            </DialogHeader>
+            <DialogDescription></DialogDescription>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-center block">
+                  Your Rating
+                </label>
+                <StarRatingInput rating={rating} setRating={setRating} />
+                <p className="text-center text-sm mt-2">
+                  {rating === 0
+                    ? "Select your rating"
+                    : `You've rated ${rating} star${rating !== 1 ? "s" : ""}`}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Your Review</label>
+                <Textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Share your thoughts about this product (optional)"
+                  className="min-h-[100px]"
                 />
-              ))}
+              </div>
             </div>
-            <p className="text-center font-semibold mb-4">
-              {rating === 0
-                ? "Select your rating"
-                : `You've rated ${rating} star${rating !== 1 ? "s" : ""}`}
-            </p>
-            <Textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Share your thoughts about the product (optional)"
-              className="mb-6 h-32"
-            />
-            <DialogFooter className="flex-col items-stretch sm:flex-row sm:justify-between">
-              <p className="flex items-center text-sm text-gray-500 mb-4 sm:mb-0">
+
+            <DialogFooter className="flex-col sm:flex-row sm:justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
                 {existingReview
-                  ? "Updating your review"
-                  : "Submitting a new review"}{" "}
-                will earn you 50 XP!
+                  ? "Updating your review helps other players make better decisions."
+                  : "Your review helps other players make better decisions!"}
               </p>
-              <Button onClick={handleSubmit} className="w-full sm:w-auto">
-                {existingReview ? "Update Review" : "Submit Review"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting
+                    ? "Processing..."
+                    : existingReview
+                    ? "Update"
+                    : "Submit"}
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
+      ) : (
+        <div className="my-4">
+          <Button variant="outline" asChild>
+            <a href="/login">Log in to write a review</a>
+          </Button>
+        </div>
+      )}
 
-      <ul className="space-y-4">
-        {reviews
-          .filter((review) => review && review.username && review.createdAt)
-          .map((review) => (
-            <li key={review.id} className="flex border-b py-4">
-              <div className="flex-shrink-0 flex flex-col items-start justify-between mr-4">
-                <div>
-                  <div className="text-lg font-bold mb-2 capitalize">
+      {/* Reviews List */}
+      {reviews.length === 0 ? (
+        <div className="p-8 text-center border rounded-lg bg-muted/10 dark:bg-muted/5">
+          <p className="text-muted-foreground">
+            No reviews yet. Be the first to share your thoughts!
+          </p>
+        </div>
+      ) : (
+        <ul className="space-y-4 mt-4">
+          {reviews
+            .filter((review) => review && review.username && review.createdAt)
+            .map((review) => (
+              <li
+                key={review.id}
+                className="flex flex-col md:flex-row border rounded-lg p-4 dark:border-gray-800"
+              >
+                <div className="flex-shrink-0 mb-3 md:mb-0 md:mr-4 md:w-48">
+                  <div className="text-base md:text-lg font-semibold mb-1 capitalize">
                     {review.username}
                   </div>
-                  <div className="flex text-sm items-center">
-                    <ShieldCheck className="mr-1" size={18} /> Verified Buyer
+                  <div className="flex text-xs items-center text-muted-foreground mb-2">
+                    <ShieldCheck className="mr-1 h-3 w-3" /> Verified Buyer
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatReviewDate(review.createdAt)}
                   </div>
                 </div>
-              </div>
-              <div className="flex-grow items-between justify-between">
-                <div className="flex items-center mb-2 justify-between">
-                  <div className="rating text-yellow-400 flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <FaStar
-                        key={star}
-                        className={`text-2xl ${
-                          review.rating >= star
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
+
+                <div className="flex-grow">
+                  <div className="mb-2">
+                    <StarRating rating={review.rating} />
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {getRelativeTime(review.createdAt.seconds)}
+                  <div className="text-sm text-foreground mb-4">
+                    {review.comment || "No additional comments."}
                   </div>
                 </div>
-                <div className="text-xs sm:text-sm text-gray-700 mb-2">
-                  {review.comment}
-                </div>
-                <div className="text-xs text-gray-500 underline">
-                  <a href={`/product-details/${productDetails.slug}`}>
-                    {productDetails.name}
-                  </a>
-                </div>
-              </div>
-              {/* {review.userId === user.uid && (
-                <button onClick={openModal} className="ml-auto text-blue-500">
-                  <FaEdit />
-                </button>
-              )} */}
-            </li>
-          ))}
-      </ul>
+              </li>
+            ))}
+        </ul>
+      )}
 
       {hasMoreReviews && (
         <Button
           variant="outline"
-          className="w-fit mt-4"
+          className="w-fit mt-6"
           onClick={loadMoreReviews}
         >
           Load More Reviews

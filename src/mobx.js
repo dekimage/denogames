@@ -97,6 +97,11 @@ class Store {
   ordersLoading = false;
   ordersFetched = false; // Flag to track if orders were already fetched
 
+  // Add these properties to your Store class
+  userReviews = [];
+  userReviewsLoading = false;
+  userReviewsFetched = false;
+
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -151,6 +156,9 @@ class Store {
 
     // Bind the new method
     this.fetchGameDetails = this.fetchGameDetails.bind(this);
+
+    // Add these methods to your Store class
+    this.fetchUserReviews = this.fetchUserReviews.bind(this);
   }
 
   initializeAuth() {
@@ -424,95 +432,135 @@ class Store {
 
   async submitReview(productId, rating, comment) {
     try {
-      // Ensure the user has purchased the product
-      const ordersCollectionRef = collection(db, "orders");
-      const ordersQuery = query(
-        ordersCollectionRef,
-        where("userId", "==", this.user.uid), // Filter by the current user's ID
-        where("productIds", "array-contains", productId)
-      );
-      const ordersSnapshot = await getDocs(ordersQuery);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("No auth token available");
 
-      const hasPurchased = !ordersSnapshot.empty;
-      if (!hasPurchased) {
-        console.log("You can only review products you've purchased.");
-        return;
+      const response = await fetch("/api/reviews/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId, rating, comment }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit review");
       }
 
-      // Check if the user has already left a review for this product
-      const reviewsCollectionRef = collection(db, "reviews");
-      const q = query(
-        reviewsCollectionRef,
-        where("productId", "==", productId),
-        where("userId", "==", this.user.uid)
-      );
-      const querySnapshot = await getDocs(q);
+      const { reviewId } = await response.json();
 
-      if (querySnapshot.empty) {
-        // Create a new review
-        await addDoc(reviewsCollectionRef, {
+      // Find the product to update its rating locally
+      const productIndex = this.products.findIndex((p) => p.id === productId);
+      if (productIndex >= 0) {
+        const product = this.products[productIndex];
+        const totalReviews = (product.totalReviews || 0) + 1;
+        const currentRating = product.averageRating || 0;
+        const newRating =
+          (currentRating * (totalReviews - 1) + rating) / totalReviews;
+
+        runInAction(() => {
+          this.products[productIndex] = {
+            ...product,
+            averageRating: parseFloat(newRating.toFixed(1)),
+            totalReviews: totalReviews,
+          };
+        });
+      }
+
+      // Add the review to userReviews
+      const product = this.products.find((p) => p.id === productId);
+      runInAction(() => {
+        this.userReviews.unshift({
+          id: reviewId,
           productId,
           userId: this.user.uid,
           username: this.user.username,
           rating,
           comment,
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
+          product: product
+            ? {
+                name: product.name,
+                slug: product.slug,
+                type: product.type,
+                thumbnail: product.thumbnail,
+              }
+            : null,
         });
-        await this.updateProductRating(productId, rating);
+      });
 
-        // Add notification
-        const notification = {
-          title: "Review Submitted!",
-          message: `You gained 3 XP for leaving a review.`,
-          link: `/rewards`,
-          type: "review",
-        };
-        await this.addNotification(notification);
-      } else {
-        console.log("You have already reviewed this product.");
-      }
+      return { success: true };
     } catch (error) {
-      console.log("Error submitting review:", error);
+      console.error("Error submitting review:", error);
+      throw error;
     }
   }
 
   async updateReview(reviewId, productId, newRating, newComment) {
     try {
-      const reviewDocRef = doc(db, "reviews", reviewId);
-      const reviewSnapshot = await getDoc(reviewDocRef);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("No auth token available");
 
-      if (!reviewSnapshot.exists()) {
-        console.log("Review not found.");
-        return;
+      const response = await fetch("/api/reviews/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reviewId,
+          productId,
+          rating: newRating,
+          comment: newComment,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update review");
       }
 
-      const reviewData = reviewSnapshot.data();
-      const oldRating = reviewData.rating;
+      // Find the review to update it locally
+      const reviewIndex = this.userReviews.findIndex((r) => r.id === reviewId);
+      if (reviewIndex >= 0) {
+        const oldRating = this.userReviews[reviewIndex].rating;
 
-      // Update the review in Firestore
-      await updateDoc(reviewDocRef, {
-        rating: newRating,
-        comment: newComment,
-        updatedAt: new Date(),
-      });
+        runInAction(() => {
+          this.userReviews[reviewIndex] = {
+            ...this.userReviews[reviewIndex],
+            rating: newRating,
+            comment: newComment,
+            updatedAt: new Date().toISOString(),
+          };
+        });
 
-      // Update the product's average rating based on the rating change
-      await this.updateProductRating(productId, newRating, oldRating);
+        // Update the product rating locally as well
+        const productIndex = this.products.findIndex((p) => p.id === productId);
+        if (productIndex >= 0) {
+          const product = this.products[productIndex];
+          const totalReviews = product.totalReviews || 0;
+          if (totalReviews > 0) {
+            const currentRating = product.averageRating || 0;
+            const newAvgRating =
+              (currentRating * totalReviews - oldRating + newRating) /
+              totalReviews;
 
-      // Update the review in the local MobX store for the specific product
-      runInAction(() => {
-        if (this.reviewsByProduct[productId]) {
-          this.reviewsByProduct[productId] = this.reviewsByProduct[
-            productId
-          ].map((review) =>
-            review.id === reviewId
-              ? { ...review, rating: newRating, comment: newComment }
-              : review
-          );
+            runInAction(() => {
+              this.products[productIndex] = {
+                ...product,
+                averageRating: parseFloat(newAvgRating.toFixed(1)),
+              };
+            });
+          }
         }
-      });
+      }
+
+      return { success: true };
     } catch (error) {
-      console.log("Error updating review:", error);
+      console.error("Error updating review:", error);
+      throw error;
     }
   }
 
@@ -819,7 +867,7 @@ class Store {
         this.user = null;
         this.achievements = [];
         this.resetOrders(); // Clear orders data on logout
-        // ... any other resets needed
+        this.resetUserReviews(); // Clear reviews data on logout
       });
     } catch (error) {
       console.log("Error during logout:", error);
@@ -1295,6 +1343,55 @@ class Store {
     this.gameDetailsLoading.set(slug, fetchPromise);
 
     return fetchPromise;
+  }
+
+  // Add these methods to your Store class
+  async fetchUserReviews() {
+    // Return early if we already have the reviews or if they're already being fetched
+    if (this.userReviewsFetched || this.userReviewsLoading || !this.user)
+      return;
+
+    try {
+      // Set loading flag to true before starting the fetch
+      runInAction(() => {
+        this.userReviewsLoading = true;
+      });
+
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("No auth token available");
+
+      const response = await fetch("/api/reviews", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch reviews");
+      }
+
+      const data = await response.json();
+
+      runInAction(() => {
+        this.userReviews = data.reviews;
+        this.userReviewsFetched = true; // Mark as fetched
+        this.userReviewsLoading = false;
+      });
+    } catch (error) {
+      console.error("Error fetching user reviews:", error);
+      runInAction(() => {
+        this.userReviewsFetched = false; // Reset flag on error
+        this.userReviewsLoading = false;
+      });
+    }
+  }
+
+  // Add this method to reset reviews state on logout
+  resetUserReviews() {
+    runInAction(() => {
+      this.userReviews = [];
+      this.userReviewsFetched = false;
+    });
   }
 }
 
