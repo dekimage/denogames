@@ -52,6 +52,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   });
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
   const [botDifficulty, setBotDifficulty] = useState("medium");
+  const [showAllCards, setShowAllCards] = useState(false);
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  const [currentPrintPage, setCurrentPrintPage] = useState(0);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -479,199 +482,345 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     );
   };
 
+  const handlePrintCards = () => {
+    setIsPrintMode(true);
+    setCurrentPrintPage(0);
+    toast({
+      title: "Print Setup Required",
+      description:
+        "In the print dialog: Click 'More settings' and UNCHECK 'Headers and footers'",
+      duration: 10000,
+    });
+  };
+
+  const PrintableCards = ({ cards }) => {
+    return (
+      <div className="print-container">
+        <div className="cards-grid">
+          {cards.slice(0, 12).map((card, index) => (
+            <div key={`print-card-${card.id}-${index}`}>
+              <CardComponent item={card} />
+            </div>
+          ))}
+        </div>
+        <div className="no-print">
+          <Button
+            onClick={() => setCurrentPrintPage((prev) => Math.max(0, prev - 1))}
+            disabled={currentPrintPage === 0}
+          >
+            Previous Page
+          </Button>
+          <span>
+            Page {currentPrintPage + 1} of {Math.ceil(cards.length / 12)}
+          </span>
+          <Button
+            onClick={() => setCurrentPrintPage((prev) => prev + 1)}
+            disabled={(currentPrintPage + 1) * 12 >= cards.length}
+          >
+            Next Page
+          </Button>
+          <Button onClick={() => setIsPrintMode(false)}>Exit Print Mode</Button>
+        </div>
+      </div>
+    );
+  };
+
+  const printStyles = `
+    @media print {
+      /* Hide everything by default */
+      body > * {
+        display: none;
+      }
+
+      /* Only show our print container and its contents */
+      .print-container {
+        display: block !important;
+        padding: 10px;
+      }
+
+      .cards-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 15px;
+        page-break-inside: avoid;
+        margin-top: -2mm;
+      }
+
+      .cards-grid > * {
+        display: block !important;
+        transform: scale(0.95);
+        transform-origin: top center;
+      }
+
+      /* Hide navigation elements when printing */
+      .no-print {
+        display: none !important;
+      }
+
+      /* Force background colors to show */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      /* Adjust page margins */
+      @page {
+        margin: 15mm 20mm 25mm;
+        size: A4;
+      }
+    }
+  `;
+
   return (
-    <div className="sm:container sm:mx-auto font-strike uppercase">
-      {/* Header Section - Minimized for mobile */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b sm:relative sm:bg-transparent sm:border-none">
-        <div className="flex justify-between items-center p-2 sm:my-6 sm:p-0">
-          {/* Left side - ModeToggle */}
-          <div className="flex items-center">
-            <ModeToggle />
-          </div>
-
-          {/* Center - Main content */}
-          {isSoloMode ? (
-            <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
-              <Image
-                src={emptyDrinkImg}
-                alt="Mixolo-bot"
-                width={24}
-                height={24}
-                className="object-contain"
-              />
-              <span className="font-bold text-lg">Mixolo-Bot</span>
-              <div
-                className={`text-sm sm:text-base ml-4 ${
-                  isActionsAnimating
-                    ? "text-green-500 scale-125"
-                    : "text-foreground scale-100"
-                } transition-all duration-300`}
-              >
-                Actions: {Math.min(pushLuckStore.actions, 4)}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
-              <div
-                className={`text-sm sm:text-base ${
-                  isActionsAnimating
-                    ? "text-green-500 scale-125"
-                    : "text-foreground scale-100"
-                } transition-all duration-300`}
-              >
-                Actions: {Math.min(pushLuckStore.actions, 4)}
-              </div>
-            </div>
+    <>
+      <style>{printStyles}</style>
+      {isPrintMode ? (
+        <PrintableCards
+          cards={config.initialItems.slice(
+            currentPrintPage * 12,
+            (currentPrintPage + 1) * 12
           )}
+        />
+      ) : (
+        <div className="sm:container sm:mx-auto font-strike uppercase">
+          {/* Header Section - Minimized for mobile */}
+          <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b sm:relative sm:bg-transparent sm:border-none">
+            <div className="flex justify-between items-center p-2 sm:my-6 sm:p-0">
+              {/* Left side - ModeToggle */}
+              <div className="flex items-center">
+                <ModeToggle />
+              </div>
 
-          {/* Right side - Settings */}
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {IS_DEVELOPMENT && (
-                  <>
+              {/* Center - Main content */}
+              {isSoloMode ? (
+                <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
+                  <Image
+                    src={emptyDrinkImg}
+                    alt="Mixolo-bot"
+                    width={24}
+                    height={24}
+                    className="object-contain"
+                  />
+                  <span className="font-bold text-lg">Mixolo-Bot</span>
+                  <div
+                    className={`text-sm sm:text-base ml-4 ${
+                      isActionsAnimating
+                        ? "text-green-500 scale-125"
+                        : "text-foreground scale-100"
+                    } transition-all duration-300`}
+                  >
+                    Actions: {Math.min(pushLuckStore.actions, 4)}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 sm:gap-4 justify-center flex-1">
+                  <div
+                    className={`text-sm sm:text-base ${
+                      isActionsAnimating
+                        ? "text-green-500 scale-125"
+                        : "text-foreground scale-100"
+                    } transition-all duration-300`}
+                  >
+                    Actions: {Math.min(pushLuckStore.actions, 4)}
+                  </div>
+                </div>
+              )}
+
+              {/* Right side - Settings */}
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {IS_DEVELOPMENT && (
+                      <>
+                        <DropdownMenuCheckboxItem
+                          checked={pushLuckStore.isRedCardsDisabled}
+                          onCheckedChange={pushLuckStore.toggleRedCards}
+                        >
+                          Disable Red Cards
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuCheckboxItem
-                      checked={pushLuckStore.isRedCardsDisabled}
-                      onCheckedChange={pushLuckStore.toggleRedCards}
+                      checked={isAsymmetricMode}
+                      onCheckedChange={setIsAsymmetricMode}
                     >
-                      Disable Red Cards
+                      Asymmetric Mode
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={isSoloMode}
+                      onCheckedChange={(checked) => {
+                        setIsSoloMode(checked);
+                        if (checked) {
+                          setShowDifficultyModal(true);
+                        }
+                      }}
+                    >
+                      <div>
+                        <div>Solo Mode</div>
+                        {isSoloMode && (
+                          <div className="text-xs text-muted-foreground">
+                            Difficulty:{" "}
+                            <span className="capitalize">{botDifficulty}</span>
+                          </div>
+                        )}
+                      </div>
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuCheckboxItem
-                  checked={isAsymmetricMode}
-                  onCheckedChange={setIsAsymmetricMode}
-                >
-                  Asymmetric Mode
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={isSoloMode}
-                  onCheckedChange={(checked) => {
-                    setIsSoloMode(checked);
-                    if (checked) {
-                      setShowDifficultyModal(true);
-                    }
-                  }}
-                >
-                  <div>
-                    <div>Solo Mode</div>
-                    {isSoloMode && (
-                      <div className="text-xs text-muted-foreground">
-                        Difficulty:{" "}
-                        <span className="capitalize">{botDifficulty}</span>
-                      </div>
-                    )}
-                  </div>
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => pushLuckStore.restartGame()}>
-                  Restart Game
-                </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => pushLuckStore.restartGame()}
+                    >
+                      Restart Game
+                    </DropdownMenuItem>
 
-                {/* <DropdownMenuItem>
-                  <ModeToggle />
-                </DropdownMenuItem> */}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    {/* <DropdownMenuItem>
+                      <ModeToggle />
+                    </DropdownMenuItem> */}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Game Stats - Hidden on mobile */}
-      <div className="hidden sm:grid grid-cols-2 gap-4 mb-6">
-        <div className="border rounded p-4">
-          <h3 className="mb-2">Deck</h3>
-          <p>{pushLuckStore.deck.length} cards remaining</p>
-        </div>
-        <div className="border rounded p-4">
-          <h3 className="mb-2">Discard Pile</h3>
-          <p>{pushLuckStore.discardPile.length} cards discarded</p>
-        </div>
-      </div>
+          {/* Game Stats - Hidden on mobile */}
+          <div className="hidden sm:grid grid-cols-2 gap-4 mb-6">
+            <div className="border rounded p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="mb-2">Deck</h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAllCards(!showAllCards)}
+                    className="text-xs"
+                  >
+                    {showAllCards ? "Hide Cards" : "Show All Cards"}
+                  </Button>
+                  {process.env.NODE_ENV === "development" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handlePrintCards}
+                      className="text-xs"
+                    >
+                      Print All Cards
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <p>{pushLuckStore.deck.length} cards remaining</p>
+            </div>
+            <div className="border rounded p-4">
+              <h3 className="mb-2">Discard Pile</h3>
+              <p>{pushLuckStore.discardPile.length} cards discarded</p>
+            </div>
+          </div>
 
-      {/* Central Board */}
-      <div className="border rounded-lg p-2 sm:p-6  mb-12 sm:mb-6 min-h-[90vh]">
-        <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-14">
-          {pushLuckStore.centralBoard.map((card, index) =>
-            renderCard(card, index)
+          {/* All Cards View */}
+          {showAllCards && (
+            <div className="border rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-bold mb-4">
+                All Cards ({config.initialItems.length})
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                {config.initialItems.map((card, index) => (
+                  <div
+                    key={`all-cards-${card.id}-${index}`}
+                    className="transform scale-75 origin-top-left"
+                  >
+                    <CardComponent item={card} />
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* Modified Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 flex justify-center gap-2 p-2 bg-background/80 backdrop-blur-sm border-t">
-        {pushLuckStore.selectedCards.size === 0 ? (
-          // Show Explore button when no cards are selected
-          <Button
-            size="lg"
-            onClick={handleDrawCard}
-            disabled={
-              !pushLuckStore.canDraw || pushLuckStore.isOtherPlayersPhase
-            }
-          >
-            {config.buttons.draw || "Explore"}
-          </Button>
-        ) : (
-          // Show Next Turn and Other Players buttons when cards are selected
-          <div className="flex gap-2">
-            {!pushLuckStore.isOtherPlayersPhase && !isSoloMode && (
+          {/* Central Board */}
+          <div className="border rounded-lg p-2 sm:p-6  mb-12 sm:mb-6 min-h-[90vh]">
+            <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-14">
+              {pushLuckStore.centralBoard.map((card, index) =>
+                renderCard(card, index)
+              )}
+            </div>
+          </div>
+
+          {/* Modified Action Buttons */}
+          <div className="fixed bottom-0 left-0 right-0 flex justify-center gap-2 p-2 bg-background/80 backdrop-blur-sm border-t">
+            {pushLuckStore.selectedCards.size === 0 ? (
+              // Show Explore button when no cards are selected
               <Button
                 size="lg"
-                variant="secondary"
-                onClick={() => pushLuckStore.startOtherPlayersPhase()}
+                onClick={handleDrawCard}
+                disabled={
+                  !pushLuckStore.canDraw || pushLuckStore.isOtherPlayersPhase
+                }
               >
-                Other Players
+                {config.buttons.draw || "Explore"}
               </Button>
+            ) : (
+              // Show Next Turn and Other Players buttons when cards are selected
+              <div className="flex gap-2">
+                {!pushLuckStore.isOtherPlayersPhase && !isSoloMode && (
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    onClick={() => pushLuckStore.startOtherPlayersPhase()}
+                  >
+                    Other Players
+                  </Button>
+                )}
+                <Button size="lg" variant="default" onClick={handleTurnEnd}>
+                  Next Turn
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => pushLuckStore.addAction()}
+                  className="px-2 aspect-square"
+                >
+                  +
+                </Button>
+              </div>
             )}
-            <Button size="lg" variant="default" onClick={handleTurnEnd}>
-              Next Turn
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => pushLuckStore.addAction()}
-              className="px-2 aspect-square"
-            >
-              +
-            </Button>
           </div>
-        )}
-      </div>
 
-      {/* Explosion Modal */}
-      {pushLuckStore.isExploding && renderExplosionModal()}
+          {/* Explosion Modal */}
+          {pushLuckStore.isExploding && renderExplosionModal()}
 
-      {selectedBlueprint && (
-        <BlueprintPurchaseModals
-          blueprint={{
-            ...selectedBlueprint,
-            cost: selectedBlueprint.cost,
-          }}
-          CardComponent={CardComponent}
-          rerolls={selectedBlueprint.blueprintRewards?.rerolls}
-          isAsymmetricMode={isAsymmetricMode}
-          onCancel={() => {
-            setSelectedBlueprint(null);
-          }}
-          onComplete={(building) => {
-            if (building) {
-              pushLuckStore.toggleCardSelection(selectedBlueprint.id);
-            }
-            setSelectedBlueprint(null);
-          }}
-        />
+          {selectedBlueprint && (
+            <BlueprintPurchaseModals
+              blueprint={{
+                ...selectedBlueprint,
+                cost: selectedBlueprint.cost,
+              }}
+              CardComponent={CardComponent}
+              rerolls={selectedBlueprint.blueprintRewards?.rerolls}
+              isAsymmetricMode={isAsymmetricMode}
+              onCancel={() => {
+                setSelectedBlueprint(null);
+              }}
+              onComplete={(building) => {
+                if (building) {
+                  pushLuckStore.toggleCardSelection(selectedBlueprint.id);
+                }
+                setSelectedBlueprint(null);
+              }}
+            />
+          )}
+
+          {isSoloMode && <BotStatus />}
+          {showGameEndModal && <GameEndModal />}
+          {showDifficultyModal && <DifficultyModal />}
+        </div>
       )}
-
-      {isSoloMode && <BotStatus />}
-      {showGameEndModal && <GameEndModal />}
-      {showDifficultyModal && <DifficultyModal />}
-    </div>
+    </>
   );
 });
 
