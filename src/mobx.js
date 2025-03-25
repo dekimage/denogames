@@ -26,6 +26,8 @@ import {
   serverTimestamp,
   startAfter,
 } from "firebase/firestore";
+import { trackEvent } from "@/lib/analytics/client";
+import { CLIENT_EVENTS } from "@/lib/analytics/events";
 
 class Store {
   // App Data
@@ -719,20 +721,52 @@ class Store {
   }
 
   // Add to Cart
-  addToCart(product) {
+  addToCart = async (product) => {
+    // Don't proceed if product is already in cart or purchased
     if (this.cart.includes(product.id)) return;
     if (this.user?.purchasedProducts?.includes(product.id)) return;
 
-    runInAction(() => {
-      this.cart.push(product.id);
+    // Track the event with proper context
+    await trackEvent({
+      action: CLIENT_EVENTS.ADD_TO_CART,
+      context: {
+        productId: product.id,
+        currentPath:
+          typeof window !== "undefined" ? window.location.pathname : "",
+        productType: product.type,
+        productPrice: product.price,
+        // For authenticated users, check if it's their first time
+        // For anonymous users, we can't determine if it's first time, so we don't send this
+        ...(this.user && {
+          isFirstClick: !this.user?.analytics?.addedToCart?.includes(
+            product.id
+          ),
+        }),
+      },
     });
 
+    // Add to cart in MobX state
+    runInAction(() => {
+      this.cart.push(product.id);
+
+      // Update user analytics immediately in MobX state for authenticated users
+      if (this.user && this.user.analytics) {
+        if (!this.user.analytics.addedToCart) {
+          this.user.analytics.addedToCart = [];
+        }
+        if (!this.user.analytics.addedToCart.includes(product.id)) {
+          this.user.analytics.addedToCart.push(product.id);
+        }
+      }
+    });
+
+    // Sync with appropriate storage
     if (this.user) {
-      this.syncCartWithFirestore();
+      await this.syncCartWithFirestore();
     } else {
       this.syncCartWithLocalStorage();
     }
-  }
+  };
 
   // Remove from Cart
   removeFromCart(productId) {
