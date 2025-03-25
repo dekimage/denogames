@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import MobxStore from "@/mobx";
 import Image from "next/image";
@@ -13,6 +13,8 @@ import { ProductCard } from "@/components/ProductCard";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowRight, ArrowRightCircle } from "lucide-react";
+import { trackEvent } from "@/lib/analytics/client";
+import { CLIENT_EVENTS } from "@/lib/analytics/events";
 
 const author = {
   name: "Deno Gavrilovic",
@@ -28,25 +30,103 @@ function decodeHTMLEntities(text) {
 }
 
 // New ProgressBar component
-const ProgressBar = () => {
+const ProgressBar = observer(({ blogId }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const hasTrackedRead = useRef(false);
+  const isTracking = useRef(false);
+  const timeoutRef = useRef(null); // Add this for debouncing
+  const { user } = MobxStore;
+
+  const trackBlogRead = async () => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Double check all conditions before proceeding
+    if (hasTrackedRead.current || isTracking.current) {
+      return;
+    }
+
+    // Set tracking flag immediately
+    isTracking.current = true;
+
+    // Add a small delay to prevent double firing
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        console.log("Tracking blog read..."); // Debug log
+
+        await trackEvent({
+          action: CLIENT_EVENTS.BLOG_READ,
+          context: {
+            blogId,
+            currentPath: window.location.pathname,
+            isFirstTime: user
+              ? !user?.analytics?.readBlogs?.includes(blogId)
+              : undefined,
+          },
+        });
+
+        if (user && !user.analytics?.readBlogs?.includes(blogId)) {
+          MobxStore.updateUserAnalytics("readBlogs", blogId);
+        }
+
+        hasTrackedRead.current = true;
+        localStorage.setItem(`blog_read_${blogId}`, "true");
+        console.log("Blog read tracked successfully"); // Debug log
+      } catch (error) {
+        console.log("Error tracking blog read:", error);
+      } finally {
+        isTracking.current = false;
+      }
+    }, 100); // Small delay to prevent double firing
+  };
 
   useEffect(() => {
+    // Check localStorage first
+    const wasReadBefore = localStorage.getItem(`blog_read_${blogId}`);
+    if (wasReadBefore) {
+      hasTrackedRead.current = true;
+      return; // Exit early if already read
+    }
+
+    let scrollTimeout;
     const updateScrollProgress = () => {
-      const scrollPx = document.documentElement.scrollTop;
-      const winHeightPx =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
-      const scrolled = `${(scrollPx / winHeightPx) * 100}%`;
-      setScrollProgress(scrolled);
+      // Clear existing scroll timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+
+      // Debounce scroll updates
+      scrollTimeout = setTimeout(() => {
+        const scrollPx = document.documentElement.scrollTop;
+        const winHeightPx =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const scrollPercentage = (scrollPx / winHeightPx) * 100;
+        const scrolled = `${scrollPercentage}%`;
+        setScrollProgress(scrolled);
+
+        // Only proceed if we haven't tracked and aren't currently tracking
+        if (
+          scrollPercentage >= 55 &&
+          !hasTrackedRead.current &&
+          !isTracking.current
+        ) {
+          trackBlogRead();
+        }
+      }, 50);
     };
 
     window.addEventListener("scroll", updateScrollProgress);
 
     return () => {
       window.removeEventListener("scroll", updateScrollProgress);
+      // Clean up timeouts
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [blogId]);
 
   return (
     <div className="fixed top-[70px] left-0 w-full h-1 z-50">
@@ -61,16 +141,14 @@ const ProgressBar = () => {
       />
     </div>
   );
-};
+});
 
 // Related blog post card component
 const RelatedBlogCard = ({ blog, currentSlug }) => {
   const router = useRouter();
 
-  // Skip current blog post
   if (blog.slug === currentSlug) return null;
 
-  // Decode title
   const decodedTitle = decodeHTMLEntities(blog.title);
 
   const navigateToBlog = () => {
@@ -132,7 +210,6 @@ const BlogPost = observer(() => {
     if (slug) {
       setIsLoading(true);
 
-      // First ensure we have blogs in the store
       const fetchBlogsIfNeeded = async () => {
         if (MobxStore.blogs.length === 0 && !MobxStore.blogsLoading) {
           await MobxStore.fetchBlogs();
@@ -140,15 +217,11 @@ const BlogPost = observer(() => {
       };
 
       fetchBlogsIfNeeded().then(() => {
-        // Then fetch the specific blog details
         MobxStore.fetchBlogDetails(slug)
           .then((blog) => {
-            // Set related games - check both relatedGameIds and relatedGames properties
             if (blog) {
-              // Try to get related game IDs from either property
               const gameIds = blog.relatedGameIds || blog.relatedGames || [];
 
-              // Convert to array if it's not already (handle both string and array formats)
               const gameIdsArray = Array.isArray(gameIds)
                 ? gameIds
                 : [gameIds].filter(Boolean);
@@ -162,30 +235,25 @@ const BlogPost = observer(() => {
               }
             }
 
-            // Find related blogs based on categories
             if (blog && blog.categories && MobxStore.blogs.length > 0) {
-              // Get current blog's categories
               const currentCategories = blog.categories || [];
 
-              // Find blogs with matching categories, excluding current blog
               const blogsWithMatchingCategories = MobxStore.blogs
                 .filter(
                   (b) =>
-                    b.slug !== slug && // Exclude current blog
-                    b.categories?.some((cat) => currentCategories.includes(cat)) // Must share at least one category
+                    b.slug !== slug &&
+                    b.categories?.some((cat) => currentCategories.includes(cat))
                 )
-                .slice(0, 3); // Get up to 3 related blogs
+                .slice(0, 3);
 
-              // If we don't have enough matching blogs, add recent blogs
               let relatedBlogsList = [...blogsWithMatchingCategories];
 
               if (relatedBlogsList.length < 3) {
-                // Get recent blogs excluding current and already included blogs
                 const recentBlogs = MobxStore.blogs
                   .filter(
                     (b) =>
-                      b.slug !== slug && // Exclude current
-                      !relatedBlogsList.some((rb) => rb.slug === b.slug) // Exclude already included
+                      b.slug !== slug &&
+                      !relatedBlogsList.some((rb) => rb.slug === b.slug)
                   )
                   .slice(0, 3 - relatedBlogsList.length);
 
@@ -220,7 +288,7 @@ const BlogPost = observer(() => {
       const relatedGamesSection = document.getElementById("related-games");
 
       if (relatedGamesSection) {
-        const yOffset = -80; // 80px offset to account for fixed header
+        const yOffset = -80;
         const y =
           relatedGamesSection.getBoundingClientRect().top +
           window.pageYOffset +
@@ -233,7 +301,7 @@ const BlogPost = observer(() => {
 
   return (
     <>
-      <ProgressBar />
+      <ProgressBar blogId={slug} />
       <div className="container max-w-[1000px] mx-auto p-4 lg:p-8 mt-[10px]">
         <Breadcrumbs />
         <div className="flex flex-col lg:flex-row mt-4 lg:justify-between items-center">

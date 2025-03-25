@@ -37,6 +37,15 @@ export const CLIENT_EVENTS = {
   // Checkout related
   INITIATE_CHECKOUT_FROM_PRODUCT: "initiate_checkout_from_product",
   INITIATE_CHECKOUT_FROM_CART: "initiate_checkout_from_cart",
+
+  // Blog card related
+  BLOG_CARD_CLICK: "blog_card_click",
+
+  // Blog read related
+  BLOG_READ: "blog_read",
+
+  // Generic click
+  GENERIC_CLICK: "generic_click",
 };
 
 // Backend (server-side) trackable events
@@ -93,3 +102,25 @@ function getEventCategory(eventName) {
 
   return eventCategories[eventName] || EVENT_CATEGORIES.SYSTEM;
 }
+
+export const ALLOWED_CLICK_LABELS = {
+  PRIVACY_POLICY: "privacy-policy",
+  TERMS_CONDITIONS: "terms-conditions",
+
+  // Main Navigation
+  NAV_HOME: "nav-home",
+  NAV_SHOP: "nav-shop",
+  NAV_BLOG: "nav-blog",
+  NAV_CART: "nav-cart",
+  NAV_LOGIN: "nav-login",
+  NAV_SIGNUP: "nav-signup",
+
+  // User Menu Navigation
+  NAV_ACCOUNT: "nav-account",
+  NAV_MY_GAMES: "nav-my-games",
+  NAV_ADDONS: "nav-addons",
+  NAV_COLLECTION: "nav-collection",
+  NAV_ORDERS: "nav-orders",
+  NAV_REVIEWS: "nav-reviews",
+  NAV_LOGOUT: "nav-logout",
+};

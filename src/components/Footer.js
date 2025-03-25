@@ -9,6 +9,9 @@ import {
   // Discord,
 } from "lucide-react";
 import footerImg from "@/assets/footer-bg.png";
+import { useTrackClick } from "@/hooks/useTrackClick";
+import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
+import Link from "next/link";
 
 const FooterSection = ({ icon: Icon, title, description }) => (
   <div className="flex flex-col items-center p-4 font-strike max-w-[300px]">
@@ -18,20 +21,33 @@ const FooterSection = ({ icon: Icon, title, description }) => (
   </div>
 );
 
-const FooterColumn = ({ title, links }) => (
-  <div className="flex flex-col font-strike min-w-[250px] items-center">
-    <div className="text-lg uppercase mb-4 text-white">{title}</div>
-    {links.map((link, index) => (
-      <a
-        key={index}
-        href={`/${link.link}`}
-        className="text-grayy hover:text-light mb-2"
-      >
-        {link.label}
-      </a>
-    ))}
-  </div>
-);
+const FooterColumn = ({ title, links }) => {
+  const trackClick = useTrackClick();
+
+  const handleClick = async (link, label) => {
+    console.log("link", link);
+    console.log("label", label);
+    if (label) {
+      await trackClick(label);
+    }
+  };
+
+  return (
+    <div className="flex flex-col font-strike min-w-[250px] items-center">
+      <div className="text-lg uppercase mb-4 text-white">{title}</div>
+      {links.map((link, index) => (
+        <Link
+          key={index}
+          href={`/${link.link}`}
+          className="text-grayy hover:text-light mb-2"
+          onClick={() => handleClick(link.link, link.trackingLabel)}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </div>
+  );
+};
 
 const Footer = () => {
   const socialLinks = [
@@ -100,9 +116,21 @@ const Footer = () => {
             <FooterColumn
               title="Information"
               links={[
-                { label: "Terms of Service", link: "terms-of-service" },
-                { label: "Privacy Policy", link: "privacy-policy" },
-                { label: "Shipping Info", link: "shipping-info" },
+                {
+                  label: "Terms of Service",
+                  link: "terms-of-service",
+                  trackingLabel: ALLOWED_CLICK_LABELS.TERMS_CONDITIONS,
+                },
+                {
+                  label: "Privacy Policy",
+                  link: "privacy-policy",
+                  trackingLabel: ALLOWED_CLICK_LABELS.PRIVACY_POLICY,
+                },
+                {
+                  label: "Shipping Info",
+                  link: "shipping-info",
+                  // No tracking label for this one
+                },
               ]}
             />
           </div>

@@ -34,6 +34,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import logoImg from "@/assets/logo.png";
 import ShoppingCart from "@/components/Cart";
+import { useTrackClick } from "@/hooks/useTrackClick";
+import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
 
 const NavItem = ({ href, icon: Icon, title, active, onClick }) => {
   return (
@@ -74,6 +76,7 @@ const NavSection = ({ title, children }) => {
 const MobileHeader = observer(() => {
   const { isMobileOpen, setIsMobileOpen, user, logout, cart } = MobxStore;
   const pathname = usePathname();
+  const trackClick = useTrackClick();
 
   const toggleMenu = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -81,6 +84,11 @@ const MobileHeader = observer(() => {
 
   const closeMenu = () => {
     setIsMobileOpen(false);
+  };
+
+  const handleNavClick = async (label) => {
+    await trackClick(label);
+    closeMenu();
   };
 
   const isActive = (path) => pathname === path;
@@ -134,7 +142,9 @@ const MobileHeader = observer(() => {
           />
         </Link>
 
-        <ShoppingCart />
+        <ShoppingCart
+          onClick={() => handleNavClick(ALLOWED_CLICK_LABELS.NAV_CART)}
+        />
       </div>
 
       <AnimatePresence>
@@ -156,14 +166,21 @@ const MobileHeader = observer(() => {
                         <Button
                           variant="outline"
                           className="w-full"
-                          onClick={closeMenu}
+                          onClick={() =>
+                            handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGIN)
+                          }
                         >
                           <LogIn className="mr-2 h-4 w-4" />
                           Log in
                         </Button>
                       </Link>
                       <Link href="/signup" className="flex-1">
-                        <Button className="w-full" onClick={closeMenu}>
+                        <Button
+                          className="w-full"
+                          onClick={() =>
+                            handleNavClick(ALLOWED_CLICK_LABELS.NAV_SIGNUP)
+                          }
+                        >
                           <UserPlus className="mr-2 h-4 w-4" />
                           Sign up
                         </Button>
@@ -202,21 +219,27 @@ const MobileHeader = observer(() => {
                     icon={Home}
                     title="Home"
                     active={isActive("/")}
-                    onClick={closeMenu}
+                    onClick={() =>
+                      handleNavClick(ALLOWED_CLICK_LABELS.NAV_HOME)
+                    }
                   />
                   <NavItem
                     href="/shop"
                     icon={Package}
                     title="Shop"
                     active={isActive("/shop")}
-                    onClick={closeMenu}
+                    onClick={() =>
+                      handleNavClick(ALLOWED_CLICK_LABELS.NAV_SHOP)
+                    }
                   />
                   <NavItem
                     href="/blog"
                     icon={BookOpen}
                     title="Blog"
                     active={isActive("/blog")}
-                    onClick={closeMenu}
+                    onClick={() =>
+                      handleNavClick(ALLOWED_CLICK_LABELS.NAV_BLOG)
+                    }
                   />
                 </NavSection>
 
@@ -231,42 +254,54 @@ const MobileHeader = observer(() => {
                         icon={User}
                         title="Account"
                         active={isActive("/account")}
-                        onClick={closeMenu}
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_ACCOUNT)
+                        }
                       />
                       <NavItem
                         href="/account/my-games"
                         icon={Gamepad2}
                         title="My Games"
                         active={isActive("/account/my-games")}
-                        onClick={closeMenu}
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_MY_GAMES)
+                        }
                       />
                       <NavItem
                         href="/account/rewards"
                         icon={Sparkle}
                         title="Add-ons"
                         active={isActive("/account/rewards")}
-                        onClick={closeMenu}
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_ADDONS)
+                        }
                       />
                       <NavItem
                         href="/account/my-collection"
                         icon={Trophy}
                         title="My Collection"
                         active={isActive("/account/my-collection")}
-                        onClick={closeMenu}
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_COLLECTION)
+                        }
                       />
                       <NavItem
                         href="/account/my-orders"
                         icon={ShoppingBag}
                         title="My Orders"
                         active={isActive("/account/my-orders")}
-                        onClick={closeMenu}
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_ORDERS)
+                        }
                       />
                       <NavItem
                         href="/account/my-reviews"
                         icon={Star}
                         title="My Reviews"
                         active={isActive("/account/my-reviews")}
-                        onClick={closeMenu}
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_REVIEWS)
+                        }
                       />
                     </NavSection>
 
@@ -277,8 +312,8 @@ const MobileHeader = observer(() => {
                       variant="outline"
                       className="w-full flex items-center justify-center gap-2"
                       onClick={() => {
+                        handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGOUT);
                         logout();
-                        closeMenu();
                       }}
                     >
                       <LogOut className="h-4 w-4" />

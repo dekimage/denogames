@@ -4,6 +4,9 @@ import { handleProductCardClick } from "./productCardClick";
 import { handleAddToCart } from "./addToCart";
 import { handleInitiateCheckoutFromProduct } from "./initiateCheckoutFromProduct";
 import { handleInitiateCheckoutFromCart } from "./initiateCheckoutFromCart";
+import { handleBlogCardClick } from "./blogCardClick";
+import { handleBlogRead } from "./blogRead";
+import { handleGenericClick } from "./genericClick";
 // We'll add more handlers as we add more events
 
 export function getEventHandler(action) {
@@ -14,6 +17,9 @@ export function getEventHandler(action) {
     [CLIENT_EVENTS.INITIATE_CHECKOUT_FROM_PRODUCT]:
       handleInitiateCheckoutFromProduct,
     [CLIENT_EVENTS.INITIATE_CHECKOUT_FROM_CART]: handleInitiateCheckoutFromCart,
+    [CLIENT_EVENTS.BLOG_CARD_CLICK]: handleBlogCardClick,
+    [CLIENT_EVENTS.BLOG_READ]: handleBlogRead,
+    [CLIENT_EVENTS.GENERIC_CLICK]: handleGenericClick,
     // We'll add more mappings as we add more events
   };
 

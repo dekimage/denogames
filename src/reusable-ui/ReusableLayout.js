@@ -51,6 +51,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTrackClick } from "@/hooks/useTrackClick";
+import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
 
 const routesWithoutHeaderFooter = ["/app"];
 
@@ -87,6 +89,7 @@ const defaultLayout = [20, 80];
 const ReusableLayout = observer(({ children }) => {
   const { user, logout } = MobxStore;
   const pathname = usePathname();
+  const trackClick = useTrackClick();
 
   const showHeaderFooter = shouldShowHeaderFooter(pathname);
   const showMvpHeader =
@@ -101,6 +104,10 @@ const ReusableLayout = observer(({ children }) => {
 
   // Helper function to check if a path is active
   const isActive = (path) => pathname === path;
+
+  const handleNavClick = async (label) => {
+    await trackClick(label);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -126,6 +133,9 @@ const ReusableLayout = observer(({ children }) => {
                     <Button
                       variant={isActive("/") ? "secondary" : "ghost"}
                       className="flex items-center gap-2"
+                      onClick={() =>
+                        handleNavClick(ALLOWED_CLICK_LABELS.NAV_HOME)
+                      }
                     >
                       <HomeIcon className="h-4 w-4" />
                       Home
@@ -136,6 +146,9 @@ const ReusableLayout = observer(({ children }) => {
                     <Button
                       variant={isActive("/shop") ? "secondary" : "ghost"}
                       className="flex items-center gap-2"
+                      onClick={() =>
+                        handleNavClick(ALLOWED_CLICK_LABELS.NAV_SHOP)
+                      }
                     >
                       <Package className="h-4 w-4" />
                       Shop
@@ -146,6 +159,9 @@ const ReusableLayout = observer(({ children }) => {
                     <Button
                       variant={isActive("/blog") ? "secondary" : "ghost"}
                       className="flex items-center gap-2"
+                      onClick={() =>
+                        handleNavClick(ALLOWED_CLICK_LABELS.NAV_BLOG)
+                      }
                     >
                       <BookOpen className="h-4 w-4" />
                       Blog
@@ -159,7 +175,9 @@ const ReusableLayout = observer(({ children }) => {
                 <ModeToggle />
                 {/* {user && <NotificationDropdown />} */}
 
-                <ShoppingCart />
+                <ShoppingCart
+                  onClick={() => handleNavClick(ALLOWED_CLICK_LABELS.NAV_CART)}
+                />
 
                 {user ? (
                   <div className="flex items-center space-x-3">
@@ -199,7 +217,13 @@ const ReusableLayout = observer(({ children }) => {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                          <Link href="/account" className="flex items-center">
+                          <Link
+                            href="/account"
+                            className="flex items-center"
+                            onClick={() =>
+                              handleNavClick(ALLOWED_CLICK_LABELS.NAV_ACCOUNT)
+                            }
+                          >
                             <User className="mr-2 h-4 w-4" />
                             <span>Account</span>
                           </Link>
@@ -208,6 +232,9 @@ const ReusableLayout = observer(({ children }) => {
                           <Link
                             href="/account/my-games"
                             className="flex items-center"
+                            onClick={() =>
+                              handleNavClick(ALLOWED_CLICK_LABELS.NAV_MY_GAMES)
+                            }
                           >
                             <Gamepad2 className="mr-2 h-4 w-4" />
                             <span>My Games</span>
@@ -217,6 +244,9 @@ const ReusableLayout = observer(({ children }) => {
                           <Link
                             href="/account/rewards"
                             className="flex items-center"
+                            onClick={() =>
+                              handleNavClick(ALLOWED_CLICK_LABELS.NAV_ADDONS)
+                            }
                           >
                             <Sparkle className="mr-2 h-4 w-4" />
                             <span>Add-ons</span>
@@ -226,6 +256,11 @@ const ReusableLayout = observer(({ children }) => {
                           <Link
                             href="/account/my-collection"
                             className="flex items-center"
+                            onClick={() =>
+                              handleNavClick(
+                                ALLOWED_CLICK_LABELS.NAV_COLLECTION
+                              )
+                            }
                           >
                             <Trophy className="mr-2 h-4 w-4" />
                             <span>My Collection</span>
@@ -235,6 +270,9 @@ const ReusableLayout = observer(({ children }) => {
                           <Link
                             href="/account/my-orders"
                             className="flex items-center"
+                            onClick={() =>
+                              handleNavClick(ALLOWED_CLICK_LABELS.NAV_ORDERS)
+                            }
                           >
                             <ShoppingBag className="mr-2 h-4 w-4" />
                             <span>My Orders</span>
@@ -244,13 +282,21 @@ const ReusableLayout = observer(({ children }) => {
                           <Link
                             href="/account/my-reviews"
                             className="flex items-center"
+                            onClick={() =>
+                              handleNavClick(ALLOWED_CLICK_LABELS.NAV_REVIEWS)
+                            }
                           >
                             <Star className="mr-2 h-4 w-4" />
                             <span>My Reviews</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={logout}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGOUT);
+                            logout();
+                          }}
+                        >
                           <LogIn className="mr-2 h-4 w-4 rotate-180" />
                           <span>Log out</span>
                         </DropdownMenuItem>
@@ -264,13 +310,21 @@ const ReusableLayout = observer(({ children }) => {
                         variant="outline"
                         size="sm"
                         className="hidden md:flex"
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGIN)
+                        }
                       >
                         <LogIn className="mr-2 h-4 w-4" />
                         Log in
                       </Button>
                     </Link>
                     <Link href="/signup">
-                      <Button size="sm">
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_SIGNUP)
+                        }
+                      >
                         <UserPlus className="mr-2 h-4 w-4" />
                         <span className="hidden md:inline">Sign up</span>
                         <span className="md:hidden">Sign up</span>

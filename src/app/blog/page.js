@@ -500,6 +500,8 @@ const BlogPage = observer(() => {
 
 // Blog Card Component
 const BlogCard = ({ blog }) => {
+  const { user } = MobxStore;
+
   // Parse the HTML content to get plain text for descriptions
   const stripHtml = (html) => {
     const doc = new DOMParser().parseFromString(html, "text/html");
@@ -511,14 +513,15 @@ const BlogCard = ({ blog }) => {
 
   const handleBlogClick = async () => {
     await trackEvent({
-      action: CLIENT_EVENTS.BLOG_VIEW,
-      category: EVENT_CATEGORIES.BLOG,
-      label: blog.title,
-      value: 1,
+      action: CLIENT_EVENTS.BLOG_CARD_CLICK,
       context: {
         blogId: blog.id,
         blogSlug: blog.slug,
         categories: blog.categories,
+        currentPath: window.location.pathname,
+        isFirstTime: user
+          ? !user?.analytics?.openBlogs?.includes(blog.id)
+          : undefined,
       },
     });
   };

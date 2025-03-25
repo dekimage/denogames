@@ -30,6 +30,8 @@ import {
   SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useTrackClick } from "@/hooks/useTrackClick";
+import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
 
 const navItems = [
   { icon: User, label: "Account", href: "/account" },
@@ -45,6 +47,7 @@ const AccountLayout = observer(({ children }) => {
   const pathname = usePathname();
   const { user, userFullyLoaded } = MobxStore;
   const [isClient, setIsClient] = useState(false);
+  const trackClick = useTrackClick();
 
   useEffect(() => {
     setIsClient(true);
@@ -73,6 +76,10 @@ const AccountLayout = observer(({ children }) => {
     return null;
   }
 
+  const handleNavClick = async (label) => {
+    await trackClick(label);
+  };
+
   return (
     <SidebarProvider className="w-full bg-background">
       <div className="flex w-full">
@@ -80,7 +87,12 @@ const AccountLayout = observer(({ children }) => {
           <SidebarHeader>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton size="lg">
+                <SidebarMenuButton
+                  size="lg"
+                  onClick={() =>
+                    handleNavClick(ALLOWED_CLICK_LABELS.NAV_ACCOUNT)
+                  }
+                >
                   <div className="flex items-center gap-2">
                     <div className="rounded-lg bg-primary p-1">
                       <User className="h-5 w-5 text-primary-foreground" />
@@ -102,6 +114,22 @@ const AccountLayout = observer(({ children }) => {
                         <SidebarMenuButton
                           asChild
                           isActive={pathname === item.href}
+                          onClick={() => {
+                            const labelMap = {
+                              "/account": ALLOWED_CLICK_LABELS.NAV_ACCOUNT,
+                              "/account/my-games":
+                                ALLOWED_CLICK_LABELS.NAV_MY_GAMES,
+                              "/account/rewards":
+                                ALLOWED_CLICK_LABELS.NAV_ADDONS,
+                              "/account/my-collection":
+                                ALLOWED_CLICK_LABELS.NAV_COLLECTION,
+                              "/account/my-orders":
+                                ALLOWED_CLICK_LABELS.NAV_ORDERS,
+                              "/account/my-reviews":
+                                ALLOWED_CLICK_LABELS.NAV_REVIEWS,
+                            };
+                            handleNavClick(labelMap[item.href]);
+                          }}
                         >
                           <a className="flex items-center gap-2">
                             <item.icon className="h-4 w-4" />
