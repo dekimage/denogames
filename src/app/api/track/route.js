@@ -9,55 +9,35 @@ import { getEventHandler } from "@/lib/analytics/handlers";
 export async function POST(req) {
   try {
     const eventData = await req.json();
-    const authHeader = req.headers.get("authorization");
 
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await auth.verifyIdToken(token);
-
-    // Validate the source and authorization
-    if (eventData.source === "server") {
-      // For server events, validate against internal secret
-      if (token !== process.env.INTERNAL_TRACKING_SECRET) {
-        return NextResponse.json(
-          { error: "Invalid server authorization" },
-          { status: 401 }
-        );
+    // For authenticated requests, validate token
+    if (eventData.isAuthenticated) {
+      const authHeader = req.headers.get("authorization");
+      if (!authHeader?.startsWith("Bearer ")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
-    } else {
-      // For client events, validate Firebase token
+
+      const token = authHeader.split("Bearer ")[1];
+      const decodedToken = await auth.verifyIdToken(token);
+
       if (decodedToken.uid !== eventData.userId) {
         throw new Error("User ID mismatch");
       }
-
-      // Prevent client-side tracking of secure actions
-      if (isServerOnlyEvent(eventData.action)) {
-        return NextResponse.json(
-          { error: "This action can only be tracked server-side" },
-          { status: 403 }
-        );
-      }
     }
-
-    // Ensure stats documents exist
-    await ensureStatsDocuments(eventData.userId, eventData.context?.gameId);
 
     const batch = firestore.batch();
 
-    // Log the analytics event (common for all events)
+    // Add the analytics event
     const analyticsRef = firestore.collection("analytics").doc();
     batch.set(analyticsRef, {
       ...eventData,
       timestamp: new Date(),
     });
 
-    // Handle event-specific logic
+    // Get and execute the appropriate handler for the event
     const handler = getEventHandler(eventData.action);
     if (handler) {
-      await handler(eventData, batch);
+      await handler(eventData, batch, firestore);
     }
 
     await batch.commit();

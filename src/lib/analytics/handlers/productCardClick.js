@@ -1,23 +1,25 @@
-import { firestore } from "@/firebaseAdmin";
 import { handleFirstTimeAction, updateDailyStats } from "./baseHandler";
 
-export async function handleProductCardClick(eventData, batch) {
-  const { userId, context } = eventData;
-  const { productId, isFirstClick } = context;
+export async function handleProductCardClick(eventData, batch, firestore) {
+  const productId = eventData.context.productId;
+  const productStatsRef = firestore
+    .collection("stats")
+    .doc(`product_${productId}`);
 
-  // Handle first-time action
-  if (isFirstClick) {
+  // Update user analytics for first-time clicks
+  if (eventData.isAuthenticated && eventData.context.isFirstClick) {
     await handleFirstTimeAction(
       batch,
-      userId,
+      eventData.userId,
       "clickedProductCards",
       productId
     );
   }
 
-  // Update product card stats
-  const productStatsRef = firestore
-    .collection("stats")
-    .doc(`product_${productId}`);
-  await updateDailyStats(batch, productStatsRef, isFirstClick);
+  // Update daily stats
+  await updateDailyStats(
+    batch,
+    productStatsRef,
+    eventData.context.isFirstClick
+  );
 }

@@ -1,42 +1,10 @@
 import { auth } from "@/firebase"; // client-side Firebase only
-import { isServerOnlyEvent, isValidClientEvent } from "./events";
+import { CLIENT_EVENTS, isServerOnlyEvent, isValidClientEvent } from "./events";
 import MobxStore from "@/mobx";
+import { getOrCreateDeviceId } from "./deviceId";
+import { getOrCreateSessionId } from "./session";
 
-// Add this function to generate and manage sessions
-function getOrCreateSessionId() {
-  let sessionId = localStorage.getItem("analytics_session_id");
-  const lastActivity = localStorage.getItem("analytics_last_activity");
-  const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-  const now = Date.now();
-
-  // Create new session if:
-  // - No session exists
-  // - No last activity
-  // - Last activity was more than 30 minutes ago
-  if (
-    !sessionId ||
-    !lastActivity ||
-    now - parseInt(lastActivity) > SESSION_TIMEOUT
-  ) {
-    sessionId =
-      Math.random().toString(36).substring(2) + Date.now().toString(36);
-    localStorage.setItem("analytics_session_id", sessionId);
-  }
-
-  // Update last activity
-  localStorage.setItem("analytics_last_activity", now.toString());
-
-  return sessionId;
-}
-
-export async function trackEvent({
-  action,
-  category,
-  label,
-  value,
-  context = {},
-}) {
+export async function trackEvent({ action, context = {} }) {
   try {
     // Validate the event
     if (!isValidClientEvent(action)) {
@@ -49,45 +17,47 @@ export async function trackEvent({
       return;
     }
 
-    // Get current user
     const user = auth.currentUser;
-    if (!user) {
-      console.log("No user logged in");
-      return;
-    }
-
-    const token = await user.getIdToken();
-
-    // Get current route and add to context
-    const currentRoute =
-      typeof window !== "undefined" ? window.location.pathname : "";
-    const referrer = typeof document !== "undefined" ? document.referrer : "";
+    const deviceId = getOrCreateDeviceId();
+    const sessionId = getOrCreateSessionId();
 
     // Prepare the event data
     const eventData = {
-      userId: user.uid,
       action,
-      category,
-      label,
-      value,
       context: {
         ...context,
-        route: currentRoute,
-        referrer,
+        deviceId,
+        route: typeof window !== "undefined" ? window.location.pathname : "",
+        referrer: typeof document !== "undefined" ? document.referrer : "",
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
       },
-      sessionId: getOrCreateSessionId(), // Use the managed session ID
+      sessionId,
       source: "client",
       timestamp: new Date().toISOString(),
     };
 
+    // Add user data if authenticated
+    if (user) {
+      eventData.userId = user.uid;
+      eventData.isAuthenticated = true;
+    } else {
+      eventData.isAuthenticated = false;
+    }
+
     // Send to our tracking endpoint
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    // Only add authorization if user is logged in
+    if (user) {
+      const token = await user.getIdToken();
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const response = await fetch("/api/track", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify(eventData),
     });
 
@@ -95,8 +65,8 @@ export async function trackEvent({
       throw new Error("Failed to track event");
     }
 
-    // If it was a first-time event, update MobX
-    if (context.isFirstClick) {
+    // Only update MobX for authenticated users
+    if (user && context.isFirstClick) {
       switch (action) {
         case CLIENT_EVENTS.BANNER_CLICK:
           MobxStore.updateUserAnalytics("bannersClicked", context.bannerId);
@@ -107,7 +77,6 @@ export async function trackEvent({
             context.productId
           );
           break;
-        // Add more cases as we add more trackable events
       }
     }
   } catch (error) {
