@@ -36,6 +36,8 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
+import { trackEvent } from "@/lib/analytics/client";
+import { CLIENT_EVENTS, EVENT_CATEGORIES } from "@/lib/analytics/events";
 
 // Blog page component
 const BlogPage = observer(() => {
@@ -507,6 +509,20 @@ const BlogCard = ({ blog }) => {
   const excerpt = blog.excerpt ? stripHtml(blog.excerpt) : "";
   const decodedTitle = blog.title ? stripHtml(blog.title) : "";
 
+  const handleBlogClick = async () => {
+    await trackEvent({
+      action: CLIENT_EVENTS.BLOG_VIEW,
+      category: EVENT_CATEGORIES.BLOG,
+      label: blog.title,
+      value: 1,
+      context: {
+        blogId: blog.id,
+        blogSlug: blog.slug,
+        categories: blog.categories,
+      },
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -514,7 +530,11 @@ const BlogCard = ({ blog }) => {
       transition={{ duration: 0.3 }}
       className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
     >
-      <Link href={`/blog/${blog.slug}`} className="block h-full">
+      <Link
+        href={`/blog/${blog.slug}`}
+        className="block h-full"
+        onClick={handleBlogClick}
+      >
         <div className="relative aspect-video">
           {blog.thumbnail ? (
             <Image

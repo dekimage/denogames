@@ -35,7 +35,15 @@ class Store {
   // App Store
 
   products = [];
-  user = null;
+  user = {
+    analytics: {
+      bannersClicked: [], // Array of banner IDs clicked
+      // We'll add more arrays as we add more trackable actions:
+      // productsViewed: [],
+      // addonsUnlocked: [],
+      // etc.
+    },
+  };
   cart = [];
   orders = [];
   notifications = [];
@@ -1418,6 +1426,17 @@ class Store {
       this.userReviews = [];
       this.userReviewsFetched = false;
     });
+  }
+
+  // Method to track first-time action
+  addFirstTimeAction(type, id) {
+    if (!this.user.analytics) {
+      this.user.analytics = {};
+    }
+    if (!this.user.analytics[type]) {
+      this.user.analytics[type] = [];
+    }
+    this.user.analytics[type].push(id);
   }
 }
 

@@ -407,6 +407,7 @@ const HomePage = observer(() => {
   // Featured games for the slider
   const featuredGames = [
     {
+      id: "banner-mm-kickstarter", // Unique banner ID
       title: "Monster Mixology",
       description: "Back it now on Kickstarter!",
       imgUrl:
@@ -414,9 +415,11 @@ const HomePage = observer(() => {
       openNewTab: true,
       button: "Back it now!",
       link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
-      index: 1,
+      type: "kickstarter", // Banner type for analytics
+      position: 1, // Position in carousel
     },
     {
+      id: "banner-mystic-quest-launch",
       title: "Mystic Quest",
       description:
         "Embark on an epic journey through mystical lands and ancient ruins.",
@@ -424,7 +427,8 @@ const HomePage = observer(() => {
         "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
       button: "Explore",
       link: "/product-details/mystic-quest",
-      index: 2,
+      type: "game-launch",
+      position: 2,
     },
   ];
 

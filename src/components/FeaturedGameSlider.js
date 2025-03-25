@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { trackEvent } from "@/lib/analytics/client";
+import { CLIENT_EVENTS } from "@/lib/analytics/events";
+import MobxStore from "@/mobx";
 
 const FeaturedGamesSlider = ({ games }) => {
   const [state, setState] = useState({ currentSlide: 0, progress: 0 });
@@ -54,6 +57,22 @@ const FeaturedGamesSlider = ({ games }) => {
     }
   }, [state.currentSlide]);
 
+  const handleBannerClick = async (game) => {
+    // Check if user has clicked this banner before using MobX state
+    const isFirstClick = !MobxStore.user?.analytics?.bannersClicked?.includes(
+      game.id
+    );
+
+    // Track the event
+    await trackEvent({
+      action: CLIENT_EVENTS.BANNER_CLICK,
+      context: {
+        bannerId: game.id,
+        isFirstClick, // Backend will use this to decide whether to update user document
+      },
+    });
+  };
+
   return (
     <div className="relative w-full h-[70vh] overflow-hidden">
       <div
@@ -63,7 +82,7 @@ const FeaturedGamesSlider = ({ games }) => {
       >
         {games.map((game, index) => (
           <div
-            key={game.index || index}
+            key={game.id || index}
             className="w-full h-full flex-shrink-0 relative"
           >
             <div className="absolute inset-0">
@@ -88,8 +107,11 @@ const FeaturedGamesSlider = ({ games }) => {
                 {game.description}
               </p>
               <Link
+                key={game.id}
                 href={game.link}
                 target={game.openNewTab ? "_blank" : "_self"}
+                rel={game.openNewTab ? "noopener noreferrer" : ""}
+                onClick={() => handleBannerClick(game)}
               >
                 <Button className="w-52 text-2xl">{game.button}</Button>
               </Link>
