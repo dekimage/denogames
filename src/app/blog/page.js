@@ -48,15 +48,36 @@ const BlogPage = observer(() => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [allCategories, setAllCategories] = useState([]); // Store all unique categories here
 
+  // Add this new loading skeleton component
+  const BlogCardSkeleton = () => (
+    <div className="border rounded-lg overflow-hidden shadow-sm animate-pulse">
+      <div className="relative aspect-video bg-muted"></div>
+      <div className="p-5">
+        <div className="flex gap-2 mb-2">
+          <div className="h-5 w-16 bg-muted rounded"></div>
+          <div className="h-5 w-16 bg-muted rounded"></div>
+        </div>
+        <div className="h-6 bg-muted rounded mb-2"></div>
+        <div className="h-4 bg-muted rounded mb-2 w-3/4"></div>
+        <div className="h-4 bg-muted rounded mb-4 w-1/2"></div>
+        <div className="flex items-center">
+          <div className="h-4 w-24 bg-muted rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Fetch blogs
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // Check if blogs are already in MobxStore before making API call
+        // Add a small delay to prevent flash of loading state
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         if (MobxStore.blogsFetched && MobxStore.blogs.length > 0) {
-          // Use data from MobxStore
           const categories = new Set();
           MobxStore.blogs.forEach((blog) => {
             if (blog.categories && Array.isArray(blog.categories)) {
@@ -68,10 +89,8 @@ const BlogPage = observer(() => {
           setBlogs(MobxStore.blogs);
           setFilteredBlogs(MobxStore.blogs);
         } else {
-          // Fetch from MobxStore which handles caching internally
           await MobxStore.fetchBlogs();
 
-          // Extract all categories for the filter
           const categories = new Set();
           MobxStore.blogs.forEach((blog) => {
             if (blog.categories && Array.isArray(blog.categories)) {
@@ -87,7 +106,10 @@ const BlogPage = observer(() => {
         console.log("Error fetching blogs:", err);
         setError("Failed to load blog posts. Please try again later.");
       } finally {
-        setLoading(false);
+        // Only set loading to false after a small delay to ensure state updates have processed
+        setTimeout(() => {
+          setLoading(false);
+        }, 0);
       }
     };
 
@@ -137,11 +159,43 @@ const BlogPage = observer(() => {
     setSelectedCategories([]);
   };
 
-  if (loading) {
+  if (loading || (!error && blogs.length === 0)) {
     return (
-      <div className="container mx-auto py-16 flex flex-col justify-center items-center min-h-[60vh]">
-        <LoadingSpinner size={40} />
-        <p className="mt-4 text-muted-foreground">Loading blog posts...</p>
+      <div className="container mx-auto py-16 px-4">
+        {/* Breadcrumbs skeleton */}
+        <div className="flex items-center text-sm mb-8">
+          <div className="h-4 w-20 bg-muted rounded"></div>
+        </div>
+
+        {/* Header skeleton */}
+        <div className="mb-8">
+          <div className="h-8 w-32 bg-muted rounded mb-2"></div>
+          <div className="h-4 w-64 bg-muted rounded"></div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar skeleton */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-24 bg-card rounded-lg border p-6">
+              <div className="h-6 w-24 bg-muted rounded mb-6"></div>
+              <div className="h-10 bg-muted rounded mb-6"></div>
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-4 bg-muted rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main content skeleton */}
+          <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <BlogCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -451,6 +505,7 @@ const BlogCard = ({ blog }) => {
   };
 
   const excerpt = blog.excerpt ? stripHtml(blog.excerpt) : "";
+  const decodedTitle = blog.title ? stripHtml(blog.title) : "";
 
   return (
     <motion.div
@@ -464,7 +519,7 @@ const BlogCard = ({ blog }) => {
           {blog.thumbnail ? (
             <Image
               src={blog.thumbnail}
-              alt={blog.title}
+              alt={decodedTitle}
               fill
               className="object-cover"
             />
@@ -483,7 +538,9 @@ const BlogCard = ({ blog }) => {
                 </Badge>
               ))}
           </div>
-          <h3 className="font-bold text-lg mb-2 line-clamp-2">{blog.title}</h3>
+          <h3 className="font-bold text-lg mb-2 line-clamp-2">
+            {decodedTitle}
+          </h3>
           <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
             {excerpt}
           </p>

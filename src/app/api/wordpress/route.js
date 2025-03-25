@@ -11,7 +11,7 @@ export async function GET(request) {
       url = `${process.env.WORDPRESS_API_URL}/posts?_embed&slug=${slug}`;
     } else {
       // Fetch all posts (existing functionality)
-      url = `${process.env.WORDPRESS_API_URL}/posts?_embed&per_page=10`;
+      url = `${process.env.WORDPRESS_API_URL}/posts?_embed&per_page=100`;
     }
 
     const response = await fetch(url);
@@ -41,7 +41,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const { category } = await request.json();
-    let url = `${process.env.WORDPRESS_API_URL}/posts?_embed&per_page=10`;
+    let url = `${process.env.WORDPRESS_API_URL}/posts?_embed&per_page=100`;
 
     if (category && category !== "all") {
       // Make sure we're only filtering by actual categories, not our game tags
