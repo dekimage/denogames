@@ -1,4 +1,5 @@
-import { handleFirstTimeAction, updateDailyStats } from "./baseHandler";
+import { handleFirstTimeAction } from "./baseHandler";
+import { FieldValue } from "firebase-admin/firestore";
 
 export async function handleProductCardClick(eventData, batch, firestore) {
   const productId = eventData.context.productId;
@@ -16,10 +17,43 @@ export async function handleProductCardClick(eventData, batch, firestore) {
     );
   }
 
-  // Update daily stats
-  await updateDailyStats(
-    batch,
-    productStatsRef,
-    eventData.context.isFirstClick
-  );
+  // Get source from path
+  let source = eventData.context.currentPath;
+  if (source === "/") source = "home";
+  else
+    source = source.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-");
+
+  // Update stats with product-specific tracking
+  const today = new Date().toISOString().split("T")[0];
+  const doc = await productStatsRef.get();
+
+  if (!doc.exists) {
+    batch.set(productStatsRef, {
+      totalClicks: 1,
+      uniqueClicks: eventData.context.isFirstClick ? 1 : 0,
+      clicksBySource: {
+        [source]: 1,
+      },
+      clicksByDay: {
+        [today]: 1,
+      },
+      authenticatedClicks: eventData.isAuthenticated ? 1 : 0,
+      anonymousClicks: eventData.isAuthenticated ? 0 : 1,
+      productType: eventData.context.productType,
+    });
+  } else {
+    const updates = {
+      totalClicks: FieldValue.increment(1),
+      [`clicksByDay.${today}`]: FieldValue.increment(1),
+      [`clicksBySource.${source}`]: FieldValue.increment(1),
+      [eventData.isAuthenticated ? "authenticatedClicks" : "anonymousClicks"]:
+        FieldValue.increment(1),
+    };
+
+    if (eventData.context.isFirstClick) {
+      updates.uniqueClicks = FieldValue.increment(1);
+    }
+
+    batch.update(productStatsRef, updates);
+  }
 }

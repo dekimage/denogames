@@ -33,6 +33,10 @@ export const CLIENT_EVENTS = {
 
   // Product related
   PRODUCT_CARD_CLICK: "product_card_click",
+
+  // Checkout related
+  INITIATE_CHECKOUT_FROM_PRODUCT: "initiate_checkout_from_product",
+  INITIATE_CHECKOUT_FROM_CART: "initiate_checkout_from_cart",
 };
 
 // Backend (server-side) trackable events

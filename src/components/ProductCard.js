@@ -18,7 +18,7 @@ import { trackEvent } from "@/lib/analytics/client";
 import { CLIENT_EVENTS } from "@/lib/analytics/events";
 
 export const ProductCard = observer(({ product, isSmall = false }) => {
-  const { addToCart, cart, user } = MobxStore;
+  const { addToCart, cart, user, products } = MobxStore;
 
   const isInCart = cart.includes(product.id);
   const isPurchased = user
@@ -59,7 +59,32 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
 
     if (isInCart) {
       return (
-        <Link href="/checkout" className="w-full">
+        <Link
+          href="/checkout"
+          className="w-full"
+          onClick={async (e) => {
+            e.preventDefault();
+
+            await trackEvent({
+              action: CLIENT_EVENTS.INITIATE_CHECKOUT_FROM_PRODUCT,
+              context: {
+                productId: product.id,
+                currentPath: window.location.pathname,
+                productType: product.type,
+                cartItems: cart,
+                cartValue: cart.reduce((total, id) => {
+                  const product = products.find((p) => p.id === id);
+                  return total + (product?.price || 0);
+                }, 0),
+                isFirstTime: user
+                  ? !user?.analytics?.checkoutProducts?.includes(product.id)
+                  : undefined,
+              },
+            });
+
+            window.location.href = "/checkout";
+          }}
+        >
           <Button
             variant="secondary"
             className="w-full bg-orange-400 hover:bg-orange-300"

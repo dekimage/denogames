@@ -14,7 +14,7 @@ import {
   ShoppingCartIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Mimage } from "@/components/Mimage";
+// import { Mimage } from "@/components/ui/Mimage";
 import PaymentButton from "@/components/PaymentButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,9 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { ProductTypeBadge } from "./ProductTypeBadge";
+
+import { CLIENT_EVENTS } from "@/lib/analytics/events";
+import { trackEvent } from "@/lib/analytics/client";
 
 export function getCartStatus(cartItemsLength) {
   let muhar;
@@ -249,6 +252,22 @@ const ShoppingCart = observer(() => {
 
   const cartCount = MobxStore.cart.length;
 
+  const handleProceedToCheckout = async (e) => {
+    e.preventDefault();
+
+    await trackEvent({
+      action: CLIENT_EVENTS.INITIATE_CHECKOUT_FROM_CART,
+      context: {
+        currentPath: window.location.pathname,
+        cartItems: cart,
+        cartValue: subtotal,
+        isFirstTime: user ? !user?.analytics?.proceedToCheckout : undefined,
+      },
+    });
+
+    window.location.href = "/checkout";
+  };
+
   return (
     <div className="relative z-50">
       <button
@@ -335,7 +354,7 @@ const ShoppingCart = observer(() => {
                   </div>
 
                   <div className="space-y-2">
-                    <Link href="/checkout" onClick={toggleCart}>
+                    <Link href="/checkout" onClick={handleProceedToCheckout}>
                       <Button className="w-full">Proceed to Checkout</Button>
                     </Link>
                     <Link href="/shop" onClick={toggleCart}>
