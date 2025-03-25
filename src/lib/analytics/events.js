@@ -30,6 +30,9 @@ export const CLIENT_EVENTS = {
 
   // Banner related
   BANNER_CLICK: "banner_click",
+
+  // Product related
+  PRODUCT_CARD_CLICK: "product_card_click",
 };
 
 // Backend (server-side) trackable events

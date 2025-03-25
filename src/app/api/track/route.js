@@ -4,6 +4,7 @@ import { isServerOnlyEvent, isValidClientEvent } from "@/lib/analytics/events";
 import { FieldValue } from "firebase-admin/firestore";
 import { ensureStatsDocuments } from "@/lib/analytics/initStats";
 import { updateStats } from "@/lib/analytics/updateStats";
+import { getEventHandler } from "@/lib/analytics/handlers";
 
 export async function POST(req) {
   try {
@@ -46,62 +47,23 @@ export async function POST(req) {
 
     const batch = firestore.batch();
 
-    // Add the analytics event
+    // Log the analytics event (common for all events)
     const analyticsRef = firestore.collection("analytics").doc();
     batch.set(analyticsRef, {
       ...eventData,
       timestamp: new Date(),
     });
 
-    // If it's a first-time action, update the user document
-    if (eventData.action === "banner_click" && eventData.context.isFirstClick) {
-      const userRef = firestore.collection("users").doc(eventData.userId);
-      batch.update(userRef, {
-        [`analytics.bannersClicked`]: FieldValue.arrayUnion(
-          eventData.context.bannerId
-        ),
-      });
+    // Handle event-specific logic
+    const handler = getEventHandler(eventData.action);
+    if (handler) {
+      await handler(eventData, batch);
     }
 
-    // Update banner stats
-    if (eventData.action === "banner_click" && eventData.context.bannerId) {
-      const bannerStatsRef = firestore
-        .collection("stats")
-        .doc(`banner_${eventData.context.bannerId}`);
-      const bannerStatsDoc = await bannerStatsRef.get();
-
-      if (!bannerStatsDoc.exists) {
-        batch.set(bannerStatsRef, {
-          totalClicks: 1,
-          uniqueClicks: eventData.context.isFirstClick ? 1 : 0,
-          clicksByDay: {
-            [new Date().toISOString().split("T")[0]]: 1,
-          },
-        });
-      } else {
-        const updates = {
-          totalClicks: FieldValue.increment(1),
-          [`clicksByDay.${new Date().toISOString().split("T")[0]}`]:
-            FieldValue.increment(1),
-        };
-
-        if (eventData.context.isFirstClick) {
-          updates.uniqueClicks = FieldValue.increment(1);
-        }
-
-        batch.update(bannerStatsRef, updates);
-      }
-    }
-
-    // Update all relevant stats
-    await updateStats(eventData, batch);
-
-    // Commit all operations
     await batch.commit();
-
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error tracking event:", error);
+    console.log("Error tracking event:", error);
     return NextResponse.json(
       { error: "Failed to track event" },
       { status: 500 }

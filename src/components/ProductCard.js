@@ -14,6 +14,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
+import { trackEvent } from "@/lib/analytics/client";
+import { CLIENT_EVENTS } from "@/lib/analytics/events";
 
 export const ProductCard = observer(({ product, isSmall = false }) => {
   const { addToCart, cart, user } = MobxStore;
@@ -75,6 +77,22 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
     );
   };
 
+  const handleCardClick = async () => {
+    const isFirstClick = !user?.analytics?.clickedProductCards?.includes(
+      product.id
+    );
+
+    await trackEvent({
+      action: CLIENT_EVENTS.PRODUCT_CARD_CLICK,
+      context: {
+        productId: product.id,
+        isFirstClick,
+        currentPath: window.location.pathname,
+        productType: product.type,
+      },
+    });
+  };
+
   return (
     <div
       className={`relative border rounded-lg shadow-sm bg-card text-card-foreground hover:shadow-md transition-all ${
@@ -84,6 +102,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
       <div>
         <Link
           href={`/product-details/${product.slug}`}
+          onClick={handleCardClick}
           className={`flex justify-center items-center flex-col ${
             isSmall ? "p-2" : "p-4"
           }`}

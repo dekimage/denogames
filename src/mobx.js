@@ -1438,6 +1438,19 @@ class Store {
     }
     this.user.analytics[type].push(id);
   }
+
+  // Generic method to update analytics arrays
+  updateUserAnalytics(type, id) {
+    if (!this.user.analytics) {
+      this.user.analytics = {};
+    }
+    if (!this.user.analytics[type]) {
+      this.user.analytics[type] = [];
+    }
+    if (!this.user.analytics[type].includes(id)) {
+      this.user.analytics[type] = [...this.user.analytics[type], id];
+    }
+  }
 }
 
 const MobxStore = new Store();

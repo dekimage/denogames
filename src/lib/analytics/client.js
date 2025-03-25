@@ -1,5 +1,6 @@
 import { auth } from "@/firebase"; // client-side Firebase only
 import { isServerOnlyEvent, isValidClientEvent } from "./events";
+import MobxStore from "@/mobx";
 
 // Add this function to generate and manage sessions
 function getOrCreateSessionId() {
@@ -92,6 +93,22 @@ export async function trackEvent({
 
     if (!response.ok) {
       throw new Error("Failed to track event");
+    }
+
+    // If it was a first-time event, update MobX
+    if (context.isFirstClick) {
+      switch (action) {
+        case CLIENT_EVENTS.BANNER_CLICK:
+          MobxStore.updateUserAnalytics("bannersClicked", context.bannerId);
+          break;
+        case CLIENT_EVENTS.PRODUCT_CARD_CLICK:
+          MobxStore.updateUserAnalytics(
+            "clickedProductCards",
+            context.productId
+          );
+          break;
+        // Add more cases as we add more trackable events
+      }
     }
   } catch (error) {
     console.log("Error tracking event:", error);
