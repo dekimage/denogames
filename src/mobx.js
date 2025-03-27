@@ -379,39 +379,53 @@ class Store {
           where("productId", "==", productId),
           orderBy("createdAt", "desc"),
           startAfter(lastVisible),
-          limit(1)
+          limit(10) // Increased limit for better pagination
         );
       } else {
+        // If no lastVisible, this is initial load - clear existing reviews
+        runInAction(() => {
+          this.reviewsByProduct[productId] = [];
+        });
+
         q = query(
           reviewsCollectionRef,
           where("productId", "==", productId),
           orderBy("createdAt", "desc"),
-          limit(1)
+          limit(10)
         );
       }
 
       const querySnapshot = await getDocs(q);
-
       const newReviews = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
-      // console.log("Fetched new reviews:", newReviews);
 
       runInAction(() => {
         if (!this.reviewsByProduct[productId]) {
           this.reviewsByProduct[productId] = [];
         }
 
-        // Use a Set to ensure uniqueness based on review ID
-        const uniqueReviews = new Set(
-          [...this.reviewsByProduct[productId], ...newReviews].map((review) =>
-            JSON.stringify(review)
-          )
-        );
-        this.reviewsByProduct[productId] = Array.from(uniqueReviews).map(
-          (review) => JSON.parse(review)
+        // Use a Map to ensure uniqueness by review ID
+        const reviewsMap = new Map();
+
+        // First, add existing reviews to the map
+        this.reviewsByProduct[productId].forEach((review) => {
+          reviewsMap.set(review.id, review);
+        });
+
+        // Then add/update with new reviews
+        newReviews.forEach((review) => {
+          reviewsMap.set(review.id, review);
+        });
+
+        // Convert map back to array and sort by date
+        this.reviewsByProduct[productId] = Array.from(reviewsMap.values()).sort(
+          (a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return dateB - dateA;
+          }
         );
 
         this.lastReviewFetchedByProduct[productId] =
@@ -421,16 +435,6 @@ class Store {
           this.products.find((p) => p.id === productId)?.totalReviews || 0;
         this.hasMoreReviewsByProduct[productId] =
           this.reviewsByProduct[productId].length < totalReviews;
-
-        // console.log("Updated reviews:", this.reviewsByProduct[productId]);
-        // console.log(
-        //   "Has more reviews:",
-        //   this.hasMoreReviewsByProduct[productId]
-        // );
-        // console.log(
-        //   "Last review fetched:",
-        //   this.lastReviewFetchedByProduct[productId]
-        // );
       });
 
       return newReviews;
@@ -461,47 +465,42 @@ class Store {
 
       const { reviewId } = await response.json();
 
-      // Find the product to update its rating locally
-      const productIndex = this.products.findIndex((p) => p.id === productId);
-      if (productIndex >= 0) {
-        const product = this.products[productIndex];
-        const totalReviews = (product.totalReviews || 0) + 1;
-        const currentRating = product.averageRating || 0;
-        const newRating =
-          (currentRating * (totalReviews - 1) + rating) / totalReviews;
+      // Update the product rating in the store
+      runInAction(() => {
+        const productIndex = this.products.findIndex((p) => p.id === productId);
+        if (productIndex >= 0) {
+          const product = this.products[productIndex];
+          const totalReviews = (product.totalReviews || 0) + 1;
+          const currentRating = product.averageRating || 0;
+          const newRating =
+            (currentRating * (totalReviews - 1) + rating) / totalReviews;
 
-        runInAction(() => {
           this.products[productIndex] = {
             ...product,
             averageRating: parseFloat(newRating.toFixed(1)),
             totalReviews: totalReviews,
           };
-        });
-      }
 
-      // Add the review to userReviews
-      const product = this.products.find((p) => p.id === productId);
-      runInAction(() => {
-        this.userReviews.unshift({
-          id: reviewId,
-          productId,
-          userId: this.user.uid,
-          username: this.user.username,
-          rating,
-          comment,
-          createdAt: new Date().toISOString(),
-          product: product
-            ? {
-                name: product.name,
-                slug: product.slug,
-                type: product.type,
-                thumbnail: product.thumbnail,
-              }
-            : null,
-        });
+          // Update the reviewsByProduct state
+          if (!this.reviewsByProduct[productId]) {
+            this.reviewsByProduct[productId] = [];
+          }
+
+          const newReview = {
+            id: reviewId,
+            productId,
+            userId: this.user.uid,
+            username: this.user.username,
+            rating,
+            comment,
+            createdAt: new Date().toISOString(),
+          };
+
+          this.reviewsByProduct[productId].unshift(newReview);
+        }
       });
 
-      return { success: true };
+      return { reviewId, success: true };
     } catch (error) {
       console.error("Error submitting review:", error);
       throw error;
@@ -532,42 +531,9 @@ class Store {
         throw new Error(errorData.error || "Failed to update review");
       }
 
-      // Find the review to update it locally
-      const reviewIndex = this.userReviews.findIndex((r) => r.id === reviewId);
-      if (reviewIndex >= 0) {
-        const oldRating = this.userReviews[reviewIndex].rating;
+      const { success, newAverageRating } = await response.json();
 
-        runInAction(() => {
-          this.userReviews[reviewIndex] = {
-            ...this.userReviews[reviewIndex],
-            rating: newRating,
-            comment: newComment,
-            updatedAt: new Date().toISOString(),
-          };
-        });
-
-        // Update the product rating locally as well
-        const productIndex = this.products.findIndex((p) => p.id === productId);
-        if (productIndex >= 0) {
-          const product = this.products[productIndex];
-          const totalReviews = product.totalReviews || 0;
-          if (totalReviews > 0) {
-            const currentRating = product.averageRating || 0;
-            const newAvgRating =
-              (currentRating * totalReviews - oldRating + newRating) /
-              totalReviews;
-
-            runInAction(() => {
-              this.products[productIndex] = {
-                ...product,
-                averageRating: parseFloat(newAvgRating.toFixed(1)),
-              };
-            });
-          }
-        }
-      }
-
-      return { success: true };
+      return { success, newAverageRating };
     } catch (error) {
       console.error("Error updating review:", error);
       throw error;

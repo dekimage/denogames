@@ -32,6 +32,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Hammer,
+  Clock,
 } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
@@ -100,7 +101,7 @@ const HowToPlaySimple = ({ productDetails }) => {
   if (!productDetails.howToPlayVideo && !productDetails.rulebookLink)
     return null;
   return (
-    <div className="my-8 w-full  flex flex-col max-w-[560px]" id="ratings">
+    <div className="my-8 w-full  flex flex-col max-w-[560px]">
       <div className="text-2xl font-strike uppercase my-4">How to Play</div>
       {productDetails?.howToPlayVideo && (
         <div className="relative w-full pt-[56.25%] ">
@@ -673,6 +674,15 @@ const ProductDetailsPage = observer(({}) => {
 
   const progress = MobxStore.getAddOnProgress(productDetails.id);
 
+  // Get the current product with reactive state from MobX store
+  const currentProduct = MobxStore.products.find(
+    (p) => p.id === productDetails.id
+  );
+  const averageRating =
+    currentProduct?.averageRating || productDetails.averageRating || 0;
+  const totalReviews =
+    currentProduct?.totalReviews || productDetails.totalReviews || 0;
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <div className="py-4 sm:py-8 px-4 md:px-8 flex flex-col items-center">
@@ -708,7 +718,25 @@ const ProductDetailsPage = observer(({}) => {
             />
 
             <div className="flex flex-col w-full lg:max-w-[440px]">
-              <div className="text-[46px] leading-[60px]  whitespace-wrap font-bold font-strike mb-2">
+              {/* Add Coming Soon banner at the top if product is coming soon */}
+              {productDetails.isComingSoon && (
+                <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  <div>
+                    <p className="font-semibold">Coming Soon</p>
+                    {productDetails.dateReleased && (
+                      <p className="text-sm opacity-90">
+                        Expected Release:{" "}
+                        {new Date(
+                          productDetails.dateReleased
+                        ).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="text-[46px] leading-[60px] whitespace-wrap font-bold font-strike mb-2">
                 {productDetails.name}
               </div>
 
@@ -831,24 +859,21 @@ const ProductDetailsPage = observer(({}) => {
 
               {productDetails.type === "game" && (
                 <Link href="#ratings" className="w-fit">
-                  <div className="flex gap-2 items-center border-b  w-fit cursor-pointer my-2 hover:border-foreground">
+                  <div className="flex gap-2 items-center border-b w-fit cursor-pointer my-2 hover:border-foreground">
                     <div className="text-yellow-400 flex">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <FaStar
                           key={star}
                           className={`text-xl ${
-                            star <= (productDetails.averageRating || 0)
+                            star <= averageRating
                               ? "text-yellow-400"
                               : "text-gray-300"
                           }`}
                         />
                       ))}
                     </div>
-                    <div className="text-[12px] text-muted-foreground ">
-                      (
-                      {MobxStore.reviewsByProduct[productDetails.id]?.length ||
-                        0}{" "}
-                      Reviews)
+                    <div className="text-[12px] text-muted-foreground">
+                      ({totalReviews} Reviews)
                     </div>
                   </div>
                 </Link>
@@ -1085,9 +1110,16 @@ const ProductDetailsPage = observer(({}) => {
                     ${productDetails.price}.00 USD
                   </div>
 
-                  {/* Three state button: Owned, In Cart, or Add to Cart */}
-                  {isPurchased ? (
-                    // If user owns the product, show "Open Files" button
+                  {/* Update CTA button based on coming soon status */}
+                  {productDetails.isComingSoon ? (
+                    <Button
+                      className="text-xl h-[48px] font-strike w-full"
+                      disabled
+                    >
+                      <Clock size={20} className="mr-2" />
+                      Coming Soon
+                    </Button>
+                  ) : isPurchased ? (
                     <Link
                       href={`/account/my-games/${
                         productDetails.type === "game"
@@ -1101,7 +1133,6 @@ const ProductDetailsPage = observer(({}) => {
                       </Button>
                     </Link>
                   ) : isInCart ? (
-                    // If product is in cart but not owned, show "Checkout" button
                     <Link href="/checkout" className="w-full">
                       <Button className="text-xl h-[48px] font-strike w-full bg-orange-400 hover:bg-orange-300">
                         <ShoppingBag size={20} className="mr-2" />
@@ -1109,7 +1140,6 @@ const ProductDetailsPage = observer(({}) => {
                       </Button>
                     </Link>
                   ) : (
-                    // If product is not owned and not in cart, show "Add to Cart" button
                     <Button
                       className="text-xl h-[48px] font-strike w-full"
                       onClick={() => MobxStore.addToCart(productDetails)}

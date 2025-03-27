@@ -312,9 +312,32 @@ const BlogSection = observer(() => {
 // };
 
 const HomePage = observer(() => {
-  const { products, loading, cart, user } = MobxStore;
+  const { products, loading, cart, user, blogs, blogsLoading } = MobxStore;
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isContentReady, setIsContentReady] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    // Function to check if all necessary data is loaded
+    const checkDataReady = () => {
+      if (!loading && !blogsLoading && products && blogs) {
+        setIsContentReady(true);
+        setIsInitialLoading(false);
+      }
+    };
+
+    // Initial check
+    checkDataReady();
+
+    // Set a minimum loading time to prevent quick flashes
+    const minLoadingTimer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(minLoadingTimer);
+  }, [loading, blogsLoading, products, blogs]);
+
+  // Show loading spinner during initial load
+  if (isInitialLoading || !isContentReady) {
     return <LoadingSpinner />;
   }
 
@@ -334,7 +357,9 @@ const HomePage = observer(() => {
   });
 
   const gamesAndExpansions = sortedGames.filter(
-    (product) => product.type === "game" || product.type === "expansion"
+    (product) =>
+      (product.type === "game" || product.type === "expansion") &&
+      !product.isComingSoon
   );
 
   const addOns = sortedGames.filter((product) => product.type === "add-on");

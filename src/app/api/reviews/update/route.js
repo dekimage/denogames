@@ -66,15 +66,18 @@ export async function POST(request) {
 
     // Calculate new average rating
     const newTotalRating = currentRating * totalReviews - oldRating + rating;
-    const newAverageRating = newTotalRating / totalReviews;
+    const newAverageRating = parseFloat(
+      (newTotalRating / totalReviews).toFixed(1)
+    );
 
     // Update product with new average rating
     await productRef.update({
-      averageRating: parseFloat(newAverageRating.toFixed(1)),
+      averageRating: newAverageRating,
     });
 
     return NextResponse.json({
       success: true,
+      newAverageRating,
     });
   } catch (error) {
     console.error("Error updating review:", error);

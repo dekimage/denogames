@@ -16,6 +16,7 @@ import { Textarea } from "./ui/textarea";
 import { Edit, Plus, ShieldCheck, Star } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { runInAction } from "mobx";
 
 const StarRating = ({ rating }) => {
   return (
@@ -138,6 +139,12 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
     fetchReviews(productId, lastReviewFetched);
   };
 
+  // Get the current product with reactive state from MobX store
+  const currentProduct = MobxStore.products.find((p) => p.id === productId);
+  // Use the reactive value from MobX store instead of static productDetails
+  const averageRating = currentProduct?.averageRating || 0;
+  const totalReviews = currentProduct?.totalReviews || 0;
+
   const handleSubmit = async () => {
     if (rating === 0) {
       toast({
@@ -152,13 +159,85 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
       setIsSubmitting(true);
 
       if (existingReview) {
+        const oldRating = existingReview.rating;
         await updateReview(existingReview.id, productId, rating, comment);
+
+        // Update both the review and the product rating in MobX state
+        runInAction(() => {
+          // Update the review in reviewsByProduct
+          const reviewIndex = MobxStore.reviewsByProduct[productId].findIndex(
+            (r) => r.id === existingReview.id
+          );
+          if (reviewIndex !== -1) {
+            MobxStore.reviewsByProduct[productId][reviewIndex] = {
+              ...MobxStore.reviewsByProduct[productId][reviewIndex],
+              rating,
+              comment,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+
+          // Update the product's rating directly in the products array
+          const productIndex = MobxStore.products.findIndex(
+            (p) => p.id === productId
+          );
+          if (productIndex !== -1) {
+            const product = MobxStore.products[productIndex];
+            const totalReviews = product.totalReviews || 0;
+            const currentRating = product.averageRating || 0;
+            const newRating =
+              (currentRating * totalReviews - oldRating + rating) /
+              totalReviews;
+
+            MobxStore.products[productIndex] = {
+              ...product,
+              averageRating: parseFloat(newRating.toFixed(1)),
+            };
+          }
+        });
+
         toast({
           title: "Review Updated",
           description: "Your review has been updated successfully.",
         });
       } else {
-        await submitReview(productId, rating, comment);
+        const result = await submitReview(productId, rating, comment);
+
+        runInAction(() => {
+          // Add the new review to reviewsByProduct
+          if (!MobxStore.reviewsByProduct[productId]) {
+            MobxStore.reviewsByProduct[productId] = [];
+          }
+          MobxStore.reviewsByProduct[productId].unshift({
+            id: result.reviewId,
+            productId,
+            userId: user.uid,
+            username: user.username,
+            rating,
+            comment,
+            createdAt: new Date().toISOString(),
+          });
+
+          // Update the product's rating
+          const productIndex = MobxStore.products.findIndex(
+            (p) => p.id === productId
+          );
+          if (productIndex !== -1) {
+            const product = MobxStore.products[productIndex];
+            const newTotalReviews = (product.totalReviews || 0) + 1;
+            const currentRating = product.averageRating || 0;
+            const newRating =
+              (currentRating * (newTotalReviews - 1) + rating) /
+              newTotalReviews;
+
+            MobxStore.products[productIndex] = {
+              ...product,
+              averageRating: parseFloat(newRating.toFixed(1)),
+              totalReviews: newTotalReviews,
+            };
+          }
+        });
+
         toast({
           title: "Review Submitted",
           description:
@@ -178,10 +257,8 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
     }
   };
 
-  const averageRating = productDetails.averageRating || 0;
-
   return (
-    <div className="my-8 w-full flex flex-col" id="reviews">
+    <div className="my-8 w-full flex flex-col" id="ratings">
       <div className="text-2xl font-strike uppercase my-4">Reviews</div>
 
       <div className="flex items-center text-lg mb-2">
@@ -189,8 +266,7 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
           <StarRating rating={Math.round(averageRating)} />
           <div className="font-bold text-2xl">{averageRating.toFixed(1)}</div>
           <div className="text-sm text-muted-foreground">
-            ({productDetails.totalReviews || 0}{" "}
-            {productDetails.totalReviews === 1 ? "review" : "reviews"})
+            ({totalReviews} {totalReviews === 1 ? "review" : "reviews"})
           </div>
         </div>
       </div>

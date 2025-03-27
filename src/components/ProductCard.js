@@ -12,6 +12,7 @@ import {
   Download,
   Hammer,
   ArrowRight,
+  Clock,
 } from "lucide-react";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
 import { trackEvent } from "@/lib/analytics/client";
@@ -34,6 +35,18 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
   };
 
   const renderCTA = () => {
+    if (product.isComingSoon) {
+      return (
+        <Button
+          variant="secondary"
+          className="w-full cursor-not-allowed opacity-70"
+          disabled
+        >
+          <Clock size={16} className="mr-1" /> COMING SOON
+        </Button>
+      );
+    }
+
     if (isPurchased) {
       return (
         <Link href={`/account/my-games/${product.id}`} className="w-full">
@@ -124,21 +137,42 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
         isSmall ? "w-[220px]" : ""
       } overflow-hidden`}
     >
+      {product.isComingSoon && (
+        <div className="absolute top-0 right-0 left-0 z-10 bg-primary/90 text-primary-foreground py-1.5 px-3 text-center font-semibold tracking-wide">
+          <div className="flex items-center justify-center gap-1.5">
+            <Clock size={14} />
+            <span className="text-sm">Coming Soon</span>
+          </div>
+        </div>
+      )}
+
       <div>
         <Link
           href={`/product-details/${product.slug}`}
           onClick={handleCardClick}
           className={`flex justify-center items-center flex-col ${
             isSmall ? "p-2" : "p-4"
-          }`}
+          } ${product.isComingSoon ? "pt-8" : ""}`}
         >
-          <Image
-            src={product.thumbnail || placeholderImg}
-            alt={product.name}
-            width={isSmall ? 300 : 300}
-            height={isSmall ? 300 : 300}
-            className={isSmall ? "w-28 h-28" : "w-54 h-54"}
-          />
+          <div className="relative">
+            <Image
+              src={product.thumbnail || placeholderImg}
+              alt={product.name}
+              width={isSmall ? 300 : 300}
+              height={isSmall ? 300 : 300}
+              className={`${isSmall ? "w-28 h-28" : "w-54 h-54"} ${
+                product.isComingSoon ? "opacity-75 filter saturate-50" : ""
+              }`}
+            />
+            {product.isComingSoon && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold">
+                  Coming Soon
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className={`flex flex-col w-full ${isSmall ? "pt-2" : "pt-4"}`}>
             <div className="w-full">
               <div
@@ -152,6 +186,12 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
               </div>
               <div className="flex items-center mt-1">
                 <ProductTypeBadge type={product.type} />
+                {product.isComingSoon && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    Release Date:{" "}
+                    {new Date(product.dateReleased).toLocaleDateString()}
+                  </span>
+                )}
               </div>
               <div className="flex items-center justify-between mt-4">
                 <p
