@@ -6,7 +6,8 @@ import {
   Instagram,
   Youtube,
   Facebook,
-  // Discord,
+  Twitter,
+  MessageCircle,
 } from "lucide-react";
 import footerImg from "@/assets/footer-bg.png";
 import { useTrackClick } from "@/hooks/useTrackClick";
@@ -25,8 +26,6 @@ const FooterColumn = ({ title, links }) => {
   const trackClick = useTrackClick();
 
   const handleClick = async (link, label) => {
-    console.log("link", link);
-    console.log("label", label);
     if (label) {
       await trackClick(label);
     }
@@ -38,9 +37,11 @@ const FooterColumn = ({ title, links }) => {
       {links.map((link, index) => (
         <Link
           key={index}
-          href={`/${link.link}`}
+          href={link.external ? link.link : `/${link.link}`}
           className="text-grayy hover:text-light mb-2"
           onClick={() => handleClick(link.link, link.trackingLabel)}
+          target={link.external ? "_blank" : "_self"}
+          rel={link.external ? "noopener noreferrer" : ""}
         >
           {link.label}
         </Link>
@@ -50,20 +51,46 @@ const FooterColumn = ({ title, links }) => {
 };
 
 const Footer = () => {
+  const trackClick = useTrackClick();
+
   const socialLinks = [
     {
       name: "Instagram",
       icon: Instagram,
       link: "https://instagram.com/denogames",
+      trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_INSTAGRAM,
     },
-    { name: "Youtube", icon: Youtube, link: "https://youtube.com/denogames" },
-    // { name: "Discord", icon: Discord, link: "https://discord.gg/denogames" },
+    {
+      name: "Youtube",
+      icon: Youtube,
+      link: "https://youtube.com/denogames",
+      trackingLabel: ALLOWED_CLICK_LABELS.NAV_HOME,
+    },
     {
       name: "Facebook",
       icon: Facebook,
       link: "https://facebook.com/denogames",
+      trackingLabel: ALLOWED_CLICK_LABELS.NAV_HOME,
+    },
+    {
+      name: "Twitter",
+      icon: Twitter,
+      link: "https://twitter.com/denogames",
+      trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_TWITTER,
+    },
+    {
+      name: "Discord",
+      icon: MessageCircle,
+      link: "https://discord.gg/denogames",
+      trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_DISCORD,
     },
   ];
+
+  const handleSocialClick = (trackingLabel) => {
+    if (trackingLabel) {
+      trackClick(trackingLabel);
+    }
+  };
 
   return (
     <footer className="text-white mt-auto">
@@ -98,28 +125,37 @@ const Footer = () => {
         <div className="flex justify-center bg-darkest w-full p-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1000px]">
             <FooterColumn
-              title="Contact"
+              title="Platform"
               links={[
-                { label: "FAQ", link: "faq" },
-                { label: "Support", link: "support" },
-                { label: "Contact Us", link: "contact-us" },
+                {
+                  label: "Home",
+                  link: "",
+                  trackingLabel: ALLOWED_CLICK_LABELS.NAV_HOME,
+                },
+                {
+                  label: "Shop",
+                  link: "shop",
+                  trackingLabel: ALLOWED_CLICK_LABELS.NAV_SHOP,
+                },
+                {
+                  label: "Blog",
+                  link: "blog",
+                  trackingLabel: ALLOWED_CLICK_LABELS.NAV_BLOG,
+                },
               ]}
             />
             <FooterColumn
               title="Company"
               links={[
-                { label: "About Us", link: "about-us" },
-                { label: "Careers", link: "careers" },
-                { label: "Press", link: "press" },
-              ]}
-            />
-            <FooterColumn
-              title="Information"
-              links={[
                 {
-                  label: "Terms of Service",
-                  link: "terms-of-service",
-                  trackingLabel: ALLOWED_CLICK_LABELS.TERMS_CONDITIONS,
+                  label: "About",
+                  link: "about",
+                  trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_ABOUT,
+                },
+                {
+                  label: "FAQ",
+                  link: "faq",
+                  trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_FAQ,
                 },
                 {
                   label: "Privacy Policy",
@@ -127,20 +163,41 @@ const Footer = () => {
                   trackingLabel: ALLOWED_CLICK_LABELS.PRIVACY_POLICY,
                 },
                 {
-                  label: "Shipping Info",
-                  link: "shipping-info",
-                  // No tracking label for this one
+                  label: "Terms of Use",
+                  link: "terms-of-service",
+                  trackingLabel: ALLOWED_CLICK_LABELS.TERMS_CONDITIONS,
+                },
+              ]}
+            />
+            <FooterColumn
+              title="Community"
+              links={[
+                {
+                  label: "Newsletter",
+                  link: "newsletter",
+                  trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_NEWSLETTER,
+                },
+                {
+                  label: "Patreon",
+                  link: "https://patreon.com/yourpage",
+                  trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_PATREON,
+                  external: true,
+                },
+                {
+                  label: "Contact",
+                  link: "contact",
+                  trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_CONTACT,
                 },
               ]}
             />
           </div>
         </div>
 
-        <div className="flex justify-around bg-black w-full py-4">
-          <div className="text-grayy text-sm mb-2">
-            &copy; Deno Games 2024. All rights reserved.
+        <div className="flex flex-col md:flex-row md:justify-around bg-black w-full py-6 px-4 items-center">
+          <div className="text-grayy text-sm mb-4 md:mb-0 text-center md:text-left">
+            &copy; Deno Games {new Date().getFullYear()}. Made with ❤️ by Deno
           </div>
-          <div className="flex space-x-4">
+          <div className="flex space-x-6">
             {socialLinks.map((social, index) => {
               const IconComponent = social.icon;
               return (
@@ -150,6 +207,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-grayy hover:text-light transition-colors"
+                  onClick={() => handleSocialClick(social.trackingLabel)}
                 >
                   <IconComponent className="w-6 h-6" />
                 </a>

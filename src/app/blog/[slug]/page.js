@@ -129,7 +129,7 @@ const ProgressBar = observer(({ blogId }) => {
   }, [blogId]);
 
   return (
-    <div className="fixed top-[70px] left-0 w-full h-1 z-50">
+    <div className="fixed top-[60px] left-0 w-full h-1 z-50">
       <div
         style={{
           width: scrollProgress,

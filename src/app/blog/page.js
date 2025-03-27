@@ -499,7 +499,7 @@ const BlogPage = observer(() => {
 });
 
 // Blog Card Component
-const BlogCard = ({ blog }) => {
+export const BlogCard = ({ blog }) => {
   const { user } = MobxStore;
 
   // Parse the HTML content to get plain text for descriptions

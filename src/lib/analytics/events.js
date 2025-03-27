@@ -107,6 +107,11 @@ export const ALLOWED_CLICK_LABELS = {
   PRIVACY_POLICY: "privacy-policy",
   TERMS_CONDITIONS: "terms-conditions",
 
+  // Category Navigation
+  CATEGORY_GAMES: "category-games",
+  CATEGORY_EXPANSIONS: "category-expansions",
+  CATEGORY_ADDONS: "category-addons",
+
   // Main Navigation
   NAV_HOME: "nav-home",
   NAV_SHOP: "nav-shop",
@@ -123,4 +128,20 @@ export const ALLOWED_CLICK_LABELS = {
   NAV_ORDERS: "nav-orders",
   NAV_REVIEWS: "nav-reviews",
   NAV_LOGOUT: "nav-logout",
+
+  // New Footer Platform links
+  FOOTER_HOW_IT_WORKS: "footer-how-it-works",
+  FOOTER_APP_TOOLS: "footer-app-tools",
+
+  // New Footer Company links
+  FOOTER_ABOUT: "footer-about",
+  FOOTER_CONTACT: "footer-contact",
+  FOOTER_FAQ: "footer-faq",
+
+  // New Footer Community links
+  FOOTER_NEWSLETTER: "footer-newsletter",
+  FOOTER_DISCORD: "footer-discord",
+  FOOTER_INSTAGRAM: "footer-instagram",
+  FOOTER_PATREON: "footer-patreon",
+  FOOTER_TWITTER: "footer-twitter",
 };

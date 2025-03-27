@@ -74,7 +74,7 @@ const FeaturedGamesSlider = ({ games }) => {
   };
 
   return (
-    <div className="relative w-full h-[70vh] overflow-hidden">
+    <div className="relative w-full h-[35vh] overflow-hidden">
       <div
         ref={sliderRef}
         className="flex h-full transition-transform duration-300 ease-out"
@@ -85,37 +85,39 @@ const FeaturedGamesSlider = ({ games }) => {
             key={game.id || index}
             className="w-full h-full flex-shrink-0 relative"
           >
-            <div className="absolute inset-0">
-              <Image
-                src={game.imgUrl}
-                alt={game.title}
-                fill
-                sizes="100vw"
-                style={{
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-                quality={100}
-                priority={index === 0}
-              />
-            </div>
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-start px-[5%]">
-              <div className="text-[70px] text-white font-bold mb-4 font-strike uppercase">
-                {game.title}
+            <Link
+              href={game.link}
+              target={game.openNewTab ? "_blank" : "_self"}
+              rel={game.openNewTab ? "noopener noreferrer" : ""}
+              onClick={() => handleBannerClick(game)}
+              className="block w-full h-full"
+            >
+              <div className="absolute inset-0">
+                <Image
+                  src={game.imgUrl}
+                  alt={game.title}
+                  fill
+                  sizes="100vw"
+                  style={{
+                    objectFit: "cover",
+                    objectPosition: "center",
+                  }}
+                  quality={100}
+                  priority={index === 0}
+                />
               </div>
-              <p className="text-xl text-white mb-6 font-strike ">
-                {game.description}
-              </p>
-              <Link
-                key={game.id}
-                href={game.link}
-                target={game.openNewTab ? "_blank" : "_self"}
-                rel={game.openNewTab ? "noopener noreferrer" : ""}
-                onClick={() => handleBannerClick(game)}
-              >
-                <Button className="w-52 text-2xl">{game.button}</Button>
-              </Link>
-            </div>
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-start px-[5%]">
+                <div className="text-2xl sm:text-4xl md:text-5xl lg:text-[70px] text-white font-bold mb-2 sm:mb-4 font-strike uppercase leading-tight">
+                  {game.title}
+                </div>
+                <p className="text-sm sm:text-lg md:text-xl text-white mb-3 sm:mb-6 font-strike max-w-full md:max-w-3xl">
+                  {game.description}
+                </p>
+                <Button className="text-sm sm:text-lg md:text-2xl w-32 sm:w-40 md:w-52 pointer-events-none">
+                  {game.button}
+                </Button>
+              </div>
+            </Link>
           </div>
         ))}
       </div>
@@ -123,13 +125,13 @@ const FeaturedGamesSlider = ({ games }) => {
       {/* Left Arrow */}
       <button
         onClick={prevSlide}
-        className="absolute bottom-4 left-4 w-10 h-10 bg-white bg-opacity-50 rounded-full flex items-center justify-center hover:bg-opacity-75 transition-opacity"
+        className="absolute bottom-4 left-4 w-8 h-8 md:w-10 md:h-10 bg-white bg-opacity-50 rounded-full flex items-center justify-center hover:bg-opacity-75 transition-opacity"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="w-6 h-6"
+          className="w-4 h-4 md:w-6 md:h-6"
         >
           <path
             fillRule="evenodd"

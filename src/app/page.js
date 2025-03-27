@@ -4,32 +4,18 @@ import MobxStore from "@/mobx";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  CheckCheck,
-  CheckCircle,
-  ChevronRight,
-  ShoppingBag,
-  ShoppingCart,
-  Calendar,
-  BookOpen,
-  Gift,
-  Star,
-  Users,
-  Mail,
-  Dice6,
-  Package,
-  UserPlus,
-  Trophy,
-  GameController,
-  BarChart3,
-} from "lucide-react";
-import placeholderImg from "@/assets/placeholder.png";
+import { CheckCircle, ChevronRight, Gift, Dice6, Package } from "lucide-react";
 import FeaturedGamesSlider from "@/components/FeaturedGameSlider";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import patreonImg from "@/assets/patreon-logo.png"; // You'll need to add these images
 import substackImg from "@/assets/substack-logo.png"; // You'll need to add these images
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ProductCard } from "@/components/ProductCard";
+
+import { BlogCard } from "./blog/page";
+import { useTrackClick } from "@/hooks/useTrackClick";
+import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
+import Footer from "@/components/Footer";
 
 // Reusable Product Card component
 
@@ -47,57 +33,23 @@ const SectionHeader = ({ title, viewAllLink, viewAllText = "View All" }) => (
   </div>
 );
 
-// Update the BlogCard component to handle WordPress API data correctly
-const BlogCard = ({ blog }) => {
-  // Clean up the title by removing HTML entities like &nbsp;
-  const cleanTitle =
-    blog.title
-      ?.replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"') || "";
-
-  return (
-    <div className="border rounded-lg shadow-sm overflow-hidden bg-card text-card-foreground hover:shadow-md transition-shadow">
-      <Link href={`/blog/${blog.slug}`}>
-        <div className="relative h-40 w-full">
-          <Image
-            src={blog.thumbnail || placeholderImg}
-            alt={cleanTitle}
-            fill
-            className="object-cover"
-          />
-        </div>
-        <div className="p-4">
-          <div className="flex items-center text-xs text-muted-foreground mb-2">
-            <Calendar size={14} className="mr-1" />
-            {new Date(blog.date).toLocaleDateString()}
-
-            {/* Display categories if available */}
-            {blog.categories && blog.categories.length > 0 && (
-              <div className="flex items-center ml-3">
-                <BookOpen size={14} className="mr-1" />
-                <span>{blog.categories.slice(0, 2).join(", ")}</span>
-              </div>
-            )}
-          </div>
-          <h3 className="font-strike text-lg mb-2 line-clamp-2">
-            {cleanTitle}
-          </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {blog.excerpt?.replace(/<[^>]*>/g, "") || "Read more..."}
-          </p>
-        </div>
-      </Link>
-    </div>
-  );
-};
-
 // Category Card Component
 const CategoryCard = ({ title, description, icon: Icon, href }) => {
+  const trackClick = useTrackClick();
+
+  const handleClick = useCallback(() => {
+    // Track the click based on the category title
+    if (title === "Games") {
+      trackClick(ALLOWED_CLICK_LABELS.CATEGORY_GAMES);
+    } else if (title === "Expansions") {
+      trackClick(ALLOWED_CLICK_LABELS.CATEGORY_EXPANSIONS);
+    } else if (title === "Add-ons") {
+      trackClick(ALLOWED_CLICK_LABELS.CATEGORY_ADDONS);
+    }
+  }, [title, trackClick]);
+
   return (
-    <Link href={href}>
+    <Link href={href} onClick={handleClick}>
       <div className="border rounded-lg shadow-sm bg-card p-8 text-center transition-colors h-full hover:shadow-md">
         <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
           <Icon size={32} className="text-primary" />
@@ -391,10 +343,7 @@ const HomePage = observer(() => {
 
   // Coming soon games (games with future release dates)
   const comingSoonGames = [...products]
-    .filter((product) => {
-      if (!product.dateReleased) return false;
-      return new Date(product.dateReleased) > new Date();
-    })
+    .filter((product) => product.isComingSoon)
     .slice(0, 4);
 
   // Products ready to add to cart (not in cart and not purchased)
@@ -485,9 +434,6 @@ const HomePage = observer(() => {
           </section>
         )}
 
-        {/* Latest Blog Posts - Now using the BlogSection component */}
-        <BlogSection />
-
         {/* Membership CTAs - Only show if user is not a member */}
         {!user?.isPatreon && (
           <section className="mb-16">
@@ -510,7 +456,10 @@ const HomePage = observer(() => {
           </section>
         )}
 
-        {!user?.isSubstack && (
+        {/* Latest Blog Posts - Now using the BlogSection component */}
+        <BlogSection />
+
+        {/* {!user?.isSubstack && (
           <section className="mb-16">
             <MembershipCTA
               title="Subscribe to Deno Press - Free Weekly Newsletter"
@@ -529,7 +478,7 @@ const HomePage = observer(() => {
               secondaryCtaLink="/sample-newsletter"
             />
           </section>
-        )}
+        )} */}
 
         {/* Popular Categories */}
         <section className="mb-16">
