@@ -109,15 +109,14 @@ const MyGamesPage = observer(() => {
           <GameCard key={game.id} game={game} />
         ))}
       </div>
-
-      <div className="bg-white rounded-lg shadow-md p-8 relative">
+      <div className="bg-background rounded-lg shadow-md p-8 relative border">
         <div className="absolute left-1/2 -translate-x-1/2 -top-[60px]">
           <div className="relative w-[120px] h-[120px]">
             <Image
               src="/muhari/shopkeeper.png"
               alt="Shopkeeper"
               fill
-              className="object-contain bg-white rounded-full p-2 border border-gray-200"
+              className="object-contain bg-background rounded-full p-2 border"
             />
           </div>
         </div>

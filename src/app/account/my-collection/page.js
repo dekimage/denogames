@@ -729,7 +729,7 @@ const AchievementsPage = observer(() => {
       {/* Portal and Cauldron Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Cauldron />
-        <Portal />
+        {/* <Portal /> */}
       </div>
 
       {/* Filtered Achievements Grid */}

@@ -29,13 +29,33 @@ import { format } from "date-fns";
 import placeholderImg from "@/assets/01.png";
 import { auth } from "@/firebase";
 
+// Predefined avatar options
+const AVATAR_OPTIONS = [
+  "/avatars/avatar1.png", // Replace these with your actual avatar URLs
+  "/avatars/avatar2.png",
+  "/avatars/avatar3.png",
+  "/avatars/avatar4.png",
+  "/avatars/avatar5.png",
+  "/avatars/avatar6.png",
+  "/avatars/avatar7.png",
+  "/avatars/avatar8.png",
+  "/avatars/avatar9.png",
+  "/avatars/avatar10.png",
+  "/avatars/avatar11.png",
+  "/avatars/avatar12.png",
+];
+
+const DEFAULT_AVATAR = AVATAR_OPTIONS[0];
+
 export const UserProfile = observer(({ user }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [savingUsername, setSavingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState(user?.username || "");
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [selectedAvatar, setSelectedAvatar] = useState(
+    user?.avatarImg || DEFAULT_AVATAR
+  );
+  const [savingAvatar, setSavingAvatar] = useState(false);
   const { toast } = useToast();
 
   // Format the timestamp
@@ -79,130 +99,54 @@ export const UserProfile = observer(({ user }) => {
 
   const joinDate = formatDate(user?.createdAt);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.includes("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an image file",
-        variant: "destructive",
-      });
+  const updateAvatar = async (newAvatarUrl) => {
+    if (newAvatarUrl === user.avatarImg) {
+      setIsAvatarDialogOpen(false);
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Image must be less than 2MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setImageFile(file);
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const uploadProfileImage = async () => {
-    if (!imageFile) return;
-
-    setUploadingImage(true);
+    setSavingAvatar(true);
 
     try {
-      // Get token using the existing auth object
       const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error("You must be logged in to upload an image");
+      if (!token)
+        throw new Error("You must be logged in to update your profile");
 
-      const formData = new FormData();
-      formData.append("image", imageFile);
-      formData.append("userId", user.uid);
-
-      const response = await fetch("/api/user/profile-image", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to upload image");
-      }
-
-      // Use the existing updateUserProfile method from MobxStore
-      MobxStore.updateUserProfile({ avatarImg: result.imageUrl });
-
-      toast({
-        title: "Success",
-        description: "Profile image updated successfully",
-      });
-
-      // Reset state
-      setImageFile(null);
-      setImagePreview(null);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to upload profile image",
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const deleteProfileImage = async () => {
-    setUploadingImage(true);
-
-    try {
-      // Get token using the existing auth object
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error("You must be logged in to delete your image");
-
-      const response = await fetch("/api/user/profile-image", {
-        method: "DELETE",
+      const response = await fetch("/api/user/update-profile", {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: user.uid }),
+        body: JSON.stringify({
+          userId: user.uid,
+          avatarImg: newAvatarUrl,
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to delete image");
+        throw new Error(result.error || "Failed to update avatar");
       }
 
-      // Use the existing updateUserProfile method from MobxStore
-      MobxStore.updateUserProfile({ avatarImg: null });
+      MobxStore.updateUserProfile({ avatarImg: newAvatarUrl });
 
       toast({
         title: "Success",
-        description: "Profile image removed successfully",
+        description: "Avatar updated successfully",
       });
+
+      setIsAvatarDialogOpen(false);
     } catch (error) {
-      console.error("Error deleting image:", error);
+      console.error("Error updating avatar:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to remove profile image",
+        description: error.message || "Failed to update avatar",
         variant: "destructive",
       });
     } finally {
-      setUploadingImage(false);
+      setSavingAvatar(false);
     }
   };
 
@@ -263,65 +207,19 @@ export const UserProfile = observer(({ user }) => {
     <div className="box-inner max-w-[400px]">
       <div className="box-broken my-4 border p-8">
         <div className="flex flex-col items-center justify-center gap-4">
-          {/* Profile Image with Upload/Delete Controls */}
-          <div className="relative group">
-            <div className="relative h-24 w-24 sm:h-32 sm:w-32 rounded-full overflow-hidden border-2 border-primary/20">
+          {/* Profile Image */}
+          <div
+            className="relative cursor-pointer"
+            onClick={() => setIsAvatarDialogOpen(true)}
+          >
+            <div className="relative h-24 w-24 sm:h-32 sm:w-32 rounded-full overflow-hidden border-2 border-primary/20 hover:border-primary transition-colors">
               <Image
-                src={imagePreview || user.avatarImg || placeholderImg}
+                src={user.avatarImg || DEFAULT_AVATAR}
                 alt={user.username}
                 fill
                 className="object-cover"
               />
             </div>
-
-            {/* Image Controls Overlay */}
-            <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="profile-image" className="cursor-pointer">
-                  <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
-                    <Upload className="h-4 w-4 text-black" />
-                  </div>
-                </label>
-                <input
-                  type="file"
-                  id="profile-image"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  disabled={uploadingImage}
-                />
-
-                {user.avatarImg && (
-                  <button
-                    onClick={deleteProfileImage}
-                    disabled={uploadingImage}
-                    className="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center"
-                  >
-                    <Trash2 className="h-4 w-4 text-white" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Upload Indicator */}
-            {imageFile && !uploadingImage && (
-              <div className="absolute -right-2 -bottom-2">
-                <Button
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={uploadProfileImage}
-                >
-                  <Save className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-
-            {/* Loading Indicator */}
-            {uploadingImage && (
-              <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center">
-                <Loader2 className="h-8 w-8 text-white animate-spin" />
-              </div>
-            )}
           </div>
 
           {/* User Info */}
@@ -346,6 +244,55 @@ export const UserProfile = observer(({ user }) => {
           </Button>
         </div>
       </div>
+
+      {/* Avatar Selection Dialog */}
+      <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Choose Your Avatar</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 py-4">
+            {AVATAR_OPTIONS.map((avatarUrl, index) => (
+              <div
+                key={index}
+                className={`relative cursor-pointer rounded-full overflow-hidden border-4 transition-all ${
+                  selectedAvatar === avatarUrl
+                    ? "border-primary scale-105"
+                    : "border-transparent hover:border-primary/50"
+                }`}
+                onClick={() => setSelectedAvatar(avatarUrl)}
+              >
+                <div className="relative w-full pt-[100%]">
+                  <Image
+                    src={avatarUrl}
+                    alt={`Avatar option ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={savingAvatar}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              onClick={() => updateAvatar(selectedAvatar)}
+              disabled={selectedAvatar === user.avatarImg || savingAvatar}
+            >
+              {savingAvatar && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Save Avatar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Profile Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

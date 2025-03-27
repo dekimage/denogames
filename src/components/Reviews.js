@@ -1,7 +1,7 @@
 "use client";
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -144,6 +144,17 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
   // Use the reactive value from MobX store instead of static productDetails
   const averageRating = currentProduct?.averageRating || 0;
   const totalReviews = currentProduct?.totalReviews || 0;
+
+  // Ensure reviews are unique by ID
+  const uniqueReviews = useMemo(() => {
+    const reviewsMap = new Map();
+    reviews.forEach((review) => {
+      reviewsMap.set(review.id, review);
+    });
+    return Array.from(reviewsMap.values()).sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  }, [reviews]);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -358,7 +369,7 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
       )}
 
       {/* Reviews List */}
-      {reviews.length === 0 ? (
+      {uniqueReviews.length === 0 ? (
         <div className="p-8 text-center border rounded-lg bg-muted/10 dark:bg-muted/5">
           <p className="text-muted-foreground">
             No reviews yet. Be the first to share your thoughts!
@@ -366,7 +377,7 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
         </div>
       ) : (
         <ul className="space-y-4 mt-4">
-          {reviews
+          {uniqueReviews
             .filter((review) => review && review.username && review.createdAt)
             .map((review) => (
               <li
