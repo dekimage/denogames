@@ -721,57 +721,55 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    {/* Add-on item */}
-                    <DropdownMenuItem
-                      className="flex items-center justify-between"
-                      onClick={() => {
-                        if (hasMonsterAddon) {
-                          // Toggle the addon state
-                          setIsAddonEnabled(!isAddonEnabled);
+                    {/* Add-ons Section */}
+                    {Object.entries(config.addOns.sets).map(
+                      ([addOnId, cards]) => {
+                        const hasAddOn =
+                          MobxStore.userFullyLoaded &&
+                          MobxStore.user?.unlockedRewards?.includes(addOnId);
+                        const isEnabled = config.addOns.enabled[addOnId];
 
-                          // FIXED LOGIC: If we're currently disabled (becoming enabled), add the event cards
-                          // If we're currently enabled (becoming disabled), remove them
-                          const newCards = !isAddonEnabled
-                            ? [
-                                ...config.initialItems,
-                                ...config.specialEventCards,
-                              ]
-                            : config.initialItems.filter(
-                                (card) => card.type !== "event"
-                              );
-
-                          setAvailableCards(newCards);
-                          pushLuckStore.setConfig({
-                            ...config,
-                            initialItems: newCards,
-                            isAddonEnabled: !isAddonEnabled,
-                          });
-                          pushLuckStore.restartGame();
-                        } else {
-                          setShowAddonInfo(true);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>Add-on 1</span>
-                      </div>
-                      {hasMonsterAddon ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">
-                            {config.isAddonEnabled ? "Enabled" : "Disabled"}
-                          </span>
-                          <CheckCircle2
-                            className={`w-4 h-4 ${
-                              config.isAddonEnabled
-                                ? "text-green-500"
-                                : "text-muted-foreground"
-                            }`}
-                          />
-                        </div>
-                      ) : (
-                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </DropdownMenuItem>
+                        return (
+                          <DropdownMenuItem
+                            key={addOnId}
+                            className="flex items-center justify-between"
+                            onClick={() => {
+                              if (hasAddOn) {
+                                config.addOns.toggle(addOnId);
+                              } else {
+                                setShowAddonInfo(addOnId);
+                              }
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span>
+                                {addOnId === "mm-add-monsters-1"
+                                  ? "Monster Add-on"
+                                  : addOnId === "mm-add-monsters-2"
+                                  ? "Special Add-on"
+                                  : "Add-on"}
+                              </span>
+                            </div>
+                            {hasAddOn ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {isEnabled ? "Enabled" : "Disabled"}
+                                </span>
+                                <CheckCircle2
+                                  className={`w-4 h-4 ${
+                                    isEnabled
+                                      ? "text-green-500"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              </div>
+                            ) : (
+                              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </DropdownMenuItem>
+                        );
+                      }
+                    )}
 
                     <DropdownMenuSeparator />
 

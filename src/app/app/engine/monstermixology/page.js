@@ -126,63 +126,92 @@ const COCKTAIL_IMAGES = {
   24: c24Img,
 };
 
-// Define special event cards
-const specialEventCards = [
+// Core event cards that are always available
+const coreEventCards = [
   {
-    id: "event-1",
+    id: "core-event-1",
     card: "event",
     type: "event",
-    rarity: "special",
-    emoji: "🌟",
-    text: "Double your next resource card",
-    description: "Next resource card you collect will be doubled",
-  },
-  {
-    id: "event-2",
-    card: "event",
-    type: "event",
-    rarity: "special",
-    emoji: "⚡️",
-    text: "Power Surge",
-    description: "Add an extra reroll to your next turn",
-  },
-  {
-    id: "event-3",
-    card: "event",
-    type: "event",
-    rarity: "special",
+    rarity: "common",
     emoji: "🎲",
-    text: "Lucky Roll",
-    description: "Your next roll has increased chances of rare resources",
+    text: "Extra Action",
+    description: "Gain one additional action this turn",
   },
   {
-    id: "event-4",
+    id: "core-event-2",
     card: "event",
     type: "event",
-    rarity: "special",
+    rarity: "common",
     emoji: "🛡️",
-    text: "Shield Boost",
-    description: "Gain temporary immunity to the next disaster",
+    text: "Basic Shield",
+    description: "Prevent the next disaster card",
   },
   {
-    id: "event-5",
+    id: "core-event-3",
     card: "event",
     type: "event",
-    rarity: "special",
-    emoji: "🔮",
-    text: "Mystery Brew",
-    description: "Transform one resource into another of your choice",
+    rarity: "common",
+    emoji: "🔄",
+    text: "Resource Swap",
+    description: "Exchange one resource for another",
   },
   {
-    id: "event-6",
+    id: "core-event-4",
     card: "event",
     type: "event",
-    rarity: "special",
+    rarity: "common",
+    emoji: "⚡️",
+    text: "Quick Mix",
+    description: "Draw two cards immediately",
+  },
+  {
+    id: "core-event-5",
+    card: "event",
+    type: "event",
+    rarity: "common",
     emoji: "🎯",
-    text: "Perfect Mix",
-    description: "Complete one ingredient requirement instantly",
+    text: "Precise Brewing",
+    description: "Your next resource card counts double",
+  },
+  {
+    id: "core-event-6",
+    card: "event",
+    type: "event",
+    rarity: "common",
+    emoji: "✨",
+    text: "Magic Touch",
+    description: "Convert one basic resource to rare",
   },
 ];
+
+// Premium event cards that require the add-on
+const addOnSets = {
+  "mm-add-monsters-1": [
+    {
+      id: "premium-event-1",
+      card: "event",
+      type: "event",
+      rarity: "special",
+      emoji: "🌟",
+      text: "Double Power",
+      description: "Double your next resource card",
+    },
+    // ... your existing special event cards
+  ],
+  // Future add-ons can be added here
+  "mm-add-monsters-2": [
+    {
+      id: "premium-event-7",
+      card: "event",
+      type: "event",
+      rarity: "legendary",
+      emoji: "🌈",
+      text: "Rainbow Mix",
+      description: "Create any resource of your choice",
+    },
+    // ... more cards for add-on 2
+  ],
+};
 
 const SpaceMinerCard = ({
   item,
@@ -467,10 +496,14 @@ const specialMonsterCards = [
 ];
 
 const Monstermixology = observer(() => {
-  const [availableCards, setAvailableCards] = useState(enhancedDeck);
+  // Start with enhanced deck + core event cards
+  const [availableCards, setAvailableCards] = useState([
+    ...enhancedDeck,
+    ...coreEventCards,
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [isAddonEnabled, setIsAddonEnabled] = useState(true);
+  const [enabledAddons, setEnabledAddons] = useState({});
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -511,20 +544,22 @@ const Monstermixology = observer(() => {
             MobxStore.userFullyLoaded = true;
           });
 
-          // Update available cards if user has the monster reward
-          if (userData.unlockedRewards?.includes("mm-add-monsters-1")) {
-            console.log(
-              "Adding event cards to deck because user has mm-add-monsters-1"
-            );
-            const newDeck = [...enhancedDeck, ...specialEventCards];
-            console.log(
-              "New deck size:",
-              newDeck.length,
-              "Event cards added:",
-              specialEventCards.length
-            );
-            setAvailableCards(newDeck);
-          }
+          // Initialize enabled addons based on user's unlocked rewards
+          const newEnabledAddons = {};
+          Object.keys(addOnSets).forEach((addOnId) => {
+            newEnabledAddons[addOnId] =
+              userData.unlockedRewards?.includes(addOnId) || false;
+          });
+          setEnabledAddons(newEnabledAddons);
+
+          // Update available cards with unlocked add-on cards
+          let newDeck = [...enhancedDeck, ...coreEventCards];
+          Object.entries(addOnSets).forEach(([addOnId, cards]) => {
+            if (userData.unlockedRewards?.includes(addOnId)) {
+              newDeck = [...newDeck, ...cards];
+            }
+          });
+          setAvailableCards(newDeck);
         } catch (error) {
           console.error("Error fetching user data:", error);
         } finally {
@@ -591,9 +626,31 @@ const Monstermixology = observer(() => {
       draw: <span className="flex items-center gap-2">Explore</span>,
       stop: "Collect",
     },
-    isAddonEnabled,
-    setIsAddonEnabled,
-    specialEventCards,
+    addOns: {
+      sets: addOnSets,
+      enabled: enabledAddons,
+      toggle: (addOnId) => {
+        setEnabledAddons((prev) => {
+          const newEnabled = { ...prev, [addOnId]: !prev[addOnId] };
+
+          // Update available cards based on enabled state
+          let newDeck = [...enhancedDeck, ...coreEventCards];
+          Object.entries(addOnSets).forEach(([id, cards]) => {
+            if (newEnabled[id]) {
+              newDeck = [...newDeck, ...cards];
+            }
+          });
+          setAvailableCards(newDeck);
+          pushLuckStore.setConfig({
+            ...spaceMinerConfig,
+            initialItems: newDeck,
+          });
+          pushLuckStore.restartGame();
+
+          return newEnabled;
+        });
+      },
+    },
   };
 
   return (
