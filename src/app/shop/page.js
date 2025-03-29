@@ -186,11 +186,9 @@ const MobileFilterSheet = ({
       </SheetHeader>
 
       <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
-        <Accordion
-          type="multiple"
-          defaultValue={["types", "products", "players"]}
-        >
-          <AccordionItem value="types">
+        <Accordion type="multiple" defaultValue={["products", "players"]}>
+          {/* disabled-feature */}
+          {/* <AccordionItem value="types">
             <AccordionTrigger>Game Types</AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2 pt-2">
@@ -231,7 +229,7 @@ const MobileFilterSheet = ({
                 })}
               </div>
             </AccordionContent>
-          </AccordionItem>
+          </AccordionItem> */}
 
           <AccordionItem value="products">
             <AccordionTrigger>Product Types</AccordionTrigger>
@@ -661,12 +659,12 @@ const ShopPage = observer(() => {
             <Separator className="my-6" />
 
             {/* Game Types Filter */}
-            <FilterSection
+            {/* <FilterSection
               title="Game Mechanics"
               options={GAME_TYPES}
               selectedOptions={filters.types}
               onToggle={(value) => toggleFilter("types", value)}
-            />
+            /> */}
 
             <Separator className="my-6" />
 

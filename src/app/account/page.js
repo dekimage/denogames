@@ -188,7 +188,8 @@ const AccountPage = observer(() => {
                 ctaLink="https://patreon.com/yourpage"
                 ctaTarget="_blank"
               />
-              <MembershipCard
+              {/* disabled-feature */}
+              {/* <MembershipCard
                 title={
                   user.tags?.isActiveSubstack
                     ? "Thank you for reading Deno Press"
@@ -215,7 +216,7 @@ const AccountPage = observer(() => {
                       ]
                     : []
                 }
-              />
+              /> */}
             </div>
           </div>
         </div>

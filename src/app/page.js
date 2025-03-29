@@ -483,7 +483,7 @@ const HomePage = observer(() => {
 
         {/* Latest Blog Posts - Now using the BlogSection component */}
         <BlogSection />
-
+        {/* disabled-feature */}
         {/* {!user?.isSubstack && (
           <section className="mb-16">
             <MembershipCTA
