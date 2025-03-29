@@ -85,41 +85,107 @@ export default function DeliveryPage() {
     const file = event.target.files[0];
 
     if (file) {
+      console.log("File selected:", file.name);
       const reader = new FileReader();
+
       reader.onload = (e) => {
         try {
           const text = e.target.result;
-          const rows = text.split("\n");
+          console.log("Raw file content:", text);
+
+          // Filter out empty rows before processing
+          const rows = text.split("\n").filter((row) => row.trim().length > 0);
+          console.log("Number of rows (after filtering empty):", rows.length);
+          console.log("Headers row:", rows[0]);
+
           const headers = rows[0].split(",").map((header) => header.trim());
+          console.log("Parsed headers:", headers);
+
+          // Validate required headers
+          const requiredHeaders = [
+            "email",
+            "productIds",
+            "source",
+            "campaignName",
+          ];
+          const missingHeaders = requiredHeaders.filter(
+            (h) => !headers.includes(h)
+          );
+          if (missingHeaders.length > 0) {
+            throw new Error(
+              `Missing required headers: ${missingHeaders.join(", ")}`
+            );
+          }
 
           const parsedData = rows
             .slice(1)
-            .map((row) => {
+            .map((row, index) => {
+              console.log(`Processing row ${index + 1}:`, row);
+
               const values = row.split(",").map((value) => value.trim());
+              console.log(`Row ${index + 1} values:`, values);
+
+              if (values.length !== headers.length) {
+                console.error(
+                  `Row ${index + 1} has incorrect number of values. Expected ${
+                    headers.length
+                  }, got ${values.length}`
+                );
+                throw new Error(
+                  `Row ${index + 1} has incorrect number of columns`
+                );
+              }
+
               const rowData = {};
               headers.forEach((header, index) => {
-                if (header === "productIds") {
-                  rowData[header] = values[index]
-                    .split(";")
-                    .map((id) => id.trim());
-                } else {
-                  rowData[header] = values[index];
+                try {
+                  if (header === "productIds") {
+                    rowData[header] = values[index]
+                      .split(";")
+                      .map((id) => id.trim());
+                  } else {
+                    rowData[header] = values[index];
+                  }
+                } catch (err) {
+                  console.error(
+                    `Error processing header "${header}" at index ${index}:`,
+                    err
+                  );
+                  throw new Error(
+                    `Error in row ${index + 1} for column "${header}"`
+                  );
                 }
               });
+
               rowData.uniqueCode = generateUniqueCode();
               rowData.isClaimed = false;
+
+              console.log(`Processed row ${index + 1} data:`, rowData);
               return rowData;
             })
-            .filter((row) => row.email); // Filter out empty rows
+            .filter((row) => {
+              if (!row.email) {
+                console.log("Filtering out row due to missing email:", row);
+                return false;
+              }
+              return true;
+            });
 
+          console.log("Final parsed data:", parsedData);
           setCsvData(parsedData);
-          setPreviewData(parsedData.slice(0, 5)); // Show first 5 rows in preview
+          setPreviewData(parsedData.slice(0, 5));
           setSuccess("CSV file parsed successfully!");
         } catch (err) {
-          setError("Error parsing CSV file. Please check the format.");
-          console.error(err);
+          console.error("Detailed parsing error:", err);
+          setError(`Error parsing CSV file: ${err.message}`);
         }
       };
+
+      reader.onerror = (err) => {
+        console.error("FileReader error:", err);
+        setError("Error reading file: " + err.message);
+      };
+
       reader.readAsText(file);
     }
   };

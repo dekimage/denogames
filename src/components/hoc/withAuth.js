@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function withAuth(WrappedComponent) {
+export function withAuth(WrappedComponent, options = {}) {
   return observer(function WithAuthComponent(props) {
     const router = useRouter();
     const pathname = usePathname();
@@ -33,13 +33,18 @@ export function withAuth(WrappedComponent) {
 
     // Now we're 100% sure about the auth state
     if (!user) {
-      const redirectPath =
+      // Get the current path and query params for redirect
+      const currentPath =
         pathname +
         (searchParams.toString() ? `?${searchParams.toString()}` : "");
-      
-      if (typeof window !== 'undefined') {
-        localStorage.setItem("redirectAfterLogin", redirectPath);
-        router.push("/login");
+
+      // Use the configured redirect path or default to signup
+      const redirectTo =
+        options?.redirectPath ||
+        `/signup?redirect=${encodeURIComponent(currentPath)}`;
+
+      if (typeof window !== "undefined") {
+        router.push(redirectTo);
       }
       return null;
     }

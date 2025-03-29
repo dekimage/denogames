@@ -32,8 +32,8 @@ const ClaimContent = observer(() => {
   const router = useRouter();
   const { user } = MobxStore;
   const code = <SearchParamsComponent />;
-  
-  const [inputCode, setInputCode] = useState(code);
+
+  const [inputCode, setInputCode] = useState(String(code.props.children || ""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -71,7 +71,9 @@ const ClaimContent = observer(() => {
               "User not found. Please try logging out and back in."
             );
           case 400:
-            throw new Error(data.error || "Invalid code. Please check and try again.");
+            throw new Error(
+              data.error || "Invalid code. Please check and try again."
+            );
           case 500:
             throw new Error("Server error. Please try again later.");
           default:
@@ -120,7 +122,9 @@ const ClaimContent = observer(() => {
                 disabled={!inputCode || loading}
                 className="h-12 px-6 text-lg"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : null}
                 Validate
               </Button>
             </div>
@@ -135,12 +139,16 @@ const ClaimContent = observer(() => {
           {success && (
             <div className="space-y-6">
               <Alert className="bg-green-50 text-green-800 border-green-200">
-                <AlertDescription className="text-base">{success}</AlertDescription>
+                <AlertDescription className="text-base">
+                  {success}
+                </AlertDescription>
               </Alert>
 
               {claimedProducts.length > 0 && (
                 <div className="mt-6 bg-gray-50 p-6 rounded-lg">
-                  <h3 className="font-semibold text-lg mb-4">Claimed Products:</h3>
+                  <h3 className="font-semibold text-lg mb-4">
+                    Claimed Products:
+                  </h3>
                   <ul className="list-disc pl-6 space-y-3">
                     {claimedProducts.map((product, index) => (
                       <li key={index} className="text-gray-700 text-lg">
@@ -164,7 +172,7 @@ const ClaimContent = observer(() => {
 // Root component
 const ClaimPageContent = observer(() => {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className="box-inner mt-16">
           <div className="container box-broken mx-auto px-4 py-8 max-w-2xl">
@@ -178,8 +186,13 @@ const ClaimPageContent = observer(() => {
   );
 });
 
-const ClientClaimPage = dynamic(() => 
-  Promise.resolve(withAuth(ClaimPageContent)), 
+const ClientClaimPage = dynamic(
+  () =>
+    Promise.resolve(
+      withAuth(ClaimPageContent, {
+        redirectPath: "/signup?redirect=/claim",
+      })
+    ),
   { ssr: false }
 );
 

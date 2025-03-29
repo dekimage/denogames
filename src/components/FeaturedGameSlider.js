@@ -74,7 +74,7 @@ const FeaturedGamesSlider = ({ games }) => {
   };
 
   return (
-    <div className="relative w-full h-[35vh] overflow-hidden">
+    <div className="relative w-full h-[45vh] overflow-hidden">
       <div
         ref={sliderRef}
         className="flex h-full transition-transform duration-300 ease-out"

@@ -30,7 +30,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
@@ -78,7 +78,12 @@ export const LoginForm = observer(() => {
         title: "Login successful!",
         description: "Welcome back to Deno Games.",
       });
-      router.push("/");
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectPath = searchParams.get("redirect");
+
+      router.push(redirectPath || "/");
+      console.log("redirectPath", redirectPath);
     } catch (error) {
       // Handle different error scenarios
       let errorMessage = "Failed to login. Please try again.";
@@ -183,6 +188,8 @@ const LoginCard = observer(() => {
   const { signInWithGoogle } = MobxStore;
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState(null);
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const handleGoogleSignIn = async () => {
     try {
@@ -193,7 +200,11 @@ const LoginCard = observer(() => {
         title: "Login successful!",
         description: "Welcome to Deno Games.",
       });
-      router.push("/");
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectPath = searchParams.get("redirect");
+
+      await router.push(redirectPath || "/");
     } catch (error) {
       console.error("Google sign-in error:", error);
       // Handle different Google sign-in errors
@@ -260,7 +271,10 @@ const LoginCard = observer(() => {
             <div className="text-sm text-muted-foreground">
               Don&apos;t have an account?
             </div>
-            <Link href="/signup" className="w-full">
+            <Link
+              href={`/signup${redirectPath ? `?redirect=${redirectPath}` : ""}`}
+              className="w-full"
+            >
               <Button variant="outline" className="w-full">
                 Create Account
               </Button>
@@ -274,16 +288,15 @@ const LoginCard = observer(() => {
 
 const LoginPage = observer(() => {
   const router = useRouter();
-  const [shouldReturnToCheckout, setShouldReturnToCheckout] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
-  // Check if we should return to checkout
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setShouldReturnToCheckout(
-        localStorage.getItem("returnToCheckout") === "true"
-      );
+    // If user becomes authenticated and we have a redirect path, use it
+    if (MobxStore.user && redirectPath) {
+      router.push(redirectPath);
     }
-  }, []);
+  }, [MobxStore.user, redirectPath, router]);
 
   return (
     <div className="container flex justify-center items-center my-12 md:my-16 px-4">

@@ -28,7 +28,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -82,8 +82,11 @@ export const SignupForm = observer(() => {
           title: "Account created!",
           description: "Welcome to Deno Games!",
         });
+        // Check for redirect parameter
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirectPath = searchParams.get("redirect");
+        router.push(redirectPath || "/");
       }
-      router.push("/"); // Redirect after successful operation
     } catch (error) {
       console.error("Signup error:", error);
       // Handle different error scenarios
@@ -197,6 +200,8 @@ export const SignupCard = observer(() => {
   const { isUserAnonymous, signInWithGoogle } = MobxStore;
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState(null);
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const handleGoogleSignIn = async () => {
     try {
@@ -295,7 +300,12 @@ export const SignupCard = observer(() => {
               <div className="text-sm text-muted-foreground text-center">
                 Already have an account?
               </div>
-              <Link href="/login" className="w-full">
+              <Link
+                href={`/login${
+                  redirectPath ? `?redirect=${redirectPath}` : ""
+                }`}
+                className="w-full"
+              >
                 <Button variant="outline" className="w-full">
                   Sign In
                 </Button>
@@ -310,16 +320,15 @@ export const SignupCard = observer(() => {
 
 const SignupPage = observer(() => {
   const router = useRouter();
-  const [shouldReturnToCheckout, setShouldReturnToCheckout] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
-  // Check if we should return to checkout
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setShouldReturnToCheckout(
-        localStorage.getItem("returnToCheckout") === "true"
-      );
+    // If user becomes authenticated and we have a redirect path, use it
+    if (MobxStore.user && redirectPath) {
+      router.push(redirectPath);
     }
-  }, []);
+  }, [MobxStore.user, redirectPath, router]);
 
   return (
     <div className="container flex justify-center items-center my-12 md:my-16 px-4">

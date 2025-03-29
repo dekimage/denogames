@@ -100,7 +100,8 @@ const ReusableLayout = observer(({ children }) => {
   const hideFooter =
     pathname.startsWith("/account") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/app/engine");
+    pathname.startsWith("/app/engine") ||
+    pathname.startsWith("/claim");
 
   // Helper function to check if a path is active
   const isActive = (path) => pathname === path;
