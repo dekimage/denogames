@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { firestore, auth } from "@/firebaseAdmin";
+import { trackFreeProductClaim } from "@/lib/analytics/handlers/freeProductHandler";
 
 export async function POST(request) {
   try {
@@ -74,6 +75,12 @@ export async function POST(request) {
       );
       await userRef.update({ cart: updatedCart });
     }
+
+    // Track the free product claim
+    await trackFreeProductClaim({
+      userId,
+      productIds,
+    });
 
     // Return success
     return NextResponse.json({

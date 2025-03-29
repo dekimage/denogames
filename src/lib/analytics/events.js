@@ -89,6 +89,9 @@ export const SERVER_EVENTS = {
 
   // New server event
   ORDER_CREATED: "order_created",
+
+  // New server event
+  FREE_PRODUCT_CLAIMED: "free_product_claimed",
 };
 
 // Helper function to check if an event is server-only
