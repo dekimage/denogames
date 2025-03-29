@@ -58,7 +58,14 @@ export async function POST(req) {
       }
     }
 
-    // Update user's achievements
+    // After successfully unlocking the achievement
+    const result = {
+      success: true,
+      message: "Achievement unlocked",
+      achievementId: achievement.id,
+    };
+
+    // Update user's achievements in Firestore
     await userRef.update({
       achievements: [...(userData.achievements || []), achievement.id],
     });
@@ -71,11 +78,7 @@ export async function POST(req) {
       context,
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Achievement unlocked",
-      achievementId: achievement.id,
-    });
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error unlocking achievement:", error);
     return NextResponse.json(

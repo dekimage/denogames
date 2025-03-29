@@ -145,10 +145,17 @@ const AccountPage = observer(() => {
               />
               <StatCard
                 icon={Trophy}
-                label="Achievements"
+                label="Collectibles"
                 value={user.achievements?.length || 0}
                 total={achievements.length}
                 href="/account/my-collection"
+              />
+              <StatCard
+                icon={ShoppingCart}
+                label="Orders"
+                value={user.orders?.length || 0}
+                showProgress={false}
+                href="/account/my-orders"
               />
               <StatCard
                 icon={Star}
@@ -157,13 +164,6 @@ const AccountPage = observer(() => {
                 showProgress={false}
                 subLabel={`${availableToReview} games available to review`}
                 href="/account/my-reviews"
-              />
-              <StatCard
-                icon={ShoppingCart}
-                label="Orders"
-                value={user.orders?.length || 0}
-                showProgress={false}
-                href="/account/my-orders"
               />
             </div>
 

@@ -1,6 +1,7 @@
 import { auth } from "@/firebase";
 import { ACHIEVEMENTS } from "@/lib/constants/achievements";
 import MobxStore from "@/mobx";
+import { runInAction } from "mobx";
 
 export async function unlockProductAchievement(achievementKey) {
   try {
@@ -63,13 +64,24 @@ export async function unlockProductAchievement(achievementKey) {
     }
 
     const data = await response.json();
+    console.log("Achievement unlock response:", data);
 
     // If successful, update MobX state
     if (data.success) {
-      MobxStore.user.achievements = [
-        ...(MobxStore.user.achievements || []),
-        achievement.id,
-      ];
+      console.log("Calling setNewAchievement with:", data.achievementId);
+
+      // First update the user's achievements
+      runInAction(() => {
+        MobxStore.user.achievements = [
+          ...(MobxStore.user.achievements || []),
+          achievement.id,
+        ];
+      });
+
+      // Then trigger the animation
+      requestAnimationFrame(() => {
+        MobxStore.setNewAchievement(data.achievementId);
+      });
     }
 
     return data;

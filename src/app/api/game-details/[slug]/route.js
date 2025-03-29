@@ -39,6 +39,11 @@ export async function GET(request, { params }) {
     const gameDoc = gamesSnapshot.docs[0];
     const game = { id: gameDoc.id, ...gameDoc.data() };
 
+    // Check if game is a draft
+    if (game.isDraft) {
+      return NextResponse.json({ error: "Game not found" }, { status: 404 });
+    }
+
     // Check if user owns the base game
     if (!purchasedProducts.includes(game.id)) {
       return NextResponse.json({ error: "Game not owned" }, { status: 403 });
@@ -56,6 +61,9 @@ export async function GET(request, { params }) {
           .get();
         if (expansionDoc.exists) {
           const expansion = { id: expansionDoc.id, ...expansionDoc.data() };
+          // Skip draft expansions
+          if (expansion.isDraft) continue;
+
           const isOwned = purchasedProducts.includes(expansion.id);
 
           // Process each expansion's provided components
@@ -100,6 +108,9 @@ export async function GET(request, { params }) {
           .get();
         if (addonDoc.exists) {
           const addon = { id: addonDoc.id, ...addonDoc.data() };
+          // Skip draft add-ons
+          if (addon.isDraft) continue;
+
           const isOwned = unlockedRewards.includes(addon.id);
 
           // Process each addon's provided components

@@ -1099,6 +1099,7 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
     image: "",
     fileUrl: "",
     achievementKey: "",
+    ctaLabel: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingComponent, setEditingComponent] = useState(null);
@@ -1147,9 +1148,16 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
             ? { fileUrl: newComponent.fileUrl }
             : {}),
           achievementKey: newComponent.achievementKey,
+          ctaLabel: newComponent.ctaLabel || "",
         },
       ]);
-      setNewComponent({ name: "", image: "", fileUrl: "", achievementKey: "" });
+      setNewComponent({
+        name: "",
+        image: "",
+        fileUrl: "",
+        achievementKey: "",
+        ctaLabel: "",
+      });
     } catch (error) {
       console.error("Error adding component:", error);
     }
@@ -1304,6 +1312,24 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                   </p>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>CTA Label</Label>
+                  <Input
+                    value={editingComponent.ctaLabel || ""}
+                    onChange={(e) =>
+                      setEditingComponent((prev) => ({
+                        ...prev,
+                        ctaLabel: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., Download PDF"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Optional: Custom label for the component's call-to-action
+                    button
+                  </p>
+                </div>
+
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
@@ -1358,6 +1384,11 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                   {component.achievementKey && (
                     <p className="text-xs text-muted-foreground">
                       Key: {component.achievementKey}
+                    </p>
+                  )}
+                  {component.ctaLabel && (
+                    <p className="text-xs text-muted-foreground">
+                      CTA: {component.ctaLabel}
                     </p>
                   )}
                 </div>
@@ -1447,6 +1478,23 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
           />
           <p className="text-xs text-muted-foreground">
             Enter a unique key for this component
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>CTA Label</Label>
+          <Input
+            value={newComponent.ctaLabel}
+            onChange={(e) =>
+              setNewComponent((prev) => ({
+                ...prev,
+                ctaLabel: e.target.value,
+              }))
+            }
+            placeholder="e.g., Download PDF"
+          />
+          <p className="text-xs text-muted-foreground">
+            Optional: Custom label for the component's call-to-action button
           </p>
         </div>
 

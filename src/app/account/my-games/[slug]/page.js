@@ -42,6 +42,7 @@ const ComponentCard = ({
   productSlug,
   sourceName,
   achievementKey,
+  ctaLabel,
 }) => {
   const { addToCart, cart } = MobxStore;
   const isInCart =
@@ -95,7 +96,6 @@ const ComponentCard = ({
         };
     }
   };
-
   const lockContent = getLockContent();
 
   const handleDownload = async (achievementKey) => {
@@ -103,7 +103,13 @@ const ComponentCard = ({
       await unlockProductAchievement(achievementKey);
     }
     if (fileUrl) {
-      window.open(fileUrl, "_blank");
+      // Check if fileUrl is a full URL or relative path
+      const isFullUrl =
+        fileUrl.startsWith("http://") || fileUrl.startsWith("https://");
+      const url = isFullUrl
+        ? fileUrl
+        : new URL(fileUrl, window.location.origin).href;
+      window.open(url, "_blank");
     }
   };
 
@@ -161,7 +167,7 @@ const ComponentCard = ({
             disabled={!fileUrl}
           >
             <Download className="w-4 h-4 mr-2" />
-            Download Files
+            {ctaLabel || "Download Files"}
           </Button>
         )}
       </div>

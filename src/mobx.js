@@ -112,6 +112,7 @@ class Store {
   userReviewsLoading = false;
   userReviewsFetched = false;
 
+  // Add to the Store class constructor
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
@@ -169,6 +170,10 @@ class Store {
 
     // Add these methods to your Store class
     this.fetchUserReviews = this.fetchUserReviews.bind(this);
+
+    // Add to the Store class constructor
+    this.newlyUnlockedAchievement = null;
+    this.showAchievementAnimation = false;
   }
 
   initializeAuth() {
@@ -1348,7 +1353,7 @@ class Store {
   }
 
   async fetchAchievements() {
-    if (this.achievements.length > 0 && !this.achievementsLoading) return; // Don't refetch if we have data
+    if (this.achievements.length > 0 && !this.achievementsLoading) return;
 
     try {
       runInAction(() => {
@@ -1364,6 +1369,9 @@ class Store {
       if (!response.ok) throw new Error("Failed to fetch achievements");
 
       const { achievements } = await response.json();
+
+      // Add this debug
+      console.log("Fetched achievements:", achievements);
 
       runInAction(() => {
         this.achievements = achievements;
@@ -1569,6 +1577,27 @@ class Store {
       this.user.analytics[type] = [...this.user.analytics[type], id];
     }
   }
+
+  // Add these new methods to the Store class
+  clearNewAchievement = () => {
+    runInAction(() => {
+      this.showAchievementAnimation = false;
+      this.newlyUnlockedAchievement = null;
+    });
+  };
+
+  setNewAchievement = (achievementId) => {
+    const achievement = this.achievements.find((a) => a.id === achievementId);
+    if (!achievement) {
+      console.warn("Achievement not found:", achievementId);
+      return;
+    }
+
+    runInAction(() => {
+      this.newlyUnlockedAchievement = achievement;
+      this.showAchievementAnimation = true;
+    });
+  };
 }
 
 const MobxStore = new Store();
