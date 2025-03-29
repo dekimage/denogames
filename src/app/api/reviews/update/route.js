@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, firestore } from "@/firebaseAdmin";
+import { trackReviewEvent } from "@/lib/analytics/handlers/reviewHandler";
 
 export async function POST(request) {
   try {
@@ -73,6 +74,16 @@ export async function POST(request) {
     // Update product with new average rating
     await productRef.update({
       averageRating: newAverageRating,
+    });
+
+    // Track the review update
+    await trackReviewEvent({
+      userId,
+      productId,
+      action: "update",
+      rating,
+      oldRating,
+      reviewId,
     });
 
     return NextResponse.json({

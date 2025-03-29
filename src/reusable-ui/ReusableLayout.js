@@ -293,7 +293,7 @@ const ReusableLayout = observer(({ children }) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => {
-                            handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGOUT);
+                            // handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGOUT);
                             logout();
                           }}
                         >
@@ -310,9 +310,9 @@ const ReusableLayout = observer(({ children }) => {
                         variant="outline"
                         size="sm"
                         className="hidden md:flex"
-                        onClick={() =>
-                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGIN)
-                        }
+                        onClick={() => {
+                          // handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGIN);
+                        }}
                       >
                         <LogIn className="mr-2 h-4 w-4" />
                         Log in
@@ -321,9 +321,10 @@ const ReusableLayout = observer(({ children }) => {
                     <Link href="/signup">
                       <Button
                         size="sm"
-                        onClick={() =>
-                          handleNavClick(ALLOWED_CLICK_LABELS.NAV_SIGNUP)
-                        }
+                        onClick={() => {
+                          // handleNavClick(ALLOWED_CLICK_LABELS.NAV_SIGNUP)
+                          // closeMenu();
+                        }}
                       >
                         <UserPlus className="mr-2 h-4 w-4" />
                         <span className="hidden md:inline">Sign up</span>

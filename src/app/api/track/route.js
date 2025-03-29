@@ -66,6 +66,44 @@ export async function POST(req) {
       await handler(eventData, batch, firestore);
     }
 
+    const { action, context } = eventData;
+
+    // If it's an auth event, update the stats
+    if (
+      action.includes("login") ||
+      action.includes("signup") ||
+      action.includes("logout")
+    ) {
+      const statsRef = firestore.collection("stats").doc("auth_stats");
+      const today = new Date().toISOString().split("T")[0];
+
+      await firestore.runTransaction(async (transaction) => {
+        const statsDoc = await transaction.get(statsRef);
+        const currentStats = statsDoc.exists ? statsDoc.data() : {};
+
+        const updates = {
+          [`${action}ByDay.${today}`]:
+            (currentStats?.[`${action}ByDay`]?.[today] || 0) + 1,
+        };
+
+        if (context.method) {
+          updates[`${action}ByMethod.${context.method}`] =
+            (currentStats?.[`${action}ByMethod`]?.[context.method] || 0) + 1;
+        }
+
+        if (action.includes("_error")) {
+          updates[`errorsByType.${context.errorCode}`] =
+            (currentStats?.errorsByType?.[context.errorCode] || 0) + 1;
+        }
+
+        if (statsDoc.exists) {
+          transaction.update(statsRef, updates);
+        } else {
+          transaction.set(statsRef, updates);
+        }
+      });
+    }
+
     await batch.commit();
     return NextResponse.json({ success: true });
   } catch (error) {

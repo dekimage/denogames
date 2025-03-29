@@ -167,7 +167,8 @@ const MobileHeader = observer(() => {
                           variant="outline"
                           className="w-full"
                           onClick={() =>
-                            handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGIN)
+                            // handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGIN)
+                            closeMenu()
                           }
                         >
                           <LogIn className="mr-2 h-4 w-4" />
@@ -178,7 +179,8 @@ const MobileHeader = observer(() => {
                         <Button
                           className="w-full"
                           onClick={() =>
-                            handleNavClick(ALLOWED_CLICK_LABELS.NAV_SIGNUP)
+                            // handleNavClick(ALLOWED_CLICK_LABELS.NAV_SIGNUP)
+                            closeMenu()
                           }
                         >
                           <UserPlus className="mr-2 h-4 w-4" />
@@ -312,8 +314,9 @@ const MobileHeader = observer(() => {
                       variant="outline"
                       className="w-full flex items-center justify-center gap-2"
                       onClick={() => {
-                        handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGOUT);
+                        // handleNavClick(ALLOWED_CLICK_LABELS.NAV_LOGOUT);
                         logout();
+                        closeMenu();
                       }}
                     >
                       <LogOut className="h-4 w-4" />

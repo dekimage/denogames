@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth, firestore } from "@/firebaseAdmin";
-import { trackSecureEvent } from "@/lib/analytics/server";
-import { SERVER_EVENTS, EVENT_CATEGORIES } from "@/lib/analytics/events";
+import { trackCraftingEvent } from "@/lib/analytics/handlers/craftingHandler";
+import { SERVER_EVENTS } from "@/lib/analytics/events";
 
 export async function POST(request) {
   try {
@@ -103,19 +103,12 @@ export async function POST(request) {
     const unlockedRewards = [...(userData.unlockedRewards || []), rewardId];
     await userDoc.ref.update({ unlockedRewards });
 
-    // Track the successful claim
-    await trackSecureEvent({
+    // Track the successful craft
+    await trackCraftingEvent({
       userId: decodedToken.uid,
-      action: SERVER_EVENTS.ADDON_UNLOCKED,
-      category: EVENT_CATEGORIES.GAME,
-      label: productData.name || rewardId,
-      value: 1,
-      context: {
-        rewardId,
-        requiredAchievements: productData.requiredAchievements,
-        relatedGame: productData.relatedGames,
-        claimedAt: new Date().toISOString(),
-      },
+      rewardId,
+      relatedGame: productData.relatedGames,
+      requiredAchievements: productData.requiredAchievements,
     });
 
     return NextResponse.json({ unlockedRewards });

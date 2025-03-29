@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { firestore, admin } from "@/firebaseAdmin"; // Ensure you import admin to access Firestore utilities
+import { trackOrderEvent } from "@/lib/analytics/handlers/orderHandler";
 
 const stripe = new Stripe(process.env.NEXT_STRIPE_SECRET_KEY);
 
@@ -89,6 +90,16 @@ export async function POST(req) {
 
         const orderRef = firestore.collection("orders").doc();
         transaction.set(orderRef, orderData);
+
+        // Track the order creation
+        await trackOrderEvent({
+          userId: userId || "anonymous",
+          orderId: orderRef.id,
+          cartItems: productPrices,
+          amountTotal: session.amount_total / 100,
+          stripeSessionId: session.id,
+          customerEmail: email,
+        });
 
         if (userId) {
           // Add product IDs to the authenticated or identified user's purchasedProducts array

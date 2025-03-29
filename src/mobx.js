@@ -910,15 +910,34 @@ class Store {
 
   async logout() {
     try {
+      const userId = this.user?.uid;
+
+      await trackEvent({
+        action: CLIENT_EVENTS.USER_LOGOUT,
+        context: {
+          username: this.user?.username,
+        },
+      });
+
       await signOut(auth);
       runInAction(() => {
         this.user = null;
         this.achievements = [];
-        this.resetOrders(); // Clear orders data on logout
-        this.resetUserReviews(); // Clear reviews data on logout
+        this.resetOrders();
+        this.resetUserReviews();
       });
     } catch (error) {
       console.log("Error during logout:", error);
+
+      await trackEvent({
+        action: CLIENT_EVENTS.LOGOUT_ERROR,
+        context: {
+          errorCode: error.code,
+          errorMessage: error.message,
+        },
+      });
+
+      throw error;
     }
   }
 
@@ -976,6 +995,18 @@ class Store {
         email,
         password
       );
+
+      // Track client-side event using existing trackEvent function
+      await trackEvent({
+        action: CLIENT_EVENTS.USER_LOGIN,
+        context: {
+          method: "email",
+          isNewUser:
+            userCredential.user.metadata.creationTime ===
+            userCredential.user.metadata.lastSignInTime,
+        },
+      });
+
       runInAction(() => {
         this.user = userCredential.user;
         this.loading = false;
@@ -983,6 +1014,16 @@ class Store {
       await this.transferLocalStorageCartToFirestore();
     } catch (error) {
       console.log("Error logging in:", error);
+
+      await trackEvent({
+        action: CLIENT_EVENTS.LOGIN_ERROR,
+        context: {
+          method: "email",
+          errorCode: error.code,
+          errorMessage: error.message,
+        },
+      });
+
       runInAction(() => {
         this.loading = false;
       });
@@ -1000,7 +1041,15 @@ class Store {
       );
       const user = userCredential.user;
 
-      // Call your API to handle Firestore profile creation and merging
+      await trackEvent({
+        action: CLIENT_EVENTS.USER_SIGNUP,
+        context: {
+          method: "email",
+          userId: user.uid,
+          username: username,
+        },
+      });
+
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: {
@@ -1017,7 +1066,7 @@ class Store {
 
       if (result.success) {
         runInAction(() => {
-          this.user = result.user; // Store full user profile from API response
+          this.user = result.user;
           this.loading = false;
         });
         await this.transferLocalStorageCartToFirestore();
@@ -1026,6 +1075,16 @@ class Store {
       }
     } catch (error) {
       console.error("Error signing up with email:", error);
+
+      await trackEvent({
+        action: CLIENT_EVENTS.SIGNUP_ERROR,
+        context: {
+          method: "email",
+          errorCode: error.code,
+          errorMessage: error.message,
+        },
+      });
+
       runInAction(() => {
         this.loading = false;
       });
@@ -1040,7 +1099,16 @@ class Store {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Call your API to handle Firestore profile creation and merging (just like email sign-up)
+      await trackEvent({
+        action: CLIENT_EVENTS.USER_LOGIN_GOOGLE,
+        context: {
+          userId: user.uid,
+          isNewUser:
+            user.metadata.creationTime === user.metadata.lastSignInTime,
+          email: user.email,
+        },
+      });
+
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: {
@@ -1057,7 +1125,7 @@ class Store {
 
       if (resultData.success) {
         runInAction(() => {
-          this.user = resultData.user; // Store full user profile from API response
+          this.user = resultData.user;
           this.loading = false;
         });
         await this.transferLocalStorageCartToFirestore();
@@ -1066,6 +1134,16 @@ class Store {
       }
     } catch (error) {
       console.error("Error with Google sign-in:", error);
+
+      await trackEvent({
+        action: CLIENT_EVENTS.LOGIN_ERROR,
+        context: {
+          method: "google",
+          errorCode: error.code,
+          errorMessage: error.message,
+        },
+      });
+
       runInAction(() => {
         this.loading = false;
       });

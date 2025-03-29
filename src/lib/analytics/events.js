@@ -46,6 +46,15 @@ export const CLIENT_EVENTS = {
 
   // Generic click
   GENERIC_CLICK: "generic_click",
+
+  // User login related
+  USER_LOGIN: "user_login",
+  USER_SIGNUP: "user_signup",
+  USER_LOGIN_GOOGLE: "user_login_google",
+  LOGIN_ERROR: "login_error",
+  SIGNUP_ERROR: "signup_error",
+  USER_LOGOUT: "user_logout",
+  LOGOUT_ERROR: "logout_error",
 };
 
 // Backend (server-side) trackable events
@@ -66,6 +75,20 @@ export const SERVER_EVENTS = {
 
   // New server event
   ACHIEVEMENT_ATTEMPT: "achievement_attempt",
+
+  // Authentication related
+  AUTH_SUCCESS: "auth_success",
+  AUTH_ERROR: "auth_error",
+
+  // Review related
+  REVIEW_CREATE: "review_create",
+  REVIEW_UPDATE: "review_update",
+
+  // New server event
+  ADDON_CRAFTED: "addon_crafted",
+
+  // New server event
+  ORDER_CREATED: "order_created",
 };
 
 // Helper function to check if an event is server-only
