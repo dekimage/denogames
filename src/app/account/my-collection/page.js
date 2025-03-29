@@ -156,18 +156,18 @@ export const AchievementCard = observer(
         )}
       >
         {/* Status Badge */}
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-2 right-2 z-10">
           {isUnlocked ? (
-            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-2.5 py-1 border border-emerald-500/20">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-2 py-0.5 border border-emerald-500/20">
+              <CheckCircle className="w-3 h-3 text-emerald-500" />
+              <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
                 Unlocked
               </span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 border border-muted-foreground/20">
-              <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium text-muted-foreground">
+            <div className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 border border-muted-foreground/20">
+              <Lock className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">
                 Locked
               </span>
             </div>
@@ -175,11 +175,11 @@ export const AchievementCard = observer(
         </div>
 
         {/* Type Badge */}
-        <div className="absolute top-3 left-3 z-10">
+        <div className="absolute top-2 left-2 z-10">
           <Badge
             variant="secondary"
             className={cn(
-              "capitalize text-xs",
+              "capitalize text-[10px] px-2 py-0.5",
               achievement.type === "achievement"
                 ? "bg-primary/10 text-primary dark:bg-primary/20"
                 : achievement.type === "location"
@@ -192,8 +192,8 @@ export const AchievementCard = observer(
         </div>
 
         {/* Main Content */}
-        <div className="p-5">
-          <div className="relative w-24 h-24 mx-auto mb-4">
+        <div className="p-3">
+          <div className="relative w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-2">
             <Image
               src={achievement.image}
               alt={achievement.name}
@@ -204,15 +204,17 @@ export const AchievementCard = observer(
               )}
             />
           </div>
-          <h3 className="text-base font-semibold text-center mb-2 line-clamp-1">
+          <h3 className="text-sm sm:text-base font-semibold text-center mb-1 line-clamp-1">
             {achievement.name}
           </h3>
-          <p className="text-sm text-muted-foreground text-center line-clamp-2 mb-2">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center line-clamp-2 mb-1">
             {achievement.description}
           </p>
-          <div className="text-sm text-center">
+          <div className="text-xs sm:text-sm text-center">
             <span className="text-muted-foreground">Obtained by:</span>
-            <p className="text-sm line-clamp-2">{achievement.obtainedBy}</p>
+            <p className="text-xs sm:text-sm line-clamp-2">
+              {achievement.obtainedBy}
+            </p>
           </div>
         </div>
       </div>
@@ -515,14 +517,14 @@ const AchievementsPage = observer(() => {
   return (
     <div className="container py-6 md:py-8 px-4 sm:px-6">
       {/* Enhanced Header Section */}
-      <div className="space-y-6 mb-8">
+      <div className="space-y-4 sm:space-y-6 mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-bold font-strike">
             My Collection
           </h1>
 
-          {/* Search Input */}
-          <div className="relative w-full sm:w-72">
+          {/* Search Input - Hidden on mobile */}
+          <div className="relative w-full sm:w-72 hidden sm:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search achievements..."
@@ -543,25 +545,25 @@ const AchievementsPage = observer(() => {
           </div>
         </div>
 
-        {/* Achievement Type Stats & Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          {/* "All" Filter Card */}
+        {/* Achievement Type Stats & Filters - 2x2 grid on mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+          {/* Stats cards with reduced padding and smaller text on mobile */}
           <div
             className={cn(
-              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-2 sm:p-4 cursor-pointer transition-colors",
               filterType === "all"
                 ? "border-primary"
                 : "hover:border-primary/50"
             )}
             onClick={() => setFilterType("all")}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10">
-                <Award className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10">
+                <Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-sm font-medium">All Items</h3>
-                <p className="text-xl font-bold text-primary">
+                <h3 className="text-xs sm:text-sm font-medium">All Items</h3>
+                <p className="text-sm sm:text-xl font-bold text-primary">
                   {stats.achievements.unlocked +
                     stats.collectibles.unlocked +
                     stats.locations.unlocked}
@@ -577,20 +579,20 @@ const AchievementsPage = observer(() => {
           {/* Achievements Filter Card */}
           <div
             className={cn(
-              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-2 sm:p-4 cursor-pointer transition-colors",
               filterType === "achievement"
                 ? "border-primary"
                 : "hover:border-primary/50"
             )}
             onClick={() => setFilterType("achievement")}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10">
-                <Trophy className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10">
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-sm font-medium">Achievements</h3>
-                <p className="text-xl font-bold text-primary">
+                <h3 className="text-xs sm:text-sm font-medium">Achievements</h3>
+                <p className="text-sm sm:text-xl font-bold text-primary">
                   {stats.achievements.unlocked}/{stats.achievements.total}
                 </p>
               </div>
@@ -608,20 +610,20 @@ const AchievementsPage = observer(() => {
           {/* Collectibles Filter Card */}
           <div
             className={cn(
-              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-2 sm:p-4 cursor-pointer transition-colors",
               filterType === "collectible"
                 ? "border-primary"
                 : "hover:border-primary/50"
             )}
             onClick={() => setFilterType("collectible")}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-500/10">
-                <Star className="h-5 w-5 text-purple-500" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-purple-500/10">
+                <Star className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
               </div>
               <div>
-                <h3 className="text-sm font-medium">Collectibles</h3>
-                <p className="text-xl font-bold text-primary">
+                <h3 className="text-xs sm:text-sm font-medium">Collectibles</h3>
+                <p className="text-sm sm:text-xl font-bold text-primary">
                   {stats.collectibles.unlocked}/{stats.collectibles.total}
                 </p>
               </div>
@@ -639,20 +641,20 @@ const AchievementsPage = observer(() => {
           {/* Locations Filter Card */}
           <div
             className={cn(
-              "rounded-lg border bg-card text-card-foreground shadow-sm p-4 cursor-pointer transition-colors",
+              "rounded-lg border bg-card text-card-foreground shadow-sm p-2 sm:p-4 cursor-pointer transition-colors",
               filterType === "location"
                 ? "border-primary"
                 : "hover:border-primary/50"
             )}
             onClick={() => setFilterType("location")}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-blue-500/10">
-                <Map className="h-5 w-5 text-blue-500" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10">
+                <Map className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
               </div>
               <div>
-                <h3 className="text-sm font-medium">Locations</h3>
-                <p className="text-xl font-bold text-primary">
+                <h3 className="text-xs sm:text-sm font-medium">Locations</h3>
+                <p className="text-sm sm:text-xl font-bold text-primary">
                   {stats.locations.unlocked}/{stats.locations.total}
                 </p>
               </div>
@@ -666,49 +668,21 @@ const AchievementsPage = observer(() => {
           </div>
         </div>
 
-        {/* Sort Dropdown and Filter Indicators */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          {/* Filter Pills */}
-          <div className="flex flex-wrap gap-2">
-            {filterType !== "all" && (
-              <Badge
-                variant="outline"
-                className="flex items-center gap-1.5 px-3 py-1.5 capitalize"
-              >
-                {filterType === "achievement" && (
-                  <Trophy className="h-3.5 w-3.5" />
-                )}
-                {filterType === "collectible" && (
-                  <Star className="h-3.5 w-3.5" />
-                )}
-                {filterType === "location" && <Map className="h-3.5 w-3.5" />}
-                {filterType}
-                <X
-                  className="h-3.5 w-3.5 cursor-pointer"
-                  onClick={() => setFilterType("all")}
-                />
-              </Badge>
-            )}
-            {searchQuery && (
-              <Badge
-                variant="outline"
-                className="flex items-center gap-1.5 px-3 py-1.5"
-              >
-                <Search className="h-3.5 w-3.5" />
-                Search: {searchQuery}
-                <X
-                  className="h-3.5 w-3.5 cursor-pointer"
-                  onClick={() => setSearchQuery("")}
-                />
-              </Badge>
-            )}
-          </div>
+        {/* Portal and Cauldron Section */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+        <Cauldron />
+          <Portal />
+        </div> */}
+        <Cauldron />
 
-          {/* Sort Dropdown */}
+        {/* Sort and Results in one line */}
+        <div className="flex justify-between items-center gap-4 text-sm">
+          <div className="text-muted-foreground">
+            Showing {filteredAchievements.length} of {achievements.length}
+          </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">Sort by:</p>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[120px] sm:w-[160px] h-8 text-xs sm:text-sm">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -719,22 +693,11 @@ const AchievementsPage = observer(() => {
             </Select>
           </div>
         </div>
-
-        {/* Results Count */}
-        <div className="text-sm text-muted-foreground">
-          Showing {filteredAchievements.length} of {achievements.length} items
-        </div>
       </div>
 
-      {/* Portal and Cauldron Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Cauldron />
-        {/* <Portal /> */}
-      </div>
-
-      {/* Filtered Achievements Grid */}
+      {/* Filtered Achievements Grid - 2 columns on mobile */}
       {filteredAchievements.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-4">
           {filteredAchievements.map((achievement) => (
             <AchievementCard
               key={achievement.id}

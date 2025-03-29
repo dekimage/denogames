@@ -52,11 +52,9 @@ export const CLIENT_EVENTS = {
 export const SERVER_EVENTS = {
   // Purchase related
   PURCHASE_COMPLETE: "purchase_complete",
-  REFUND_PROCESSED: "refund_processed",
 
   // User account related
   USER_REGISTERED: "user_registered",
-  EMAIL_VERIFIED: "email_verified",
 
   // Achievement related
   ACHIEVEMENT_UNLOCKED: "achievement_unlocked",
@@ -65,6 +63,9 @@ export const SERVER_EVENTS = {
   // System events
   ONBOARDING_COMPLETE: "onboarding_complete",
   ADDON_UNLOCKED: "addon_unlocked",
+
+  // New server event
+  ACHIEVEMENT_ATTEMPT: "achievement_attempt",
 };
 
 // Helper function to check if an event is server-only

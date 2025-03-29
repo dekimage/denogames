@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { heroesCards } from "./data";
 import Image from "next/image";
 
-const MONSTER_COUNT = 30; // UPDATE WHEN PUT MONSTER
+const MONSTER_COUNT = 31; // UPDATE WHEN PUT MONSTER
 // Use the same image import logic
 const heroImages = Object.fromEntries(
   Array.from({ length: MONSTER_COUNT }, (_, i) => [

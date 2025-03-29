@@ -533,6 +533,46 @@ class Store {
 
       const { success, newAverageRating } = await response.json();
 
+      // Update both reviewsByProduct and userReviews in MobX state
+      runInAction(() => {
+        // Update in reviewsByProduct
+        if (this.reviewsByProduct[productId]) {
+          const reviewIndex = this.reviewsByProduct[productId].findIndex(
+            (r) => r.id === reviewId
+          );
+          if (reviewIndex !== -1) {
+            this.reviewsByProduct[productId][reviewIndex] = {
+              ...this.reviewsByProduct[productId][reviewIndex],
+              rating: newRating,
+              comment: newComment,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+        }
+
+        // Update in userReviews
+        const userReviewIndex = this.userReviews.findIndex(
+          (r) => r.id === reviewId
+        );
+        if (userReviewIndex !== -1) {
+          this.userReviews[userReviewIndex] = {
+            ...this.userReviews[userReviewIndex],
+            rating: newRating,
+            comment: newComment,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+
+        // Update product's average rating
+        const productIndex = this.products.findIndex((p) => p.id === productId);
+        if (productIndex !== -1 && newAverageRating !== undefined) {
+          this.products[productIndex] = {
+            ...this.products[productIndex],
+            averageRating: newAverageRating,
+          };
+        }
+      });
+
       return { success, newAverageRating };
     } catch (error) {
       console.error("Error updating review:", error);

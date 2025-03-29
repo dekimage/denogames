@@ -1,5 +1,6 @@
 import { auth, firestore } from "@/firebaseAdmin";
 import { NextResponse } from "next/server";
+import { trackCookingAttempt } from "@/lib/analytics/handlers/cookingHandler";
 
 // Secret codes mapping
 const SECRET_CODES = {
@@ -7,6 +8,8 @@ const SECRET_CODES = {
   49245: "achievement-id-1",
   MAGICWORD: "achievement-id-2",
   magic: "expansion-expert",
+  rare: "rare-card-2",
+  social: "social-butterfly",
   // Portal codes (locations)
   PORTAL1: "early-supporter",
   PORTAL2: "location-id-2",
@@ -18,6 +21,12 @@ export async function POST(req) {
   try {
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
+      await trackCookingAttempt({
+        userId: "anonymous",
+        code: "unknown",
+        success: false,
+        failureReason: "unauthorized",
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -27,6 +36,13 @@ export async function POST(req) {
 
     const { code, type = "cauldron" } = await req.json();
     if (!code) {
+      await trackCookingAttempt({
+        userId,
+        code: "empty",
+        success: false,
+        failureReason: "missing_code",
+        type,
+      });
       return NextResponse.json(
         { message: "Code is required" },
         { status: 400 }
@@ -56,6 +72,13 @@ export async function POST(req) {
     }
 
     if (userData[attemptsField] >= DAILY_ATTEMPTS_LIMIT) {
+      await trackCookingAttempt({
+        userId,
+        code,
+        success: false,
+        failureReason: "daily_limit_exceeded",
+        type,
+      });
       return NextResponse.json(
         { message: `You've used all your ${type} attempts for today!` },
         { status: 429 }
@@ -71,6 +94,13 @@ export async function POST(req) {
     // Check if code exists
     const achievementId = SECRET_CODES[code];
     if (!achievementId) {
+      await trackCookingAttempt({
+        userId,
+        code,
+        success: false,
+        failureReason: "invalid_code",
+        type,
+      });
       return NextResponse.json(
         { message: "Wrong combination! Try again!" },
         { status: 400 }
@@ -163,6 +193,15 @@ export async function POST(req) {
       });
     }
 
+    // On successful unlock
+    await trackCookingAttempt({
+      userId,
+      code,
+      success: true,
+      unlockedAchievementId: achievementId,
+      type,
+    });
+
     // Return success with data
     return NextResponse.json({
       success: true,
@@ -176,6 +215,13 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error("Error in cook route:", error);
+    await trackCookingAttempt({
+      userId: decodedToken?.uid || "unknown",
+      code: code || "unknown",
+      success: false,
+      failureReason: "server_error",
+      type: type || "cauldron",
+    });
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }

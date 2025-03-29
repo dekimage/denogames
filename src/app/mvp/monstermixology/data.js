@@ -264,4 +264,13 @@ export const heroesCards = [
     trigger: "other",
     effect: "Spend 🌕 to gain 1 Action or Spend 🌕🌕 to gain any 1 Ingredient.",
   },
+  {
+    id: 31,
+    name: "Kali Karma",
+    vp: 3,
+    uses: 3,
+    trigger: "self",
+    effect:
+      "Until the end of your next turn, whenever an opponent serves a cocktail they must give you 2 ingredients of their choice. If they can't, they lose all of their 🌕",
+  },
 ];

@@ -353,7 +353,8 @@ const ReviewsPage = observer(() => {
     userReviews.map((review) => review.productId)
   );
   const productsForReview = purchasedProducts.filter(
-    (product) => !reviewedProductIds.has(product.id)
+    (product) =>
+      !reviewedProductIds.has(product.id) && product.type !== "expansion"
   );
 
   return (
