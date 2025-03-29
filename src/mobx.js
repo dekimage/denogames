@@ -115,9 +115,22 @@ class Store {
   // Add to the Store class constructor
   constructor() {
     makeAutoObservable(this);
-    this.initializeAuth();
-    this.fetchProducts();
 
+    // Check if we're on an engine route before initializing
+    if (typeof window !== "undefined") {
+      const isEngineRoute = window.location.pathname.startsWith("/app/engine");
+      if (!isEngineRoute) {
+        this.initializeAuth();
+        this.fetchProducts();
+      }
+    } else {
+      // For SSR, we can check the Next.js router context
+      // But since we can't access it directly in MobX,
+      // we'll skip initialization and let the components handle it
+      console.log("Skipping initial data fetch during SSR");
+    }
+
+    // Bind all the methods as before
     this.fetchProducts = this.fetchProducts.bind(this);
     this.fetchOrders = this.fetchOrders.bind(this);
     this.fetchAchievements = this.fetchAchievements.bind(this);
@@ -175,6 +188,16 @@ class Store {
     this.newlyUnlockedAchievement = null;
     this.showAchievementAnimation = false;
   }
+
+  // Add a new method to initialize data when needed
+  initializeStoreData = () => {
+    if (!this.user && !this.loadingUser) {
+      this.initializeAuth();
+    }
+    if (this.products.length === 0 && !this.loadingProducts) {
+      this.fetchProducts();
+    }
+  };
 
   initializeAuth() {
     const auth = getAuth();

@@ -46,6 +46,10 @@ import pushLuckStore from "@/app/stores/pushLuckStore";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { observer } from "mobx-react-lite";
+import MobxStore from "@/mobx";
+import { auth } from "@/firebase";
+import { runInAction } from "mobx";
 
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
@@ -53,6 +57,7 @@ export const SPACE_MINERS_COLORS = {
     resource: "#FFE5CC", // soft yellow
     blueprint: "#CCE5FF", // soft blue
     disaster: "#FFCCD4", // soft red
+    event: "#86efac", // Light green background for event cards
   },
   resourceTypes: {
     crystal: "#FED9A6", // Pale yellow-green / SEPA
@@ -121,6 +126,64 @@ const COCKTAIL_IMAGES = {
   24: c24Img,
 };
 
+// Define special event cards
+const specialEventCards = [
+  {
+    id: "event-1",
+    card: "event",
+    type: "event",
+    rarity: "special",
+    emoji: "🌟",
+    text: "Double your next resource card",
+    description: "Next resource card you collect will be doubled",
+  },
+  {
+    id: "event-2",
+    card: "event",
+    type: "event",
+    rarity: "special",
+    emoji: "⚡️",
+    text: "Power Surge",
+    description: "Add an extra reroll to your next turn",
+  },
+  {
+    id: "event-3",
+    card: "event",
+    type: "event",
+    rarity: "special",
+    emoji: "🎲",
+    text: "Lucky Roll",
+    description: "Your next roll has increased chances of rare resources",
+  },
+  {
+    id: "event-4",
+    card: "event",
+    type: "event",
+    rarity: "special",
+    emoji: "🛡️",
+    text: "Shield Boost",
+    description: "Gain temporary immunity to the next disaster",
+  },
+  {
+    id: "event-5",
+    card: "event",
+    type: "event",
+    rarity: "special",
+    emoji: "🔮",
+    text: "Mystery Brew",
+    description: "Transform one resource into another of your choice",
+  },
+  {
+    id: "event-6",
+    card: "event",
+    type: "event",
+    rarity: "special",
+    emoji: "🎯",
+    text: "Perfect Mix",
+    description: "Complete one ingredient requirement instantly",
+  },
+];
+
 const SpaceMinerCard = ({
   item,
   isHighlighted,
@@ -130,6 +193,7 @@ const SpaceMinerCard = ({
 }) => {
   const getCardBackground = () => {
     if (item.type === "boom") return SPACE_MINERS_COLORS.cardTypes.disaster;
+    if (item.type === "event") return SPACE_MINERS_COLORS.cardTypes.event;
     return SPACE_MINERS_COLORS.cardTypes[item.card];
   };
 
@@ -247,6 +311,15 @@ const SpaceMinerCard = ({
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* New event card render */}
+        {item.type === "event" && (
+          <div className="flex flex-col items-center gap-2 p-2 text-center">
+            <div className="text-4xl sm:text-5xl mb-2">{item.emoji}</div>
+            <div className="text-sm font-medium">{item.text}</div>
+            <div className="text-xs text-gray-600 px-2">{item.description}</div>
           </div>
         )}
       </div>
@@ -378,43 +451,165 @@ const enhancedDeck = monstermixologyDeck.map((card) => {
   return enhancedCard;
 });
 
-// Sample game configuration
-const spaceMinerConfig = {
-  initialItems: enhancedDeck,
-  buttons: {
-    draw: <span className="flex items-center gap-2">Explore</span>,
-    stop: "Collect",
+// Define special monster cards
+const specialMonsterCards = [
+  {
+    id: "monster-1",
+    card: "monster",
+    type: "MONSTER",
+    rarity: "special",
+    icon: "👾",
+    text: "Monster Card 1",
+    // Add any other properties needed for monster cards
   },
-};
 
-const Monstermixology = () => {
-  const searchParams = useSearchParams();
-  const [availableCards] = useState(enhancedDeck);
+  // Add other monster cards similarly
+];
+
+const Monstermixology = observer(() => {
+  const [availableCards, setAvailableCards] = useState(enhancedDeck);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAddonEnabled, setIsAddonEnabled] = useState(true);
 
   useEffect(() => {
-    // Ensure this only runs in the client environment
-    if (typeof window !== "undefined") {
-      const chars = searchParams.get("chars");
-      if (chars) {
-        console.log("Characters from URL:", chars);
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      console.log("Auth state changed:", {
+        hasUser: !!user,
+        userFullyLoaded: MobxStore.userFullyLoaded,
+        loadingUser: MobxStore.loadingUser,
+      });
+
+      if (user && !MobxStore.userFullyLoaded && !MobxStore.loadingUser) {
+        try {
+          setIsLoading(true);
+          runInAction(() => {
+            MobxStore.loadingUser = true;
+          });
+
+          const token = await user.getIdToken();
+          const response = await fetch("/api/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+          }
+
+          const { user: userData } = await response.json();
+
+          console.log("User rewards:", {
+            rewards: userData.unlockedRewards,
+            hasMonsterReward:
+              userData.unlockedRewards?.includes("mm-add-monsters-1"),
+          });
+
+          runInAction(() => {
+            MobxStore.updateUserProfile(userData);
+            MobxStore.userFullyLoaded = true;
+          });
+
+          // Update available cards if user has the monster reward
+          if (userData.unlockedRewards?.includes("mm-add-monsters-1")) {
+            console.log(
+              "Adding event cards to deck because user has mm-add-monsters-1"
+            );
+            const newDeck = [...enhancedDeck, ...specialEventCards];
+            console.log(
+              "New deck size:",
+              newDeck.length,
+              "Event cards added:",
+              specialEventCards.length
+            );
+            setAvailableCards(newDeck);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setIsLoading(false);
+          runInAction(() => {
+            MobxStore.loadingUser = false;
+          });
+        }
       }
+      setAuthChecked(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Show loading state while checking auth or loading user data
+  if (!authChecked || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Modify SpaceMinerCard to handle monster cards
+  const SpaceMinerCardWithMonsters = (props) => {
+    const { item } = props;
+
+    if (item.card === "monster") {
+      return (
+        <div
+          className={`
+            relative 
+            sm:w-40 sm:h-56 
+            w-24 h-32
+            rounded-xl shadow-lg flex flex-col
+            bg-green-200
+            ${props.isHighlighted ? "animate-highlight" : ""}
+            ${props.isSelected ? "opacity-70" : "hover:scale-105"}
+          `}
+        >
+          <div className="flex-1 flex items-center justify-center">
+            <Image
+              src={item.icon}
+              alt={item.text}
+              width={60}
+              height={60}
+              className="sm:w-24 sm:h-24"
+            />
+          </div>
+          <div className="h-10 sm:h-12 border-t border-black/10 flex items-center justify-center">
+            <span className="text-sm font-medium">{item.text}</span>
+          </div>
+        </div>
+      );
     }
-  }, [searchParams]);
+
+    return <SpaceMinerCard {...props} />;
+  };
+
+  const spaceMinerConfig = {
+    initialItems: availableCards,
+    buttons: {
+      draw: <span className="flex items-center gap-2">Explore</span>,
+      stop: "Collect",
+    },
+    isAddonEnabled,
+    setIsAddonEnabled,
+    specialEventCards,
+  };
 
   return (
     <div>
       <PushLuckEngine
         config={spaceMinerConfig}
-        CardComponent={SpaceMinerCard}
+        CardComponent={SpaceMinerCardWithMonsters}
         className="gap-4"
       />
     </div>
   );
-};
+});
 
 // Wrap the main component with dynamic import
-const ClientMonstermixologyEngine = dynamic(() => 
-  Promise.resolve(Monstermixology), 
+const ClientMonstermixologyEngine = dynamic(
+  () => Promise.resolve(Monstermixology),
   { ssr: false }
 );
 

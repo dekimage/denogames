@@ -10,7 +10,7 @@ import { ModeToggle } from "@/components/ui/themeButton";
 import Image from "next/image";
 import boomImg from "../../../../../public/monstermixology/boom.png";
 import shieldImg from "../../../../../public/monstermixology/ingridients/shield.png";
-import { Settings } from "lucide-react";
+import { Settings, Lock, CheckCircle2, HelpCircle, LogIn } from "lucide-react";
 
 import { Progress } from "@/components/ui/progress";
 
@@ -25,6 +25,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import emptyDrinkImg from "../../../../../public/monstermixology/emptydrink.png";
 import fullDrinkImg from "../../../../../public/monstermixology/fulldrink.png";
+import MobxStore from "@/mobx";
 
 // Animation duration in seconds
 const ANIMATION_DURATION = 1.5;
@@ -55,6 +56,11 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const [showAllCards, setShowAllCards] = useState(false);
   const [isPrintMode, setIsPrintMode] = useState(false);
   const [currentPrintPage, setCurrentPrintPage] = useState(0);
+  const [showAddonInfo, setShowAddonInfo] = useState(false);
+  const [isAddonEnabled, setIsAddonEnabled] = useState(true);
+  const [availableCards, setAvailableCards] = useState(
+    config.initialItems.filter((card) => card.type !== "event")
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -573,6 +579,84 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     }
   `;
 
+  // First, let's modify the hasMonsterAddon check to only check for ownership
+  const hasMonsterAddon =
+    MobxStore.userFullyLoaded &&
+    MobxStore.user?.unlockedRewards?.includes("mm-add-monsters-1");
+
+  // Then, update the dropdown menu item to handle the toggle correctly
+  <DropdownMenuItem
+    className="flex items-center justify-between"
+    onClick={() => {
+      if (hasMonsterAddon) {
+        // Toggle the addon state
+        setIsAddonEnabled(!isAddonEnabled);
+
+        // FIXED LOGIC: If we're currently disabled (becoming enabled), add the event cards
+        // If we're currently enabled (becoming disabled), remove them
+        const newCards = !isAddonEnabled
+          ? [...config.initialItems, ...config.specialEventCards]
+          : config.initialItems.filter((card) => card.type !== "event");
+
+        setAvailableCards(newCards);
+        pushLuckStore.setConfig({
+          ...config,
+          initialItems: newCards,
+          isAddonEnabled: !isAddonEnabled,
+        });
+        pushLuckStore.restartGame();
+      } else {
+        setShowAddonInfo(true);
+      }
+    }}
+  >
+    <div className="flex items-center gap-2">
+      <span>Add-on 1</span>
+    </div>
+    {hasMonsterAddon ? (
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted-foreground">
+          {config.isAddonEnabled ? "Enabled" : "Disabled"}
+        </span>
+        <CheckCircle2
+          className={`w-4 h-4 ${
+            config.isAddonEnabled ? "text-green-500" : "text-muted-foreground"
+          }`}
+        />
+      </div>
+    ) : (
+      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+    )}
+  </DropdownMenuItem>;
+
+  const AddonInfoModal = ({ isLoggedIn }) => (
+    <Modal onClose={() => setShowAddonInfo(false)}>
+      <div className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Monster Mixology Add-on</h2>
+        <p className="mb-4">
+          Enhance your mixology experience with special event cards! This add-on
+          includes:
+        </p>
+        <ul className="list-disc list-inside mb-6 space-y-2">
+          <li>6 unique event cards</li>
+          <li>Special effects and bonuses</li>
+          <li>New gameplay mechanics</li>
+        </ul>
+        <Button
+          className="w-full"
+          onClick={() => {
+            window.location.href = isLoggedIn
+              ? "/product-details/mm-add-monsters-1"
+              : "/login";
+          }}
+        >
+          <LogIn className="w-4 h-4 mr-2" />
+          {isLoggedIn ? "View Add-on Details" : "Log in to unlock"}
+        </Button>
+      </div>
+    </Modal>
+  );
+
   return (
     <>
       <style>{printStyles}</style>
@@ -636,7 +720,88 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                       <Settings className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-56">
+                    {/* Add-on item */}
+                    <DropdownMenuItem
+                      className="flex items-center justify-between"
+                      onClick={() => {
+                        if (hasMonsterAddon) {
+                          // Toggle the addon state
+                          setIsAddonEnabled(!isAddonEnabled);
+
+                          // FIXED LOGIC: If we're currently disabled (becoming enabled), add the event cards
+                          // If we're currently enabled (becoming disabled), remove them
+                          const newCards = !isAddonEnabled
+                            ? [
+                                ...config.initialItems,
+                                ...config.specialEventCards,
+                              ]
+                            : config.initialItems.filter(
+                                (card) => card.type !== "event"
+                              );
+
+                          setAvailableCards(newCards);
+                          pushLuckStore.setConfig({
+                            ...config,
+                            initialItems: newCards,
+                            isAddonEnabled: !isAddonEnabled,
+                          });
+                          pushLuckStore.restartGame();
+                        } else {
+                          setShowAddonInfo(true);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Add-on 1</span>
+                      </div>
+                      {hasMonsterAddon ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">
+                            {config.isAddonEnabled ? "Enabled" : "Disabled"}
+                          </span>
+                          <CheckCircle2
+                            className={`w-4 h-4 ${
+                              config.isAddonEnabled
+                                ? "text-green-500"
+                                : "text-muted-foreground"
+                            }`}
+                          />
+                        </div>
+                      ) : (
+                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    {/* User/Login item */}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (!MobxStore.userFullyLoaded) {
+                          window.location.href = "/login";
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        {MobxStore.userFullyLoaded ? (
+                          <span className="text-sm">
+                            {MobxStore.user?.username ||
+                              MobxStore.user?.displayName ||
+                              MobxStore.user?.email}
+                          </span>
+                        ) : (
+                          <>
+                            <LogIn className="w-4 h-4" />
+                            <span>Log in</span>
+                          </>
+                        )}
+                      </div>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Existing menu items */}
                     {IS_DEVELOPMENT && (
                       <>
                         <DropdownMenuCheckboxItem
@@ -679,10 +844,6 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                     >
                       Restart Game
                     </DropdownMenuItem>
-
-                    {/* <DropdownMenuItem>
-                      <ModeToggle />
-                    </DropdownMenuItem> */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -818,6 +979,9 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           {isSoloMode && <BotStatus />}
           {showGameEndModal && <GameEndModal />}
           {showDifficultyModal && <DifficultyModal />}
+          {showAddonInfo && (
+            <AddonInfoModal isLoggedIn={MobxStore.userFullyLoaded} />
+          )}
         </div>
       )}
     </>
