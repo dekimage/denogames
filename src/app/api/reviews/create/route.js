@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth, firestore } from "@/firebaseAdmin";
 import { trackReviewEvent } from "@/lib/analytics/handlers/reviewHandler";
+import { unlockAchievement } from "@/lib/helpers/achievementHelper";
+import { ACHIEVEMENTS } from "@/lib/constants/achievements";
 
 export async function POST(request) {
   try {
@@ -99,6 +101,11 @@ export async function POST(request) {
       rating,
       reviewId: reviewRef.id,
     });
+
+    // After successful first review
+    if (!userData.achievements?.includes(ACHIEVEMENTS.FIRST_REVIEW.id)) {
+      await unlockAchievement(userId, "FIRST_REVIEW", { productId });
+    }
 
     return NextResponse.json({
       success: true,

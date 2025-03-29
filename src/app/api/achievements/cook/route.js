@@ -1,11 +1,12 @@
 import { auth, firestore } from "@/firebaseAdmin";
 import { NextResponse } from "next/server";
 import { trackCookingAttempt } from "@/lib/analytics/handlers/cookingHandler";
+import { unlockAchievement } from "@/lib/helpers/achievementHelper";
+import { ACHIEVEMENTS } from "@/lib/constants/achievements";
 
 // Secret codes mapping
 const SECRET_CODES = {
   // Cauldron codes (achievements/collectibles)
-  49245: "achievement-id-1",
   MAGICWORD: "achievement-id-2",
   magic: "expansion-expert",
   rare: "rare-card-2",
@@ -18,6 +19,9 @@ const SECRET_CODES = {
 const DAILY_ATTEMPTS_LIMIT = 10;
 
 export async function POST(req) {
+  let userId = "anonymous";
+  let code, type;
+
   try {
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -32,9 +36,12 @@ export async function POST(req) {
 
     const token = authHeader.split("Bearer ")[1];
     const decodedToken = await auth.verifyIdToken(token);
-    const userId = decodedToken.uid;
+    userId = decodedToken.uid;
 
-    const { code, type = "cauldron" } = await req.json();
+    const body = await req.json();
+    code = body.code;
+    type = body.type || "cauldron";
+
     if (!code) {
       await trackCookingAttempt({
         userId,
@@ -193,7 +200,7 @@ export async function POST(req) {
       });
     }
 
-    // On successful unlock
+    // After successful unlock
     await trackCookingAttempt({
       userId,
       code,
@@ -201,6 +208,11 @@ export async function POST(req) {
       unlockedAchievementId: achievementId,
       type,
     });
+
+    // Check for first cook achievement
+    if (!userData.achievements?.includes(ACHIEVEMENTS.FIRST_COOK.id)) {
+      await unlockAchievement(userId, "FIRST_COOK", { code, type });
+    }
 
     // Return success with data
     return NextResponse.json({
@@ -216,7 +228,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error in cook route:", error);
     await trackCookingAttempt({
-      userId: decodedToken?.uid || "unknown",
+      userId,
       code: code || "unknown",
       success: false,
       failureReason: "server_error",

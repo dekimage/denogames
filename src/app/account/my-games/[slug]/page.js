@@ -27,6 +27,7 @@ import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import { ProductTypeBadge } from "@/components/ProductTypeBadge";
+import { unlockProductAchievement } from "@/lib/helpers/clientAchievementHelper";
 
 const ComponentCard = ({
   title,
@@ -40,6 +41,7 @@ const ComponentCard = ({
   price,
   productSlug,
   sourceName,
+  achievementKey,
 }) => {
   const { addToCart, cart } = MobxStore;
   const isInCart =
@@ -96,7 +98,10 @@ const ComponentCard = ({
 
   const lockContent = getLockContent();
 
-  const handleDownload = () => {
+  const handleDownload = async (achievementKey) => {
+    if (achievementKey) {
+      await unlockProductAchievement(achievementKey);
+    }
     if (fileUrl) {
       window.open(fileUrl, "_blank");
     }
@@ -152,7 +157,7 @@ const ComponentCard = ({
             variant="default"
             size="sm"
             className="w-full"
-            onClick={handleDownload}
+            onClick={() => handleDownload(achievementKey)}
             disabled={!fileUrl}
           >
             <Download className="w-4 h-4 mr-2" />

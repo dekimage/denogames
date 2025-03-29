@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth, firestore } from "@/firebaseAdmin";
+import { ACHIEVEMENTS } from "@/lib/constants/achievements";
+import { unlockAchievement } from "@/lib/helpers/achievementHelper";
 
 // PUT handler for updating username
 export async function PUT(req) {
@@ -24,6 +26,11 @@ export async function PUT(req) {
         { status: 403 }
       );
     }
+
+    // Get user data first
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+    const userData = userDoc.data();
 
     const updateData = {};
 
@@ -59,7 +66,18 @@ export async function PUT(req) {
     updateData.updatedAt = new Date();
 
     // Update user document in Firestore
-    await firestore.collection("users").doc(userId).update(updateData);
+    await userRef.update(updateData);
+
+    // After avatar update
+    if (
+      avatarImg &&
+      !userData.achievements?.includes(ACHIEVEMENTS.PROFILE_AVATAR.id)
+    ) {
+      await unlockAchievement(userId, "PROFILE_AVATAR", {
+        previousAvatar: userData.avatarImg,
+        newAvatar: avatarImg,
+      });
+    }
 
     return NextResponse.json({
       message: "Profile updated successfully",

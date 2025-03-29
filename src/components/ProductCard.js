@@ -186,12 +186,6 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
               </div>
               <div className="flex items-center mt-1">
                 <ProductTypeBadge type={product.type} />
-                {product.isComingSoon && (
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    Release Date:{" "}
-                    {new Date(product.dateReleased).toLocaleDateString()}
-                  </span>
-                )}
               </div>
               <div className="flex items-center justify-between mt-4">
                 <p

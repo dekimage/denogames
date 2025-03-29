@@ -1098,6 +1098,7 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
     name: "",
     image: "",
     fileUrl: "",
+    achievementKey: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingComponent, setEditingComponent] = useState(null);
@@ -1145,9 +1146,10 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
           ...(type === "provided" && newComponent.fileUrl
             ? { fileUrl: newComponent.fileUrl }
             : {}),
+          achievementKey: newComponent.achievementKey,
         },
       ]);
-      setNewComponent({ name: "", image: "", fileUrl: "" });
+      setNewComponent({ name: "", image: "", fileUrl: "", achievementKey: "" });
     } catch (error) {
       console.error("Error adding component:", error);
     }
@@ -1285,6 +1287,23 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                   </div>
                 )}
 
+                <div className="space-y-2">
+                  <Label>Achievement Key</Label>
+                  <Input
+                    value={editingComponent.achievementKey || ""}
+                    onChange={(e) =>
+                      setEditingComponent((prev) => ({
+                        ...prev,
+                        achievementKey: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., COMPONENT_1"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter a unique key for this component
+                  </p>
+                </div>
+
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
@@ -1334,6 +1353,11 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                   {type === "provided" && component.fileUrl && (
                     <p className="text-xs text-muted-foreground truncate">
                       File: {component.fileUrl}
+                    </p>
+                  )}
+                  {component.achievementKey && (
+                    <p className="text-xs text-muted-foreground">
+                      Key: {component.achievementKey}
                     </p>
                   )}
                 </div>
@@ -1408,6 +1432,23 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
             </p>
           </div>
         )}
+
+        <div className="space-y-2">
+          <Label>Achievement Key</Label>
+          <Input
+            value={newComponent.achievementKey}
+            onChange={(e) =>
+              setNewComponent((prev) => ({
+                ...prev,
+                achievementKey: e.target.value,
+              }))
+            }
+            placeholder="e.g., COMPONENT_1"
+          />
+          <p className="text-xs text-muted-foreground">
+            Enter a unique key for this component
+          </p>
+        </div>
 
         <Button onClick={addComponent} disabled={loading || !newComponent.name}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth, firestore } from "@/firebaseAdmin";
 import { trackCraftingEvent } from "@/lib/analytics/handlers/craftingHandler";
-import { SERVER_EVENTS } from "@/lib/analytics/events";
+import { unlockAchievement } from "@/lib/helpers/achievementHelper";
+import { ACHIEVEMENTS } from "@/lib/constants/achievements";
 
 export async function POST(request) {
   try {
@@ -110,6 +111,14 @@ export async function POST(request) {
       relatedGame: productData.relatedGames,
       requiredAchievements: productData.requiredAchievements,
     });
+
+    // Check and unlock first addon craft achievement
+    if (!userData.achievements?.includes(ACHIEVEMENTS.FIRST_ADDON_CRAFT.id)) {
+      await unlockAchievement(decodedToken.uid, "FIRST_ADDON_CRAFT", {
+        rewardId,
+        relatedGame: productData.relatedGames,
+      });
+    }
 
     return NextResponse.json({ unlockedRewards });
   } catch (error) {
