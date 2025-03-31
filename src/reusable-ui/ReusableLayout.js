@@ -22,7 +22,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { observer } from "mobx-react";
 import Image from "next/image";
-import logoImg from "../assets/logo.png";
+import logoBlackImg from "../assets/logo-b.png";
+import logoWhiteImg from "../assets/logo-w.png";
+import logoPirateImg from "../assets/logo3.png";
+import { useTheme } from "next-themes";
 
 import MobileHeader from "./MobileHeader";
 
@@ -90,6 +93,7 @@ const ReusableLayout = observer(({ children }) => {
   const { user, logout } = MobxStore;
   const pathname = usePathname();
   const trackClick = useTrackClick();
+  const { theme } = useTheme();
 
   const showHeaderFooter = shouldShowHeaderFooter(pathname);
   const showMvpHeader =
@@ -120,11 +124,18 @@ const ReusableLayout = observer(({ children }) => {
               <div className="flex items-center space-x-6">
                 <Link href="/" className="flex items-center">
                   <Image
-                    src={logoImg}
+                    src={logoPirateImg}
                     alt="Deno Games"
-                    width={48}
-                    height={48}
-                    className="mr-2"
+                    width={120}
+                    height={120}
+                    className="w-14 mr-[-12px]"
+                  />
+                  <Image
+                    src={theme === "dark" ? logoWhiteImg : logoBlackImg}
+                    alt="Deno Games"
+                    width={120}
+                    height={120}
+                    className="mr-2 w-16"
                   />
                 </Link>
 
@@ -351,7 +362,7 @@ const ReusableLayout = observer(({ children }) => {
                         className={navigationMenuTriggerStyle()}
                       >
                         <Image
-                          src={logoImg}
+                          src={theme === "dark" ? logoWhiteImg : logoBlackImg}
                           alt="logo"
                           width={48}
                           height={48}

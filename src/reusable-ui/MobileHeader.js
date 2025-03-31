@@ -32,7 +32,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import logoImg from "@/assets/logo.png";
+import logoImg from "@/assets/logo-b.png";
 import ShoppingCart from "@/components/Cart";
 import { useTrackClick } from "@/hooks/useTrackClick";
 import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";

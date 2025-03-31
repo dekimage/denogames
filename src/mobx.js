@@ -1648,6 +1648,24 @@ class Store {
       this.showAchievementAnimation = true;
     });
   };
+
+  // Add this method to update achievements after unlocking
+  updateUserAchievements(achievementId, achievement) {
+    runInAction(() => {
+      // Add to user's achievements array if not already present
+      if (!this.user.achievements.includes(achievementId)) {
+        this.user.achievements.push(achievementId);
+      }
+
+      // If the achievement isn't in our achievements array, add it
+      if (!this.achievements.find((a) => a.id === achievementId)) {
+        this.achievements.push(achievement);
+      }
+
+      // Set the newly unlocked achievement for animation
+      this.setNewAchievement(achievementId);
+    });
+  }
 }
 
 const MobxStore = new Store();

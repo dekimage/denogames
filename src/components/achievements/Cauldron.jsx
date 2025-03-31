@@ -9,6 +9,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { auth } from "@/firebase";
+import MobxStore from "@/mobx";
+import { runInAction } from "mobx";
 
 export function Cauldron() {
   const [code, setCode] = useState("");
@@ -74,6 +76,23 @@ export function Cauldron() {
 
       if (data.success) {
         setUnlockedAchievement(data.achievement);
+
+        runInAction(() => {
+          if (!MobxStore.user.achievements.includes(data.achievement.id)) {
+            MobxStore.user.achievements.push(data.achievement.id);
+          }
+
+          const existingIndex = MobxStore.achievements.findIndex(
+            (a) => a.id === data.achievement.id
+          );
+
+          if (existingIndex === -1) {
+            MobxStore.achievements.push(data.achievement);
+          } else {
+            MobxStore.achievements[existingIndex] = data.achievement;
+          }
+        });
+
         toast({
           title: "Success!",
           description: "Achievement unlocked!",
