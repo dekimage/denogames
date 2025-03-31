@@ -204,7 +204,7 @@ export const UserProfile = observer(({ user }) => {
   };
 
   return (
-    <div className="box-inner max-w-[400px]">
+    <div className="box-inner sm:min-w-[400px] w-full">
       <div className="box-broken my-4 border p-8">
         <div className="flex flex-col items-center justify-center gap-4">
           {/* Profile Image */}

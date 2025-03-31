@@ -462,7 +462,8 @@ const HomePage = observer(() => {
         )}
 
         {/* Membership CTAs - Only show if user is not a member */}
-        {!user?.isPatreon && (
+        {/* disabled-feature */}
+        {/* {!user?.isPatreon && (
           <section className="mb-16">
             <MembershipCTA
               title="Join Patreon - Get Exclusive Games Monthly"
@@ -481,7 +482,7 @@ const HomePage = observer(() => {
               secondaryCtaLink="/patreon-benefits"
             />
           </section>
-        )}
+        )} */}
 
         {/* Latest Blog Posts - Now using the BlogSection component */}
         <BlogSection />

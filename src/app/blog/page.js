@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { observer } from "mobx-react";
 import MobxStore from "@/mobx";
-import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -21,7 +20,6 @@ import {
   ArrowRight,
   AlertCircle,
 } from "lucide-react";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

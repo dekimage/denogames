@@ -81,7 +81,7 @@ const getTemplateImg = (uses) => {
   }
 };
 
-export const MONSTER_COUNT = 31; // UPDATE WHEN PUT MONSTER
+export const MONSTER_COUNT = 36; // UPDATE WHEN PUT MONSTER
 
 // Use the same image import logic
 const heroImages = Object.fromEntries(

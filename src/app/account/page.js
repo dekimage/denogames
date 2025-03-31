@@ -117,7 +117,9 @@ const AccountPage = observer(() => {
       ) : (
         <div className="flex flex-col gap-8">
           {/* User Profile */}
-          <UserProfile user={user} />
+          <div className="flex justify-center items-center">
+            <UserProfile user={user} />
+          </div>
 
           <div className="md:col-span-2">
             {/* Stats Grid */}
@@ -169,7 +171,7 @@ const AccountPage = observer(() => {
 
             {/* Membership Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <MembershipCard
+              {/* <MembershipCard
                 title={
                   user.tags?.isActivePatreon
                     ? "Thank you for being a Patron!"
@@ -187,7 +189,7 @@ const AccountPage = observer(() => {
                 ctaText="Become Patreon"
                 ctaLink="https://patreon.com/yourpage"
                 ctaTarget="_blank"
-              />
+              /> */}
               {/* disabled-feature */}
               {/* <MembershipCard
                 title={

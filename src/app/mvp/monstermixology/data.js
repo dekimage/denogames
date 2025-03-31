@@ -88,16 +88,7 @@ export const heroesCards = [
     trigger: "self",
     effect: "Avoid a disaster.",
   },
-  {
-    id: 5,
-    name: "El Padre",
-    vp: 4,
-    uses: 1,
-    // effect: "Gain +1/+2 VP if you serve him 2/3 cocktails.",
-    trigger: "end",
-    effect:
-      "El Padre is worth 5VP if you serve him 2 cocktails or 6VP at 3 cocktails.",
-  },
+
   {
     id: 4,
     name: "Dragoonovic",
@@ -272,5 +263,60 @@ export const heroesCards = [
     trigger: "self",
     effect:
       "Until the end of your next turn, whenever an opponent serves a cocktail they must give you 2 ingredients of their choice. If they can't, they lose all of their 🌕",
+  },
+  {
+    id: 32,
+    name: "Jon Saint Chosen",
+    vp: 2,
+    uses: 2,
+    trigger: "self",
+    effect:
+      "Choose a served enemy monster. Destroy one entire mana circle of that monster. (Scratch out the entire circle)",
+  },
+  {
+    id: 33,
+    name: "Ashley & Zak",
+    vp: 2,
+    uses: 2,
+    trigger: "self",
+    effect:
+      "If you served Ashley & Zak at least 2 cocktails, gain any 1 ingredient and also all opponents lose 1 ingredient.",
+  },
+  {
+    id: 34,
+    name: "steampunk Otter",
+    vp: 4,
+    uses: 2,
+    trigger: "self",
+    effect:
+      "Effect Box: If you served 2 cocktails this turn, you may use this ability to gain 4 ingredients of your choice.",
+  },
+  {
+    id: 35,
+    name: "Tony Pirato",
+    vp: 3,
+    uses: 1,
+    trigger: "self",
+    effect:
+      "Effect Box: If you served 2 cocktails this turn, you may use this ability to gain 4 ingredients of your choice.",
+  },
+  {
+    id: 5,
+    name: "El Padre",
+    vp: 3,
+    uses: 1,
+    // effect: "Gain +1/+2 VP if you serve him 2/3 cocktails.",
+    trigger: "end",
+    effect:
+      "El Padre is worth 5VP if you serve him 2 cocktails or 6VP at 3 cocktails.",
+  },
+  {
+    id: 36,
+    name: "El Madre",
+    vp: 3,
+    uses: 1,
+    trigger: "end",
+    effect:
+      "El Madre is worth if you serve el padro vice versa (WORK IN PROGRESS)",
   },
 ];

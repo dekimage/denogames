@@ -27,7 +27,7 @@ export default function MonsterMixologyPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/send-email", {
+      const response = await fetch("/api/save-email-landing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
