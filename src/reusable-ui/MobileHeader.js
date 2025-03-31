@@ -32,10 +32,14 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import logoImg from "@/assets/logo-b.png";
+import logoBlackImg from "@/assets/logo-b.png";
+import logoWhiteImg from "@/assets/logo-w.png";
+import logoPirateImg from "@/assets/logo3.png";
 import ShoppingCart from "@/components/Cart";
 import { useTrackClick } from "@/hooks/useTrackClick";
 import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
+import { useTheme } from "next-themes";
+import { ModeToggle } from "@/components/ui/themeButton";
 
 const NavItem = ({ href, icon: Icon, title, active, onClick }) => {
   return (
@@ -77,6 +81,7 @@ const MobileHeader = observer(() => {
   const { isMobileOpen, setIsMobileOpen, user, logout, cart } = MobxStore;
   const pathname = usePathname();
   const trackClick = useTrackClick();
+  const { theme } = useTheme();
 
   const toggleMenu = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -131,20 +136,30 @@ const MobileHeader = observer(() => {
 
         <Link
           href="/"
-          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center"
         >
           <Image
-            src={logoImg}
+            src={logoPirateImg}
             alt="Deno Games"
-            width={36}
-            height={36}
-            className="cursor-pointer"
+            width={120}
+            height={120}
+            className="w-10 mr-[-8px]"
+          />
+          <Image
+            src={theme === "dark" ? logoWhiteImg : logoBlackImg}
+            alt="Deno Games"
+            width={120}
+            height={120}
+            className="w-12"
           />
         </Link>
 
-        <ShoppingCart
-          onClick={() => handleNavClick(ALLOWED_CLICK_LABELS.NAV_CART)}
-        />
+        <div className="flex items-center gap-2">
+          <ModeToggle />
+          <ShoppingCart
+            onClick={() => handleNavClick(ALLOWED_CLICK_LABELS.NAV_CART)}
+          />
+        </div>
       </div>
 
       <AnimatePresence>

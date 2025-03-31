@@ -13,6 +13,7 @@ import {
   Save,
   X,
   Loader2,
+  HelpCircle,
 } from "lucide-react";
 import {
   Dialog,
@@ -26,8 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
-import placeholderImg from "@/assets/01.png";
 import { auth } from "@/firebase";
+import { EasterEggDialog } from "@/components/ui/easter-egg-dialog";
 
 // Predefined avatar options
 const AVATAR_OPTIONS = [
@@ -56,6 +57,8 @@ export const UserProfile = observer(({ user }) => {
     user?.avatarImg || DEFAULT_AVATAR
   );
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [showSpookyEgg, setShowSpookyEgg] = useState(false);
+  const [showSpookyButton, setShowSpookyButton] = useState(false);
   const { toast } = useToast();
 
   // Format the timestamp
@@ -203,6 +206,11 @@ export const UserProfile = observer(({ user }) => {
     }
   };
 
+  const handleAvatarSelect = (avatarUrl) => {
+    setSelectedAvatar(avatarUrl);
+    setShowSpookyButton(AVATAR_OPTIONS.indexOf(avatarUrl) === 9);
+  };
+
   return (
     <div className="box-inner sm:min-w-[400px] w-full">
       <div className="box-broken my-4 border p-8">
@@ -261,7 +269,7 @@ export const UserProfile = observer(({ user }) => {
                     ? "border-primary scale-105"
                     : "border-transparent hover:border-primary/50"
                 }`}
-                onClick={() => setSelectedAvatar(avatarUrl)}
+                onClick={() => handleAvatarSelect(avatarUrl)}
               >
                 <div className="relative w-full pt-[100%]">
                   <Image
@@ -275,7 +283,17 @@ export const UserProfile = observer(({ user }) => {
             ))}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex items-center gap-2">
+            {showSpookyButton && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-auto hover:text-primary transition-colors"
+                onClick={() => setShowSpookyEgg(true)}
+              >
+                <HelpCircle className="h-5 w-5 animate-pulse" />
+              </Button>
+            )}
             <DialogClose asChild>
               <Button variant="outline" disabled={savingAvatar}>
                 Cancel
@@ -335,6 +353,17 @@ export const UserProfile = observer(({ user }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add the Easter Egg Dialog */}
+      <EasterEggDialog
+        open={showSpookyEgg}
+        onOpenChange={setShowSpookyEgg}
+        title="BOO!"
+        code="BOOO"
+        message="Spooky Joe just spooked you! Run... or go somewhere?"
+        image="/easterEggs/1.png"
+        imageAlt="Spooky Joe"
+      />
     </div>
   );
 });

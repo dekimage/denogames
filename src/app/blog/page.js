@@ -226,9 +226,9 @@ const BlogPage = observer(() => {
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Blog</h1>
+        <h1 className="text-3xl font-bold mb-2 font-strike">Blog</h1>
         <p className="text-muted-foreground">
-          Latest articles, news, and updates from our team.
+          I write about cool game mechanics that I come up with.
         </p>
       </div>
 

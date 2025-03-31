@@ -413,7 +413,7 @@ const HomePage = observer(() => {
 
       {/* Kickstarter Backer Section - Only show if not claimed */}
 
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-8 mt-16 sm:mt-0 px-4">
         {/* Newest Games Section - Now using sortedGames */}
         <section className="mb-16">
           <SectionHeader

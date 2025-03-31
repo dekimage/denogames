@@ -11,13 +11,14 @@ import { useTheme } from "next-themes";
 import { auth } from "@/firebase";
 import MobxStore from "@/mobx";
 import { runInAction } from "mobx";
-import { Toast, ToastTitle, ToastDescription } from "@/components/ui/toast";
+import { EasterEggDialog } from "@/components/ui/easter-egg-dialog";
 
 export function Cauldron() {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [unlockedAchievement, setUnlockedAchievement] = useState(null);
+  const [showCauldronEgg, setShowCauldronEgg] = useState(false);
   const { theme } = useTheme();
   const { toast } = useToast();
 
@@ -145,9 +146,12 @@ export function Cauldron() {
 
         {/* Cauldron Image and Achievement Slot */}
         <div className="relative">
-          <div className="relative w-48 h-48 mx-auto">
+          <div
+            className="relative w-48 h-48 mx-auto cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => setShowCauldronEgg(true)}
+          >
             <Image
-              src="/cauldron-placeholder.png" // Replace with your cauldron image
+              src="/platform/cauldron.png"
               alt="Magical Cauldron"
               fill
               className="object-contain"
@@ -207,6 +211,17 @@ export function Cauldron() {
           </Button>
         </div>
       </div>
+
+      {/* Add the Easter Egg Dialog */}
+      <EasterEggDialog
+        open={showCauldronEgg}
+        onOpenChange={setShowCauldronEgg}
+        title="You found it!"
+        code="EASY"
+        message="This was an easy easter egg! But it's good enough to get you warmed up! :D"
+        image="/easterEggs/3.png"
+        imageAlt="Easy Easter Egg"
+      />
     </div>
   );
 }

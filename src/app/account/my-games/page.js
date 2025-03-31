@@ -8,7 +8,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  EasterEggDialog,
+  EasterEggTrigger,
+} from "@/components/ui/easter-egg-dialog";
 
 const GameCard = ({ game }) => {
   const { getRelatedExpansions, products, user } = MobxStore;
@@ -75,6 +85,7 @@ const GameCard = ({ game }) => {
 
 const MyGamesPage = observer(() => {
   const { user, products } = MobxStore;
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
 
   // Filter only owned base games (no expansions)
   const ownedGames = products.filter(
@@ -102,7 +113,7 @@ const MyGamesPage = observer(() => {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 mt-16 sm:mt-0">
       <h1 className="text-3xl font-bold mb-6 font-strike">My Games</h1>
       <div className="flex flex-col gap-4 mb-20">
         {ownedGames.map((game) => (
@@ -111,14 +122,16 @@ const MyGamesPage = observer(() => {
       </div>
       <div className="bg-background rounded-lg shadow-md p-8 relative border">
         <div className="absolute left-1/2 -translate-x-1/2 -top-[60px]">
-          <div className="relative w-[120px] h-[120px]">
-            <Image
-              src="/muhari/shopkeeper.png"
-              alt="Shopkeeper"
-              fill
-              className="object-contain bg-background rounded-full p-2 border"
-            />
-          </div>
+          <EasterEggTrigger onClick={() => setShowEasterEgg(true)}>
+            <div className="relative w-[120px] h-[120px]">
+              <Image
+                src="/muhari/shopkeeper.png"
+                alt="Shopkeeper"
+                fill
+                className="object-contain bg-background rounded-full p-2 border"
+              />
+            </div>
+          </EasterEggTrigger>
         </div>
         <div className="flex flex-col items-center pt-8">
           <h2 className="text-2xl font-semibold mb-4">
@@ -135,6 +148,13 @@ const MyGamesPage = observer(() => {
           </Link>
         </div>
       </div>
+      <EasterEggDialog
+        open={showEasterEgg}
+        onOpenChange={setShowEasterEgg}
+        code="TRY ME"
+        image="/muhari/shopkeeper.png"
+        imageAlt="Shopkeeper"
+      />
     </div>
   );
 });

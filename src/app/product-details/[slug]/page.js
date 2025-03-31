@@ -308,7 +308,7 @@ const ClaimKickstarterSection = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 mt-16 sm:mt-0 px-4">
       <div className="border rounded-lg shadow-sm bg-card overflow-hidden mb-8">
         <div className="grid md:grid-cols-2 gap-6 p-6">
           <div className="flex flex-col justify-center">

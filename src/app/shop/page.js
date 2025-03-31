@@ -32,6 +32,7 @@ import {
   ArrowDownUp,
   Pencil,
   User,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GAME_MECHANICS, PLAYER_MODES } from "@/constants/game-data";
+import { EasterEggDialog } from "@/components/ui/easter-egg-dialog";
 
 // Use GAME_MECHANICS and PLAYER_MODES as before
 export const GAME_TYPES = GAME_MECHANICS;
@@ -340,6 +342,8 @@ const ShopPage = observer(() => {
   const [sortOption, setSortOption] = useState("newest");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [showShopExplorerEgg, setShowShopExplorerEgg] = useState(false);
+  const [showShopIcon, setShowShopIcon] = useState(false);
 
   // Handle URL query parameters - only for category/type
   useEffect(() => {
@@ -570,6 +574,16 @@ const ShopPage = observer(() => {
     e.preventDefault();
     // Search is already applied via the useEffect
   };
+
+  // Add this effect to check for the specific conditions
+  useEffect(() => {
+    // Check if add-on filter is selected
+    const hasAddonFilter = filters.products.includes("add-on");
+    // Check if sort is set to product-type
+    const isProductTypeSort = sortOption === "product-type";
+
+    setShowShopIcon(hasAddonFilter && isProductTypeSort);
+  }, [filters.products, sortOption]);
 
   // Loading state
   if (loading || loadingProducts) {
@@ -815,9 +829,21 @@ const ShopPage = observer(() => {
 
           {/* Results Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <p className="text-sm text-muted-foreground">
-              Showing {filteredProducts.length} of {products.length} products
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">
+                Showing {filteredProducts.length} of {products.length} products
+              </p>
+              {showShopIcon && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowShopExplorerEgg(true)}
+                >
+                  <Store className="h-4 w-4 animate-pulse text-primary" />
+                </Button>
+              )}
+            </div>
 
             <div className="flex items-center gap-2">
               <span className="text-sm whitespace-nowrap">Sort by:</span>
@@ -889,6 +915,17 @@ const ShopPage = observer(() => {
         filters={filters}
         setFilters={setFilters}
         resetFilters={resetFilters}
+      />
+
+      {/* Add the Easter Egg Dialog */}
+      <EasterEggDialog
+        open={showShopExplorerEgg}
+        onOpenChange={setShowShopExplorerEgg}
+        title="Hidden Shop Found!"
+        code="SHOP EXPLORER"
+        message="Wooh this was a hard one! You really are an explorer!"
+        image="/easterEggs/4.png"
+        imageAlt="Shop Explorer"
       />
     </div>
   );

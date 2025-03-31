@@ -24,10 +24,13 @@ import {
   AlertCircle,
   ShoppingCart,
   AlertTriangle,
+  FileDown,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AchievementCard } from "../my-collection/page";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
   const { toast } = useToast();
@@ -39,8 +42,8 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
     userAchievements?.includes(achievement.id)
   );
 
-  // Check if reward is already claimed
-  const isClaimed = MobxStore.user?.unlockedRewards?.includes(addon.id);
+  // Check if user has crafted/unlocked this add-on
+  const hasUnlockedAddon = MobxStore.user?.unlockedRewards?.includes(addon.id);
 
   // Calculate progress
   const achievementsCompleted = requiredAchievements.filter((achievement) =>
@@ -88,43 +91,50 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
 
   return (
     <div
-      className={`relative rounded-lg border p-4 transition-all hover:shadow-lg bg-card`}
+      onClick={navigateToAddonDetails}
+      className="relative rounded-lg border p-4 sm:p-5 transition-all hover:shadow-lg bg-card cursor-pointer group"
     >
-      {/* Status Icon */}
-      <div className="absolute top-2 right-2">
-        {isClaimed ? (
-          <CheckCircle className="w-5 h-5 text-primary" />
-        ) : !isUnlocked ? (
-          <Lock className="w-5 h-5 text-muted-foreground" />
-        ) : null}
-      </div>
-
       {/* Reward Image */}
-      <div className="relative h-32 w-full mb-3">
+      <div className="relative h-36 sm:h-48 w-full mb-3">
         <Image
           src={addon.thumbnail || "/placeholder-image.jpg"}
           alt={addon.name}
           fill
-          className={`object-contain ${
-            !isUnlocked ? "opacity-60 grayscale" : ""
-          }`}
+          className="object-contain transition-all duration-300"
         />
       </div>
 
-      {/* Title and Description */}
-      <h3 className="font-semibold truncate">{addon.name}</h3>
-      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-        {addon.description}
-      </p>
+      {/* Title and Status */}
+      <div className="space-y-2">
+        <h3 className="text-base sm:text-lg font-semibold truncate group-hover:text-primary transition-colors">
+          {addon.name}
+        </h3>
+        <div className="flex items-center gap-2">
+          {hasUnlockedAddon ? (
+            <Badge
+              variant="default"
+              className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center gap-2"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Owned</span>
+            </Badge>
+          ) : !isUnlocked ? (
+            <Badge
+              variant="secondary"
+              className="bg-muted text-muted-foreground flex items-center gap-2"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Locked</span>
+            </Badge>
+          ) : null}
+        </div>
+      </div>
 
       {/* Related Game Section */}
       {mainGame && (
         <div className="mt-3 border rounded-md p-2 bg-muted/30">
-          <p className="text-xs text-muted-foreground mb-2 font-medium">
-            Related Game:
-          </p>
           <div className="flex items-center gap-2">
-            <div className="relative w-12 h-12 flex-shrink-0 border rounded-md overflow-hidden">
+            <div className="relative w-10 h-10 flex-shrink-0 border rounded-md overflow-hidden">
               <Image
                 src={mainGame.thumbnail || "/placeholder-image.jpg"}
                 alt={mainGame.name}
@@ -134,20 +144,17 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
             </div>
             <div className="flex-grow min-w-0">
               <p className="text-sm font-medium truncate">{mainGame.name}</p>
-              <div className="flex items-center gap-1 mt-1">
+              <div className="flex items-center gap-1 mt-0.5">
                 {ownsMainGame ? (
                   <div className="flex items-center text-green-600 dark:text-green-400 text-xs">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     <span>Owned</span>
                   </div>
                 ) : (
-                  <button
-                    onClick={navigateToMainGame}
-                    className="flex items-center text-amber-600 dark:text-amber-400 text-xs hover:underline"
-                  >
+                  <div className="flex items-center text-amber-600 dark:text-amber-400 text-xs">
                     <AlertTriangle className="w-3 h-3 mr-1" />
-                    <span>Required - Get Game</span>
-                  </button>
+                    <span>Required</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -155,9 +162,9 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
         </div>
       )}
 
-      {/* Main Game Warning */}
-      {isUnlocked && !isClaimed && !ownsMainGame && mainGame && (
-        <div className="mt-3 p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-md">
+      {/* Main Game Warning - Only show if not unlocked yet */}
+      {isUnlocked && !hasUnlockedAddon && !ownsMainGame && mainGame && (
+        <div className="mt-3 p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-md">
           <div className="flex gap-2 text-amber-700 dark:text-amber-400 text-xs items-start">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <div>
@@ -171,45 +178,36 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
         </div>
       )}
 
-      {/* Achievement Progress */}
-      <div className="mt-4 space-y-2">
-        <div className="flex items-center gap-2 text-sm">
-          <Trophy className="w-4 h-4 text-primary" />
-          <span className="text-muted-foreground">Required Collectibles</span>
-          <span className="font-medium text-primary ml-auto">
-            {achievementsCompleted}/{requiredAchievements.length}
-          </span>
-        </div>
+      {/* Achievement Grid - Show without progress indicators if already unlocked */}
+      <div className="mt-4">
+        {!hasUnlockedAddon && (
+          <div className="text-sm text-muted-foreground mb-3">
+            Collectibles required to unlock:
+          </div>
+        )}
 
-        {/* Progress Bar */}
-        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300 ease-in-out"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-
-        {/* Small Achievement Thumbnails */}
-        <div className="grid grid-cols-4 gap-2 mt-2">
+        {/* Achievement Thumbnails */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
           {requiredAchievements.map((achievement) => (
             <Dialog key={achievement.id}>
               <DialogTrigger asChild>
-                <button className="relative w-10 h-10 rounded-md border overflow-hidden hover:border-primary transition-colors">
-                  <Image
-                    src={achievement.image || "/placeholder-achievement.jpg"}
-                    alt={achievement.name}
-                    fill
-                    className={`object-cover p-1 ${
-                      !userAchievements?.includes(achievement.id)
-                        ? "grayscale opacity-60"
-                        : ""
-                    }`}
-                  />
-                  {userAchievements?.includes(achievement.id) && (
-                    <div className="absolute top-0.5 right-0.5">
-                      <CheckCircle className="w-3 h-3 text-primary fill-background" />
-                    </div>
-                  )}
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative w-full pt-[100%] rounded-lg border overflow-hidden hover:border-primary transition-colors bg-card"
+                >
+                  <div className="absolute inset-0 p-2">
+                    <Image
+                      src={achievement.image || "/placeholder-achievement.jpg"}
+                      alt={achievement.name}
+                      fill
+                      className="object-contain p-1.5"
+                    />
+                    {userAchievements?.includes(achievement.id) && (
+                      <div className="absolute top-1 right-1 bg-background rounded-full p-0.5">
+                        <CheckCircle className="w-5 h-5 text-emerald-500" />
+                      </div>
+                    )}
+                  </div>
                 </button>
               </DialogTrigger>
               <DialogContent>
@@ -227,64 +225,61 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-2 mt-4">
-        {isUnlocked && !isClaimed && (
+        {hasUnlockedAddon ? (
+          // Show Files Download button when add-on is owned
           <Button
             className="w-full"
-            size="sm"
-            onClick={handleCraft}
-            disabled={claimingReward || !ownsMainGame}
-            title={
-              !ownsMainGame && mainGame
-                ? `You need to own ${mainGame.name} first`
-                : ""
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/account/my-games/${mainGame?.id}`);
+            }}
           >
-            {claimingReward ? (
-              <>
-                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                Crafting...
-              </>
-            ) : (
-              <>
-                <Hammer className="mr-2 h-3 w-3" />
-                Craft Add-on
-              </>
-            )}
+            <FileDown className="mr-2 h-4 w-4" />
+            Files Download
           </Button>
+        ) : (
+          // Show Craft button if unlocked but not yet crafted
+          isUnlocked && (
+            <Button
+              className="w-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCraft();
+              }}
+              disabled={claimingReward || !ownsMainGame}
+              title={
+                !ownsMainGame && mainGame
+                  ? `You need to own ${mainGame.name} first`
+                  : ""
+              }
+            >
+              {claimingReward ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Crafting...
+                </>
+              ) : (
+                <>
+                  <Hammer className="mr-2 h-4 w-4" />
+                  Craft Add-on
+                </>
+              )}
+            </Button>
+          )
         )}
 
-        <Button
-          className="w-full"
-          variant="outline"
-          size="sm"
-          onClick={navigateToAddonDetails}
-        >
-          <ExternalLink className="mr-2 h-3 w-3" />
-          View Add-on
-        </Button>
-
-        {/* Buy Main Game Button */}
-        {isUnlocked && !isClaimed && !ownsMainGame && mainGame && (
+        {/* View Add-on button only shows if not owned */}
+        {!hasUnlockedAddon && (
           <Button
             className="w-full"
             variant="secondary"
-            size="sm"
-            onClick={navigateToMainGame}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateToAddonDetails();
+            }}
           >
-            <ShoppingCart className="mr-2 h-3 w-3" />
-            Get Main Game
-          </Button>
-        )}
-
-        {isClaimed && (
-          <Button
-            className="w-full"
-            variant="secondary"
-            size="sm"
-            onClick={navigateToMainGame}
-          >
-            <ExternalLink className="mr-2 h-3 w-3" />
-            View in My Games
+            <ExternalLink className="mr-2 h-4 w-4" />
+            View Add-on
           </Button>
         )}
       </div>
@@ -354,7 +349,7 @@ const RewardsPage = observer(() => {
   const totalRewardsCount = addons.length;
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 mt-16 sm:mt-0">
       <div className="mb-8 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-3xl font-bold font-strike">Add-ons</h1>

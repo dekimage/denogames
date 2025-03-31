@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { EasterEggDialog } from "@/components/ui/easter-egg-dialog";
 
 const StarRating = ({ rating }) => {
   return (
@@ -81,6 +82,8 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
   const [comment, setComment] = useState(review ? review.comment : "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [showSatisfiedEgg, setShowSatisfiedEgg] = useState(false);
+  const [showStarTrigger, setShowStarTrigger] = useState(false);
 
   const product = review?.product || products.find((p) => p.id === productId);
   const isEditing = !!review;
@@ -154,6 +157,17 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
             {isEditing ? "Edit Your Review" : "Write a Review"}
           </DialogTitle>
         </DialogHeader>
+
+        {isEditing && rating === 5 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 hover:text-yellow-400 transition-colors"
+            onClick={() => setShowSatisfiedEgg(true)}
+          >
+            <Star className="h-5 w-5 animate-pulse text-yellow-400" />
+          </Button>
+        )}
 
         {product && (
           <div className="flex items-center mb-4">
@@ -231,6 +245,16 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
           </div>
         </DialogFooter>
       </DialogContent>
+
+      <EasterEggDialog
+        open={showSatisfiedEgg}
+        onOpenChange={setShowSatisfiedEgg}
+        title="Perfect Rating!"
+        code="SATISFIED"
+        message="Ahh I can see you are a happy player ^^ Here's a little something ;)"
+        image="/easterEggs/2.png"
+        imageAlt="Happy Player Reward"
+      />
     </Dialog>
   );
 };

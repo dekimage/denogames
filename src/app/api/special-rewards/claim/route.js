@@ -43,6 +43,16 @@ export async function POST(request) {
     const userData = userDoc.data();
     const productData = productDoc.data();
 
+    // Add debug logging
+    console.log("Debug - Claiming reward:", {
+      rewardId,
+      userAchievements: userData.achievements,
+      requiredAchievements: productData.requiredAchievements,
+      hasAchievements: userData.achievements?.map((ach) =>
+        productData.requiredAchievements.includes(ach)
+      ),
+    });
+
     // Check if the product is actually an add-on type
     if (productData.type !== "add-on") {
       return NextResponse.json(
@@ -90,12 +100,28 @@ export async function POST(request) {
     }
 
     const hasAllAchievements = productData.requiredAchievements.every(
-      (achievementKey) => userData.achievements?.includes(achievementKey)
+      (achievementKey) => {
+        const has = userData.achievements?.includes(achievementKey);
+        // Add debug logging for each check
+        console.log("Checking achievement:", {
+          required: achievementKey,
+          userHas: userData.achievements,
+          hasThis: has,
+        });
+        return has;
+      }
     );
 
     if (!hasAllAchievements) {
+      // Add more detailed error message
       return NextResponse.json(
-        { error: "Missing required achievements" },
+        {
+          error: "Missing required achievements",
+          debug: {
+            required: productData.requiredAchievements,
+            userHas: userData.achievements,
+          },
+        },
         { status: 400 }
       );
     }

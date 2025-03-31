@@ -13,10 +13,18 @@ import footerImg from "@/assets/footer-bg.png";
 import { useTrackClick } from "@/hooks/useTrackClick";
 import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
 import Link from "next/link";
+import { EasterEggDialog } from "@/components/ui/easter-egg-dialog";
+import { useState } from "react";
 
-const FooterSection = ({ icon: Icon, title, description }) => (
-  <div className="flex flex-col items-center p-4 font-strike max-w-[300px]">
-    <Icon className="w-12 h-12 mb-8" />
+const FooterSection = ({ icon: Icon, title, description, style, onClick }) => (
+  <div
+    className="flex flex-col items-center p-4 font-strike max-w-[300px]"
+    style={style}
+    onClick={onClick}
+  >
+    <Icon
+      className={`w-12 h-12 mb-8 ${title === "unique downloads" ? "cursor-pointer" : ""}`}
+    />
     <div className="text-xl uppercase mb-1">{title}</div>
     <p className="text-sm text-grayy text-center">{description}</p>
   </div>
@@ -52,6 +60,8 @@ const FooterColumn = ({ title, links }) => {
 
 const Footer = () => {
   const trackClick = useTrackClick();
+  const [sparkleClicks, setSparkleClicks] = useState(0);
+  const [showSparkleEgg, setShowSparkleEgg] = useState(false);
 
   const socialLinks = [
     {
@@ -114,6 +124,14 @@ const Footer = () => {
             icon={Sparkles}
             title="unique downloads"
             description="Each game comes with a unique system for generating unique PDF files."
+            onClick={() => {
+              const newCount = sparkleClicks + 1;
+              setSparkleClicks(newCount);
+              if (newCount >= 7) {
+                setShowSparkleEgg(true);
+                setSparkleClicks(0);
+              }
+            }}
           />
           <FooterSection
             icon={ShieldCheck}
@@ -179,7 +197,7 @@ const Footer = () => {
                 },
                 {
                   label: "Patreon",
-                  link: "https://patreon.com/yourpage",
+                  link: "https://www.patreon.com/Deno_Games",
                   trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_PATREON,
                   external: true,
                 },
@@ -216,6 +234,16 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      <EasterEggDialog
+        open={showSparkleEgg}
+        onOpenChange={setShowSparkleEgg}
+        title="✨ Sparkly Secret! ✨"
+        code="DOODLER"
+        message="What is this??? Maybe if you make an account and visit the cauldron in my collection you'll find out ;)"
+        image="/easterEggs/5.png"
+        imageAlt="Sparkle Secret"
+      />
     </footer>
   );
 };
