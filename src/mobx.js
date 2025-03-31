@@ -112,6 +112,10 @@ class Store {
   userReviewsLoading = false;
   userReviewsFetched = false;
 
+  // Add new loading states
+  reviewSubmitting = false;
+  reviewUpdating = false;
+
   // Add to the Store class constructor
   constructor() {
     makeAutoObservable(this);
@@ -474,6 +478,10 @@ class Store {
 
   async submitReview(productId, rating, comment) {
     try {
+      runInAction(() => {
+        this.reviewSubmitting = true;
+      });
+
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("No auth token available");
 
@@ -493,8 +501,29 @@ class Store {
 
       const { reviewId } = await response.json();
 
-      // Update the product rating in the store
+      // Update both reviewsByProduct and userReviews
       runInAction(() => {
+        const newReview = {
+          id: reviewId,
+          productId,
+          userId: this.user.uid,
+          username: this.user.username,
+          rating,
+          comment,
+          createdAt: new Date().toISOString(),
+          product: this.products.find((p) => p.id === productId),
+        };
+
+        // Update userReviews
+        this.userReviews.unshift(newReview);
+
+        // Update reviewsByProduct
+        if (!this.reviewsByProduct[productId]) {
+          this.reviewsByProduct[productId] = [];
+        }
+        this.reviewsByProduct[productId].unshift(newReview);
+
+        // Update product rating
         const productIndex = this.products.findIndex((p) => p.id === productId);
         if (productIndex >= 0) {
           const product = this.products[productIndex];
@@ -506,25 +535,8 @@ class Store {
           this.products[productIndex] = {
             ...product,
             averageRating: parseFloat(newRating.toFixed(1)),
-            totalReviews: totalReviews,
+            totalReviews,
           };
-
-          // Update the reviewsByProduct state
-          if (!this.reviewsByProduct[productId]) {
-            this.reviewsByProduct[productId] = [];
-          }
-
-          const newReview = {
-            id: reviewId,
-            productId,
-            userId: this.user.uid,
-            username: this.user.username,
-            rating,
-            comment,
-            createdAt: new Date().toISOString(),
-          };
-
-          this.reviewsByProduct[productId].unshift(newReview);
         }
       });
 
@@ -532,11 +544,19 @@ class Store {
     } catch (error) {
       console.error("Error submitting review:", error);
       throw error;
+    } finally {
+      runInAction(() => {
+        this.reviewSubmitting = false;
+      });
     }
   }
 
   async updateReview(reviewId, productId, newRating, newComment) {
     try {
+      runInAction(() => {
+        this.reviewUpdating = true;
+      });
+
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("No auth token available");
 
@@ -561,9 +581,21 @@ class Store {
 
       const { success, newAverageRating } = await response.json();
 
-      // Update both reviewsByProduct and userReviews in MobX state
       runInAction(() => {
-        // Update in reviewsByProduct
+        // Update userReviews
+        const userReviewIndex = this.userReviews.findIndex(
+          (r) => r.id === reviewId
+        );
+        if (userReviewIndex !== -1) {
+          this.userReviews[userReviewIndex] = {
+            ...this.userReviews[userReviewIndex],
+            rating: newRating,
+            comment: newComment,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+
+        // Update reviewsByProduct
         if (this.reviewsByProduct[productId]) {
           const reviewIndex = this.reviewsByProduct[productId].findIndex(
             (r) => r.id === reviewId
@@ -578,26 +610,17 @@ class Store {
           }
         }
 
-        // Update in userReviews
-        const userReviewIndex = this.userReviews.findIndex(
-          (r) => r.id === reviewId
-        );
-        if (userReviewIndex !== -1) {
-          this.userReviews[userReviewIndex] = {
-            ...this.userReviews[userReviewIndex],
-            rating: newRating,
-            comment: newComment,
-            updatedAt: new Date().toISOString(),
-          };
-        }
-
-        // Update product's average rating
-        const productIndex = this.products.findIndex((p) => p.id === productId);
-        if (productIndex !== -1 && newAverageRating !== undefined) {
-          this.products[productIndex] = {
-            ...this.products[productIndex],
-            averageRating: newAverageRating,
-          };
+        // Update product rating
+        if (newAverageRating !== undefined) {
+          const productIndex = this.products.findIndex(
+            (p) => p.id === productId
+          );
+          if (productIndex !== -1) {
+            this.products[productIndex] = {
+              ...this.products[productIndex],
+              averageRating: newAverageRating,
+            };
+          }
         }
       });
 
@@ -605,6 +628,10 @@ class Store {
     } catch (error) {
       console.error("Error updating review:", error);
       throw error;
+    } finally {
+      runInAction(() => {
+        this.reviewUpdating = false;
+      });
     }
   }
 

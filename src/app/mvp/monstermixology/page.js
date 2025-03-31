@@ -81,7 +81,7 @@ const getTemplateImg = (uses) => {
   }
 };
 
-export const MONSTER_COUNT = 36; // UPDATE WHEN PUT MONSTER
+export const MONSTER_COUNT = 38; // UPDATE WHEN PUT MONSTER
 
 // Use the same image import logic
 const heroImages = Object.fromEntries(
@@ -195,7 +195,9 @@ export const BuildingCard = ({ card, paperSize = "A4", fromApp }) => {
       <div
         className={`font-default normal-case text-regular absolute ${
           fromApp ? "bottom-[6%]" : "bottom-[8%]"
-        } left-[44%] -translate-x-1/2 text-center text-[10px] h-[55px] flex justify-center items-center pt-1 leading-[1.1]`}
+        } left-[44%] -translate-x-1/2 text-center ${
+          card.effect.length > 116 ? "text-[8px]" : "text-[10px]"
+        } h-[55px] flex justify-center items-center pt-1 leading-[1.1]`}
         style={{ width: paperSize === "A4" ? "145px" : "135px" }}
       >
         {card.effect}

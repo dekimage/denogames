@@ -2,32 +2,32 @@ export const heroesCards = [
   {
     id: 1,
     name: "Bro Hawky",
-    vp: 3,
+    vp: 1,
     uses: 1,
     uniqueNumber: 3,
     trigger: "end",
     effect:
-      "Hawky is worth 4VP if you served Gawky or Lawky a cocktail. And 5VP if you served both.",
+      "Hawky is worth 3VP if you served Gawky or Lawky a cocktail. And 5VP if you served both.",
   },
   {
     id: 2,
     name: "Bro Gawky",
-    vp: 3,
+    vp: 1,
     uses: 1,
     uniqueNumber: 3,
     trigger: "end",
     effect:
-      "Gawky is worth 4VP if you served Hawky or Lawky a cocktail. And 5VP if you served both.",
+      "Gawky is worth 3VP if you served Hawky or Lawky a cocktail. And 5VP if you served both.",
   },
   {
     id: 3,
     name: "Bro Lawky",
-    vp: 3,
+    vp: 1,
     uses: 1,
     uniqueNumber: 3,
     trigger: "end",
     effect:
-      "Lawky is worth 4VP if you served Hawky or Gawky a cocktail. And 5VP if you served both.",
+      "Lawky is worth 3VP if you served Hawky or Gawky a cocktail. And 5VP if you served both.",
   },
   {
     id: 8,
@@ -41,7 +41,7 @@ export const heroesCards = [
   {
     id: 11,
     name: "Scytzer",
-    vp: 3,
+    vp: 2,
     uses: 3,
     trigger: "other",
     effect: "Gain 1 Action.",
@@ -57,7 +57,7 @@ export const heroesCards = [
   {
     id: 7,
     name: "Bouncer Windz",
-    vp: 4,
+    vp: 3,
     uses: 1,
     trigger: "self",
     effect: "Until your next turn, opponents cannot serve cocktails.",
@@ -66,7 +66,7 @@ export const heroesCards = [
     id: 12,
     name: "Spooky Jo",
     vp: 4,
-    uses: 2,
+    uses: 1,
     trigger: "self",
     effect:
       "Until your next turn, opponents have 1 less Action on their turn. (Can be 0)",
@@ -75,7 +75,7 @@ export const heroesCards = [
     id: 9,
     name: "Heiden-Ran",
     vp: 3,
-    uses: 3,
+    uses: 2,
     trigger: "other",
     effect:
       "When making a cocktail, treat 1 ingredient as any other ingredient.",
@@ -83,7 +83,7 @@ export const heroesCards = [
   {
     id: 10,
     name: "Protector Nako",
-    vp: 3,
+    vp: 2,
     uses: 2,
     trigger: "self",
     effect: "Avoid a disaster.",
@@ -105,12 +105,12 @@ export const heroesCards = [
     uses: 2,
     trigger: "other",
     effect:
-      "Gain any 2 ingredients if an opponent has served 5 or more drinks this game and you have served less than 4.",
+      "Gain any 2 ingredients if an opponent has served 5 or more drinks this game AND you have served less than 4 cocktails.",
   },
   {
     id: 14,
     name: "Assasin Stefan",
-    vp: 3,
+    vp: 2,
     uses: 3,
     trigger: "other",
     effect:
@@ -120,17 +120,19 @@ export const heroesCards = [
     id: 15,
     name: "Frosty Bosko",
     vp: 1,
-    uses: 3,
+    uses: 2,
     trigger: "self",
-    effect: "All actions require 2 actions to perform until your next turn.",
+    effect:
+      "Until the end of your turn, opponents can't use the collect ingredient action.",
   },
   {
     id: 16,
     name: "Dr. Muddle",
-    vp: 4,
+    vp: 3,
     uses: 2,
     trigger: "self",
-    effect: "If you performed 3 or more actions this turn, gain shield.",
+    effect:
+      "Activate only if you performed 3 or more actions this turn. Gain 1 shield.",
   },
   {
     id: 17,
@@ -145,7 +147,7 @@ export const heroesCards = [
     id: 18,
     name: "Aqua Bella",
     vp: 3,
-    uses: 3,
+    uses: 2,
     trigger: "self",
     effect:
       "When you serve a cocktail using ingredients you just gained from the board, you may gain any 1 ingredient.",
@@ -157,11 +159,11 @@ export const heroesCards = [
     uses: 2,
     trigger: "unique",
     effect:
-      "Activate this effect when an opponent gains the 4th action. You may pay 🌕🌕 to reduce their actions to 2.",
+      "Activate this effect when an opponent gains the 4th action. You may pay 🌕 to reduce their actions to 2.",
   },
   {
     id: 20,
-    name: "Royal Mistress",
+    name: "Quana Pair Draco",
     vp: 2,
     uses: 1,
     trigger: "self",
@@ -173,9 +175,9 @@ export const heroesCards = [
     name: "VIP Peky",
     vp: 2,
     uses: 2,
-    trigger: "self",
+    trigger: "unique",
     effect:
-      "Spend 3 actions to serve a cocktail without paying any ingredients.",
+      "Gain one of the following: 1. 🌕🌕; 2. Any 1 ingredient of your choice; 3. 1 shield.",
   },
   {
     id: 22,
@@ -183,7 +185,7 @@ export const heroesCards = [
     vp: 1,
     uses: 1,
     trigger: "end",
-    effect: "King Mral is worth 6VP if you triggered the end game.",
+    effect: "King Mral is worth 5VP if you triggered the end game.",
   },
   {
     id: 23,
@@ -192,14 +194,14 @@ export const heroesCards = [
     uses: 2,
     trigger: "self",
     effect:
-      "Steal 1 ingredient from all players that have served more cocktails than you. Pay 🌕 to each player you stole from. ",
+      "Choose a player that has served more cokctails than you. Steal 1 shield from them. (they spend it, you gain it)",
   },
 
   {
     id: 24,
     name: "Hugger Smiki",
-    vp: 4,
-    uses: 2,
+    vp: 3,
+    uses: 3,
     trigger: "other",
     effect:
       "Gain any 1 ingredient. All other players also gain that ingredient.",
@@ -215,15 +217,15 @@ export const heroesCards = [
   {
     id: 26,
     name: "Witch Doctor",
-    vp: 3,
+    vp: 2,
     uses: 3,
     trigger: "self",
-    effect: "Transform 🌕🌕 into 1 shield and 1 ingredient of your choice.",
+    effect: "Transform 🌕🌕🌕 into 1 shield and 1 ingredient of your choice.",
   },
   {
     id: 27,
     name: "Inzektor",
-    vp: 4,
+    vp: 3,
     uses: 2,
     trigger: "self",
     effect:
@@ -236,7 +238,8 @@ export const heroesCards = [
     vp: 2,
     uses: 3,
     trigger: "unique",
-    effect: "When you avoid a disaster, gain any 2 same ingredients.",
+    effect:
+      "When you avoid a disaster, gain any 2 ingredients of the same type.",
   },
   {
     id: 29,
@@ -259,7 +262,7 @@ export const heroesCards = [
     id: 31,
     name: "Kali Karma",
     vp: 3,
-    uses: 3,
+    uses: 2,
     trigger: "self",
     effect:
       "Until the end of your next turn, whenever an opponent serves a cocktail they must give you 2 ingredients of their choice. If they can't, they lose all of their 🌕",
@@ -280,35 +283,32 @@ export const heroesCards = [
     uses: 2,
     trigger: "self",
     effect:
-      "If you served Ashley & Zak at least 2 cocktails, gain any 1 ingredient and also all opponents lose 1 ingredient.",
+      "If you served Ashley & Zak at least 2 cocktails, gain any 1 ingredient and also all opponents lose 1 ingredient (of their choice).",
   },
   {
     id: 34,
-    name: "steampunk Otter",
-    vp: 4,
-    uses: 2,
+    name: "Steampunk Otter",
+    vp: 3,
+    uses: 3,
     trigger: "self",
-    effect:
-      "Effect Box: If you served 2 cocktails this turn, you may use this ability to gain 4 ingredients of your choice.",
+    effect: "Gain 1 ingredient of a type you already possess.",
   },
   {
     id: 35,
     name: "Tony Pirato",
-    vp: 3,
-    uses: 1,
+    vp: 2,
+    uses: 2,
     trigger: "self",
-    effect:
-      "Effect Box: If you served 2 cocktails this turn, you may use this ability to gain 4 ingredients of your choice.",
+    effect: "Steal 🌕🌕 from another player.",
   },
   {
     id: 5,
     name: "El Padre",
     vp: 3,
     uses: 1,
-    // effect: "Gain +1/+2 VP if you serve him 2/3 cocktails.",
     trigger: "end",
     effect:
-      "El Padre is worth 5VP if you serve him 2 cocktails or 6VP at 3 cocktails.",
+      "El Padre is worth +3 VP if El Madre has been served at least 2 cocktails, regardless of who owns her.",
   },
   {
     id: 36,
@@ -317,6 +317,24 @@ export const heroesCards = [
     uses: 1,
     trigger: "end",
     effect:
-      "El Madre is worth if you serve el padro vice versa (WORK IN PROGRESS)",
+      "El Madre is worth +3 VP if El Padre has been served at least 2 cocktails, regardless of who owns him.",
+  },
+  {
+    id: 37,
+    name: "Big Feet Monster",
+    vp: 9,
+    uses: 1,
+    trigger: "end",
+    effect:
+      "Big Feet Monster is worth -2 VP for each of the following: 1. You have served 8 cocktails; 2. You served 2 or more cocktails to the same monster; 3. You used an ability of 3 or more monsters.",
+  },
+  {
+    id: 38,
+    name: "Mind Bender",
+    vp: 2,
+    uses: 2,
+    trigger: "self",
+    effect:
+      "Choose an opponent's monster that has been served at least 1 drink and has an ability that you can activate on your turn. Copy and use that ability. (Scratch only your circle)",
   },
 ];

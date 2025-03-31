@@ -69,7 +69,13 @@ const StarRatingInput = ({ rating, setRating }) => {
 };
 
 const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
-  const { products, submitReview, updateReview } = MobxStore;
+  const {
+    products,
+    submitReview,
+    updateReview,
+    reviewSubmitting,
+    reviewUpdating,
+  } = MobxStore;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rating, setRating] = useState(review ? review.rating : 0);
   const [comment, setComment] = useState(review ? review.comment : "");
@@ -89,9 +95,9 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
+    setIsSubmitting(true);
 
+    try {
       if (isEditing) {
         await updateReview(review.id, review.productId, rating, comment);
         toast({
@@ -109,14 +115,19 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
 
       setDialogOpen(false);
       if (onSuccess) onSuccess();
+
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setRating(0);
+        setComment("");
+      }, 300);
     } catch (error) {
+      setIsSubmitting(false);
       toast({
         title: "Error",
         description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -191,7 +202,7 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
           <p className="text-xs text-muted-foreground">
             {isEditing
               ? "Updating your review helps other players make better decisions."
-              : "Your review has been submitted successfully!"}
+              : "Your review helps other players make better decisions."}
           </p>
           <div className="flex gap-2">
             <Button
@@ -201,8 +212,21 @@ const ReviewDialog = ({ review = null, productId = null, onSuccess }) => {
             >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? "Processing..." : isEditing ? "Update" : "Submit"}
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="min-w-[100px]"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <LoadingSpinner className="h-4 w-4" />
+                  <span>{isEditing ? "Updating..." : "Submitting..."}</span>
+                </div>
+              ) : isEditing ? (
+                "Update"
+              ) : (
+                "Submit"
+              )}
             </Button>
           </div>
         </DialogFooter>
@@ -373,14 +397,6 @@ const ReviewsPage = observer(() => {
           <p className="text-sm mt-2 mb-6 text-muted-foreground">
             Share your thoughts about the games you&apos;ve played!
           </p>
-
-          {productsForReview.length > 0 && (
-            <div className="flex justify-center">
-              <Link href="#games-to-review">
-                <Button>Write Your First Review</Button>
-              </Link>
-            </div>
-          )}
         </div>
       ) : (
         <div className="rounded-lg border dark:border-gray-800 overflow-hidden">
