@@ -1,5 +1,8 @@
 import { admin, firestore } from "@/firebaseAdmin"; // Use your Firebase Admin instance
 import { NextResponse } from "next/server"; // Import NextResponse for app router
+import { sendEmail } from "@/lib/helpers/emailHelper";
+import { welcomeEmailTemplate } from "@/lib/email/templates";
+import { EMAIL_CONFIG } from "@/lib/email/config";
 
 async function checkAndClaimBacker(email) {
   try {
@@ -52,6 +55,23 @@ export async function POST(req) {
 
       // Create the new user document in Firestore
       await userDocRef.set(newUserProfile);
+
+      // Send welcome email only for new users
+      try {
+        const emailResult = await sendEmail({
+          to: email,
+          from: EMAIL_CONFIG.from,
+          subject: "Welcome to Deno Games! 🎮",
+          html: welcomeEmailTemplate({
+            username: username || "Gamer",
+            isBackerUser: !!backer, // Pass this to customize message for backers
+          }),
+        });
+        console.log("Welcome email sent:", emailResult);
+      } catch (emailError) {
+        // Log but don't fail the signup if email fails
+        console.error("Error sending welcome email:", emailError);
+      }
     } else {
       // If the user already exists, fetch their data
       newUserProfile = userDoc.data();
