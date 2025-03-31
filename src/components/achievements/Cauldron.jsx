@@ -11,6 +11,7 @@ import { useTheme } from "next-themes";
 import { auth } from "@/firebase";
 import MobxStore from "@/mobx";
 import { runInAction } from "mobx";
+import { Toast, ToastTitle, ToastDescription } from "@/components/ui/toast";
 
 export function Cauldron() {
   const [code, setCode] = useState("");
@@ -94,8 +95,27 @@ export function Cauldron() {
         });
 
         toast({
-          title: "Success!",
-          description: "Achievement unlocked!",
+          title: "Achievement Unlocked!",
+          description: (
+            <div className="flex items-center gap-3">
+              {data.achievement.image && data.achievement.image !== "" && (
+                <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0 border">
+                  <Image
+                    src={data.achievement.image}
+                    alt={data.achievement.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="font-medium">{data.achievement.name}</span>
+                <span className="text-xs text-muted-foreground">
+                  {data.achievement.description}
+                </span>
+              </div>
+            </div>
+          ),
         });
       }
     } catch (error) {
