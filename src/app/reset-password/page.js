@@ -104,8 +104,8 @@ const PasswordResetPage = () => {
               {isSubmitted ? (
                 <div className="bg-primary/10 rounded-md p-4 text-center">
                   <p className="text-sm">
-                    We've sent a password reset link to your email address. The
-                    link will expire in 1 hour for security reasons.
+                    We&apos;ve sent a password reset link to your email address.
+                    The link will expire in 1 hour for security reasons.
                   </p>
                 </div>
               ) : (

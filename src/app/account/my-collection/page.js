@@ -398,47 +398,6 @@ export const AchievementCard = observer(
                   </div>
                 )}
               </div>
-
-              {/* Status Footer - With fixed border */}
-              <div className="flex items-center justify-between rounded-lg border bg-card p-3 border-border">
-                <div className="flex items-center gap-2">
-                  {isUnlocked ? (
-                    <div className="flex items-center gap-1.5 text-emerald-500">
-                      <CheckCircle className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {achievement.type === "achievement" &&
-                          "Achievement Unlocked"}
-                        {achievement.type === "collectible" &&
-                          "Collectible Unlocked"}
-                        {achievement.type === "location" &&
-                          "Location Discovered"}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Lock className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {achievement.type === "achievement" &&
-                          "Achievement Locked"}
-                        {achievement.type === "collectible" &&
-                          "Collectible Locked"}
-                        {achievement.type === "location" &&
-                          "Location Undiscovered"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "capitalize text-xs",
-                    getTypeConfig(achievement.type).styles
-                  )}
-                >
-                  <TypeIcon className="w-4 h-4" />
-                  {achievement.type}
-                </Badge>
-              </div>
             </div>
           </ScrollArea>
         </DialogContent>

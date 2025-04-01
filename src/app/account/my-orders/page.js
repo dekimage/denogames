@@ -294,8 +294,8 @@ const OrdersPage = observer(() => {
         </CardHeader>
         <CardContent className="pb-6 px-6 text-center">
           <p className="text-muted-foreground mb-6">
-            You haven't placed any orders yet. Start shopping to see your orders
-            here.
+            You haven&apos;t placed any orders yet. Start shopping to see your
+            orders here.
           </p>
           <Link href="/shop">
             <Button>Browse Games</Button>

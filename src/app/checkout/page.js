@@ -482,7 +482,7 @@ const QuickLoginForm = ({ onComplete, onSwitchToSignup }) => {
               className="flex-1"
               onClick={onSwitchToSignup}
             >
-              Don't Have an Account?
+              Don&apos;t Have an Account?
             </Button>
           </div>
         </form>

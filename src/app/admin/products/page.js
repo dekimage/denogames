@@ -1325,8 +1325,8 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
                     placeholder="e.g., Download PDF"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Optional: Custom label for the component's call-to-action
-                    button
+                    Optional: Custom label for the component&apos;s
+                    call-to-action button
                   </p>
                 </div>
 
@@ -1494,7 +1494,8 @@ const ComponentsEditor = ({ components, onChange, type, productSlug }) => {
             placeholder="e.g., Download PDF"
           />
           <p className="text-xs text-muted-foreground">
-            Optional: Custom label for the component's call-to-action button
+            Optional: Custom label for the component&apos;s call-to-action
+            button
           </p>
         </div>
 

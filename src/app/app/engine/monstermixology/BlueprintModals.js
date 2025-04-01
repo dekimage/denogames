@@ -5,6 +5,7 @@ import { heroesCards } from "@/app/mvp/monstermixology/data";
 import { BuildingCard } from "@/app/mvp/monstermixology/page";
 import { useSearchParams } from "next/navigation";
 import { SPACE_MINERS_ICONS } from "@/app/app/engine/monstermixology/page";
+import Image from "next/image";
 
 export const BlueprintPurchaseModals = ({
   blueprint,
@@ -89,10 +90,12 @@ export const BlueprintPurchaseModals = ({
             key={index}
             className="w-8 h-8 flex items-center justify-center bg-secondary/20 rounded-lg p-1"
           >
-            <img
+            <Image
               src={
                 SPACE_MINERS_ICONS.resourceTypes[resource.toLowerCase()]?.src
               }
+              width={32}
+              height={32}
               alt={resource}
               className="w-full h-full object-contain"
             />

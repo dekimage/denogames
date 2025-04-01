@@ -63,8 +63,8 @@ export default function FAQ() {
 
         <p className="text-muted-foreground mb-8">
           Find answers to common questions about our games, purchasing process,
-          and more. If you don't see your question answered here, please feel
-          free to contact us at{" "}
+          and more. If you don&apos;t see your question answered here, please
+          feel free to contact us at{" "}
           <Link
             href="mailto:dejan.official@gmail.com"
             className="text-primary hover:underline"
@@ -89,8 +89,9 @@ export default function FAQ() {
         <div className="mt-12 p-6 bg-muted rounded-lg">
           <h2 className="text-xl font-bold mb-4">Still have questions?</h2>
           <p className="text-muted-foreground mb-4">
-            We're here to help! If you couldn't find the answer you were looking
-            for, please don't hesitate to reach out to us directly.
+            We&apos;re here to help! If you couldn&apos;t find the answer you
+            were looking for, please don&apos;t hesitate to reach out to us
+            directly.
           </p>
           <Button asChild>
             <Link href="mailto:dejan.official@gmail.com">Contact Support</Link>
@@ -98,7 +99,7 @@ export default function FAQ() {
         </div>
 
         <footer className="mt-12 text-sm text-muted-foreground border-t pt-4">
-          <p>Last updated: January 1, 2024</p>
+          <p>Last updated: April 1, 2025</p>
         </footer>
       </div>
     </div>

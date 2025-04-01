@@ -982,7 +982,7 @@ const ProductDetailsPage = observer(({}) => {
                         <div className="flex items-center gap-2 text-green-700 mb-2">
                           <CheckCircle2 className="h-5 w-5" />
                           <span className="font-medium">
-                            You've crafted this add-on!
+                            You&apos;ve crafted this add-on!
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground mb-4">
@@ -1074,7 +1074,8 @@ const ProductDetailsPage = observer(({}) => {
                                 <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                                 <div>
                                   <p className="font-medium text-amber-800">
-                                    You've collected all required achievements!
+                                    You&apos;ve collected all required
+                                    achievements!
                                   </p>
                                   <p className="text-sm text-amber-700 mt-1">
                                     However, you need to own the base game{" "}

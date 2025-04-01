@@ -203,9 +203,7 @@ const ComponentSection = ({ title, components, icon }) => {
 };
 
 const ExpansionSection = ({ title, expansions, icon, type }) => {
-  if (!expansions || expansions.length === 0) return null;
-
-  // Use a ref to track initialization of expandedItems
+  // Move hooks outside of conditional return
   const initialized = useRef(false);
   const [expandedItems, setExpandedItems] = useState({});
 
@@ -236,6 +234,8 @@ const ExpansionSection = ({ title, expansions, icon, type }) => {
       initialized.current = true;
     }
   }, [sortedExpansions]);
+
+  if (!expansions || expansions.length === 0) return null;
 
   return (
     <div className="mb-10">

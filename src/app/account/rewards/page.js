@@ -168,7 +168,7 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
           <div className="flex gap-2 text-amber-700 dark:text-amber-400 text-xs items-start">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">You've Unlocked This Add-on!</p>
+              <p className="font-medium">You&apos;ve Unlocked This Add-on!</p>
               <p className="mt-0.5">
                 You have all the required achievements, but you need to own{" "}
                 {mainGame.name} before you can craft this add-on.

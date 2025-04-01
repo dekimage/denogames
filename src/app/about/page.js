@@ -59,9 +59,9 @@ export default function About() {
             accessible to everyone. Our mission is to create high-quality
             print-and-play board games that bring people together, spark
             imagination, and provide hours of entertainment without breaking the
-            bank. We're committed to designing games that are easy to learn,
-            challenging to master, and most importantly, fun to play again and
-            again.
+            bank. We&apos;re committed to designing games that are easy to
+            learn, challenging to master, and most importantly, fun to play
+            again and again.
           </p>
 
           <h2 className="text-2xl font-bold mb-4">What Makes Us Different</h2>
@@ -132,9 +132,9 @@ export default function About() {
         <div className="bg-primary/10 p-6 rounded-lg mb-8">
           <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
           <p className="text-muted-foreground mb-4">
-            Deno Games is more than just a game company - it's a community of
-            like-minded individuals who share a passion for tabletop gaming. We
-            invite you to join us on this creative journey!
+            Deno Games is more than just a game company - it&apos;s a community
+            of like-minded individuals who share a passion for tabletop gaming.
+            We invite you to join us on this creative journey!
           </p>
           <div className="flex flex-wrap gap-4">
             <Button asChild>
