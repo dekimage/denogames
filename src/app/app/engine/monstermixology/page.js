@@ -54,10 +54,10 @@ import { runInAction } from "mobx";
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
   cardTypes: {
-    resource: "#FF5CC", // soft yellow
+    resource: "#ffe9cd", // soft yellow (fixed hex code)
     blueprint: "#CCE5FF", // soft blue
     disaster: "#FFCCD4", // soft red
-    event: "#86efac", // Light green background for event cards
+    event: "#d9ed92", // Light green background for event cards
   },
   resourceTypes: {
     crystal: "#FED9A6", // Pale yellow-green / SEPA
@@ -223,6 +223,7 @@ const SpaceMinerCard = ({
   const getCardBackground = () => {
     if (item.type === "boom") return SPACE_MINERS_COLORS.cardTypes.disaster;
     if (item.type === "event") return SPACE_MINERS_COLORS.cardTypes.event;
+    if (item.card === "resource") return SPACE_MINERS_COLORS.cardTypes.resource;
     return SPACE_MINERS_COLORS.cardTypes[item.card];
   };
 
@@ -273,26 +274,28 @@ const SpaceMinerCard = ({
       </div> */}
 
       {/* Card Body */}
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center border-2 border-gray-300 border-b-0 rounded-t-xl">
         {item.type === "boom" && (
           <div className="flex gap-1">
-            <Image src={boomImg} alt={"boom img"} width={50} height={50} />
+            <Image src={boomImg} alt={"boom img"} width={100} height={100} />
           </div>
         )}
 
         {item.card === "resource" && (
           <div
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded flex items-center justify-center border border-black"
+            className="w-22 h-22 sm:w-24 sm:h-24 rounded flex items-center justify-center border-2 border-black"
             style={{
               backgroundColor:
+                SPACE_MINERS_COLORS.resourceTypes[item.type.toLowerCase()],
+              borderColor:
                 SPACE_MINERS_COLORS.resourceTypes[item.type.toLowerCase()],
             }}
           >
             <Image
               src={SPACE_MINERS_ICONS.resourceTypes[item.type.toLowerCase()]}
               alt={item.type}
-              width={32}
-              height={32}
+              width={64}
+              height={64}
             />
           </div>
         )}
@@ -300,15 +303,54 @@ const SpaceMinerCard = ({
         <div></div>
 
         {item.card === "blueprint" && (
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-[60px] h-[60px] sm:w-24 sm:h-24">
+          <div className="flex flex-col items-center">
+            <div className="w-[52px] h-[52px] sm:w-24 sm:h-24 mb-2">
               <Image
                 src={COCKTAIL_IMAGES[item.cocktailId]}
                 alt="cocktail"
-                width={96}
-                height={96}
-                className="w-[60px] h-[60px] sm:w-24 sm:h-24"
+                width={112}
+                height={112}
+                className="w-[52px] h-[52px] sm:w-24 sm:h-24"
               />
+            </div>
+
+            {/* Top 2 resources */}
+            <div className="flex gap-3">
+              {item.randomResources.slice(0, 2).map((type, index) => (
+                <div
+                  key={index}
+                  className="relative w-8 h-8 sm:w-11 sm:h-11 rounded flex items-center justify-center border-2"
+                  style={{
+                    backgroundColor: SPACE_MINERS_COLORS.resourceTypes[type],
+                    borderColor: SPACE_MINERS_COLORS.resourceTypes[type],
+                  }}
+                >
+                  <Image
+                    src={SPACE_MINERS_ICONS.resourceTypes[type]}
+                    alt={type}
+                    width={32}
+                    height={32}
+                  />
+                  {/* Add checkmark overlay if ingredient is selected */}
+                  {pushLuckStore.isIngredientSelected(type) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-green-500/30">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
             {/* Only show progress if we have ingredients */}
@@ -354,52 +396,50 @@ const SpaceMinerCard = ({
       </div>
 
       {/* Card Footer */}
-      <div className="h-10 sm:h-12 border-t border-black/10 flex items-center justify-center">
+      <div
+        className={`h-10 sm:h-12 ${item.card !== "blueprint" ? "border-t border-black/10" : ""} flex items-center justify-center border-2 border-gray-300 border-t-0 rounded-b-xl`}
+      >
         {item.card === "blueprint" && (
           <>
-            <div className="flex gap-1">
-              {item.randomResources.map((type, index) => (
-                <div
-                  key={index}
-                  className="relative w-6 h-6 sm:w-8 sm:h-8 rounded flex items-center justify-center border border-black"
-                  style={{
-                    backgroundColor: SPACE_MINERS_COLORS.resourceTypes[type],
-                  }}
-                >
-                  <Image
-                    src={SPACE_MINERS_ICONS.resourceTypes[type]}
-                    alt={type}
-                    width={24}
-                    height={24}
-                  />
-                  {/* Add checkmark overlay if ingredient is selected */}
-
-                  {pushLuckStore.isIngredientSelected(type) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-green-500/30">
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            {/* <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 flex flex-col gap-1">
-              {item.blueprintRewards.coins > 0 &&
-                renderBonus("coin", item.blueprintRewards.coins)}
-              {item.blueprintRewards.rerolls > 0 &&
-                renderBonus("reroll", item.blueprintRewards.rerolls)}
-            </div> */}
+            {/* Third resource in footer */}
+            {item.randomResources.length > 2 && (
+              <div
+                className="mb-0 sm:mb-2 relative w-8 h-8 sm:w-11 sm:h-11 rounded flex items-center justify-center "
+                style={{
+                  backgroundColor:
+                    SPACE_MINERS_COLORS.resourceTypes[item.randomResources[2]],
+                }}
+              >
+                <Image
+                  src={
+                    SPACE_MINERS_ICONS.resourceTypes[item.randomResources[2]]
+                  }
+                  alt={item.randomResources[2]}
+                  width={32}
+                  height={32}
+                />
+                {/* Add checkmark overlay if ingredient is selected */}
+                {pushLuckStore.isIngredientSelected(
+                  item.randomResources[2]
+                ) && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/30">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
 
