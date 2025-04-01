@@ -214,8 +214,8 @@ export const AchievementCard = observer(
               alt={achievement.name}
               fill
               className={cn(
-                "object-contain transition-all duration-300",
-                !isUnlocked && "grayscale opacity-50"
+                "object-contain transition-all duration-300"
+                // !isUnlocked && "grayscale opacity-50"
               )}
             />
           </div>
@@ -243,10 +243,6 @@ export const AchievementCard = observer(
                 {achievement.obtainedBy}
               </p>
             </div>
-
-            <Button variant="secondary" size="sm" className="mt-2">
-              View Details
-            </Button>
           </div>
         </div>
       </div>
@@ -455,7 +451,7 @@ const AchievementsPage = observer(() => {
   const { achievements, products, achievementsLoading, user } = MobxStore;
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all"); // "all", "achievement", "collectible", "location"
-  const [sortBy, setSortBy] = useState("status"); // "status", "name", "recent", "type"
+  const [sortBy, setSortBy] = useState("type"); // Changed from "status" to "type"
 
   const getRelatedRewards = (achievementKey) => {
     // Filter products to find add-ons that require this achievement

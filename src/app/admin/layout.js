@@ -52,7 +52,7 @@ export default function Layout({ children }) {
   }
 
   return (
-    <SidebarProvider className="w-full bg-gray-100">
+    <SidebarProvider className="w-full">
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader>
@@ -118,7 +118,7 @@ export default function Layout({ children }) {
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
-        <main className="w-full p-6 bg-gray-100">{children}</main>
+        <main className="w-full p-6 bg-background">{children}</main>
       </div>
     </SidebarProvider>
   );

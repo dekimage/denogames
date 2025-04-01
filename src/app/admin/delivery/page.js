@@ -280,8 +280,8 @@ export default function DeliveryPage() {
       const date = timestamp._seconds
         ? new Date(timestamp._seconds * 1000)
         : timestamp.seconds
-        ? new Date(timestamp.seconds * 1000)
-        : new Date(timestamp);
+          ? new Date(timestamp.seconds * 1000)
+          : new Date(timestamp);
 
       // Return if invalid date
       if (!(date instanceof Date) || isNaN(date)) return "-";
@@ -466,7 +466,7 @@ export default function DeliveryPage() {
       <div className="mt-8">
         <div className="flex items-center gap-2 mb-4">
           <h2 className="text-xl font-semibold">All Backers</h2>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             ({totalBackers} {totalBackers === 1 ? "result" : "results"})
           </span>
         </div>
@@ -560,8 +560,8 @@ export default function DeliveryPage() {
                       <span
                         className={`px-2 py-1 rounded-full text-sm ${
                           backer.isClaimed
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            ? "bg-success/20 text-success"
+                            : "bg-warning/20 text-warning"
                         }`}
                       >
                         {backer.isClaimed ? "Claimed" : "Unclaimed"}

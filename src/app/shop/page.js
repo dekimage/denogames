@@ -119,7 +119,10 @@ const FilterBadge = ({ label, onRemove, icon }) => (
   <Badge variant="secondary" className="flex items-center gap-1 px-2 py-1">
     {icon && <span className="mr-1">{icon}</span>}
     {label}
-    <X className="h-3 w-3 cursor-pointer ml-1" onClick={onRemove} />
+    <X
+      className="h-3 w-3 cursor-pointer ml-1 text-foreground/70 hover:text-foreground"
+      onClick={onRemove}
+    />
   </Badge>
 );
 
@@ -585,6 +588,20 @@ const ShopPage = observer(() => {
     setShowShopIcon(hasAddonFilter && isProductTypeSort);
   }, [filters.products, sortOption]);
 
+  // Get badge color based on achievement type - using theme-appropriate colors
+  const getTypeBadgeStyles = (type) => {
+    switch (type) {
+      case "game":
+        return "bg-primary/10 text-primary";
+      case "expansion":
+        return "bg-secondary/10 text-secondary";
+      case "add-on":
+        return "bg-accent/10 text-accent-foreground";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
+  };
+
   // Loading state
   if (loading || loadingProducts) {
     return (
@@ -611,7 +628,7 @@ const ShopPage = observer(() => {
         </div>
 
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+          <AlertCircle className="h-12 w-12 text-destructive mb-4" />
           <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
@@ -628,12 +645,12 @@ const ShopPage = observer(() => {
           <Home className="h-4 w-4 inline mr-1" /> Home
         </Link>
         <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground" />
-        <span className="font-medium">Shop</span>
+        <span className="font-medium text-foreground">Shop</span>
       </div>
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Shop</h1>
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Shop</h1>
         <p className="text-muted-foreground">
           Browse our collection of games, expansions, and bundles.
         </p>
@@ -642,9 +659,9 @@ const ShopPage = observer(() => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Desktop Filters Sidebar */}
         <div className="hidden lg:block w-64 flex-shrink-0">
-          <div className="sticky top-24 bg-card rounded-lg border p-6">
+          <div className="sticky top-24 bg-card rounded-lg border shadow-sm p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="font-semibold text-lg">Filters</h2>
+              <h2 className="font-semibold text-lg text-foreground">Filters</h2>
               {countActiveFilters() > 0 && (
                 <Button
                   variant="ghost"
@@ -846,7 +863,9 @@ const ShopPage = observer(() => {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm whitespace-nowrap">Sort by:</span>
+              <span className="text-sm whitespace-nowrap text-muted-foreground">
+                Sort by:
+              </span>
               <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by" />
@@ -891,7 +910,7 @@ const ShopPage = observer(() => {
                 transition={{ duration: 0.3 }}
                 className="flex flex-col items-center justify-center py-16 text-center"
               >
-                <div className="bg-muted/30 rounded-full p-6 mb-4">
+                <div className="bg-muted rounded-full p-6 mb-4">
                   <AlertCircle className="h-10 w-10 text-muted-foreground" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">
