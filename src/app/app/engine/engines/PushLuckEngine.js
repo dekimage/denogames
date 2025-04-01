@@ -41,6 +41,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   const previousActions = useRef(pushLuckStore.actions);
   const actionSound = useRef(null);
   const boomSound = useRef(null);
+  const eventSound = useRef(null);
   const [soundLoaded, setSoundLoaded] = useState(false);
   const [selectedBlueprint, setSelectedBlueprint] = useState(null);
   const actionGainedFromDraw = useRef(false);
@@ -66,6 +67,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     if (typeof window !== "undefined") {
       pushLuckStore.setConfig(config);
       actionSound.current = new Audio("/sounds/action-gained.mp3");
+      eventSound.current = new Audio("/sounds/event.mp3");
 
       try {
         boomSound.current = new Audio();
@@ -76,6 +78,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
         });
 
         boomSound.current.load();
+        eventSound.current.load();
       } catch (error) {
         console.error("Error initializing sound:", error);
       }
@@ -83,6 +86,11 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
       return () => {
         if (boomSound.current) {
           boomSound.current.removeEventListener("canplaythrough", () => {
+            setSoundLoaded(false);
+          });
+        }
+        if (eventSound.current) {
+          eventSound.current.removeEventListener("canplaythrough", () => {
             setSoundLoaded(false);
           });
         }
@@ -126,6 +134,25 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     return pushLuckStore.centralBoard
       .filter((card) => card.type === lastCard.type)
       .map((card) => card.id);
+  };
+
+  const playEventSound = () => {
+    if (eventSound.current && soundLoaded) {
+      try {
+        // Reset the sound to the beginning if it's already playing
+        eventSound.current.currentTime = 0;
+
+        // Play with error handling
+        const playPromise = eventSound.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Error playing sound:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error playing event sound:", error);
+      }
+    }
   };
 
   const playBoomSound = () => {
@@ -199,6 +226,54 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
               className="animate-pulse"
             >
               End Turn
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+
+  const renderEventModal = () => {
+    if (!pushLuckStore.eventCard) {
+      console.log("No event card to render");
+      return null;
+    }
+
+    console.log("Rendering event modal", pushLuckStore.eventCard);
+    playEventSound(); // Reusing the boom sound for now
+
+    return (
+      <Modal showClose={false}>
+        <div className="p-6 text-center animate-wobble">
+          <div className="text-5xl mb-6 animate-bounce">
+            {pushLuckStore.eventCard.emoji}
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-green-500">
+            Event: {pushLuckStore.eventCard.text}
+          </h2>
+
+          {/* Event Card Container */}
+          <div className="mb-6 flex justify-center animate-pulse">
+            <div className="transform scale-110">
+              <CardComponent
+                item={pushLuckStore.eventCard}
+                isFromModal={true}
+              />
+            </div>
+          </div>
+
+          <p className="mb-6 text-lg">{pushLuckStore.eventCard.description}</p>
+
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="default"
+              onClick={() => {
+                console.log("Resolve button clicked");
+                pushLuckStore.handleEventCard();
+              }}
+              className="animate-pulse"
+            >
+              Resolve
             </Button>
           </div>
         </div>
@@ -746,8 +821,8 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
                                 {addOnId === "mm-add-monsters-1"
                                   ? "Monster Add-on"
                                   : addOnId === "mm-add-monsters-2"
-                                  ? "Special Add-on"
-                                  : "Add-on"}
+                                    ? "Special Add-on"
+                                    : "Add-on"}
                               </span>
                             </div>
                             {hasAddOn ? (
@@ -952,6 +1027,8 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
 
           {/* Explosion Modal */}
           {pushLuckStore.isExploding && renderExplosionModal()}
+
+          {pushLuckStore.isEventTriggered && renderEventModal()}
 
           {selectedBlueprint && (
             <BlueprintPurchaseModals

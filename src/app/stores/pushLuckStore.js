@@ -17,6 +17,9 @@ class PushLuckStore {
   selectedIngredients = new Set();
   isRedCardsDisabled = false;
 
+  isEventTriggered = false;
+  eventCard = null;
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -43,24 +46,44 @@ class PushLuckStore {
     this.isExploding = false;
     this.canDraw = true;
     this.isSelectingMode = false;
+    this.isEventTriggered = false;
+    this.eventCard = null;
+
     this.shuffleDeck();
   }
-
   drawCard() {
-    if (!this.canDraw) return;
+    console.log("Drawing card...");
+    if (!this.canDraw) {
+      console.log("Can't draw card");
+      return;
+    }
 
     if (this.deck.length === 0) {
+      console.log("Reshuffling discard pile");
       this.reshuffleDiscardPile();
     }
 
     const card = this.deck.pop();
+    console.log("Card drawn:", card);
     this.centralBoard.push(card);
 
+    // Check for event card first
+    if (card.type === "event") {
+      console.log("EVENT CARD DETECTED:", card);
+      this.isEventTriggered = true;
+      this.eventCard = card;
+      console.log("isEventTriggered set to:", this.isEventTriggered);
+      return;
+    }
+
+    // Existing boom card logic
     if (card.type === "boom" && this.centralBoard.length > 1) {
+      console.log("BOOM CARD DETECTED");
       this.isExploding = true;
       return;
     }
 
+    // Existing action logic
     const typeCount = this.centralBoard.filter(
       (c) => c.type === card.type
     ).length;
@@ -69,7 +92,6 @@ class PushLuckStore {
       this.actions++;
     }
   }
-
   toggleCardSelection(cardId) {
     if (!this.canSelectCard(cardId)) return;
 
@@ -79,6 +101,29 @@ class PushLuckStore {
       this.handleMainPlayerSelection(cardId);
     }
   }
+
+  handleEventCard = () => {
+    console.log("Handling event card...");
+    this.isEventTriggered = false;
+
+    // Find and remove the event card from centralBoard and add to discardPile
+    if (this.eventCard) {
+      console.log("Event card exists:", this.eventCard);
+      const eventIndex = this.centralBoard.findIndex(
+        (card) => card.id === this.eventCard.id
+      );
+      console.log("Event card index in centralBoard:", eventIndex);
+
+      if (eventIndex !== -1) {
+        const [removedCard] = this.centralBoard.splice(eventIndex, 1);
+        console.log("Removed card:", removedCard);
+        this.discardPile.push(removedCard);
+        console.log("Card added to discard pile");
+      }
+      this.eventCard = null;
+      console.log("Event card reference cleared");
+    }
+  };
 
   canSelectCard(cardId) {
     if (this.selectedCards.has(cardId)) {

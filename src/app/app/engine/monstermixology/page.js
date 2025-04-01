@@ -51,6 +51,16 @@ import MobxStore from "@/mobx";
 import { auth } from "@/firebase";
 import { runInAction } from "mobx";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
   cardTypes: {
@@ -133,54 +143,58 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🎲",
-    text: "Extra Action",
-    description: "Gain one additional action this turn",
+    emoji: "🌪️",
+    text: "Tornado hits the Bar",
+    description:
+      "Anyone who has 6 or more unused ingredients must lose 2 of them.",
   },
   {
     id: "core-event-2",
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🛡️",
-    text: "Basic Shield",
-    description: "Prevent the next disaster card",
+    emoji: "🌪️",
+    text: "Tornado hits the Bar",
+    description:
+      "Anyone who has 6 or more unused ingredients must lose 2 of them.",
   },
   {
     id: "core-event-3",
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🔄",
-    text: "Resource Swap",
-    description: "Exchange one resource for another",
+    emoji: "📢",
+    text: "Help the Weak",
+    description:
+      "The player(s) with the least served cocktails may spend any 3 ingredients to serve a cocktail to any monster.",
   },
   {
     id: "core-event-4",
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "⚡️",
-    text: "Quick Mix",
-    description: "Draw two cards immediately",
+    emoji: "📢",
+    text: "Help the Weak",
+    description:
+      "The player(s) with the least served cocktails may spend any 3 ingredients to serve a cocktail to any monster.",
   },
   {
     id: "core-event-5",
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🎯",
-    text: "Precise Brewing",
-    description: "Your next resource card counts double",
+    emoji: "🎁",
+    text: "Happy Birthday!",
+    description: "Gain any 1 ingredient of your choice.",
   },
   {
     id: "core-event-6",
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "✨",
-    text: "Magic Touch",
-    description: "Convert one basic resource to rare",
+    emoji: "🎁",
+    text: "Happy Birthday!",
+    description: "Gain any 1 ingredient of your choice.",
   },
 ];
 
@@ -219,6 +233,7 @@ const SpaceMinerCard = ({
   isSelected,
   selectionColor,
   recipeProgress,
+  isFromModal,
 }) => {
   const getCardBackground = () => {
     if (item.type === "boom") return SPACE_MINERS_COLORS.cardTypes.disaster;
@@ -390,7 +405,11 @@ const SpaceMinerCard = ({
           <div className="flex flex-col items-center gap-2 p-2 text-center">
             <div className="text-4xl sm:text-5xl mb-2">{item.emoji}</div>
             <div className="text-sm font-medium">{item.text}</div>
-            <div className="text-xs text-gray-600 px-2">{item.description}</div>
+            {!isFromModal && (
+              <div className="text-xs text-gray-600 px-2">
+                {item.description}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -626,7 +645,7 @@ const Monstermixology = observer(() => {
 
   // Modify SpaceMinerCard to handle monster cards
   const SpaceMinerCardWithMonsters = (props) => {
-    const { item } = props;
+    const { item, isFromModal } = props;
 
     if (item.card === "monster") {
       return (
@@ -657,7 +676,7 @@ const Monstermixology = observer(() => {
       );
     }
 
-    return <SpaceMinerCard {...props} />;
+    return <SpaceMinerCard {...props} isFromModal={isFromModal} />;
   };
 
   const spaceMinerConfig = {
