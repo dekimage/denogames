@@ -188,7 +188,7 @@ const ComponentSection = ({ title, components, icon }) => {
     <div className="mb-8">
       <div className="flex items-center gap-2 mb-4">
         {icon}
-        <h2 className="text-2xl font-semibold">{title}</h2>
+        <h2 className="text-2xl font-strike">{title}</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {sortedComponents.map((component, index) => (
@@ -241,7 +241,7 @@ const ExpansionSection = ({ title, expansions, icon, type }) => {
     <div className="mb-10">
       <div className="flex items-center gap-2 mb-6">
         {icon}
-        <h2 className="text-2xl font-semibold">{title}</h2>
+        <h2 className="text-2xl font-strike">{title}</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -428,7 +428,7 @@ const GameDetailsPage = observer(({ params }) => {
         <Button
           variant="ghost"
           onClick={() => router.push("/account/my-games")}
-          className="hover:bg-transparent"
+          className="hover:bg-transparent font-strike"
         >
           <ChevronLeft className="w-5 h-5 mr-1" />
           Back to My Games
@@ -454,25 +454,27 @@ const GameDetailsPage = observer(({ params }) => {
           />
         </div>
         <div className="flex-1">
-          <h1 className="text-4xl font-bold mb-2">{game.name}</h1>
+          <h1 className="text-4xl font-strike mb-2">{game.name}</h1>
           <p className="text-lg text-muted-foreground mb-6">
             {game.description}
           </p>
           <div className="flex flex-wrap gap-4 items-center">
             <Badge
               variant="success"
-              className="flex items-center gap-2 px-4 py-2 text-base"
+              className="flex items-center gap-2 px-4 py-2 text-base bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20"
             >
               <CheckCircle className="w-5 h-5" />
               Owned
             </Badge>
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-2 px-4 py-2 text-base"
-            >
-              <Package className="w-5 h-5" />
-              {ownedExpansions.length}/{allExpansions.length} Expansions
-            </Badge>
+            {allExpansions.length > 0 && (
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-2 px-4 py-2 text-base"
+              >
+                <Package className="w-5 h-5" />
+                {ownedExpansions.length}/{allExpansions.length} Expansions
+              </Badge>
+            )}
             <Badge
               variant="outline"
               className="flex items-center gap-2 px-4 py-2 text-base bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 border-purple-500/20"
@@ -511,7 +513,7 @@ const GameDetailsPage = observer(({ params }) => {
       {gameData?.variableFiles &&
         Object.values(gameData.variableFiles).some((file) => file !== null) && (
           <>
-            <h2 className="text-2xl font-semibold mb-4">Variable Files</h2>
+            <h2 className="text-2xl font-strike mb-4">Variable Files</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {gameData.variableFiles.luckyGenerator && (
                 <ComponentCard

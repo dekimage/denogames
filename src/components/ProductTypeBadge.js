@@ -8,7 +8,7 @@ export const ProductTypeBadge = ({ type, className }) => {
         "uppercase w-fit text-black font-bold",
         type === "game" && "bg-emerald-400 hover:bg-emerald-600",
         type === "expansion" && "bg-blue-300 hover:bg-blue-600",
-        type === "add-on" && "bg-orange-400 hover:bg-orange-600",
+        type === "add-on" && "bg-purple-400 hover:bg-purple-600",
         className
       )}
     >

@@ -27,11 +27,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+
+// Tell Next.js this page is dynamic and should not be statically generated
+export const dynamic = "force-dynamic";
+
+// Loading component for Suspense
+function Loading() {
+  return (
+    <div className="container flex justify-center items-center my-12 md:my-16 px-4">
+      <div className="flex flex-col items-center justify-center">
+        <CgSpinner className="h-10 w-10 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 const formSchema = z.object({
   password: z.string().min(6, {
@@ -182,7 +197,7 @@ export const LoginForm = observer(() => {
   );
 });
 
-const LoginCard = observer(() => {
+const LoginCardContent = observer(() => {
   const router = useRouter();
   const { toast } = useToast();
   const { signInWithGoogle } = MobxStore;
@@ -286,7 +301,7 @@ const LoginCard = observer(() => {
   );
 });
 
-const LoginPage = observer(() => {
+const LoginPageContent = observer(() => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect");
@@ -300,9 +315,18 @@ const LoginPage = observer(() => {
 
   return (
     <div className="container flex justify-center items-center my-12 md:my-16 px-4">
-      <LoginCard />
+      <LoginCardContent />
     </div>
   );
 });
+
+// Wrap everything in Suspense
+const LoginPage = () => {
+  return (
+    <Suspense fallback={<Loading />}>
+      <LoginPageContent />
+    </Suspense>
+  );
+};
 
 export default LoginPage;

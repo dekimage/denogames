@@ -27,23 +27,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-const formSchema = z.object({
-  username: z.string().min(4, {
-    message: "Username must be at least 4 characters.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email.",
-  }),
-});
+// Tell Next.js this page is dynamic and should not be statically generated
+export const dynamic = "force-dynamic";
+
+// Loading component for Suspense
+function Loading() {
+  return (
+    <div className="container flex justify-center items-center my-12 md:my-16 px-4">
+      <div className="flex flex-col items-center justify-center">
+        <CgSpinner className="h-10 w-10 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+const formSchema = z
+  .object({
+    displayName: z.string().min(2, {
+      message: "Display name must be at least 2 characters.",
+    }),
+    password: z.string().min(6, {
+      message: "Password must be at least 6 characters.",
+    }),
+    confirmPassword: z.string().min(6, {
+      message: "Password must be at least 6 characters.",
+    }),
+    email: z.string().email({
+      message: "Please enter a valid email.",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 
 export const SignupForm = observer(() => {
   const { toast } = useToast();
@@ -194,10 +217,10 @@ export const SignupForm = observer(() => {
   );
 });
 
-export const SignupCard = observer(() => {
-  const router = useRouter();
+const SignupCardContent = observer(() => {
   const { toast } = useToast();
-  const { isUserAnonymous, signInWithGoogle } = MobxStore;
+  const router = useRouter();
+  const { signInWithGoogle } = MobxStore;
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState(null);
   const searchParams = useSearchParams();
@@ -234,14 +257,10 @@ export const SignupCard = observer(() => {
         <div className="box-broken py-8 px-2 sm:px-6 font-strike">
           <CardHeader className="space-y-2">
             <div className="text-2xl uppercase font-bold text-center">
-              {isUserAnonymous
-                ? "Upgrade to Permanent Account"
-                : "Create an Account"}
+              Join the Adventure
             </div>
             <CardDescription className="text-center">
-              {isUserAnonymous
-                ? "Don't lose your progress. Sign up to save your achievements."
-                : "Join Pathway Games to download games and track your achievements."}
+              Create an account to start collecting achievements
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6 py-4">
@@ -279,38 +298,18 @@ export const SignupCard = observer(() => {
 
             <SignupForm />
           </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-2">
-            <div className="text-xs text-muted-foreground text-center">
-              By continuing, you agree to Pathway&apos;s{" "}
-              <Link
-                href="/terms-of-service"
-                className="underline hover:text-primary"
-              >
-                Terms & Conditions
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/privacy-policy"
-                className="underline hover:text-primary"
-              >
-                Privacy Policy
-              </Link>
+          <CardFooter className="flex flex-col items-center gap-4 pt-2">
+            <div className="text-sm text-muted-foreground">
+              Already have an account?
             </div>
-            <div className="flex flex-col gap-2 w-full">
-              <div className="text-sm text-muted-foreground text-center">
-                Already have an account?
-              </div>
-              <Link
-                href={`/login${
-                  redirectPath ? `?redirect=${redirectPath}` : ""
-                }`}
-                className="w-full"
-              >
-                <Button variant="outline" className="w-full">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
+            <Link
+              href={`/login${redirectPath ? `?redirect=${redirectPath}` : ""}`}
+              className="w-full"
+            >
+              <Button variant="outline" className="w-full">
+                Login
+              </Button>
+            </Link>
           </CardFooter>
         </div>
       </div>
@@ -318,7 +317,7 @@ export const SignupCard = observer(() => {
   );
 });
 
-const SignupPage = observer(() => {
+const SignupPageContent = observer(() => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect");
@@ -332,9 +331,18 @@ const SignupPage = observer(() => {
 
   return (
     <div className="container flex justify-center items-center my-12 md:my-16 px-4">
-      <SignupCard />
+      <SignupCardContent />
     </div>
   );
 });
+
+// Wrap everything in Suspense
+const SignupPage = () => {
+  return (
+    <Suspense fallback={<Loading />}>
+      <SignupPageContent />
+    </Suspense>
+  );
+};
 
 export default SignupPage;

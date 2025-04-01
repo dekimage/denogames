@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { firestore, auth } from "@/firebaseAdmin";
 
+// Add this line to force dynamic rendering
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
   try {
     // Get the authorization header

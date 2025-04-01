@@ -25,6 +25,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -42,13 +44,77 @@ const cmsItems = [
 export default function Layout({ children }) {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    // Check if we have a stored auth state
+    const storedAuth = sessionStorage.getItem("adminAuth");
+    if (storedAuth === "true") {
+      setIsAuthenticated(true);
+    }
   }, []);
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/verify-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem("adminAuth", "true");
+      } else {
+        setError("Invalid password");
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!isClient) {
-    return null; // or a loading spinner
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-full max-w-md space-y-4 rounded-lg border p-6 shadow-lg">
+          <h2 className="text-2xl font-bold text-center">Admin Access</h2>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Enter admin password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full"
+                disabled={isLoading}
+              />
+              {error && <p className="text-sm text-red-500">{error}</p>}
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Verifying..." : "Enter Admin"}
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   return (

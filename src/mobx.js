@@ -1420,9 +1420,6 @@ class Store {
 
       const { achievements } = await response.json();
 
-      // Add this debug
-      console.log("Fetched achievements:", achievements);
-
       runInAction(() => {
         this.achievements = achievements;
         this.achievementsLoading = false;

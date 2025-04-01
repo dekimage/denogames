@@ -7,19 +7,11 @@ import { ProductCard } from "@/components/ProductCard";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronDown,
-  ChevronUp,
   ChevronRight,
   Filter,
   Search,
-  SlidersHorizontal,
   X,
   Home,
-  Swords,
-  Castle,
-  HeartHandshake,
-  PartyPopper,
-  WalletCards,
   Dice2,
   Dice4,
   Dice6,
@@ -28,10 +20,6 @@ import {
   Box,
   Users,
   AlertCircle,
-  ArrowUpDown,
-  ArrowDownUp,
-  Pencil,
-  User,
   Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,7 +32,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
@@ -61,12 +48,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";

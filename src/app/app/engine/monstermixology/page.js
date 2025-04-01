@@ -54,7 +54,7 @@ import { runInAction } from "mobx";
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
   cardTypes: {
-    resource: "#FFE5CC", // soft yellow
+    resource: "#FF5CC", // soft yellow
     blueprint: "#CCE5FF", // soft blue
     disaster: "#FFCCD4", // soft red
     event: "#86efac", // Light green background for event cards

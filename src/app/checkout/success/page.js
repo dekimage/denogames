@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
@@ -8,7 +8,25 @@ import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
 import MobxStore from "@/mobx";
 import { observer } from "mobx-react";
 
-const CheckoutSuccessPage = observer(() => {
+// Tell Next.js this page is dynamic and should not be statically generated
+export const dynamic = "force-dynamic";
+
+// Suspense fallback for when the page is loading
+function Loading() {
+  return (
+    <div className="container mx-auto py-20 px-4 text-center max-w-3xl">
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <LoadingSpinner size={40} />
+        <p className="mt-4 text-muted-foreground">
+          Processing your purchase...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// The component that uses useSearchParams
+const CheckoutSuccessContent = observer(() => {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const { user, clearCart, userFullyLoaded } = MobxStore;
@@ -86,5 +104,14 @@ const CheckoutSuccessPage = observer(() => {
     </div>
   );
 });
+
+// Wrap the component that uses useSearchParams in Suspense
+const CheckoutSuccessPage = () => {
+  return (
+    <Suspense fallback={<Loading />}>
+      <CheckoutSuccessContent />
+    </Suspense>
+  );
+};
 
 export default CheckoutSuccessPage;
