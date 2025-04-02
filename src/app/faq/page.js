@@ -31,7 +31,7 @@ export default function FAQ() {
     {
       question: "Do you offer refunds if I'm not satisfied?",
       answer:
-        "Due to the digital nature of our products, we generally don't offer refunds after the downloadable content has been accessed. However, we're committed to customer satisfaction - if you encounter any issues with your purchase, please contact us at dejan.official@gmail.com and we'll work to make it right.",
+        "Due to the digital nature of our products, we generally don't offer refunds after the downloadable content has been accessed. However, we're committed to customer satisfaction - if you encounter any issues with your purchase, please contact us at denogames.official@gmail.com and we'll work to make it right.",
     },
     {
       question: "How often do you release new games or expansions?",
@@ -66,10 +66,10 @@ export default function FAQ() {
           and more. If you don&apos;t see your question answered here, please
           feel free to contact us at{" "}
           <Link
-            href="mailto:dejan.official@gmail.com"
+            href="mailto:denogames.official@gmail.com"
             className="text-primary hover:underline"
           >
-            dejan.official@gmail.com
+            denogames.official@gmail.com
           </Link>
         </p>
 
@@ -94,7 +94,9 @@ export default function FAQ() {
             directly.
           </p>
           <Button asChild>
-            <Link href="mailto:dejan.official@gmail.com">Contact Support</Link>
+            <Link href="mailto:denogames.official@gmail.com">
+              Contact Support
+            </Link>
           </Button>
         </div>
 

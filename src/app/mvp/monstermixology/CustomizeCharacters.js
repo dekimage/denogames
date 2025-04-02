@@ -85,6 +85,9 @@ export const CustomizeCharacters = ({ onGenerateCustomPDF }) => {
       </div>
 
       {/* Generate Button */}
+      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-2 text-black">
+        After you save your selection, you can download the PDF
+      </div>
       <Button
         onClick={() => onGenerateCustomPDF(selectedHeroes.map((h) => h.id))}
         disabled={selectedHeroes.length !== 12}

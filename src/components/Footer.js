@@ -42,18 +42,27 @@ const FooterColumn = ({ title, links }) => {
   return (
     <div className="flex flex-col font-strike min-w-[250px] items-center">
       <div className="text-lg uppercase mb-4 text-white">{title}</div>
-      {links.map((link, index) => (
-        <Link
-          key={index}
-          href={link.external ? link.link : `/${link.link}`}
-          className="text-grayy hover:text-light mb-2"
-          onClick={() => handleClick(link.link, link.trackingLabel)}
-          target={link.external ? "_blank" : "_self"}
-          rel={link.external ? "noopener noreferrer" : ""}
-        >
-          {link.label}
-        </Link>
-      ))}
+      {links.map((link, index) =>
+        link.comingSoon ? (
+          <div key={index} className="flex items-center text-grayy mb-2">
+            <span className="opacity-60">{link.label}</span>
+            <span className="ml-2 text-xs bg-primary/40 text-primary-foreground px-1.5 py-0.5 rounded">
+              Soon
+            </span>
+          </div>
+        ) : (
+          <Link
+            key={index}
+            href={link.external ? link.link : `/${link.link}`}
+            className="text-grayy hover:text-light mb-2"
+            onClick={() => handleClick(link.link, link.trackingLabel)}
+            target={link.external ? "_blank" : "_self"}
+            rel={link.external ? "noopener noreferrer" : ""}
+          >
+            {link.label}
+          </Link>
+        )
+      )}
     </div>
   );
 };
@@ -67,13 +76,13 @@ const Footer = () => {
     {
       name: "Instagram",
       icon: Instagram,
-      link: "https://instagram.com/denogames",
+      link: "https://www.instagram.com/deno_games",
       trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_INSTAGRAM,
     },
     {
       name: "Youtube",
       icon: Youtube,
-      link: "https://youtube.com/denogames",
+      link: "https://www.youtube.com/@deno-games",
       trackingLabel: ALLOWED_CLICK_LABELS.NAV_HOME,
     },
     {
@@ -81,18 +90,6 @@ const Footer = () => {
       icon: Facebook,
       link: "https://facebook.com/denogames",
       trackingLabel: ALLOWED_CLICK_LABELS.NAV_HOME,
-    },
-    {
-      name: "Twitter",
-      icon: Twitter,
-      link: "https://twitter.com/denogames",
-      trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_TWITTER,
-    },
-    {
-      name: "Discord",
-      icon: MessageCircle,
-      link: "https://discord.gg/denogames",
-      trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_DISCORD,
     },
   ];
 
@@ -194,12 +191,14 @@ const Footer = () => {
                   label: "Newsletter",
                   link: "newsletter",
                   trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_NEWSLETTER,
+                  comingSoon: true,
                 },
                 {
                   label: "Patreon",
                   link: "https://www.patreon.com/Deno_Games",
                   trackingLabel: ALLOWED_CLICK_LABELS.FOOTER_PATREON,
                   external: true,
+                  comingSoon: true,
                 },
                 {
                   label: "Contact",

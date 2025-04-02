@@ -95,8 +95,6 @@ class Store {
   // Add new properties
   claimingReward = false;
 
-  ordersFetched = false; // New flag to track if orders were fetched
-
   activeLocation = null;
 
   // Add these new properties to your Store class
@@ -105,7 +103,7 @@ class Store {
 
   // Add a new loading state for orders
   ordersLoading = false;
-  ordersFetched = false; // Flag to track if orders were already fetched
+  ordersFetched = false; // New flag to track if orders were fetched
 
   // Add these properties to your Store class
   userReviews = [];
@@ -127,11 +125,6 @@ class Store {
         this.initializeAuth();
         this.fetchProducts();
       }
-    } else {
-      // For SSR, we can check the Next.js router context
-      // But since we can't access it directly in MobX,
-      // we'll skip initialization and let the components handle it
-      console.log("Skipping initial data fetch during SSR");
     }
 
     // Bind all the methods as before

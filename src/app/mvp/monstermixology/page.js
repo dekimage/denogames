@@ -357,7 +357,7 @@ const RerollTracker = () => {
 const BlueprintTracker = () => {
   return (
     <TrackerComponent icon="📋" bgColor="#BFDBFE">
-      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-2">
+      <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-2 text-black">
         8th Drink = Game End
       </div>
       <div className="flex justify-center items-center  max-h-[25px]">
@@ -374,19 +374,13 @@ const BlueprintTracker = () => {
             />
           ))}
         </div>
-        {/* <div className="flex items-center gap-2">
-          <div className="h-10 w-[1px] bg-black"></div>
-          <div className="font-bold text-xs uppercase tracking-wider bg-blue-100 px-2 py-1 rounded-lg border-2 border-black">
-            End Game
-          </div>
-        </div> */}
       </div>
     </TrackerComponent>
   );
 };
 const Score = () => {
   return (
-    <div className="mt-2 h-[70px]">
+    <div className="mt-2 h-[70px] text-black">
       <div className="text-[13px] uppercase font-strike flex w-full justify-center mb-4">
         End Scoring
       </div>
@@ -530,7 +524,7 @@ const DownloadButton = ({
       className="w-[80%] bg-foreground h-[48px] text-xl text-background mb-4"
     >
       <Download className="mr-2" />
-      {isGenerating ? "Generating PDF..." : "Download Game Sheet"}
+      {isGenerating ? "Generating PDF..." : "Download Custom PDF"}
     </Button>
   );
 };
@@ -617,11 +611,7 @@ const PrintableSheet = () => {
   // Create the dynamic URL with character IDs
   const generateQRUrl = () => {
     const characterIds = randomCards.map((card) => card.id).join(",");
-    // const link = `${
-    //   process.env.NODE_ENV === "production"
-    //     ? "https://denogames.com"
-    //     : "http://localhost:3000"
-    // }/app/engine/monstermixology?chars=${characterIds}`;
+
     const link = `https://denogames.com/app/engine/monstermixology?chars=${characterIds}`;
 
     return link;
@@ -630,9 +620,13 @@ const PrintableSheet = () => {
   const [showCustomize, setShowCustomize] = useState(false);
   const handleCustomPDFGeneration = async (selectedIds) => {
     // Update randomCards with the selected heroes
-    const customCards = getRandomCards(
-      heroesCards.filter((card) => selectedIds.includes(card.id)),
-      12
+    // const customCards = getRandomCards(
+    //   heroesCards.filter((card) => selectedIds.includes(card.id)),
+    //   12
+    // );
+
+    const customCards = heroesCards.filter((card) =>
+      selectedIds.includes(card.id)
     );
     setRandomCards(customCards);
 
@@ -887,33 +881,37 @@ const ResourceComponent = ({
   };
 
   return (
-    <div className="box-inner">
-      <div className=" rounded-lg w-full sm:w-[600px] md:w-[800px] box-broken p-4 py-12">
-        <div className="flex flex-col md:flex-row gap-2 mb-2 border-b-2 border-black border-dashed p-2">
+    <div className="container mx-auto py-8 flex justify-center">
+      <div className="rounded-lg w-full sm:w-[600px] md:w-[800px] bg-card border border-border shadow-lg p-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 border-b border-border pb-4">
           <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
             <Image
               src={resource.image}
               alt={resource.name}
               width={150}
               height={150}
-              className="object-cover rounded-lg w-[150px] h-[150px] border"
+              className="object-cover rounded-lg w-[150px] h-[150px] border border-border shadow-sm"
             />
           </div>
           <div className="flex-1">
-            <h3 className="text-2xl font-strike uppercase mb-2">
+            <h3 className="text-2xl font-strike uppercase mb-2 text-foreground">
               {resource.name}
             </h3>
             {resource.description && (
-              <p className="text-gray-600 mb-2">{resource.description}</p>
+              <p className="text-muted-foreground mb-2">
+                {resource.description}
+              </p>
             )}
             {resource.instructions && (
-              <p className="text-sm text-gray-500">{resource.instructions}</p>
+              <p className="text-sm text-muted-foreground/80">
+                {resource.instructions}
+              </p>
             )}
           </div>
         </div>
 
         {resource.configurations && resource.configurations.length > 0 && (
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-around items-start">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:justify-around items-start mb-6 bg-muted/30 p-4 rounded-md">
             {resource.configurations.map((config) => (
               <ResourceConfig
                 key={config.label}
@@ -926,12 +924,14 @@ const ResourceComponent = ({
         )}
 
         {showCustomize && resource.type === "main-sheet" && (
-          <CustomizeCharacters
-            onGenerateCustomPDF={handleCustomPDFGeneration}
-          />
+          <div className="mb-6">
+            <CustomizeCharacters
+              onGenerateCustomPDF={handleCustomPDFGeneration}
+            />
+          </div>
         )}
 
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-4">
           {resource.type === "main-sheet" ? (
             <DownloadButton
               componentRef={componentRef}
@@ -941,7 +941,7 @@ const ResourceComponent = ({
             />
           ) : resource.type === "rulebook" ? (
             <Link
-              className="w-[80%]"
+              className="w-full sm:w-[80%]"
               href={
                 gamesStaticData["monster-mixology"]?.rulebookUrl ||
                 "https://drive.google.com/your-default-rulebook-url"
@@ -949,14 +949,14 @@ const ResourceComponent = ({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4">
+              <Button className="w-full mt-2 bg-primary hover:bg-primary/90 text-primary-foreground h-[48px] text-xl">
                 <Download className="mr-2" /> Download Rulebook
               </Button>
             </Link>
           ) : (
             <Button
               onClick={handleDownload}
-              className="w-full mt-2 bg-foreground text-background h-[48px] text-xl mb-4"
+              className="w-full sm:w-[80%] mt-2 bg-primary hover:bg-primary/90 text-primary-foreground h-[48px] text-xl"
             >
               <Download className="mr-2" /> Download {resource.name}
             </Button>

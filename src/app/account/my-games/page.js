@@ -113,7 +113,7 @@ const MyGamesPage = observer(() => {
   }
 
   return (
-    <div className="container mx-auto py-8 mt-16 sm:mt-0">
+    <div className="container px-2 sm:px-8 mx-auto py-8 mt-16 sm:mt-0">
       <h1 className="text-3xl font-bold mb-6 font-strike">My Games</h1>
       <div className="flex flex-col gap-4 mb-20">
         {ownedGames.map((game) => (

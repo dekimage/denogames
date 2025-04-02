@@ -200,7 +200,11 @@ const AddonRewardCard = ({ addon, userAchievements, requiredAchievements }) => {
                       src={achievement.image || "/placeholder-achievement.jpg"}
                       alt={achievement.name}
                       fill
-                      className="object-contain p-1.5"
+                      className={`object-contain p-1.5 ${
+                        !userAchievements?.includes(achievement.id)
+                          ? "grayscale"
+                          : ""
+                      }`}
                     />
                     {userAchievements?.includes(achievement.id) && (
                       <div className="absolute top-1 right-1 bg-background rounded-full p-0.5">

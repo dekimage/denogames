@@ -513,21 +513,22 @@ const KickstarterSection = ({ productDetails }) => {
                 out the original project page to see how it all began.
               </p>
 
-              <Button
-                asChild
-                variant="outline"
-                className="w-full sm:w-auto border-green-200 dark:border-green-800 hover:bg-green-400"
+              <Link
+                href={productDetails.kickstarter?.kickstarterLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto"
               >
-                <a
-                  href={productDetails.kickstarterLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center"
+                <Button
+                  variant="outline"
+                  className="w-full border-green-200 dark:border-green-800 hover:bg-green-400"
                 >
-                  View Kickstarter Campaign{" "}
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </a>
-              </Button>
+                  <span className="flex items-center justify-center">
+                    View Kickstarter Campaign
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                  </span>
+                </Button>
+              </Link>
             </div>
 
             <div className="relative h-[250px] md:h-auto">

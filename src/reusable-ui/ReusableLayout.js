@@ -105,7 +105,8 @@ const ReusableLayout = observer(({ children }) => {
     pathname.startsWith("/account") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/app/engine") ||
-    pathname.startsWith("/claim");
+    pathname.startsWith("/claim") ||
+    pathname.startsWith("/mvp");
 
   // Helper function to check if a path is active
   const isActive = (path) => pathname === path;

@@ -86,10 +86,10 @@ export default function Contact() {
             </CardHeader>
             <CardContent>
               <a
-                href="mailto:dejan.official@gmail.com"
+                href="mailto:denogames.official@gmail.com"
                 className="text-primary hover:underline"
               >
-                dejan.official@gmail.com
+                denogames.official@gmail.com
               </a>
             </CardContent>
           </Card>

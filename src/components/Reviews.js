@@ -173,81 +173,12 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
         const oldRating = existingReview.rating;
         await updateReview(existingReview.id, productId, rating, comment);
 
-        // Update both the review and the product rating in MobX state
-        runInAction(() => {
-          // Update the review in reviewsByProduct
-          const reviewIndex = MobxStore.reviewsByProduct[productId].findIndex(
-            (r) => r.id === existingReview.id
-          );
-          if (reviewIndex !== -1) {
-            MobxStore.reviewsByProduct[productId][reviewIndex] = {
-              ...MobxStore.reviewsByProduct[productId][reviewIndex],
-              rating,
-              comment,
-              updatedAt: new Date().toISOString(),
-            };
-          }
-
-          // Update the product's rating directly in the products array
-          const productIndex = MobxStore.products.findIndex(
-            (p) => p.id === productId
-          );
-          if (productIndex !== -1) {
-            const product = MobxStore.products[productIndex];
-            const totalReviews = product.totalReviews || 0;
-            const currentRating = product.averageRating || 0;
-            const newRating =
-              (currentRating * totalReviews - oldRating + rating) /
-              totalReviews;
-
-            MobxStore.products[productIndex] = {
-              ...product,
-              averageRating: parseFloat(newRating.toFixed(1)),
-            };
-          }
-        });
-
         toast({
           title: "Review Updated",
           description: "Your review has been updated successfully.",
         });
       } else {
         const result = await submitReview(productId, rating, comment);
-
-        runInAction(() => {
-          // Add the new review to reviewsByProduct
-          if (!MobxStore.reviewsByProduct[productId]) {
-            MobxStore.reviewsByProduct[productId] = [];
-          }
-          MobxStore.reviewsByProduct[productId].unshift({
-            id: result.reviewId,
-            productId,
-            userId: user.uid,
-            username: user.username,
-            rating,
-            comment,
-            createdAt: new Date().toISOString(),
-          });
-
-          // Update the product's rating
-          const productIndex = MobxStore.products.findIndex(
-            (p) => p.id === productId
-          );
-          if (productIndex !== -1) {
-            const product = MobxStore.products[productIndex];
-            const newTotalReviews = (product.totalReviews || 0) + 1;
-            const currentRating = product.averageRating || 0;
-            const newRating =
-              (currentRating * (newTotalReviews - 1) + rating) /
-              newTotalReviews;
-
-            MobxStore.products[productIndex] = {
-              ...product,
-              averageRating: parseFloat(newRating.toFixed(1)),
-              totalReviews: newTotalReviews,
-            };
-          }
-        });
 
         toast({
           title: "Review Submitted",
@@ -353,8 +284,8 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
                   {isSubmitting
                     ? "Processing..."
                     : existingReview
-                    ? "Update"
-                    : "Submit"}
+                      ? "Update"
+                      : "Submit"}
                 </Button>
               </div>
             </DialogFooter>

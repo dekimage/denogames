@@ -11,18 +11,10 @@ import {
   ShoppingCart,
   ChevronRight,
   Sparkle,
-  FlagTriangleRight,
-  Repeat2,
 } from "lucide-react";
 import Link from "next/link";
-import { MembershipCard } from "@/components/membership-card";
 import { UserProfile } from "@/components/UserProfile";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Mimage } from "@/components/Mimage";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 const StatCard = ({
   icon: Icon,
@@ -155,14 +147,14 @@ const AccountPage = observer(() => {
               <StatCard
                 icon={ShoppingCart}
                 label="Orders"
-                value={user.orders?.length || 0}
+                value={MobxStore.orders?.length || 0}
                 showProgress={false}
                 href="/account/my-orders"
               />
               <StatCard
                 icon={Star}
                 label="Reviews"
-                value={user.reviews?.length || 0}
+                value={MobxStore.userReviews?.length || 0}
                 showProgress={false}
                 subLabel={`${availableToReview} games available to review`}
                 href="/account/my-reviews"

@@ -127,7 +127,7 @@ export default function PrivacyPolicy() {
           </p>
           <div className="p-4 bg-muted rounded-md text-muted-foreground">
             <p className="mb-2">Deno Games</p>
-            <p className="mb-2">dejan.official@gmail.com</p>
+            <p className="mb-2">denogames.official@gmail.com</p>
           </div>
         </section>
 

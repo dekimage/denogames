@@ -207,11 +207,11 @@ const monstermixologyData = {
   downloadResources: [
     {
       type: "main-sheet",
-      name: "Main Game Sheet",
+      name: "Monster Mixology Player Sheet",
       image: monsterMixologyCoverImg || placeholderBenefitsImg,
-      description: "The primary game sheet where all the mixing action happens",
+      // description: "The primary game sheet where all the mixing action happens",
       instructions:
-        "Choose your paper size and player count. Higher player counts will adjust the layout accordingly.",
+        "Choose your preferred paper size (U.S. Letter Size or EU A4) and your Monster Combination: 1. Lucky Generator (Random), 2. Custom (You choose) or 3. Basic Sheet",
       configurations: [
         {
           label: "Paper Size",
@@ -220,13 +220,13 @@ const monstermixologyData = {
             { label: "LETTER", key: "LETTER" },
           ],
         },
-        {
-          label: "Color Type",
-          options: [
-            { label: "Full Color", key: "color" },
-            { label: "Low Ink", key: "black" },
-          ],
-        },
+        // {
+        //   label: "Color Type",
+        //   options: [
+        //     { label: "Full Color", key: "color" },
+        //     { label: "Low Ink", key: "black" },
+        //   ],
+        // },
         {
           label: "Monster Cards",
           options: [
@@ -249,18 +249,18 @@ const monstermixologyData = {
         console.log("Downloading MM main sheet with configs:", configs);
       },
     },
-    {
-      type: "rulebook",
-      name: "Monster Mixology Rulebook",
-      image: monsterMixologyLogoImg || placeholderBenefitsImg,
-      description:
-        "Official Monster Mixology rulebook with complete game instructions and setup guide",
-      instructions:
-        "Select your preferred language and format. The print-friendly version uses less ink.",
-      onDownload: (configs) => {
-        console.log("Downloading MM rulebook with configs:", configs);
-      },
-    },
+    // {
+    //   type: "rulebook",
+    //   name: "Monster Mixology Rulebook",
+    //   image: monsterMixologyLogoImg || placeholderBenefitsImg,
+    //   description:
+    //     "Official Monster Mixology rulebook with complete game instructions and setup guide",
+    //   instructions:
+    //     "Select your preferred language and format. The print-friendly version uses less ink.",
+    //   onDownload: (configs) => {
+    //     console.log("Downloading MM rulebook with configs:", configs);
+    //   },
+    // },
   ],
 };
 

@@ -61,6 +61,22 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
     }
 
     if (product.type === "add-on") {
+      if (user && user.unlockedRewards?.includes(product.id)) {
+        return (
+          <Link
+            href={`/account/my-games/${product.relatedGames}`}
+            className="w-full"
+          >
+            <Button
+              variant="secondary"
+              className="w-full bg-black hover:bg-black/80 text-white"
+            >
+              <Download size={16} className="mr-1" /> DOWNLOAD FILES
+            </Button>
+          </Link>
+        );
+      }
+
       return (
         <Link href={`/product-details/${product.slug}`} className="w-full">
           <Button variant="secondary" className="w-full">

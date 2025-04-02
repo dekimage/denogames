@@ -120,7 +120,7 @@ export default function TermsOfService() {
           </p>
           <div className="p-4 bg-muted rounded-md text-muted-foreground">
             <p className="mb-2">Deno Games</p>
-            <p>dejan.official@gmail.com</p>
+            <p>denogames.official@gmail.com</p>
           </div>
         </section>
 
