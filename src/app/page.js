@@ -401,7 +401,7 @@ const HomePage = observer(() => {
     //     "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
     //   button: "Explore",
     //   link: "/product-details/mystic-quest",
-    //   type: "game-launch",
+    //   type: "game-launchs",
     //   position: 2,
     // },
   ];
