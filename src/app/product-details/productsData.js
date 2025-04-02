@@ -231,11 +231,12 @@ const monstermixologyData = {
           label: "Monster Cards",
           options: [
             {
-              label: "Random* (Over 2,000,000+ combinations)",
+              label: "Lucky Generator (Random: Over 2,000,000+ combinations)",
               key: "random",
             },
             {
-              label: "Select Your Monsters (Opens Monster Picker Mode)",
+              label:
+                "Custom Builder (Select Your Monsters: Opens Monster Picker Mode)",
               key: "select",
             },
             {

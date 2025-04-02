@@ -383,27 +383,27 @@ const HomePage = observer(() => {
     {
       id: "banner-mm-kickstarter", // Unique banner ID
       title: "Monster Mixology",
-      description: "Back it now on Kickstarter!",
+      description: "Successfully funded on Kickstarter!",
       imgUrl:
         "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
       openNewTab: true,
-      button: "Back it now!",
+      button: "See Campaign",
       link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
       type: "kickstarter", // Banner type for analytics
       position: 1, // Position in carousel
     },
-    {
-      id: "banner-mystic-quest-launch",
-      title: "Mystic Quest",
-      description:
-        "Embark on an epic journey through mystical lands and ancient ruins.",
-      imgUrl:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
-      button: "Explore",
-      link: "/product-details/mystic-quest",
-      type: "game-launch",
-      position: 2,
-    },
+    // {
+    //   id: "banner-mystic-quest-launch",
+    //   title: "Mystic Quest",
+    //   description:
+    //     "Embark on an epic journey through mystical lands and ancient ruins.",
+    //   imgUrl:
+    //     "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
+    //   button: "Explore",
+    //   link: "/product-details/mystic-quest",
+    //   type: "game-launch",
+    //   position: 2,
+    // },
   ];
 
   return (
