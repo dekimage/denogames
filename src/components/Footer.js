@@ -88,7 +88,7 @@ const Footer = () => {
     {
       name: "Facebook",
       icon: Facebook,
-      link: "https://facebook.com/denogames",
+      link: "https://www.facebook.com/dejan.gavrilovic.73/",
       trackingLabel: ALLOWED_CLICK_LABELS.NAV_HOME,
     },
   ];

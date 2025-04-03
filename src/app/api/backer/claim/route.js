@@ -47,7 +47,7 @@ export async function POST(request) {
       return NextResponse.json(
         {
           error:
-            "You've reached the maximum number of claim attempts. Please contact support@denogames.com for assistance.",
+            "You've reached the maximum number of claim attempts. Please contact denogames.official@gmail.com for assistance.",
         },
         { status: 429 } // Too Many Requests
       );
