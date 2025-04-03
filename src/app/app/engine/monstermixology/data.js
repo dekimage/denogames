@@ -61,21 +61,21 @@ const resources = [
     card: "resource",
     type: "Crystal",
     rarity: "rare",
-    count: 4,
+    count: 3,
   },
   {
     id: 8,
     card: "resource",
     type: "Gem",
     rarity: "rare",
-    count: 4,
+    count: 3,
   },
   {
     id: 9,
     card: "resource",
     type: "Gas",
     rarity: "rare",
-    count: 4,
+    count: 3,
   },
 
   {
@@ -83,23 +83,67 @@ const resources = [
     card: "resource",
     type: "Orb",
     rarity: "rare",
-    count: 4,
+    count: 3,
   },
-
-  // Ancient (2)
   {
     id: 11,
     card: "resource",
-    type: "Crystal",
-    rarity: "ancient",
-    count: 2,
+    type: "Asteroid",
+    rarity: "rare",
+    count: 3,
   },
   {
     id: 12,
     card: "resource",
+    type: "Dust",
+    rarity: "rare",
+    count: 3,
+  },
+
+  // Ancient (2)
+
+  {
+    id: 7,
+    card: "resource",
+    type: "Crystal",
+    rarity: "ancient",
+    count: 1,
+  },
+  {
+    id: 8,
+    card: "resource",
+    type: "Gem",
+    rarity: "ancient",
+    count: 1,
+  },
+  {
+    id: 9,
+    card: "resource",
+    type: "Gas",
+    rarity: "ancient",
+    count: 1,
+  },
+
+  {
+    id: 10,
+    card: "resource",
+    type: "Orb",
+    rarity: "ancient",
+    count: 1,
+  },
+  {
+    id: 11,
+    card: "resource",
     type: "Asteroid",
     rarity: "ancient",
-    count: 2,
+    count: 1,
+  },
+  {
+    id: 12,
+    card: "resource",
+    type: "Dust",
+    rarity: "ancient",
+    count: 1,
   },
 ];
 

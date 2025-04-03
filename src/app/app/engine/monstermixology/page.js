@@ -42,6 +42,14 @@ import c21Img from "../../../../../public/monstermixology/coctails/c21.png";
 import c22Img from "../../../../../public/monstermixology/coctails/c22.png";
 import c23Img from "../../../../../public/monstermixology/coctails/c23.png";
 import c24Img from "../../../../../public/monstermixology/coctails/c24.png";
+
+import e1Img from "../../../../../public/monstermixology/events/e1.png";
+import e2Img from "../../../../../public/monstermixology/events/e2.png";
+import e3Img from "../../../../../public/monstermixology/events/e3.png";
+import e4Img from "../../../../../public/monstermixology/events/e4.png";
+import e5Img from "../../../../../public/monstermixology/events/e5.png";
+import e6Img from "../../../../../public/monstermixology/events/e6.png";
+
 import pushLuckStore from "@/app/stores/pushLuckStore";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -50,16 +58,6 @@ import { observer } from "mobx-react-lite";
 import MobxStore from "@/mobx";
 import { auth } from "@/firebase";
 import { runInAction } from "mobx";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 // Color mappings using hex codes (pastel palette)
 export const SPACE_MINERS_COLORS = {
@@ -143,7 +141,7 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🌪️",
+    image: e1Img,
     text: "Tornado hits the Bar",
     description:
       "Anyone who has 6 or more unused ingredients must lose 2 of them.",
@@ -153,7 +151,7 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🌪️",
+    image: e1Img,
     text: "Tornado hits the Bar",
     description:
       "Anyone who has 6 or more unused ingredients must lose 2 of them.",
@@ -163,7 +161,7 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "📢",
+    image: e4Img,
     text: "Help the Weak",
     description:
       "The player(s) with the least served cocktails may spend any 3 ingredients to serve a cocktail to any monster.",
@@ -173,7 +171,7 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "📢",
+    image: e4Img,
     text: "Help the Weak",
     description:
       "The player(s) with the least served cocktails may spend any 3 ingredients to serve a cocktail to any monster.",
@@ -183,7 +181,7 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🎁",
+    image: e3Img,
     text: "Happy Birthday!",
     description: "Gain any 1 ingredient of your choice.",
   },
@@ -192,7 +190,7 @@ const coreEventCards = [
     card: "event",
     type: "event",
     rarity: "common",
-    emoji: "🎁",
+    image: e3Img,
     text: "Happy Birthday!",
     description: "Gain any 1 ingredient of your choice.",
   },
@@ -206,10 +204,31 @@ const addOnSets = {
       card: "event",
       type: "event",
       rarity: "special",
-      emoji: "🌟",
-      text: "Double Power",
-      description: "Double your next resource card",
+      image: e2Img,
+      text: "Tax Collectors",
+      description:
+        "All players with 6 or more unused coins must lose half (rounded up).",
     },
+    {
+      id: "premium-event-2",
+      card: "event",
+      type: "event",
+      rarity: "special",
+      image: e6Img,
+      text: "Pay Day",
+      description:
+        "All players may choose to gain either 1 shield or any 1 ingredient of their choice.",
+    },
+    {
+      id: "premium-event-3",
+      card: "event",
+      type: "event",
+      rarity: "special",
+      image: e5Img,
+      text: "Bartender of the day",
+      description: "Any player that has exactly 4 served cokctails gains 🌕🌕.",
+    },
+
     // ... your existing special event cards
   ],
   // Future add-ons can be added here
@@ -403,6 +422,7 @@ const SpaceMinerCard = ({
         {/* New event card render */}
         {item.type === "event" && (
           <div className="flex flex-col items-center gap-2 p-2 text-center text-black">
+            <Image src={item.image} alt={item.text} width={60} height={60} />
             <div className="text-4xl sm:text-5xl mb-2">{item.emoji}</div>
             <div className="text-sm font-medium">{item.text}</div>
             {!isFromModal && (

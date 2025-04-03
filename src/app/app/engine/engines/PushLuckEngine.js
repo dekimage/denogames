@@ -575,10 +575,14 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
   };
 
   const PrintableCards = ({ cards }) => {
+    const startIndex = currentPrintPage * 12;
+    const endIndex = Math.min(startIndex + 12, cards.length);
+    const currentPageCards = cards.slice(startIndex, endIndex);
+
     return (
       <div className="print-container">
         <div className="cards-grid">
-          {cards.slice(0, 12).map((card, index) => (
+          {currentPageCards.map((card, index) => (
             <div key={`print-card-${card.id}-${index}`}>
               <CardComponent item={card} />
             </div>
@@ -591,7 +595,7 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           >
             Previous Page
           </Button>
-          <span>
+          <span className="mx-4">
             Page {currentPrintPage + 1} of {Math.ceil(cards.length / 12)}
           </span>
           <Button
@@ -600,12 +604,16 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
           >
             Next Page
           </Button>
-          <Button onClick={() => setIsPrintMode(false)}>Exit Print Mode</Button>
+          <Button onClick={() => setIsPrintMode(false)} className="ml-4">
+            Exit Print Mode
+          </Button>
+          <Button onClick={() => window.print()} className="ml-4">
+            Print Current Page
+          </Button>
         </div>
       </div>
     );
   };
-
   const printStyles = `
     @media print {
       /* Hide everything by default */
@@ -736,12 +744,13 @@ const PushLuckEngine = observer(({ config, CardComponent }) => {
     <>
       <style>{printStyles}</style>
       {isPrintMode ? (
-        <PrintableCards
-          cards={config.initialItems.slice(
-            currentPrintPage * 12,
-            (currentPrintPage + 1) * 12
-          )}
-        />
+        // <PrintableCards
+        //   cards={config.initialItems.slice(
+        //     currentPrintPage * 12,
+        //     (currentPrintPage + 1) * 12
+        //   )}
+        // />
+        <PrintableCards cards={config.initialItems} />
       ) : (
         <div className="sm:container sm:mx-auto font-strike uppercase">
           {/* Header Section - Minimized for mobile */}
