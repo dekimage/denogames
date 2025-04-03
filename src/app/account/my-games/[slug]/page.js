@@ -23,6 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
@@ -102,14 +103,53 @@ const ComponentCard = ({
     if (achievementKey) {
       await unlockProductAchievement(achievementKey);
     }
+
     if (fileUrl) {
-      // Check if fileUrl is a full URL or relative path
-      const isFullUrl =
-        fileUrl.startsWith("http://") || fileUrl.startsWith("https://");
-      const url = isFullUrl
-        ? fileUrl
-        : new URL(fileUrl, window.location.origin).href;
-      window.open(url, "_blank");
+      try {
+        // Check if it's a Firebase Storage URL
+        const isFirebaseUrl = fileUrl.includes(
+          "firebasestorage.googleapis.com"
+        );
+
+        // Show loading toast
+        const loadingToast = toast({
+          title: "Downloading...",
+          description: "Please wait while we prepare your download",
+        });
+
+        if (isFirebaseUrl) {
+          // Use our proxy API instead of direct fetch
+          const proxyUrl = `/api/download?url=${encodeURIComponent(fileUrl)}`;
+
+          // Create an invisible iframe to trigger the download
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          document.body.appendChild(iframe);
+
+          iframe.onload = () => {
+            // Remove the iframe and loading toast after download starts
+            setTimeout(() => {
+              document.body.removeChild(iframe);
+              loadingToast.dismiss();
+            }, 1000);
+          };
+
+          // Navigate the iframe to our proxy URL to start download
+          iframe.src = proxyUrl;
+        } else {
+          // For non-Firebase URLs, use the same approach as before
+          window.open(fileUrl, "_blank");
+          loadingToast.dismiss();
+        }
+      } catch (error) {
+        console.error("Download failed:", error);
+        toast({
+          title: "Download failed",
+          description:
+            "There was a problem downloading your file. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 

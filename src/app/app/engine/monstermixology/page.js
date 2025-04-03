@@ -402,7 +402,7 @@ const SpaceMinerCard = ({
 
         {/* New event card render */}
         {item.type === "event" && (
-          <div className="flex flex-col items-center gap-2 p-2 text-center">
+          <div className="flex flex-col items-center gap-2 p-2 text-center text-black">
             <div className="text-4xl sm:text-5xl mb-2">{item.emoji}</div>
             <div className="text-sm font-medium">{item.text}</div>
             {!isFromModal && (

@@ -280,8 +280,8 @@ const SignupCardContent = observer(() => {
       <div className="box-inner">
         <div className="box-broken py-8 px-2 sm:px-6 font-strike">
           <CardHeader className="space-y-2">
-            <div className="text-2xl uppercase font-bold text-center">
-              Join the Adventure
+            <div className="text-2xl uppercase text-center">
+              Welcome to Deno Games!
             </div>
             <CardDescription className="text-center">
               Create an account to start collecting achievements

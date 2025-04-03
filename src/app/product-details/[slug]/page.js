@@ -838,8 +838,8 @@ const ProductDetailsPage = observer(({}) => {
                         user?.purchasedProducts?.includes(
                           productDetails.relatedGames
                         )
-                          ? "bg-green-50 border border-green-200 text-green-800"
-                          : "bg-amber-50 border border-amber-200 text-amber-800"
+                          ? "bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400"
+                          : "bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-400"
                       )}
                     >
                       {user?.purchasedProducts?.includes(
@@ -979,7 +979,7 @@ const ProductDetailsPage = observer(({}) => {
                   {user?.unlockedRewards?.includes(productDetails.id) ? (
                     // User already owns/unlocked the add-on - show download button
                     <div className="space-y-4">
-                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/30 dark:border-green-800">
                         <div className="flex items-center gap-2 text-green-700 mb-2">
                           <CheckCircle2 className="h-5 w-5" />
                           <span className="font-medium">
@@ -1042,14 +1042,14 @@ const ProductDetailsPage = observer(({}) => {
                             className={cn(
                               "relative rounded-lg border p-4",
                               user?.achievements?.includes(achievement.id)
-                                ? "bg-green-50 border-green-200"
-                                : "bg-muted"
+                                ? "bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800"
+                                : "bg-muted dark:bg-muted"
                             )}
                           >
                             <AchievementDialog achievement={achievement} />
                             {user?.achievements?.includes(achievement.id) && (
                               <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                               </div>
                             )}
                           </div>

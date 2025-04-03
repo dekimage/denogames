@@ -229,7 +229,9 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
               ) : (
                 <>
                   <Plus className="mr-2 h-4 w-4" />
-                  Write a Review
+                  {!user?.purchasedProducts?.includes(productId)
+                    ? "You must own the game to write a review"
+                    : "Write a Review"}
                 </>
               )}
             </Button>
