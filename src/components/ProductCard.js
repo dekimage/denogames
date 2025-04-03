@@ -28,7 +28,12 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
 
   const renderPrice = () => {
     if (product.type === "add-on") {
-      return null;
+      return (
+        <div className="flex items-center">
+          <Hammer size={16} className="mr-1" />
+          Craftable
+        </div>
+      );
     }
     if (product.price === 0) return "Free";
     return `$${product.price}`;
@@ -153,22 +158,20 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
         isSmall ? "w-[220px]" : ""
       } overflow-hidden`}
     >
-      {product.isComingSoon && (
+      {/* {product.isComingSoon && (
         <div className="absolute top-0 right-0 left-0 z-10 bg-primary/90 text-primary-foreground py-1.5 px-3 text-center font-semibold tracking-wide">
           <div className="flex items-center justify-center gap-1.5">
             <Clock size={14} />
             <span className="text-sm">Coming Soon</span>
           </div>
         </div>
-      )}
+      )} */}
 
       <div>
         <Link
           href={`/product-details/${product.slug}`}
           onClick={handleCardClick}
-          className={`flex justify-center items-center flex-col ${
-            isSmall ? "p-2" : "p-4"
-          } ${product.isComingSoon ? "pt-8" : ""}`}
+          className={`flex justify-center items-center flex-col`}
         >
           <div className="relative">
             <Image
@@ -176,13 +179,14 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
               alt={product.name}
               width={isSmall ? 300 : 300}
               height={isSmall ? 300 : 300}
-              className={`${isSmall ? "w-28 h-28" : "w-54 h-54"} ${
+              className={`${isSmall ? "w-28 h-28" : "w-full"} ${
                 product.isComingSoon ? "opacity-75 filter saturate-50" : ""
               }`}
             />
             {product.isComingSoon && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold">
+                <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1">
+                  <Clock size={16} className="mr-1" />
                   Coming Soon
                 </div>
               </div>
@@ -190,7 +194,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
           </div>
 
           <div className={`flex flex-col w-full ${isSmall ? "pt-2" : "pt-4"}`}>
-            <div className="w-full">
+            <div className="w-full p-4">
               <div
                 className={`${
                   isSmall ? "mt-2 text-lg" : "mt-4 text-xl"

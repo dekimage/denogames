@@ -110,8 +110,8 @@ export const heroesCards = [
   {
     id: 14,
     name: "Assasin Stefan",
-    vp: 2,
-    uses: 3,
+    vp: 3,
+    uses: 2,
     trigger: "other",
     effect:
       "You may spend 1 shield as any 1 ingredient when making a cocktail.",
@@ -177,7 +177,7 @@ export const heroesCards = [
     uses: 2,
     trigger: "unique",
     effect:
-      "Gain one of the following: 1. 🌕🌕; 2. Any 1 ingredient of your choice; 3. 1 shield.",
+      "Gain one of the following: 🌕🌕 OR Any 1 ingredient of your choice OR 1 shield.",
   },
   {
     id: 22,
@@ -236,7 +236,7 @@ export const heroesCards = [
     id: 28,
     name: "Chakra Bouncer",
     vp: 2,
-    uses: 3,
+    uses: 2,
     trigger: "unique",
     effect:
       "When you avoid a disaster, gain any 2 ingredients of the same type.",
@@ -308,7 +308,7 @@ export const heroesCards = [
     uses: 1,
     trigger: "end",
     effect:
-      "El Padre is worth +3 VP if El Madre has been served at least 2 cocktails, regardless of who owns her.",
+      "El Padre is worth +2 VP if El Madre has been served at least 2 cocktails, regardless of who owns her.",
   },
   {
     id: 36,
@@ -317,7 +317,7 @@ export const heroesCards = [
     uses: 1,
     trigger: "end",
     effect:
-      "El Madre is worth +3 VP if El Padre has been served at least 2 cocktails, regardless of who owns him.",
+      "El Madre is worth +2 VP if El Padre has been served at least 2 cocktails, regardless of who owns him.",
   },
   {
     id: 37,
@@ -326,7 +326,7 @@ export const heroesCards = [
     uses: 1,
     trigger: "end",
     effect:
-      "Big Feet Monster is worth -2 VP for each of the following: 1. You have served 8 cocktails; 2. You served 2 or more cocktails to the same monster; 3. You used an ability of 3 or more monsters.",
+      "Big Feet Monster is worth -2 VP for each of the following: 1. You have served 6 or more cocktails; 2. You served 2 or more cocktails to the same monster; 3. You used an ability of 1 or more monsters.",
   },
   {
     id: 38,

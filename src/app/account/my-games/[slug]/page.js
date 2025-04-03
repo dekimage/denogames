@@ -137,8 +137,21 @@ const ComponentCard = ({
           // Navigate the iframe to our proxy URL to start download
           iframe.src = proxyUrl;
         } else {
-          // For non-Firebase URLs, use the same approach as before
-          window.open(fileUrl, "_blank");
+          // For non-Firebase URLs, ensure we have an absolute path
+          let absoluteUrl = fileUrl;
+
+          // Check if it's a relative path without leading slash
+          if (!fileUrl.startsWith("http") && !fileUrl.startsWith("/")) {
+            absoluteUrl = `/${fileUrl}`;
+          }
+
+          // Use window.location.origin to create absolute URL from relative paths
+          if (absoluteUrl.startsWith("/")) {
+            absoluteUrl = `${window.location.origin}${absoluteUrl}`;
+          }
+
+          // Open in new tab with the corrected absolute URL
+          window.open(absoluteUrl, "_blank");
           loadingToast.dismiss();
         }
       } catch (error) {

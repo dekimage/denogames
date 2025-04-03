@@ -300,92 +300,6 @@ const ComponentsList = ({ productDetails }) => {
   );
 };
 
-const ClaimKickstarterSection = () => {
-  const { user } = MobxStore;
-
-  if (user?.purchasedProducts?.includes("monstermixology")) {
-    return null;
-  }
-
-  return (
-    <div className="container mx-auto py-8 mt-16 sm:mt-0 px-4">
-      <div className="border rounded-lg shadow-sm bg-card overflow-hidden mb-8">
-        <div className="grid md:grid-cols-2 gap-6 p-6">
-          <div className="flex flex-col justify-center">
-            <div className="flex items-center gap-4 mb-4">
-              <h3 className="text-2xl font-bold">Kickstarter Backer?</h3>
-              <Image
-                src={kickstarterLogo}
-                alt="Kickstarter"
-                width={32}
-                height={32}
-                className="object-contain"
-              />
-            </div>
-
-            <p className="text-muted-foreground mb-6">
-              If you backed Monster Mixology on Kickstarter, claim your digital
-              copy here!
-            </p>
-
-            <div className="space-y-4 mb-6">
-              <div className="flex items-start">
-                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                  <CheckCircle
-                    size={14}
-                    className={user ? "text-green-500" : "text-primary"}
-                  />
-                </div>
-                <span
-                  className={user ? "text-muted-foreground line-through" : ""}
-                >
-                  Step 1: Log in or create an account
-                </span>
-              </div>
-              <div className="flex items-start">
-                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                  <CheckCircle size={14} className="text-primary" />
-                </div>
-                <span>Step 2: Enter your unique backer code</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              {!user ? (
-                <>
-                  <Button asChild className="w-full sm:w-auto">
-                    <Link href="/signup">Create Account</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                  >
-                    <Link href="/login">Log In</Link>
-                  </Button>
-                </>
-              ) : (
-                <Button asChild className="w-full sm:w-auto">
-                  <Link href="/claim">Claim Monster Mixology</Link>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="relative h-[200px] md:h-auto order-first md:order-last">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media"
-              alt="Monster Mixology"
-              fill
-              className="object-contain"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const KickstarterSection = ({ productDetails }) => {
   if (!productDetails.kickstarter?.kickstarterLink) return null;
 
@@ -1248,10 +1162,6 @@ const ProductDetailsPage = observer(({}) => {
 
           {productDetails.type === "game" && (
             <KickstarterSection productDetails={productDetails} />
-          )}
-
-          {productDetails.slug === "monstermixology" && (
-            <ClaimKickstarterSection />
           )}
 
           {productDetails.id && productDetails.type === "game" && (

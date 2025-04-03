@@ -631,7 +631,9 @@ const AchievementsPage = observer(() => {
                 <Map className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-medium">Locations</h3>
+                <h3 className="text-xs sm:text-sm font-medium">
+                  Locations (Coming Soon)
+                </h3>
                 <p className="text-sm sm:text-xl font-bold">
                   {stats.locations.unlocked}/{stats.locations.total}
                 </p>

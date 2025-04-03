@@ -362,9 +362,25 @@ const BackerClaimButton = ({ backerEmail, backerProducts, disabled }) => {
   const { toast } = useToast();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { products } = MobxStore;
 
   const handleClaim = async () => {
     try {
+      // Check if any of the backer products are coming soon
+      const comingSoonProducts = products.filter(
+        (product) => backerProducts.includes(product.id) && product.isComingSoon
+      );
+
+      if (comingSoonProducts.length > 0) {
+        toast({
+          title: "Claim unavailable",
+          description:
+            "Some products in your reward are not yet available for claim.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setIsProcessing(true);
 
       // Get the current user's ID token
@@ -429,15 +445,25 @@ const BackerClaimButton = ({ backerEmail, backerProducts, disabled }) => {
     }
   };
 
+  // Check if any backer product is coming soon
+  const hasComingSoonProduct = products.some(
+    (product) => backerProducts.includes(product.id) && product.isComingSoon
+  );
+
   return (
     <Button
       className="w-full h-12 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
       onClick={handleClaim}
-      disabled={disabled || isProcessing}
+      disabled={disabled || isProcessing || hasComingSoonProduct}
     >
       {isProcessing ? (
         <>
           <LoadingSpinner size={20} className="mr-2" /> Processing...
+        </>
+      ) : hasComingSoonProduct ? (
+        <>
+          <AlertTriangle className="mr-2 h-5 w-5" />
+          Product Coming Soon
         </>
       ) : (
         <>
@@ -789,6 +815,8 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
           !cartProductIds.includes(product.id) &&
           // Don't include products the user already owns
           !userOwnedProductIds.includes(product.id) &&
+          // Don't include products that are coming soon
+          !product.isComingSoon &&
           product.type !== "add-on" &&
           // Find expansions for games in cart
           ((product.type === "expansion" &&
@@ -814,6 +842,8 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
               !cartProductIds.includes(p.id) &&
               // Don't include products the user already owns
               !userOwnedProductIds.includes(p.id) &&
+              // Don't include products that are coming soon
+              !p.isComingSoon &&
               !related.some((r) => r.id === p.id)
           )
           .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
@@ -842,6 +872,8 @@ const UpsellSection = ({ cartItems, onAddToCart }) => {
             p.price > 0 &&
             !freeCartProductIds.includes(p.id) &&
             !userOwnedProductIds.includes(p.id) &&
+            // Don't include products that are coming soon
+            !p.isComingSoon &&
             p.type !== "add-on"
         )
         .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
@@ -898,6 +930,18 @@ const FreeCheckoutButton = ({ cartItems, disabled }) => {
 
   const handleFreeCheckout = async () => {
     try {
+      // Check if any product is coming soon
+      const comingSoonProducts = cartItems.filter((item) => item.isComingSoon);
+      if (comingSoonProducts.length > 0) {
+        toast({
+          title: "Checkout unavailable",
+          description:
+            "Your cart contains products that are not yet available for purchase.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setIsProcessing(true);
 
       // Get the current user's ID token
@@ -968,16 +1012,21 @@ const FreeCheckoutButton = ({ cartItems, disabled }) => {
     }
   };
 
+  // Check if any cart item is coming soon
+  const hasComingSoonProduct = cartItems.some((item) => item.isComingSoon);
+
   return (
     <Button
       className="w-full h-12 text-lg font-semibold"
       onClick={handleFreeCheckout}
-      disabled={disabled || isProcessing}
+      disabled={disabled || isProcessing || hasComingSoonProduct}
     >
       {isProcessing ? (
         <>
           <LoadingSpinner size={20} className="mr-2" /> Processing...
         </>
+      ) : hasComingSoonProduct ? (
+        "Product Coming Soon"
       ) : (
         "Get for Free"
       )}
