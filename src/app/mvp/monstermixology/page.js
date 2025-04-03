@@ -637,7 +637,7 @@ const PrintableSheet = () => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="w-full max-w-7xl px-4 flex justify-center flex-col items-center">
+      <div className="w-full max-w-7xl px-0 sm:px-2 flex justify-center flex-col items-center">
         <div className="flex justify-center items-center w-full max-w-[600px]">
           <Button
             variant="outline"
@@ -881,9 +881,9 @@ const ResourceComponent = ({
   };
 
   return (
-    <div className="container mx-auto py-8 flex justify-center">
-      <div className="rounded-lg w-full sm:w-[600px] md:w-[800px] bg-card border border-border shadow-lg p-6">
-        <div className="flex flex-col md:flex-row gap-4 mb-6 border-b border-border pb-4">
+    <div className="container px-0 sm:px-4 mx-auto py-8 flex justify-center">
+      <div className="rounded-lg w-full sm:w-[600px] md:w-[800px] bg-card border border-border shadow-lg">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 border-b border-border pb-4 p-2">
           <div className="w-full md:w-[150px] h-[150px] flex-shrink-0">
             <Image
               src={resource.image}
