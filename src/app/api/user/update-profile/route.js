@@ -73,10 +73,18 @@ export async function PUT(req) {
       avatarImg &&
       !userData.achievements?.includes(ACHIEVEMENTS.PROFILE_AVATAR.id)
     ) {
-      await unlockAchievement(userId, "PROFILE_AVATAR", {
-        previousAvatar: userData.avatarImg,
-        newAvatar: avatarImg,
-      });
+      try {
+        // Create properly formatted context object with null for previousAvatar if it doesn't exist
+        const achievementContext = {
+          previousAvatar: userData.avatarImg || null,
+          newAvatar: avatarImg,
+        };
+
+        await unlockAchievement(userId, "PROFILE_AVATAR", achievementContext);
+      } catch (achievementError) {
+        console.error("Error unlocking achievement:", achievementError);
+        // Continue execution even if achievement unlock fails
+      }
     }
 
     return NextResponse.json({

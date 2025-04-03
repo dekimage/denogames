@@ -408,20 +408,40 @@ const ReviewsPage = observer(() => {
   return (
     <div className="container py-8 px-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl md:text-2xl font-strike">Your Reviews</h2>
+        <h2 className="text-xl md:text-2xl font-strike">My Reviews</h2>
       </div>
 
       <Separator className="my-6 dark:bg-gray-800" />
 
       {userReviews.length === 0 ? (
-        <div className="text-center py-12 bg-muted/20 dark:bg-muted/10 rounded-lg">
-          <p className="text-lg text-muted-foreground">
-            You haven&apos;t written any reviews yet.
-          </p>
-          <p className="text-sm mt-2 mb-6 text-muted-foreground">
-            Share your thoughts about the games you&apos;ve played!
-          </p>
-        </div>
+        <Card className="max-w-md mx-auto my-8 overflow-hidden">
+          <CardHeader className="pb-4 pt-6 px-6">
+            <CardTitle className="text-xl text-center">
+              No Reviews Yet
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-6 px-6 text-center">
+            <p className="text-muted-foreground mb-6">
+              You haven&apos;t written any reviews yet. Share your thoughts
+              about the games you&apos;ve played!
+            </p>
+            {productsForReview.length > 0 ? (
+              <Button
+                onClick={() =>
+                  document
+                    .getElementById("games-to-review")
+                    .scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                Write Your First Review
+              </Button>
+            ) : (
+              <Link href="/shop">
+                <Button>Browse Games</Button>
+              </Link>
+            )}
+          </CardContent>
+        </Card>
       ) : (
         <div className="rounded-lg border dark:border-gray-800 overflow-hidden">
           <div className="w-full overflow-x-auto">

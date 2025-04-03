@@ -285,26 +285,6 @@ const OrdersPage = observer(() => {
     );
   }
 
-  // If user has no orders
-  if (orders.length === 0) {
-    return (
-      <Card className="max-w-md mx-auto my-8 overflow-hidden">
-        <CardHeader className="pb-4 pt-6 px-6">
-          <CardTitle className="text-xl text-center">No Orders Found</CardTitle>
-        </CardHeader>
-        <CardContent className="pb-6 px-6 text-center">
-          <p className="text-muted-foreground mb-6">
-            You haven&apos;t placed any orders yet. Start shopping to see your
-            orders here.
-          </p>
-          <Link href="/shop">
-            <Button>Browse Games</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const selectedOrder = orders.find((order) => order.id === selectedOrderId);
   const selectedOrderProducts = selectedOrder
     ? getOrderProducts(selectedOrder)
@@ -312,120 +292,143 @@ const OrdersPage = observer(() => {
 
   return (
     <div className="container py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl md:text-2xl font-bold font-strike">
-          Your Orders
-        </h2>
+      {/* Always show the title/header regardless of order count */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl md:text-2xl font-strike">My Orders</h2>
       </div>
 
-      {/* Mobile view */}
-      {isMobile && (
-        <div className="md:hidden w-full">
-          <div className="w-full">
-            {orders.map((order) => (
-              <OrderMobileCard
-                key={order.id}
-                order={order}
-                products={products}
-                onClick={() => handleRowClick(order.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <Separator className="my-6 dark:bg-gray-800" />
 
-      {/* Desktop view */}
-      {!isMobile && (
-        <div className="hidden md:block rounded-lg border dark:border-gray-800 overflow-hidden shadow-sm">
-          <div className="w-full overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50 dark:bg-muted/20">
-                  <TableHead className="w-32">Date</TableHead>
-                  <TableHead className="w-2/5">Products</TableHead>
-                  <TableHead className="text-right w-28">Price</TableHead>
-                  <TableHead className="w-28">Status</TableHead>
-                  <TableHead className="text-right w-28">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => {
-                  const orderProducts = getOrderProducts(order);
+      {/* If user has no orders, show the card but keep the header above */}
+      {orders.length === 0 ? (
+        <Card className="max-w-md mx-auto overflow-hidden">
+          <CardHeader className="pb-4 pt-6 px-6">
+            <CardTitle className="text-xl text-center">
+              No Orders Found
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-6 px-6 text-center">
+            <p className="text-muted-foreground mb-6">
+              You haven&apos;t placed any orders yet. Start shopping to see your
+              orders here.
+            </p>
+            <Link href="/shop">
+              <Button>Browse Games</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Mobile view - when orders exist */}
+          {isMobile && (
+            <div className="md:hidden w-full">
+              <div className="w-full">
+                {orders.map((order) => (
+                  <OrderMobileCard
+                    key={order.id}
+                    order={order}
+                    products={products}
+                    onClick={() => handleRowClick(order.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-                  return (
-                    <TableRow
-                      key={order.id}
-                      className="cursor-pointer hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors"
-                      onClick={() => handleRowClick(order.id)}
-                    >
-                      <TableCell>
-                        <div className="font-medium">
-                          {formatDate(order.createdAt)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {orderProducts.length > 0 ? (
-                            <>
-                              <div className="relative w-12 h-12 rounded-md overflow-hidden border dark:border-gray-700">
-                                <Image
-                                  src={
-                                    orderProducts[0].thumbnail ||
-                                    "/placeholder-image.jpg"
-                                  }
-                                  alt={orderProducts[0].name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="ml-3 flex flex-col">
-                                <span className="font-medium truncate max-w-[180px]">
-                                  {orderProducts[0].name}
-                                </span>
-                                {orderProducts.length > 1 && (
-                                  <span className="text-xs text-muted-foreground">
-                                    +{orderProducts.length - 1} more{" "}
-                                    {orderProducts.length > 2
-                                      ? "items"
-                                      : "item"}
-                                  </span>
-                                )}
-                              </div>
-                            </>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">
-                              No product information
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        ${order.amountTotal.toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30">
-                          {order.paymentStatus || "Paid"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent row click
-                            handleRowClick(order.id);
-                          }}
-                        >
-                          Details
-                        </Button>
-                      </TableCell>
+          {/* Desktop view - when orders exist */}
+          {!isMobile && (
+            <div className="hidden md:block rounded-lg border dark:border-gray-800 overflow-hidden shadow-sm">
+              <div className="w-full overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50 dark:bg-muted/20">
+                      <TableHead className="w-32">Date</TableHead>
+                      <TableHead className="w-2/5">Products</TableHead>
+                      <TableHead className="text-right w-28">Price</TableHead>
+                      <TableHead className="w-28">Status</TableHead>
+                      <TableHead className="text-right w-28">Actions</TableHead>
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+                  </TableHeader>
+                  <TableBody>
+                    {orders.map((order) => {
+                      const orderProducts = getOrderProducts(order);
+
+                      return (
+                        <TableRow
+                          key={order.id}
+                          className="cursor-pointer hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors"
+                          onClick={() => handleRowClick(order.id)}
+                        >
+                          <TableCell>
+                            <div className="font-medium">
+                              {formatDate(order.createdAt)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {orderProducts.length > 0 ? (
+                                <>
+                                  <div className="relative w-12 h-12 rounded-md overflow-hidden border dark:border-gray-700">
+                                    <Image
+                                      src={
+                                        orderProducts[0].thumbnail ||
+                                        "/placeholder-image.jpg"
+                                      }
+                                      alt={orderProducts[0].name}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                  <div className="ml-3 flex flex-col">
+                                    <span className="font-medium truncate max-w-[180px]">
+                                      {orderProducts[0].name}
+                                    </span>
+                                    {orderProducts.length > 1 && (
+                                      <span className="text-xs text-muted-foreground">
+                                        +{orderProducts.length - 1} more{" "}
+                                        {orderProducts.length > 2
+                                          ? "items"
+                                          : "item"}
+                                      </span>
+                                    )}
+                                  </div>
+                                </>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">
+                                  No product information
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right font-medium">
+                            ${order.amountTotal.toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30">
+                              {order.paymentStatus || "Paid"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent row click
+                                handleRowClick(order.id);
+                              }}
+                            >
+                              Details
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Order Details Dialog */}

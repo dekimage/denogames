@@ -79,28 +79,29 @@ export const SignupForm = observer(() => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      displayName: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
   async function onSubmit(values) {
-    const { username, email, password } = values;
+    const { displayName, email, password } = values;
     setIsLoading(true);
     setError(null);
 
     try {
       if (isAuthenticated && isUserAnonymous) {
         // Upgrade the anonymous account
-        await upgradeAccount(email, password, username);
+        await upgradeAccount(email, password, displayName);
         toast({
           title: "Account upgraded!",
           description: "Your anonymous account has been upgraded successfully.",
         });
       } else {
         // Regular signup
-        await signupWithEmail(email, password, username);
+        await signupWithEmail(email, password, displayName);
         toast({
           title: "Account created!",
           description: "Welcome to Deno Games!",
@@ -164,7 +165,7 @@ export const SignupForm = observer(() => {
 
         <FormField
           control={form.control}
-          name="username"
+          name="displayName"
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel className="text-sm font-semibold">USERNAME</FormLabel>
@@ -194,6 +195,29 @@ export const SignupForm = observer(() => {
                   id="signup-password"
                   type="password"
                   placeholder="Password (6+ characters)"
+                  disabled={isLoading}
+                  className="bg-background"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage className="text-xs" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel className="text-sm font-semibold">
+                CONFIRM PASSWORD
+              </FormLabel>
+              <FormControl>
+                <Input
+                  id="signup-confirm-password"
+                  type="password"
+                  placeholder="Confirm your password"
                   disabled={isLoading}
                   className="bg-background"
                   {...field}
