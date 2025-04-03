@@ -840,8 +840,23 @@ class Store {
     if (!this.user?.uid) return; // Guard clause
 
     try {
-      const cartDocRef = doc(db, "carts", this.user.uid);
-      await setDoc(cartDocRef, { items: this.cart });
+      // Use API endpoint instead of direct Firestore write
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("No auth token available");
+
+      const response = await fetch("/api/cart/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ items: this.cart }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update cart");
+      }
     } catch (error) {
       console.log("Error syncing cart with Firestore:", error);
     }
@@ -1067,7 +1082,7 @@ class Store {
         action: CLIENT_EVENTS.LOGIN_ERROR,
         context: {
           method: "email",
-          errorCode: error.code,
+          errorCode: error.code ? error.code.replace(/\//g, "_") : "unknown",
           errorMessage: error.message,
         },
       });

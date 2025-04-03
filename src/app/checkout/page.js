@@ -270,7 +270,7 @@ const GuestCheckoutForm = ({ onComplete, onSwitchToLogin }) => {
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg border mb-6">
+    <div className="bg-muted/50 p-4 rounded-lg border mb-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center">
         <User className="mr-2 h-5 w-5" />
         Create Account
@@ -415,7 +415,7 @@ const QuickLoginForm = ({ onComplete, onSwitchToSignup }) => {
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg border mb-6">
+    <div className="bg-muted/50 p-4 rounded-lg border mb-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center">
         <User className="mr-2 h-5 w-5" />
         Log In
@@ -1107,12 +1107,12 @@ const CheckoutPage = observer(() => {
         <div className="lg:col-span-2 space-y-6">
           {/* Add Validation Issues Warning */}
           {validationIssues.length > 0 && (
-            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold mb-2 text-amber-800 flex items-center">
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-2 text-amber-800 dark:text-amber-300 flex items-center">
                 <AlertCircle className="h-5 w-5 mr-2" />
                 Unable to Complete Checkout
               </h3>
-              <p className="mb-4 text-amber-700">
+              <p className="mb-4 text-amber-700 dark:text-amber-300">
                 To use these expansions, you need their main games. Add the
                 required game(s) to continue:
               </p>
@@ -1125,10 +1125,10 @@ const CheckoutPage = observer(() => {
                   return (
                     <div
                       key={expansion.id}
-                      className="bg-white rounded-lg overflow-hidden border border-gray-200"
+                      className="bg-card rounded-lg overflow-hidden border"
                     >
                       {/* Expansion Item */}
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 border-b border-gray-200">
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 border-b">
                         <div className="relative h-14 w-14 flex-shrink-0">
                           <Image
                             src={expansion.thumbnail || "/placeholder.jpg"}
@@ -1156,13 +1156,10 @@ const CheckoutPage = observer(() => {
                       </div>
 
                       {/* Arrow Connector */}
-                      <div className="flex justify-center py-2 bg-amber-50">
-                        <div className="flex flex-col items-center">
-                          <ArrowDown className="h-5 w-5 text-amber-500" />
-                          <span className="text-xs text-amber-600 font-medium">
-                            Requires Main Game
-                          </span>
-                        </div>
+                      <div className="flex justify-center py-2 bg-amber-50 dark:bg-amber-950/50">
+                        <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                          Requires Main Game
+                        </span>
                       </div>
 
                       {/* Main Game Item */}
@@ -1206,7 +1203,7 @@ const CheckoutPage = observer(() => {
                 })}
               </div>
 
-              <div className="text-sm text-amber-700 bg-amber-100 p-3 rounded">
+              <div className="text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50 p-3 rounded">
                 <p className="flex items-start">
                   <InfoIcon className="h-5 w-5 mr-2 flex-shrink0 mt-0.5" />
                   <span>
@@ -1251,14 +1248,14 @@ const CheckoutPage = observer(() => {
               )}
             </AnimatePresence>
           ) : (
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-6">
+            <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800 mb-6">
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                <h3 className="text-lg font-semibold text-green-800">
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-300">
                   {user ? "Logged in" : "Account created"}
                 </h3>
               </div>
-              <p className="text-sm text-green-700 mt-2">
+              <p className="text-sm text-green-700 dark:text-green-300 mt-2">
                 {user
                   ? `You're logged in as ${user.email || user.username}`
                   : "Your account has been created successfully. You'll be able to access your games after purchase."}
@@ -1268,7 +1265,7 @@ const CheckoutPage = observer(() => {
 
           {/* Discount Code Section - only show for paid products */}
           {!isZeroCostOrder && (
-            <div className="bg-white p-4 rounded-lg border mb-6">
+            <div className="bg-card p-4 rounded-lg border mb-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <Tag className="mr-2 h-5 w-5" />
                 Discount Code
@@ -1279,7 +1276,7 @@ const CheckoutPage = observer(() => {
 
           {/* Payment Section - modified to handle free products and require authentication */}
           <div
-            className={`bg-white p-4 rounded-lg border ${
+            className={`bg-card p-4 rounded-lg border ${
               (!user && !accountCreated) || disableCheckout
                 ? "opacity-60 pointer-events-none relative"
                 : ""
@@ -1287,8 +1284,8 @@ const CheckoutPage = observer(() => {
           >
             {/* Add an overlay for validation issues */}
             {disableCheckout && (
-              <div className="absolute inset-0 bg-gray-100/40 flex items-center justify-center z-10 rounded-lg">
-                <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 max-w-md text-center">
+              <div className="absolute inset-0 bg-background/40 flex items-center justify-center z-10 rounded-lg">
+                <div className="bg-card p-4 rounded-lg shadow-md border max-w-md text-center">
                   <AlertCircle className="h-6 w-6 text-amber-500 mx-auto mb-2" />
                   <h4 className="font-semibold mb-1">Checkout Unavailable</h4>
                   <p className="text-sm text-muted-foreground">
@@ -1314,12 +1311,12 @@ const CheckoutPage = observer(() => {
 
             {isZeroCostOrder ? (
               <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                  <p className="flex items-center text-green-800">
+                <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-100 dark:border-green-800">
+                  <p className="flex items-center text-green-800 dark:text-green-300">
                     <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
                     This product is available for free!
                   </p>
-                  <p className="mt-2 text-sm text-green-700">
+                  <p className="mt-2 text-sm text-green-700 dark:text-green-300">
                     Click the button below to add it to your library. No payment
                     required.
                   </p>
@@ -1374,12 +1371,12 @@ const CheckoutPage = observer(() => {
                     />
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg mb-4 text-sm">
-                    <div className="flex items-center text-gray-700 mb-2">
+                  <div className="bg-muted/50 p-4 rounded-lg mb-4 text-sm">
+                    <div className="flex items-center text-foreground/80 mb-2">
                       <Lock className="h-4 w-4 mr-2" />
                       <span>Your payment information is secure</span>
                     </div>
-                    <div className="flex items-center text-gray-700">
+                    <div className="flex items-center text-foreground/80">
                       <ShieldCheck className="h-4 w-4 mr-2" />
                       <span>We don&apos;t store your card details</span>
                     </div>

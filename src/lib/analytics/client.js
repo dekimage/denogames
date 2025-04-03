@@ -21,6 +21,11 @@ export async function trackEvent({ action, context = {} }) {
     const deviceId = getOrCreateDeviceId();
     const sessionId = getOrCreateSessionId();
 
+    // Sanitize error codes by replacing slashes with underscores
+    if (context.errorCode && typeof context.errorCode === "string") {
+      context.errorCode = context.errorCode.replace(/\//g, "_");
+    }
+
     // Prepare the event data
     const eventData = {
       action,
