@@ -148,13 +148,14 @@ const MyGamesPage = observer(() => {
           </Link>
         </div>
       </div>
-      <EasterEggDialog
+      {/* disabled-feature */}
+      {/* <EasterEggDialog
         open={showEasterEgg}
         onOpenChange={setShowEasterEgg}
         code="TRY ME"
         image="/muhari/shopkeeper.png"
         imageAlt="Shopkeeper"
-      />
+      /> */}
     </div>
   );
 });

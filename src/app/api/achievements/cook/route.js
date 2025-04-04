@@ -12,6 +12,7 @@ const SECRET_CODES = {
   BOOO: "c4",
   SHOP_EXPLORER: "c5",
   DOODLER: "c3",
+
   // Portal codes (locations)
   // PORTAL1: "early-supporter",
   // PORTAL2: "location-id-2",
@@ -60,7 +61,7 @@ export async function POST(req) {
     // Get user document
     const userRef = firestore.collection("users").doc(userId);
     const userDoc = await userRef.get();
-    const userData = userDoc.data();
+    const userData = userDoc.exists ? userDoc.data() || {} : {};
 
     // Check daily attempts
     const now = new Date();
@@ -70,7 +71,11 @@ export async function POST(req) {
       type === "portal" ? "dailyPortalAttempts" : "dailyCookingAttempts";
     const dateField = type === "portal" ? "lastPortalDate" : "lastCookingDate";
 
-    if (userData[dateField] !== today) {
+    // Add safety check for userData fields
+    const currentAttempts = userData[attemptsField] || 0;
+    const lastDate = userData[dateField] || "";
+
+    if (lastDate !== today) {
       // Reset attempts for new day
       await userRef.update({
         [attemptsField]: 0,
@@ -79,7 +84,7 @@ export async function POST(req) {
       userData[attemptsField] = 0;
     }
 
-    if (userData[attemptsField] >= DAILY_ATTEMPTS_LIMIT) {
+    if (currentAttempts >= DAILY_ATTEMPTS_LIMIT) {
       await trackCookingAttempt({
         userId,
         code,
@@ -95,7 +100,7 @@ export async function POST(req) {
 
     // Increment attempts
     await userRef.update({
-      [attemptsField]: (userData[attemptsField] || 0) + 1,
+      [attemptsField]: currentAttempts + 1,
       [dateField]: today,
     });
 

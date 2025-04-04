@@ -218,7 +218,7 @@ export function Cauldron() {
         onOpenChange={setShowCauldronEgg}
         title="You found it!"
         code="START"
-        message="This was an easy easter egg! But it's good enough to get you warmed up! :D"
+        message="This was an easy easter egg! But it's good enough to get you warmed up! Type START in the code to cook up something special!"
         image="/easterEggs/3.png"
         imageAlt="Easy Easter Egg"
       />
