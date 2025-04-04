@@ -98,83 +98,153 @@ export default function DeliveryPage() {
           console.log("Number of rows (after filtering empty):", rows.length);
           console.log("Headers row:", rows[0]);
 
+          // Parse CSV headers
           const headers = rows[0].split(",").map((header) => header.trim());
           console.log("Parsed headers:", headers);
 
-          // Validate required headers
-          const requiredHeaders = [
-            "email",
-            "productIds",
-            "source",
-            "campaignName",
-          ];
-          const missingHeaders = requiredHeaders.filter(
-            (h) => !headers.includes(h)
-          );
-          if (missingHeaders.length > 0) {
-            throw new Error(
-              `Missing required headers: ${missingHeaders.join(", ")}`
+          // Check if it's the new format
+          const isNewFormat =
+            headers.includes("Email") &&
+            (headers.includes("Backer Name") ||
+              headers.includes("Backer Number") ||
+              headers.includes("Reward Title"));
+
+          // Process CSV based on format
+          let parsedData = [];
+
+          if (isNewFormat) {
+            // Get the index of the Email column
+            const emailIndex = headers.findIndex((h) => h === "Email");
+            if (emailIndex === -1) {
+              throw new Error("Email column not found in CSV");
+            }
+
+            console.log(
+              "Detected kickstarter/backerkit format. Using Email from column:",
+              emailIndex
             );
-          }
 
-          const parsedData = rows
-            .slice(1)
-            .map((row, index) => {
-              console.log(`Processing row ${index + 1}:`, row);
+            parsedData = rows
+              .slice(1)
+              .map((row, index) => {
+                const values = row.split(",").map((value) => value.trim());
 
-              const values = row.split(",").map((value) => value.trim());
-              console.log(`Row ${index + 1} values:`, values);
+                // Create an object with all original fields
+                const originalData = {};
+                headers.forEach((header, i) => {
+                  originalData[header] = values[i] || "";
+                });
 
-              if (values.length !== headers.length) {
-                console.error(
-                  `Row ${index + 1} has incorrect number of values. Expected ${
-                    headers.length
-                  }, got ${values.length}`
-                );
-                throw new Error(
-                  `Row ${index + 1} has incorrect number of columns`
-                );
-              }
+                // Extract email
+                const email = values[emailIndex];
+                if (!email) {
+                  console.log(`Row ${index + 1} has no email, skipping`);
+                  return null;
+                }
 
-              const rowData = {};
-              headers.forEach((header, index) => {
-                try {
-                  if (header === "productIds") {
-                    rowData[header] = values[index]
-                      .split(";")
-                      .map((id) => id.trim());
-                  } else {
-                    rowData[header] = values[index];
-                  }
-                } catch (err) {
+                // Create the required structure with additional fields
+                return {
+                  // Required fields for the system
+                  email: email,
+                  productIds: ["monstermixology"], // Hardcoded as requested
+                  source: "kickstarter", // Hardcoded as requested
+                  campaignName: "Monster Mixology Campaign",
+
+                  // Store all original data
+                  originalData: originalData,
+
+                  // Additional fields
+                  uniqueCode: generateUniqueCode(),
+                  isClaimed: false,
+
+                  // Extract specific fields that might be useful at the top level
+                  backerName: originalData["Backer Name"] || "",
+                  backerNumber: originalData["Backer Number"] || "",
+                  backerUid: originalData["Backer UID"] || "",
+                  rewardTitle: originalData["Reward Title"] || "",
+                  pledgeAmount: originalData["Pledge Amount"] || "",
+                };
+              })
+              .filter(Boolean); // Remove null entries (rows without emails)
+          } else {
+            // Original format processing
+            // Validate required headers
+            const requiredHeaders = [
+              "email",
+              "productIds",
+              "source",
+              "campaignName",
+            ];
+            const missingHeaders = requiredHeaders.filter(
+              (h) => !headers.includes(h)
+            );
+            if (missingHeaders.length > 0) {
+              throw new Error(
+                `Missing required headers: ${missingHeaders.join(", ")}`
+              );
+            }
+
+            parsedData = rows
+              .slice(1)
+              .map((row, index) => {
+                console.log(`Processing row ${index + 1}:`, row);
+
+                const values = row.split(",").map((value) => value.trim());
+                console.log(`Row ${index + 1} values:`, values);
+
+                if (values.length !== headers.length) {
                   console.error(
-                    `Error processing header "${header}" at index ${index}:`,
-                    err
+                    `Row ${index + 1} has incorrect number of values. Expected ${
+                      headers.length
+                    }, got ${values.length}`
                   );
                   throw new Error(
-                    `Error in row ${index + 1} for column "${header}"`
+                    `Row ${index + 1} has incorrect number of columns`
                   );
                 }
+
+                const rowData = {};
+                headers.forEach((header, index) => {
+                  try {
+                    if (header === "productIds") {
+                      rowData[header] = values[index]
+                        .split(";")
+                        .map((id) => id.trim());
+                    } else {
+                      rowData[header] = values[index];
+                    }
+                  } catch (err) {
+                    console.error(
+                      `Error processing header "${header}" at index ${index}:`,
+                      err
+                    );
+                    throw new Error(
+                      `Error in row ${index + 1} for column "${header}"`
+                    );
+                  }
+                });
+
+                rowData.uniqueCode = generateUniqueCode();
+                rowData.isClaimed = false;
+
+                console.log(`Processed row ${index + 1} data:`, rowData);
+                return rowData;
+              })
+              .filter((row) => {
+                if (!row.email) {
+                  console.log("Filtering out row due to missing email:", row);
+                  return false;
+                }
+                return true;
               });
-
-              rowData.uniqueCode = generateUniqueCode();
-              rowData.isClaimed = false;
-
-              console.log(`Processed row ${index + 1} data:`, rowData);
-              return rowData;
-            })
-            .filter((row) => {
-              if (!row.email) {
-                console.log("Filtering out row due to missing email:", row);
-                return false;
-              }
-              return true;
-            });
+          }
 
           console.log("Final parsed data:", parsedData);
           setCsvData(parsedData);
           setPreviewData(parsedData.slice(0, 5));
-          setSuccess("CSV file parsed successfully!");
+          setSuccess(
+            `CSV file parsed successfully! Found ${parsedData.length} valid backer records.`
+          );
         } catch (err) {
           console.error("Detailed parsing error:", err);
           setError(`Error parsing CSV file: ${err.message}`);
@@ -316,6 +386,35 @@ export default function DeliveryPage() {
     }
   };
 
+  const renderCellValue = (value) => {
+    if (value === null || value === undefined) {
+      return "-";
+    }
+
+    if (Array.isArray(value)) {
+      return value.join(", ");
+    }
+
+    if (typeof value === "object") {
+      // For date objects
+      if (value instanceof Date) {
+        return value.toLocaleDateString();
+      }
+
+      // For other objects, show a simplified representation
+      try {
+        return (
+          JSON.stringify(value).substring(0, 50) +
+          (JSON.stringify(value).length > 50 ? "..." : "")
+        );
+      } catch (e) {
+        return "[Object]";
+      }
+    }
+
+    return String(value);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Delivery Management</h1>
@@ -348,19 +447,21 @@ export default function DeliveryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {Object.keys(previewData[0]).map((header) => (
-                    <TableHead key={header}>{header}</TableHead>
-                  ))}
+                  {Object.keys(previewData[0])
+                    .filter((header) => header !== "originalData")
+                    .map((header) => (
+                      <TableHead key={header}>{header}</TableHead>
+                    ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {previewData.map((row, index) => (
                   <TableRow key={index}>
-                    {Object.values(row).map((value, i) => (
-                      <TableCell key={i}>
-                        {Array.isArray(value) ? value.join(", ") : value}
-                      </TableCell>
-                    ))}
+                    {Object.entries(row)
+                      .filter(([key]) => key !== "originalData")
+                      .map(([key, value], i) => (
+                        <TableCell key={i}>{renderCellValue(value)}</TableCell>
+                      ))}
                   </TableRow>
                 ))}
               </TableBody>

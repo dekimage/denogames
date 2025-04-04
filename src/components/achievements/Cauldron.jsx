@@ -79,7 +79,13 @@ export function Cauldron() {
       if (data.success) {
         setUnlockedAchievement(data.achievement);
 
+        // Make sure to update MobX store properly
         runInAction(() => {
+          // Initialize achievements array if it doesn't exist
+          if (!MobxStore.user.achievements) {
+            MobxStore.user.achievements = [];
+          }
+
           if (!MobxStore.user.achievements.includes(data.achievement.id)) {
             MobxStore.user.achievements.push(data.achievement.id);
           }
@@ -94,6 +100,12 @@ export function Cauldron() {
             MobxStore.achievements[existingIndex] = data.achievement;
           }
         });
+
+        // Call setNewAchievement after updating achievements array
+        // This ensures the achievement will be found when looking up by ID
+        setTimeout(() => {
+          MobxStore.setNewAchievement(data.achievement.id);
+        }, 100);
 
         toast({
           title: "Achievement Unlocked!",

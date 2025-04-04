@@ -165,6 +165,10 @@ class Store {
     this.setFilter = this.setFilter.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
 
+    //ACHIEVEMENTS
+    this.clearNewAchievement = this.clearNewAchievement.bind(this);
+    this.setNewAchievement = this.setNewAchievement.bind(this);
+
     //BLOG
     this.fetchBlogs = this.fetchBlogs.bind(this);
     this.fetchBlogDetails = this.fetchBlogDetails.bind(this);
@@ -1634,25 +1638,38 @@ class Store {
   }
 
   // Add these new methods to the Store class
-  clearNewAchievement = () => {
+  clearNewAchievement() {
+    console.log("Clearing new achievement");
     runInAction(() => {
       this.showAchievementAnimation = false;
       this.newlyUnlockedAchievement = null;
     });
-  };
+  }
 
-  setNewAchievement = (achievementId) => {
+  setNewAchievement(achievementId) {
+    console.log("Setting new achievement:", achievementId);
+
+    // Find the achievement in the achievements array
     const achievement = this.achievements.find((a) => a.id === achievementId);
+
     if (!achievement) {
-      console.warn("Achievement not found:", achievementId);
+      console.error("Achievement not found:", achievementId);
       return;
     }
 
+    console.log("Achievement found:", achievement);
+
+    // Important: Use runInAction to ensure state updates are tracked properly
     runInAction(() => {
       this.newlyUnlockedAchievement = achievement;
       this.showAchievementAnimation = true;
     });
-  };
+
+    console.log("After update:", {
+      showAnimation: this.showAchievementAnimation,
+      achievement: this.newlyUnlockedAchievement,
+    });
+  }
 
   // Add this method to update achievements after unlocking
   updateUserAchievements(achievementId, achievement) {

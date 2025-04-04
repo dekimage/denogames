@@ -54,6 +54,7 @@ const RootLayout = observer(({ children }) => {
 
         {/* SEO */}
         <meta
+          title="Deno Games"
           name="description"
           content="Explore and play printable board games by Deno Games"
         />

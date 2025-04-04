@@ -33,11 +33,31 @@ export async function POST() {
       if (userEmail && backersByEmail.has(userEmail)) {
         const backer = backersByEmail.get(userEmail);
 
+        // Ensure productIds is an array
+        let productIds = [];
+        if (Array.isArray(backer.productIds)) {
+          productIds = backer.productIds;
+        } else if (typeof backer.productIds === "string") {
+          productIds = backer.productIds.split(";").map((id) => id.trim());
+        } else if (backer.productIds) {
+          productIds = [backer.productIds.toString()];
+        }
+
+        // If we have no product IDs but the originalData has a reward title,
+        // default to Monster Mixology
+        if (
+          productIds.length === 0 &&
+          backer.originalData &&
+          (backer.originalData["Reward Title"] || backer.rewardTitle)
+        ) {
+          productIds = ["monstermixology"];
+        }
+
         // Update user document
         const userRef = firestore.collection("users").doc(userDoc.id);
         batch.update(userRef, {
           purchasedProducts: admin.firestore.FieldValue.arrayUnion(
-            ...(backer.productIds || [])
+            ...productIds
           ),
           tags: admin.firestore.FieldValue.arrayUnion(
             `${backer.source || "external"}_backer`
@@ -50,6 +70,8 @@ export async function POST() {
           isClaimed: true,
           claimedBy: userDoc.id,
           claimedAt: new Date(),
+          // Store the final productIds that were actually used
+          claimedProductIds: productIds,
         });
 
         matchedCount++;
@@ -67,7 +89,7 @@ export async function POST() {
   } catch (error) {
     console.error("Error matching users:", error);
     return NextResponse.json(
-      { error: "Failed to match users" },
+      { error: "Failed to match users: " + error.message },
       { status: 500 }
     );
   }
