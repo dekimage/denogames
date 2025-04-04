@@ -160,7 +160,10 @@ export function Cauldron() {
         <div className="relative">
           <div
             className="relative w-48 h-48 mx-auto cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => setShowCauldronEgg(true)}
+            onClick={() => {
+              MobxStore.testAchievementOverlay();
+              setShowCauldronEgg(true);
+            }}
           >
             <Image
               src="/platform/cauldron.png"

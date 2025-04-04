@@ -57,7 +57,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
         <Link href={`/account/my-games/${product.id}`} className="w-full">
           <Button
             variant="secondary"
-            className="w-full bg-black hover:bg-black/80 text-white"
+            className="w-full bg-green-500 hover:bg-green-500/80 text-white"
           >
             <Download size={16} className="mr-1" /> DOWNLOAD FILES
           </Button>
@@ -74,7 +74,7 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
           >
             <Button
               variant="secondary"
-              className="w-full bg-black hover:bg-black/80 text-white"
+              className="w-full bg-green-500 hover:bg-green-500/80 text-white"
             >
               <Download size={16} className="mr-1" /> DOWNLOAD FILES
             </Button>

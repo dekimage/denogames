@@ -638,7 +638,7 @@ const PrintableSheet = () => {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="w-full max-w-7xl px-0 sm:px-2 flex justify-center flex-col items-center">
-        <div className="flex justify-center items-center w-full max-w-[600px]">
+        {/* <div className="flex justify-center items-center w-full max-w-[600px]">
           <Button
             variant="outline"
             className="mr-4"
@@ -647,9 +647,9 @@ const PrintableSheet = () => {
             <ChevronLeft className="mr-2" /> Back
           </Button>
           <h2 className="text-2xl font-strike uppercase my-8 text-center">
-            Download Resources
+            Monster Mixology Tools
           </h2>
-        </div>
+        </div> */}
 
         {/* <ExpansionSelector
           gameId="monstermixology"

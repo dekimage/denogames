@@ -64,7 +64,7 @@ const RootLayout = observer(({ children }) => {
         <ThemeProvider attribute="class" defaultTheme="system">
           <ReusableLayout>{children}</ReusableLayout>
           <Toaster />
-          <AchievementUnlockOverlay />
+          {/* <AchievementUnlockOverlay /> */}
         </ThemeProvider>
       </body>
     </html>

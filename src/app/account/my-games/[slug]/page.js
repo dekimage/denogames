@@ -441,6 +441,8 @@ const GameDetailsPage = observer(({ params }) => {
   } = MobxStore;
 
   const [error, setError] = useState(null);
+  const [printInstructionsExpanded, setPrintInstructionsExpanded] =
+    useState(false);
 
   const game = products.find((p) => p.slug === slug);
 
@@ -538,6 +540,130 @@ const GameDetailsPage = observer(({ params }) => {
           </div>
         </div>
       </div>
+
+      {/* Printing Instructions Section - Only show for monstermixology */}
+      {game.id === "monstermixology" && (
+        <div className="mb-8 border rounded-lg overflow-hidden bg-card shadow-sm">
+          <div
+            className="flex items-center justify-between p-4 bg-muted/30 cursor-pointer"
+            onClick={() => {
+              // Use a ref to track the expanded state
+              const newState = !printInstructionsExpanded;
+              setPrintInstructionsExpanded(newState);
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-full bg-primary/10">
+                <Download className="w-5 h-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-strike">
+                Printing Instructions{" "}
+                <span className="text-primary font-bold">READ ME FIRST</span>
+              </h2>
+            </div>
+            <ChevronDown
+              className={`w-6 h-6 transition-transform duration-300 ${printInstructionsExpanded ? "rotate-180" : ""}`}
+            />
+          </div>
+
+          {printInstructionsExpanded && (
+            <div className="p-5 border-t animate-in fade-in-50 duration-300">
+              <div className="space-y-6">
+                <div className="p-4 bg-card rounded-lg border">
+                  <h3 className="text-lg font-semibold mb-3">
+                    Starter Version
+                  </h3>
+                  <ol className="space-y-2 ml-6 list-decimal text-muted-foreground">
+                    <li>
+                      Print 1 copy per player of the Basic Sheet and have 1 pen
+                      for each player.
+                    </li>
+                    <li>
+                      Print out the rules, or read them digitally on your
+                      device.
+                    </li>
+                    <li>
+                      Scan the QR code on the printed Basic Sheet. This will
+                      open the web app, and you'll be ready to play!
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="p-4 bg-card rounded-lg border">
+                  <h3 className="text-lg font-semibold mb-3">
+                    Advanced Play Options
+                  </h3>
+                  <p className="text-muted-foreground mb-3">
+                    Once you're familiar with the basic game, try these advanced
+                    options:
+                  </p>
+                  <ul className="space-y-2 ml-6 list-disc text-muted-foreground">
+                    <li>
+                      <span className="font-medium">Lucky Generator:</span>{" "}
+                      Create randomized player sheets for unique game
+                      experiences.
+                    </li>
+                    <li>
+                      <span className="font-medium">Custom Builder:</span>{" "}
+                      Design your own custom sheets with specific elements.
+                    </li>
+                    <li>
+                      <span className="font-medium">Asymmetric Mode:</span> Let
+                      each player use a different sheet for varied gameplay.
+                      Enable this in the web app by clicking the settings gear
+                      icon and toggling "Asymmetric Mode."
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-card rounded-lg border">
+                  <h3 className="text-lg font-semibold mb-3">
+                    Analog Only Option
+                  </h3>
+                  <p className="text-muted-foreground">
+                    If you prefer to play without the app, you can download and
+                    print the PnP Deck file. Print and cut all cards from this
+                    file. This option is completely optional and is not required
+                    if you're using the app.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-card rounded-lg border">
+                  <h3 className="text-lg font-semibold mb-3">
+                    Add-On - Special Events
+                  </h3>
+                  <p className="text-muted-foreground mb-3">
+                    This is a surprise add-on for the game that you can unlock
+                    by collecting achievements and collectibles on the platform.
+                  </p>
+                  <ul className="space-y-2 ml-6 list-disc text-muted-foreground">
+                    <li>
+                      Once you have the requirements, you can craft it for free
+                      and get 3 new event cards in your app.
+                    </li>
+                    <li>
+                      To use them, toggle the add-on option in the settings in
+                      the web app.
+                    </li>
+                    <li>
+                      You must be logged in with this account where you have
+                      this add-on unlocked.
+                    </li>
+                  </ul>
+                  <p className="text-muted-foreground mt-3 text-sm italic">
+                    <span className="inline-flex items-center mr-1">
+                      <Gift className="w-4 h-4 text-primary mr-1" />
+                      Tip:
+                    </span>
+                    Explore the platform and complete achievements to discover
+                    how to unlock this special content!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Base Game Components */}
       <ComponentSection

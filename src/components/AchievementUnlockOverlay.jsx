@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,44 +8,64 @@ import MobxStore from "@/mobx";
 import { Star, Trophy, Award } from "lucide-react";
 
 const AchievementUnlockOverlay = observer(() => {
+  // Use local component state to track visibility
+  const [isVisible, setIsVisible] = useState(false);
+  const [currentAchievement, setCurrentAchievement] = useState(null);
+
+  // Get the MobX store values
   const {
     showAchievementAnimation,
     newlyUnlockedAchievement,
     clearNewAchievement,
   } = MobxStore;
 
+  // Sync MobX state with local state
   useEffect(() => {
-    // Auto-hide after 5 seconds
-    if (showAchievementAnimation) {
+    console.log("Effect triggered with:", {
+      showAchievementAnimation,
+      newlyUnlockedAchievement,
+    });
+
+    if (showAchievementAnimation && newlyUnlockedAchievement) {
+      setIsVisible(true);
+      setCurrentAchievement(newlyUnlockedAchievement);
+    }
+  }, [showAchievementAnimation, newlyUnlockedAchievement]);
+
+  // Auto-hide after 5 seconds
+  useEffect(() => {
+    if (isVisible) {
       const timer = setTimeout(() => {
-        clearNewAchievement();
+        handleClose();
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [showAchievementAnimation, clearNewAchievement]);
+  }, [isVisible]);
 
-  console.log("showAchievementAnimation", showAchievementAnimation);
-  console.log("newlyUnlockedAchievement", newlyUnlockedAchievement);
+  // Handler for closing the overlay
+  const handleClose = () => {
+    console.log("Closing achievement overlay");
+    setIsVisible(false);
+    clearNewAchievement();
+  };
 
-  // Return null when there's no achievement to show
-  if (!showAchievementAnimation || !newlyUnlockedAchievement) {
-    return null;
-  }
-
-  const achievement = newlyUnlockedAchievement;
+  // console.log("Component render state:", {
+  //   isVisible,
+  //   currentAchievement,
+  //   mobxShow: showAchievementAnimation,
+  //   mobxAchievement: newlyUnlockedAchievement,
+  // });
 
   // KEEPING ALL YOUR BEAUTIFUL UI!
   return (
     <AnimatePresence mode="wait">
-      {showAchievementAnimation && newlyUnlockedAchievement && (
+      {isVisible && currentAchievement && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
-          onClick={() => {
-            clearNewAchievement();
-          }}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0, y: 50 }}
@@ -109,18 +129,20 @@ const AchievementUnlockOverlay = observer(() => {
 
               <div className="relative w-32 h-32 mx-auto mb-6 rounded-lg overflow-hidden">
                 <Image
-                  src={achievement.image}
-                  alt={achievement.name}
+                  src={currentAchievement.image}
+                  alt={currentAchievement.name}
                   fill
                   className="object-contain"
                 />
               </div>
 
-              <h3 className="text-xl font-semibold mb-2">{achievement.name}</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {currentAchievement.name}
+              </h3>
 
-              {achievement.difficulty && (
+              {currentAchievement.difficulty && (
                 <div className="flex justify-center gap-1 mb-3">
-                  {[...Array(achievement.difficulty)].map((_, i) => (
+                  {[...Array(currentAchievement.difficulty)].map((_, i) => (
                     <motion.div
                       key={i}
                       initial={{ scale: 0 }}
@@ -133,9 +155,11 @@ const AchievementUnlockOverlay = observer(() => {
                 </div>
               )}
 
-              <p className="text-muted-foreground">{achievement.description}</p>
+              <p className="text-muted-foreground">
+                {currentAchievement.description}
+              </p>
 
-              {achievement.unlocksRewards?.length > 0 && (
+              {currentAchievement.unlocksRewards?.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -143,8 +167,8 @@ const AchievementUnlockOverlay = observer(() => {
                   className="mt-4 p-3 bg-yellow-400/10 rounded-lg"
                 >
                   <p className="text-sm font-medium text-yellow-400">
-                    🎁 Unlocks {achievement.unlocksRewards.length} reward
-                    {achievement.unlocksRewards.length > 1 ? "s" : ""}
+                    🎁 Unlocks {currentAchievement.unlocksRewards.length} reward
+                    {currentAchievement.unlocksRewards.length > 1 ? "s" : ""}
                   </p>
                 </motion.div>
               )}
@@ -153,9 +177,7 @@ const AchievementUnlockOverlay = observer(() => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                onClick={() => {
-                  clearNewAchievement();
-                }}
+                onClick={handleClose}
                 className="mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
               >
                 Awesome!

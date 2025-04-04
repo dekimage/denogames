@@ -115,21 +115,6 @@ export const CustomizeCharacters = ({ onGenerateCustomPDF }) => {
               >
                 <Eye className="h-3 w-3 mr-1" /> View
               </Button>
-
-              {/* Add Download Rulebook button */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="py-0 h-8 w-8"
-                onClick={(e) =>
-                  handleDownloadRulebook(
-                    e,
-                    "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/rulebooks%2FMonster%20Mixology%20Rulebook.pdf?alt=media"
-                  )
-                }
-              >
-                <Download className="h-3 w-3" />
-              </Button>
             </div>
           </div>
         ))}

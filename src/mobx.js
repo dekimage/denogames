@@ -1688,6 +1688,27 @@ class Store {
       this.setNewAchievement(achievementId);
     });
   }
+
+  // Add a test function to manually trigger achievement overlay
+  testAchievementOverlay() {
+    // Find the first achievement in the list
+    if (this.achievements.length > 0) {
+      const testAchievement = this.achievements[0];
+      console.log("Testing achievement overlay with:", testAchievement);
+
+      runInAction(() => {
+        this.newlyUnlockedAchievement = testAchievement;
+        this.showAchievementAnimation = true;
+      });
+
+      console.log("After test update:", {
+        showAnimation: this.showAchievementAnimation,
+        achievement: this.newlyUnlockedAchievement,
+      });
+    } else {
+      console.error("No achievements available for testing");
+    }
+  }
 }
 
 const MobxStore = new Store();
