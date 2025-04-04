@@ -8,13 +8,13 @@ import { ACHIEVEMENTS } from "@/lib/constants/achievements";
 const SECRET_CODES = {
   // Cauldron codes (achievements/collectibles)
   START: "welcome",
-  MAGICWORD: "achievement-id-2",
-  magic: "expansion-expert",
-  rare: "rare-card-2",
-  social: "social-butterfly",
+  SATISFIED: "c2",
+  BOOO: "c4",
+  SHOP_EXPLORER: "c5",
+  DOODLER: "c3",
   // Portal codes (locations)
-  PORTAL1: "early-supporter",
-  PORTAL2: "location-id-2",
+  // PORTAL1: "early-supporter",
+  // PORTAL2: "location-id-2",
 };
 
 const DAILY_ATTEMPTS_LIMIT = 10;

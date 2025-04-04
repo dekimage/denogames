@@ -26,7 +26,7 @@ export function EasterEggDialog({
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4 py-4">
-          {image && (
+          {/* {image && (
             <div className="relative w-[120px] h-[120px] mb-2">
               <Image
                 src={image}
@@ -35,7 +35,7 @@ export function EasterEggDialog({
                 className="object-contain"
               />
             </div>
-          )}
+          )} */}
           <div className="bg-muted rounded-lg px-4 py-2 font-mono text-lg font-bold tracking-wider">
             {code}
           </div>
