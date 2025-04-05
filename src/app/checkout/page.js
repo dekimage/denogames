@@ -1729,11 +1729,12 @@ const CheckoutPage = observer(() => {
                   </div>
                 </div>
 
-                <PaymentButton
+                {/* <PaymentButton
                   cartItems={cartItems}
                   total={total}
                   disabled={disableCheckout}
-                />
+                /> */}
+                <Button>Coming in 1-3 days</Button>
               </>
             )}
 
