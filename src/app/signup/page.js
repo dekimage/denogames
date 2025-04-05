@@ -295,7 +295,7 @@ const SignupCardContent = observer(() => {
               </Alert>
             )}
 
-            <Button
+            {/* <Button
               variant="outline"
               className="w-full"
               onClick={handleGoogleSignIn}
@@ -318,7 +318,7 @@ const SignupCardContent = observer(() => {
                   Or continue with email
                 </span>
               </div>
-            </div>
+            </div> */}
 
             <SignupForm />
           </CardContent>

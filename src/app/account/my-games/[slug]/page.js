@@ -611,7 +611,7 @@ const GameDetailsPage = observer(({ params }) => {
                       <span className="font-medium">Asymmetric Mode:</span> Let
                       each player use a different sheet for varied gameplay.
                       Enable this in the web app by clicking the settings gear
-                      icon and toggling "Asymmetric Mode."
+                      icon and toggling &quot;Asymmetric Mode.&quot;
                     </li>
                   </ul>
                 </div>

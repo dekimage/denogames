@@ -39,9 +39,10 @@ export default function About() {
           </div>
 
           <p className="text-lg text-muted-foreground mb-6">
-            Hey friend! We're Deno & Maca, the duo behind Deno Games. We're just
-            two passionate creators who love games, one of us loves building
-            them, the other loves testing and showing them to the world.
+            Hey friend! We&apos;re Deno & Maca, the duo behind Deno Games.
+            We&apos;re just two passionate creators who love games, one of us
+            loves building them, the other loves testing and showing them to the
+            world.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
@@ -58,10 +59,10 @@ export default function About() {
               <h3 className="text-xl font-bold mb-2">Deno</h3>
               <p className="text-muted-foreground text-center mb-4">
                 The brain behind the games. A lifelong game lover, designer, and
-                developer. He's been into games since he was a kid, and now he
-                finally gets to create ones and share them with the world. If
-                there's a rule to tweak, a mechanic to test, or a deck to build,
-                he's already deep in it.
+                developer. He&apos;s been into games since he was a kid, and now
+                he finally gets to create ones and share them with the world. If
+                there&apos;s a rule to tweak, a mechanic to test, or a deck to
+                build, he&apos;s already deep in it.
               </p>
               <Button variant="outline" size="sm" className="mt-auto" asChild>
                 <a
@@ -89,7 +90,7 @@ export default function About() {
               </div>
               <h3 className="text-xl font-bold mb-2">Maca</h3>
               <p className="text-muted-foreground text-center mb-4">
-                The soul of our projects. She's our marketing wizard,
+                The soul of our projects. She&apos;s our marketing wizard,
                 playtester-in-chief, and the person who makes sure everything we
                 do actually gets seen and played! She loves helping people
                 discover new games and always brings the fun energy.
@@ -110,17 +111,17 @@ export default function About() {
           </div>
 
           <p className="text-muted-foreground mb-6">
-            We're both passionate about games that are exciting, fun, and easy
-            to setup.
+            We&apos;re both passionate about games that are exciting, fun, and
+            easy to setup.
           </p>
           <p className="text-muted-foreground mb-6">
-            That's why we make print-and-play experiences that's not only fun
-            and fast to set up, but also packed with smart design and endless
-            replayability. This platform is our way of bringing creative print
-            and play games.
+            That&apos;s why we make print-and-play experiences that&apos;s not
+            only fun and fast to set up, but also packed with smart design and
+            endless replayability. This platform is our way of bringing creative
+            print and play games.
           </p>
           <p className="text-muted-foreground mb-8">
-            We're so excited you're here to be part of it!
+            We&apos;re so excited you&apos;re here to be part of it!
           </p>
           <p className="text-muted-foreground italic mb-12">
             With love,
@@ -151,7 +152,7 @@ export default function About() {
               <p className="text-muted-foreground">
                 We create companion apps for our games that either help you save
                 time on cutting and assembling files/cards or introduce cool new
-                mechanics that aren't possible in physical format alone.
+                mechanics that aren&apos;t possible in physical format alone.
               </p>
             </div>
             <div className="bg-muted p-6 rounded-lg">
@@ -159,7 +160,7 @@ export default function About() {
               <p className="text-muted-foreground">
                 Our games feature original artwork and invite you to explore
                 weird and wonderful worlds with unique themes and settings you
-                won't find anywhere else.
+                won&apos;t find anywhere else.
               </p>
             </div>
           </div>
