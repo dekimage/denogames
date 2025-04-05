@@ -385,7 +385,7 @@ const HomePage = observer(() => {
       title: "Monster Mixology",
       description: "Successfully funded on Kickstarter!",
       imgUrl:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
+        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonstermixology%2Fcover-mm.png?alt=media",
       openNewTab: true,
       button: "See Campaign",
       link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
