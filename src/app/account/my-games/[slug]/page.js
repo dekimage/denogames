@@ -584,7 +584,7 @@ const GameDetailsPage = observer(({ params }) => {
                     </li>
                     <li>
                       Scan the QR code on the printed Basic Sheet. This will
-                      open the web app, and you'll be ready to play!
+                      open the web app, and you&apos;ll be ready to play!
                     </li>
                   </ol>
                 </div>
@@ -594,8 +594,8 @@ const GameDetailsPage = observer(({ params }) => {
                     Advanced Play Options
                   </h3>
                   <p className="text-muted-foreground mb-3">
-                    Once you're familiar with the basic game, try these advanced
-                    options:
+                    Once you&apos;re familiar with the basic game, try these
+                    advanced options:
                   </p>
                   <ul className="space-y-2 ml-6 list-disc text-muted-foreground">
                     <li>
@@ -624,7 +624,7 @@ const GameDetailsPage = observer(({ params }) => {
                     If you prefer to play without the app, you can download and
                     print the PnP Deck file. Print and cut all cards from this
                     file. This option is completely optional and is not required
-                    if you're using the app.
+                    if you&apos;re using the app.
                   </p>
                 </div>
 

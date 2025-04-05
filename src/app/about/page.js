@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink, Facebook, Instagram } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -24,7 +24,7 @@ export default function About() {
 
       <div className="bg-card text-card-foreground rounded-lg shadow-sm p-6 md:p-10">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 border-b pb-4">
-          About Deno Games
+          About Us
         </h1>
 
         <div className="mb-12">
@@ -39,29 +39,93 @@ export default function About() {
           </div>
 
           <p className="text-lg text-muted-foreground mb-6">
-            Welcome to Deno Games, where creativity meets accessibility in the
-            world of tabletop gaming!
+            Hey friend! We're Deno & Maca, the duo behind Deno Games. We're just
+            two passionate creators who love games, one of us loves building
+            them, the other loves testing and showing them to the world.
           </p>
 
-          <h2 className="text-2xl font-bold mb-4">Our Story</h2>
-          <p className="text-muted-foreground mb-6">
-            Founded in 2022 by game designer and developer Dejan Noveski, Deno
-            Games was born from a passion for creating engaging, accessible
-            tabletop games that anyone can enjoy. What started as a hobby
-            designing games for friends and family has grown into a boutique
-            print-and-play game studio with a dedicated community of players
-            around the world.
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div className="bg-muted/20 p-6 rounded-lg flex flex-col items-center">
+              <div className="relative w-[180px] h-[180px] rounded-full overflow-hidden mb-4">
+                <Image
+                  src="/deno.jpg"
+                  alt="Deno"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  className="rounded-full"
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Deno</h3>
+              <p className="text-muted-foreground text-center mb-4">
+                The brain behind the games. A lifelong game lover, designer, and
+                developer. He's been into games since he was a kid, and now he
+                finally gets to create ones and share them with the world. If
+                there's a rule to tweak, a mechanic to test, or a deck to build,
+                he's already deep in it.
+              </p>
+              <Button variant="outline" size="sm" className="mt-auto" asChild>
+                <a
+                  href="https://www.facebook.com/dejan.gavrilovic.73/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  <Facebook className="h-4 w-4 mr-2" />
+                  Facebook
+                  <ExternalLink className="h-3 w-3 ml-2" />
+                </a>
+              </Button>
+            </div>
 
-          <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
+            <div className="bg-muted/20 p-6 rounded-lg flex flex-col items-center">
+              <div className="relative w-[180px] h-[180px] rounded-full overflow-hidden mb-4">
+                <Image
+                  src="/maca.jpg"
+                  alt="Maca"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  className="rounded-full"
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Maca</h3>
+              <p className="text-muted-foreground text-center mb-4">
+                The soul of our projects. She's our marketing wizard,
+                playtester-in-chief, and the person who makes sure everything we
+                do actually gets seen and played! She loves helping people
+                discover new games and always brings the fun energy.
+              </p>
+              <Button variant="outline" size="sm" className="mt-auto" asChild>
+                <a
+                  href="https://www.instagram.com/deno_games"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  <Instagram className="h-4 w-4 mr-2" />
+                  Instagram
+                  <ExternalLink className="h-3 w-3 ml-2" />
+                </a>
+              </Button>
+            </div>
+          </div>
+
           <p className="text-muted-foreground mb-6">
-            At Deno Games, we believe that great gaming experiences should be
-            accessible to everyone. Our mission is to create high-quality
-            print-and-play board games that bring people together, spark
-            imagination, and provide hours of entertainment without breaking the
-            bank. We&apos;re committed to designing games that are easy to
-            learn, challenging to master, and most importantly, fun to play
-            again and again.
+            We're both passionate about games that are exciting, fun, and easy
+            to setup.
+          </p>
+          <p className="text-muted-foreground mb-6">
+            That's why we make print-and-play experiences that's not only fun
+            and fast to set up, but also packed with smart design and endless
+            replayability. This platform is our way of bringing creative print
+            and play games.
+          </p>
+          <p className="text-muted-foreground mb-8">
+            We're so excited you're here to be part of it!
+          </p>
+          <p className="text-muted-foreground italic mb-12">
+            With love,
+            <br />
+            Deno & Maca
           </p>
 
           <h2 className="text-2xl font-bold mb-4">What Makes Us Different</h2>
@@ -83,52 +147,25 @@ export default function About() {
               </p>
             </div>
             <div className="bg-muted p-6 rounded-lg">
-              <h3 className="text-xl font-bold mb-3">Eco-Friendly</h3>
+              <h3 className="text-xl font-bold mb-3">Companion Apps</h3>
               <p className="text-muted-foreground">
-                Our digital-first approach reduces the carbon footprint
-                associated with traditional board game manufacturing and
-                shipping. Print only what you need!
+                We create companion apps for our games that either help you save
+                time on cutting and assembling files/cards or introduce cool new
+                mechanics that aren't possible in physical format alone.
               </p>
             </div>
             <div className="bg-muted p-6 rounded-lg">
-              <h3 className="text-xl font-bold mb-3">Community-Driven</h3>
+              <h3 className="text-xl font-bold mb-3">Creative Authentic Art</h3>
               <p className="text-muted-foreground">
-                We actively listen to player feedback and involve our community
-                in the development process, resulting in games that continuously
-                improve and evolve.
-              </p>
-            </div>
-          </div>
-
-          <h2 className="text-2xl font-bold mb-4">Meet the Creator</h2>
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8">
-            <div className="relative w-[150px] h-[150px] rounded-full overflow-hidden flex-shrink-0">
-              <Image
-                src="/creator-avatar.jpg"
-                alt="Dejan Noveski"
-                fill
-                style={{ objectFit: "cover" }}
-                className="rounded-full"
-              />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-2">Dejan Noveski</h3>
-              <p className="text-muted-foreground mb-4">
-                Game Designer & Developer
-              </p>
-              <p className="text-muted-foreground">
-                With a background in software development and a lifelong love of
-                board games, Dejan brings a unique perspective to game design.
-                Combining technical expertise with creative storytelling, his
-                games feature innovative mechanics and engaging themes that
-                appeal to both casual players and dedicated hobbyists. When not
-                designing games, Dejan enjoys hiking, reading fantasy novels,
-                and playtesting new game ideas with friends.
+                Our games feature original artwork and invite you to explore
+                weird and wonderful worlds with unique themes and settings you
+                won't find anywhere else.
               </p>
             </div>
           </div>
         </div>
 
+        {/* Join Our Community Section - Disabled for now
         <div className="bg-primary/10 p-6 rounded-lg mb-8">
           <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
           <p className="text-muted-foreground mb-4">
@@ -151,6 +188,7 @@ export default function About() {
             </Button>
           </div>
         </div>
+        */}
 
         <footer className="mt-12 text-sm text-muted-foreground border-t pt-4">
           <p>© {new Date().getFullYear()} Deno Games. All rights reserved.</p>
