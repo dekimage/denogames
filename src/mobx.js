@@ -1471,6 +1471,37 @@ class Store {
         this.user.unlockedRewards = unlockedRewards;
       });
 
+      // Find which game this reward is for
+      const claimedAddOn = this.products.find(
+        (product) => product.id === rewardId
+      );
+      if (claimedAddOn && claimedAddOn.relatedGames) {
+        // Find the game this add-on belongs to
+        const relatedGame = this.products.find(
+          (product) => product.id === claimedAddOn.relatedGames
+        );
+
+        if (relatedGame) {
+          console.log(
+            `Add-on unlocked for game: ${relatedGame.name} (${relatedGame.slug})`
+          );
+
+          // If we have this game in the cache, we need to fetch fresh data
+          if (this.gameDetailsCache.has(relatedGame.slug)) {
+            console.log(
+              `Invalidating cached game details for: ${relatedGame.slug}`
+            );
+            // Force a refresh of the game details
+            this.fetchGameDetails(relatedGame.slug, true).catch((err) => {
+              console.error(
+                "Error refreshing game details after claiming add-on:",
+                err
+              );
+            });
+          }
+        }
+      }
+
       return true;
     } catch (error) {
       console.error("Error claiming reward:", error);
@@ -1512,14 +1543,20 @@ class Store {
   }
 
   // Add this method to your Store class
-  async fetchGameDetails(slug) {
+  async fetchGameDetails(slug, forceRefresh = false) {
+    // If forceRefresh is true, clear the cache for this slug
+    if (forceRefresh && this.gameDetailsCache.has(slug)) {
+      console.log(`Force refreshing game details for: ${slug}`);
+      this.gameDetailsCache.delete(slug);
+    }
+
     // If we're already loading this game's details, return the existing promise
     if (this.gameDetailsLoading.get(slug)) {
       return this.gameDetailsLoading.get(slug);
     }
 
-    // If we already have cached data for this game, return it
-    if (this.gameDetailsCache.has(slug)) {
+    // If we already have cached data for this game, return it (unless force refresh)
+    if (!forceRefresh && this.gameDetailsCache.has(slug)) {
       return this.gameDetailsCache.get(slug);
     }
 

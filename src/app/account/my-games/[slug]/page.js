@@ -460,6 +460,9 @@ const GameDetailsPage = observer(({ params }) => {
     user?.unlockedRewards?.includes(addon.id)
   );
 
+  // Track user's unlocked rewards to detect changes
+  const unlockedRewardsRef = useRef(user?.unlockedRewards || []);
+
   useEffect(() => {
     // Only fetch if we have a game ID, don't have data already, and aren't already loading
     if (game?.id && !gameData && !gameDetailsLoading.has(slug)) {
@@ -468,6 +471,45 @@ const GameDetailsPage = observer(({ params }) => {
       });
     }
   }, [game?.id, slug, gameData, fetchGameDetails, gameDetailsLoading]);
+
+  // Add a new effect to detect changes in unlockedRewards
+  useEffect(() => {
+    // If user's unlockedRewards changed and there are more items than before
+    if (
+      user?.unlockedRewards &&
+      unlockedRewardsRef.current.length < user.unlockedRewards.length
+    ) {
+      console.log(
+        "Detected new unlocked rewards, checking for game-related add-ons"
+      );
+
+      // Check if any of the new rewards are add-ons for this game
+      const newRewards = user.unlockedRewards.filter(
+        (reward) => !unlockedRewardsRef.current.includes(reward)
+      );
+
+      const gameAddons = allAddons.map((addon) => addon.id);
+      const hasNewGameAddon = newRewards.some((reward) =>
+        gameAddons.includes(reward)
+      );
+
+      if (hasNewGameAddon) {
+        console.log(
+          "New add-on unlocked for this game, refreshing game details"
+        );
+        // Force refresh game details
+        fetchGameDetails(slug, true).catch((err) => {
+          console.error(
+            "Error refreshing game details after add-on unlock:",
+            err
+          );
+        });
+      }
+    }
+
+    // Update ref for next comparison
+    unlockedRewardsRef.current = user?.unlockedRewards || [];
+  }, [user?.unlockedRewards, allAddons, slug, fetchGameDetails]);
 
   if (!game) return <div>Game not found</div>;
   if (isLoading) return <LoadingSpinner />;
