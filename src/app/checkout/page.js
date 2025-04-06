@@ -1734,7 +1734,6 @@ const CheckoutPage = observer(() => {
                   total={total}
                   disabled={disableCheckout}
                 />
-                <Button>Coming in 1-3 days</Button>
               </>
             )}
 
