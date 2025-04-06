@@ -180,6 +180,17 @@ const ReusableLayout = observer(({ children }) => {
                       Blog
                     </Button>
                   </Link>
+                  {user && (
+                    <Link href="/account/my-games">
+                      <Button
+                        variant="ghost"
+                        className="flex items-center gap-2"
+                      >
+                        <Gamepad2 className="h-4 w-4" />
+                        My Games
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
 
