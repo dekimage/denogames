@@ -72,6 +72,8 @@ export async function POST(req) {
             return {
               id: item.id,
               price: productData.price, // Store the price at the time of purchase
+              name: productData.name || "Unknown Product", // Get the product name
+              thumbnail: productData.thumbnail || "", // Get the thumbnail if available
             };
           })
         );
@@ -81,6 +83,7 @@ export async function POST(req) {
           cartItems: productPrices.map((item) => ({
             id: item.id,
             price: item.price, // Only store product ID and price
+            name: item.name, // Include the name
           })),
           paymentStatus: session.payment_status,
           amountTotal: session.amount_total / 100, // Stripe sends amount in cents, convert to dollars
@@ -124,7 +127,7 @@ export async function POST(req) {
           from: EMAIL_CONFIG.from,
           subject: "Thank you for your Deno Games purchase! 🎮",
           html: orderConfirmationTemplate({
-            products: productPrices,
+            products: productPrices, // Pass the full product data including names
             totalAmount: session.amount_total / 100,
           }),
         });
