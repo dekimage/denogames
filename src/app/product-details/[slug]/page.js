@@ -1130,7 +1130,7 @@ const ProductDetailsPage = observer(({}) => {
                       }`}
                       className="w-full"
                     >
-                      <Button className="text-xl h-[48px] font-strike w-full bg-black hover:bg-black/80 text-white">
+                      <Button className="text-xl h-[48px] font-strike w-full bg-green-500 hover:bg-green-600 text-white">
                         Open Files
                       </Button>
                     </Link>

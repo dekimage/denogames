@@ -132,7 +132,29 @@ export const ReviewSection = observer(({ productDetails, productId }) => {
 
   useEffect(() => {
     // Fetch reviews on component mount
-    fetchReviews(productId);
+    fetchReviews(productId).then(() => {
+      // This ensures the actual count matches the reviews loaded
+      const actualCount = MobxStore.reviewsByProduct[productId]?.length || 0;
+
+      // Check if displayed count differs from actual count
+      const currentProduct = MobxStore.products.find((p) => p.id === productId);
+      if (currentProduct && currentProduct.totalReviews !== actualCount) {
+        console.log(
+          `Fixing review count: Stored=${currentProduct.totalReviews}, Actual=${actualCount}`
+        );
+
+        // Update the local count to match actual reviews
+        const productIndex = MobxStore.products.findIndex(
+          (p) => p.id === productId
+        );
+        if (productIndex !== -1) {
+          MobxStore.products[productIndex] = {
+            ...MobxStore.products[productIndex],
+            totalReviews: actualCount,
+          };
+        }
+      }
+    });
   }, [productId, fetchReviews]);
 
   const loadMoreReviews = () => {

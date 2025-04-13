@@ -5,6 +5,10 @@ import { ArrowLeft, ExternalLink, Facebook, Instagram } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+import profileDeno from "../../assets/profile-deno.png";
+import profileMaca from "../../assets/profile-maca.png";
+import aboutBanner from "../../assets/about-section.jpg";
+
 export default function About() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -28,13 +32,14 @@ export default function About() {
         </h1>
 
         <div className="mb-12">
-          <div className="relative w-full h-[200px] md:h-[300px] mb-8 rounded-lg overflow-hidden">
+          <div className="relative w-full h-[500px]  mb-8 rounded-lg overflow-hidden">
             <Image
-              src="/about-banner.jpg"
+              src={aboutBanner}
               alt="Deno Games - Print and Play Board Games"
-              fill
-              style={{ objectFit: "cover" }}
-              className="rounded-lg"
+              // style={{ objectFit: "cover" }}
+              width={1000}
+              height={1000}
+              className="rounded-lg h-[500px]"
             />
           </div>
 
@@ -46,10 +51,10 @@ export default function About() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            <div className="bg-muted/20 p-6 rounded-lg flex flex-col items-center">
+            <div className="bg-muted p-6 rounded-lg flex flex-col items-center">
               <div className="relative w-[180px] h-[180px] rounded-full overflow-hidden mb-4">
                 <Image
-                  src="/deno.jpg"
+                  src={profileDeno}
                   alt="Deno"
                   fill
                   style={{ objectFit: "cover" }}
@@ -78,10 +83,10 @@ export default function About() {
               </Button>
             </div>
 
-            <div className="bg-muted/20 p-6 rounded-lg flex flex-col items-center">
+            <div className="bg-muted p-6 rounded-lg flex flex-col items-center">
               <div className="relative w-[180px] h-[180px] rounded-full overflow-hidden mb-4">
                 <Image
-                  src="/maca.jpg"
+                  src={profileMaca}
                   alt="Maca"
                   fill
                   style={{ objectFit: "cover" }}
