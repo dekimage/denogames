@@ -418,7 +418,20 @@ const HomePage = observer(() => {
       <div className="container mx-auto py-8 mt-16 sm:mt-0 px-4">
         {/* Newest Games Section - Now using sortedGames */}
 
-        <section className="mb-16">
+        {/* All Products Section */}
+        {products.length > 0 && (
+          <section className="mb-16">
+            <SectionHeader title="All Products" viewAllLink="/shop" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* <section className="mb-16">
           <SectionHeader
             title="Games"
             viewAllLink="/shop"
@@ -442,17 +455,10 @@ const HomePage = observer(() => {
               <ProductCard key={game.id} product={game} />
             ))}
           </div>
-        </section>
-
-        {/* Create Account CTA - Only show if user is not logged in */}
-        {/* {!user && (
-          <section className="mb-16">
-            <CreateAccountCTA />
-          </section>
-        )} */}
+        </section> */}
 
         {/* Coming Soon Section */}
-        {comingSoonGames.length > 0 && (
+        {/* {comingSoonGames.length > 0 && (
           <section className="mb-16">
             <SectionHeader title="Coming Soon" viewAllLink="/coming-soon" />
 
@@ -462,7 +468,7 @@ const HomePage = observer(() => {
               ))}
             </div>
           </section>
-        )}
+        )} */}
 
         <section className="mb-16">
           <PatreonBox />
