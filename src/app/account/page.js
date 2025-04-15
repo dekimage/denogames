@@ -15,7 +15,8 @@ import {
 import Link from "next/link";
 import { UserProfile } from "@/components/UserProfile";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
-import { PatreonStatusChecker } from "@/components/PatreonStatusChecker";
+import { MembershipCard } from "@/components/membership-card";
+import { PatreonStatusCard } from "@/components/PatreonStatusCard";
 
 const StatCard = ({
   icon: Icon,
@@ -114,8 +115,6 @@ const AccountPage = observer(() => {
             <UserProfile user={user} />
           </div>
 
-          <PatreonStatusChecker />
-
           <div className="md:col-span-2">
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
@@ -166,25 +165,7 @@ const AccountPage = observer(() => {
 
             {/* Membership Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* <MembershipCard
-                title={
-                  user.tags?.isActivePatreon
-                    ? "Thank you for being a Patron!"
-                    : "Patreon Member"
-                }
-                description={
-                  user.tags?.isActivePatreon
-                    ? "I am forever thankful for your support, you are the reason I make games everyday."
-                    : "Become a Patreon supporter for 5$/mo and get a new game every month (cheaper than via shop) + get all future Kickstarters for just 1$ as a special member."
-                }
-                image="/path/to/patreon-image.jpg"
-                xpAmount={20}
-                isRecurring={true}
-                isActive={user.tags?.isActivePatreon}
-                ctaText="Become Patreon"
-                ctaLink="https://patreon.com/yourpage"
-                ctaTarget="_blank"
-              /> */}
+              <PatreonStatusCard />
               {/* disabled-feature */}
               {/* <MembershipCard
                 title={
