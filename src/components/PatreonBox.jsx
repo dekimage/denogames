@@ -4,9 +4,82 @@ import { ExternalLink, Check, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import patreonImg from "@/assets/patreonCover.png";
 import patreonLogo from "@/assets/patreon-logo.png";
+import { useToast } from "@/components/ui/use-toast";
+import MobxStore from "@/mobx";
+import { observer } from "mobx-react";
+import { useState } from "react";
+import { getAuth, getIdToken } from "firebase/auth";
 
-export const PatreonBox = () => {
+export const PatreonBox = observer(() => {
   const patreonLink = "https://patreon.com/deno_games";
+  const { user } = MobxStore;
+  const { toast } = useToast();
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleConnectClick = async () => {
+    setIsConnecting(true);
+    console.log("[PatreonBox] Connect Clicked");
+
+    if (!user) {
+      console.log("[PatreonBox] User not logged in.");
+      toast({
+        title: "Please Log In",
+        description:
+          "You need to be logged into your account to connect Patreon.",
+        variant: "destructive",
+      });
+      setIsConnecting(false);
+      return;
+    }
+
+    try {
+      const auth = getAuth();
+      if (!auth.currentUser) {
+        console.error(
+          "[PatreonBox] Cannot connect Patreon: Firebase auth.currentUser is null."
+        );
+        toast({
+          title: "Error",
+          description: "User session not found. Please refresh.",
+          variant: "destructive",
+        });
+        setIsConnecting(false);
+        return;
+      }
+
+      console.log(
+        "[PatreonBox] Fetching fresh ID token for user:",
+        auth.currentUser.uid
+      );
+      const token = await getIdToken(auth.currentUser, true);
+
+      if (!token) {
+        console.error("[PatreonBox] Failed to retrieve ID token.");
+        throw new Error("Failed to retrieve authentication token.");
+      }
+
+      console.log(
+        "[PatreonBox] Fresh ID Token acquired (first/last 15 chars):",
+        token.substring(0, 15) + "..." + token.substring(token.length - 15)
+      );
+
+      const connectUrl = `/api/auth/patreon/connect?token=${encodeURIComponent(token)}`;
+      console.log(
+        "[PatreonBox] Navigating to:",
+        connectUrl.split("token=")[0] + "token=..."
+      );
+
+      window.location.href = connectUrl;
+    } catch (error) {
+      console.error("[PatreonBox] Error preparing Patreon connection:", error);
+      toast({
+        title: "Connection Error",
+        description: `Could not initiate Patreon connection: ${error.message || "Please try again."}`,
+        variant: "destructive",
+      });
+      setIsConnecting(false);
+    }
+  };
 
   return (
     <div className="w-full rounded-xl overflow-hidden border bg-card shadow-lg flex flex-col">
@@ -136,17 +209,25 @@ export const PatreonBox = () => {
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-muted/50 px-4 text-sm text-muted-foreground">
+              <span className="bg-muted/80 px-4 text-sm text-muted-foreground">
                 Already a Patron?
               </span>
             </div>
           </div>
-          <Button
-            variant="outline"
-            className="inline-flex items-center justify-center gap-2 mx-auto"
-          >
-            Connect via Patreon Auth
-          </Button>
+          {!user?.patreon?.id ? (
+            <Button
+              variant="outline"
+              className="inline-flex items-center justify-center gap-2 mx-auto"
+              disabled={isConnecting || !user}
+              onClick={handleConnectClick}
+            >
+              {isConnecting ? "Connecting..." : "Connect via Patreon Auth"}
+            </Button>
+          ) : (
+            <div className="text-center text-green-600 font-semibold">
+              Patreon Account Connected!
+            </div>
+          )}
         </div>
         <div className="mt-8 space-y-2 text-sm text-muted-foreground text-center md:text-left">
           <p>
@@ -162,4 +243,4 @@ export const PatreonBox = () => {
       </div>
     </div>
   );
-};
+});
