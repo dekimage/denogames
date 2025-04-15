@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { UserProfile } from "@/components/UserProfile";
 import { LoadingSpinner } from "@/reusable-ui/LoadingSpinner";
+import { PatreonStatusChecker } from "@/components/PatreonStatusChecker";
 
 const StatCard = ({
   icon: Icon,
@@ -112,6 +113,8 @@ const AccountPage = observer(() => {
           <div className="flex justify-center items-center">
             <UserProfile user={user} />
           </div>
+
+          <PatreonStatusChecker />
 
           <div className="md:col-span-2">
             {/* Stats Grid */}
