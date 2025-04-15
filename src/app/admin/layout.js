@@ -10,6 +10,7 @@ import {
   Trophy,
   Gift,
   Package,
+  User2Icon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,7 +34,8 @@ const navItems = [
   { icon: Users, label: "Customers", href: "/admin/customers" },
   { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
   { icon: GamepadIcon, label: "Games", href: "/admin/games" },
-  { icon: GamepadIcon, label: "Delivery", href: "/admin/delivery" },
+  { icon: Gift, label: "Delivery", href: "/admin/delivery" },
+  { icon: User2Icon, label: "Patreons", href: "/admin/patreons" },
 ];
 
 const cmsItems = [
