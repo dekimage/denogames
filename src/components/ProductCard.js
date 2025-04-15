@@ -193,7 +193,9 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
             )}
           </div>
 
-          <div className={`flex flex-col w-full ${isSmall ? "pt-2" : "pt-4"}`}>
+          <div
+            className={`bg-muted/50 flex flex-col w-full ${isSmall ? "pt-2" : "pt-4"}`}
+          >
             <div className="w-full p-4">
               <div
                 className={`${
@@ -234,7 +236,11 @@ export const ProductCard = observer(({ product, isSmall = false }) => {
           </div>
         </Link>
         <div
-          className={isSmall ? "p-2 pt-0 font-strike" : "p-4 pt-0 font-strike"}
+          className={
+            isSmall
+              ? "p-2 pt-0 font-strike bg-muted/50"
+              : "p-4 pt-0 font-strike bg-muted/50"
+          }
         >
           {renderCTA()}
         </div>

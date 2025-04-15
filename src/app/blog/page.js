@@ -550,7 +550,7 @@ export const BlogCard = ({ blog }) => {
             </div>
           )}
         </div>
-        <div className="p-5">
+        <div className="p-5 bg-muted/50">
           <div className="flex gap-2 mb-2 flex-wrap">
             {blog.categories &&
               blog.categories.map((category, index) => (

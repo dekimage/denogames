@@ -16,6 +16,7 @@ import { BlogCard } from "./blog/page";
 import { useTrackClick } from "@/hooks/useTrackClick";
 import { ALLOWED_CLICK_LABELS } from "@/lib/analytics/events";
 import Footer from "@/components/Footer";
+import { PatreonBox } from "@/components/PatreonBox.jsx";
 
 // Reusable Product Card component
 
@@ -50,7 +51,7 @@ const CategoryCard = ({ title, description, icon: Icon, href }) => {
 
   return (
     <Link href={href} onClick={handleClick}>
-      <div className="border rounded-lg shadow-sm bg-card p-8 text-center transition-colors h-full hover:shadow-md">
+      <div className="border rounded-lg shadow-sm bg-card p-8 text-center transition-colors h-full hover:shadow-md bg-muted/50">
         <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
           <Icon size={32} className="text-primary" />
         </div>
@@ -381,28 +382,28 @@ const HomePage = observer(() => {
   // Featured games for the slider
   const featuredGames = [
     {
-      id: "banner-mm-kickstarter", // Unique banner ID
-      title: "Monster Mixology",
-      description: "Successfully funded on Kickstarter!",
+      id: "banner-patreon", // Unique banner ID
+      title: "Patreon Monthly Subscription Game Box",
+      description: "Get 1 new game + all expansions every month!",
       imgUrl:
-        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonstermixology%2Fcover-mm.png?alt=media",
+        "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/platform%2FMONTHLY%20PATREON.png?alt=media",
       openNewTab: true,
-      button: "See Campaign",
-      link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
-      type: "kickstarter", // Banner type for analytics
+      button: "View on Patreon",
+      link: "https://www.patreon.com/deno_games",
+      type: "patreon", // Banner type for analytics
       position: 1, // Position in carousel
     },
     // {
-    //   id: "banner-mystic-quest-launch",
-    //   title: "Mystic Quest",
-    //   description:
-    //     "Embark on an epic journey through mystical lands and ancient ruins.",
+    //   id: "banner-mm-kickstarter", // Unique banner ID
+    //   title: "Monster Mixology",
+    //   description: "Successfully funded on Kickstarter!",
     //   imgUrl:
-    //     "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonster-mixology%2FGroup%2047%20(1).png?alt=media",
-    //   button: "Explore",
-    //   link: "/product-details/mystic-quest",
-    //   type: "game-launchs",
-    //   position: 2,
+    //     "https://firebasestorage.googleapis.com/v0/b/denogames-7c4dc.appspot.com/o/products%2Fmonstermixology%2Fcover-mm.png?alt=media",
+    //   openNewTab: true,
+    //   button: "See Campaign",
+    //   link: "https://www.kickstarter.com/projects/denogames/monster-mixology",
+    //   type: "kickstarter", // Banner type for analytics
+    //   position: 2, // Position in carousel
     // },
   ];
 
@@ -412,9 +413,11 @@ const HomePage = observer(() => {
       <FeaturedGamesSlider games={featuredGames} />
 
       {/* Kickstarter Backer Section - Only show if not claimed */}
+      {/* Patreon Box */}
 
       <div className="container mx-auto py-8 mt-16 sm:mt-0 px-4">
         {/* Newest Games Section - Now using sortedGames */}
+
         <section className="mb-16">
           <SectionHeader
             title="Games"
@@ -460,6 +463,10 @@ const HomePage = observer(() => {
             </div>
           </section>
         )}
+
+        <section className="mb-16">
+          <PatreonBox />
+        </section>
 
         {/* Membership CTAs - Only show if user is not a member */}
         {/* disabled-feature */}
