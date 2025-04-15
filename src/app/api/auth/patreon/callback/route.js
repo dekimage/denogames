@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { auth as adminAuth, firestore } from "@/firebaseAdmin";
+import { doc, updateDoc } from "firebase/firestore";
+// Import the helper function
+import {
+  getCurrentMembershipInfo,
+  getCampaignMembershipForUser,
+} from "@/lib/patreonHelper"; // Adjust path if needed
 
 // Helper function to exchange code for tokens
 async function getPatreonTokens(code) {
@@ -158,6 +164,22 @@ export async function GET(request) {
       patreonUserId
     );
 
+    // *** 3. Immediately check current membership status ***
+    console.log(
+      `[Callback] Fetching initial membership status for Patreon user ${patreonUserId}...`
+    );
+    // --- REMOVE THIS BLOCK ---
+    // const patreonData = userDoc.data().patreon; // Need patreon ID from stored data - INCORRECT HERE
+    // if (!patreonData?.id) throw new Error("Patreon ID not found for user.");
+    // --- END REMOVAL ---
+
+    // --- Use patreonUserId directly ---
+    const membershipDetails = await getCampaignMembershipForUser(
+      access_token,
+      patreonUserId // Use the ID obtained from Patreon identity earlier
+    );
+    console.log("[Callback] Initial membership details:", membershipDetails);
+
     // --- CHANGE FIRESTORE INTERACTION ---
     console.log(
       "[Callback] Preparing to update Firestore using Admin SDK methods."
@@ -178,7 +200,9 @@ export async function GET(request) {
       "[Callback] Successfully created Firestore doc reference using firestore.collection().doc()."
     );
 
-    const patreonData = {
+    // --- This declaration is CORRECT ---
+    const patreonDataToStore = {
+      // Renamed variable for clarity
       id: patreonUserId,
       email: patreonEmail || null,
       name: patreonName || null,
@@ -186,19 +210,28 @@ export async function GET(request) {
       refreshToken: refresh_token || null, // ENCRYPT!
       tokenExpiresAt: Date.now() + expires_in * 1000,
       scope: tokens.scope,
+      // --- Include results from membership check ---
+      status: membershipDetails.status, // 'paid', 'free', or 'none'
+      tier: membershipDetails.tier, // Tier object or null
+      patronStatusString: membershipDetails.patronStatusString, // Raw Patreon status
+      pledgeStartDate: membershipDetails.pledgeStartDate,
+      lastChecked: new Date().toISOString(), // Timestamp of this initial check
+      // --- End included results ---
     };
 
     console.log(
-      `[Callback] Attempting Firestore update for user: ${firebaseUserId}`
+      "[Callback] Data to be stored in Firestore:",
+      patreonDataToStore
     );
-    // Use the .update() method directly on the DocumentReference
-    await userDocRef.update({ patreon: patreonData });
-    console.log(
-      `[Callback] Successfully updated Firestore for user: ${firebaseUserId}`
-    );
-    // --- END CHANGE ---
 
-    // 4. Redirect back to the frontend
+    // Update the user document with the new Patreon data
+    await userDocRef.set({ patreon: patreonDataToStore }, { merge: true }); // Use set with merge:true or update
+
+    console.log(
+      `[Callback] Successfully updated Firestore for user ${firebaseUserId}`
+    );
+
+    // Redirect user back to a success page or dashboard
     console.log(
       "[Callback] Redirecting to success page:",
       `/account?patreon_connected=true`
@@ -208,23 +241,16 @@ export async function GET(request) {
     );
   } catch (error) {
     console.error("[Callback] Error during callback processing:", error);
-    // Log specific Firestore errors if possible
-    if (error.code && error.code.startsWith("firestore/")) {
-      console.error("Firestore specific error:", error.code, error.message);
-      return NextResponse.redirect(
-        new URL(
-          `/?error=patreon_link_failed&reason=firestore_${error.code}`,
-          appUrl
-        )
-      );
-    } else if (error.message.includes("Firestore Admin instance")) {
-      return NextResponse.redirect(
-        new URL("/?error=patreon_link_failed&reason=firestore_init", appUrl)
-      );
-    }
-    // Generic fallback
+    // Add specific error reason if possible
+    let reason = "unknown";
+    if (error.message.includes("token exchange")) reason = "token_exchange";
+    else if (error.message.includes("Patreon identity"))
+      reason = "identity_fetch";
+    else if (error.message.includes("membership details"))
+      reason = "membership_fetch";
+    else if (error.message.includes("Firestore")) reason = "firestore_error";
     return NextResponse.redirect(
-      new URL("/?error=patreon_link_failed&reason=unknown", appUrl)
+      new URL(`/?error=patreon_link_failed&reason=${reason}`, appUrl)
     );
   }
 }
