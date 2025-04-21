@@ -294,8 +294,8 @@ export const PatreonBox = observer(() => {
         <div className="mt-8 space-y-2 text-sm text-muted-foreground text-center md:text-left">
           <p>
             *Note: All game assets and rewards will be automatically sent at the
-            1st of every month and available in "My Games" collection of your
-            connected account.
+            1st of every month and available in &quot;My Games&quot; collection
+            of your connected account.
           </p>
           <p>
             **You may also connect your FREE Patreon account to access secret
