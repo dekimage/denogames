@@ -337,4 +337,12 @@ export const heroesCards = [
     effect:
       "Choose an opponent's monster that has been served at least 1 drink and has an ability that you can activate on your turn. Copy and use that ability. (Scratch only your circle)",
   },
+  {
+    id: 39,
+    name: "Seravex",
+    vp: 1,
+    uses: 1,
+    trigger: "self",
+    effect: "Serve a cocktail for free. (You don't spend any resources).",
+  },
 ];

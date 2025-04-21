@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { BuildingCard } from "./page"; // Import the BuildingCard component
 import { toast } from "@/components/ui/use-toast";
 
-const MONSTER_COUNT = 38; // UPDATE WHEN PUT MONSTER
+const MONSTER_COUNT = 39; // UPDATE WHEN PUT MONSTER
 // Use the same image import logic
 const heroImages = Object.fromEntries(
   Array.from({ length: MONSTER_COUNT }, (_, i) => [
