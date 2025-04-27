@@ -28,6 +28,7 @@ import {
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -47,13 +48,13 @@ export default function Layout({ children }) {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    // Check if we have a stored auth state
     const storedAuth = sessionStorage.getItem("adminAuth");
     if (storedAuth === "true") {
       setIsAuthenticated(true);
@@ -71,7 +72,7 @@ export default function Layout({ children }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
@@ -80,10 +81,14 @@ export default function Layout({ children }) {
         setIsAuthenticated(true);
         sessionStorage.setItem("adminAuth", "true");
       } else {
-        setError("Invalid password");
+        setError(data.message || "Invalid credentials or too many attempts.");
+        if (response.status === 429) {
+          console.log("Rate limit hit on client side.");
+        }
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch (err) {
+      console.log("Login fetch error:", err);
+      setError("An error occurred during login. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -96,19 +101,35 @@ export default function Layout({ children }) {
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="w-full max-w-md space-y-4 rounded-lg border p-6 shadow-lg">
+        <div className="w-full max-w-md space-y-6 rounded-lg border p-8 shadow-lg">
           <h2 className="text-2xl font-bold text-center">Admin Access</h2>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
               <Input
+                id="username"
+                type="text"
+                placeholder="Enter admin username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full"
+                disabled={isLoading}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
                 type="password"
                 placeholder="Enter admin password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full"
                 disabled={isLoading}
+                required
               />
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-red-500 pt-2">{error}</p>}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Verifying..." : "Enter Admin"}
