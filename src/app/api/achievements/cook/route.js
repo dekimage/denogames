@@ -6,7 +6,7 @@ import { ACHIEVEMENTS } from "@/lib/constants/achievements";
 
 // Secret codes mapping
 const SECRET_CODES = {
-  // Cauldron codes (achievements/collectibles)
+  // Cauldron codes (achievements/collectibles)s
   START: "welcome",
   SATISFIED: "c2",
   BOOO: "c4",
