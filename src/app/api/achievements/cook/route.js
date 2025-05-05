@@ -12,6 +12,10 @@ const SECRET_CODES = {
   BOOO: "c4",
   SHOP_EXPLORER: "c5",
   DOODLER: "c3",
+  KOBOLZ: "k3",
+  NIGHTY: "k1",
+  BAGOFCASH: "k4",
+  PICKAXE: "k5",
 
   // Portal codes (locations)
   // PORTAL1: "early-supporter",
